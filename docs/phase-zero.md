@@ -1,7 +1,7 @@
 # Phase-zero evidence
 
-Recorded on Windows, 8 September 2026. Starting commit `f674137` already removed the
-legacy code; setup did not restore it. Work uses `macro88/hypergolic`, branch `revamp`.
+Historical scaffold results recorded on Windows, 8 September 2026. These results
+precede the current pnpm migration and are not proof of validation at the current tip.
 
 ## Executed
 
@@ -19,7 +19,7 @@ legacy code; setup did not restore it. Work uses `macro88/hypergolic`, branch `r
 | Native release compilation | Passed in 6m 16s; 255 tasks executed; ARM64 unsigned APK produced |
 | Development signing | zipalign and apksigner passed; v2/v3 signatures verify against the standard Android Debug certificate |
 | APK contents | Package `org.nostrocket.hypergolic.dev`, min API 24, target API 36, ARM64, embedded JavaScript bundle and Hermes libraries confirmed |
-| CI | [Run 34183073746](https://github.com/macro88/hypergolic/actions/runs/34183073746) passed both quality and native Android jobs at `b24fa31`; unsigned APK uploaded |
+| CI | Prior scaffold CI passed; no historical run link is used as evidence for the current checkout |
 | Device/security | No device attached. No install/launch, production signing or seed acceptance behavior validated |
 
 The initial [UUID advisory](https://github.com/advisories/GHSA-w5hq-g745-h8pq)
@@ -59,5 +59,12 @@ approved or dismissed. Prompt acceptance is not needed for completed build check
    before phase 1 product code. The confirmed first-launch flow remains unchanged.
 
 Phase-zero setup is complete. The seed's first milestone remains much larger than
-this development scaffold. CI evidence applies to code commit `b24fa31`; subsequent
-checkpoint edits only update documentation and planning state.
+this development scaffold. Check current validation separately after package-manager or toolchain changes.
+
+## pnpm migration validation
+
+On 8 September 2026, pnpm 10.34.5 frozen installs passed for both dependency trees.
+TypeScript, Expo Doctor (21/21), React Doctor, aislop and both independent pnpm
+audits passed; neither audit reported vulnerabilities. Android export bundled 578
+modules and native prebuild passed. CI for this migration is pending the push;
+historical native build evidence above does not validate these lockfiles.

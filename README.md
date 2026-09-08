@@ -9,15 +9,15 @@ Applesauce, and napplet loading are not implemented.
 - [Phase-zero evidence and limitations](docs/phase-zero.md)
 - [GSD project](.planning/PROJECT.md) and [roadmap](.planning/ROADMAP.md)
 
-Application source lives in this repository on `revamp`. Confirmed requirements and
+Application source lives in this repository on `mobile-revamp`. Confirmed requirements and
 open implementation decisions are documented in [architecture](docs/architecture.md).
 
 ```powershell
 # Node 24.20.0
-npm.cmd ci
-npm.cmd run quality:install
-npm.cmd run check
-npm.cmd run export:android
+pnpm install --frozen-lockfile
+pnpm run quality:install
+pnpm run check
+pnpm run export:android
 ```
 
 See the development guide for this machine's isolated runtime, native prerequisites,

@@ -2,10 +2,11 @@
   "name": "hypergolic",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "npm@11.19.0",
+  "packageManager": "pnpm@10.34.5",
   "main": "index.ts",
-  "engines": { "node": "24.20.0" },
-  "overrides": { "xcode": { "uuid": "11.1.1" } },
+  "engines": {
+    "node": "24.20.0"
+  },
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -15,9 +16,9 @@
     "doctor:expo": "expo-doctor",
     "doctor:react": "react-doctor . --no-telemetry --no-supply-chain --yes --blocking warning",
     "doctor:slop": "node tools/quality/node_modules/aislop/dist/cli.js ci",
-    "quality:install": "npm ci --prefix tools/quality",
-    "audit": "npm audit --audit-level=high && npm audit --prefix tools/quality --audit-level=high",
-    "check": "npm run typecheck && npm run doctor:expo && npm run doctor:react && npm run doctor:slop && npm run audit",
+    "quality:install": "pnpm --dir tools/quality install --frozen-lockfile",
+    "audit": "pnpm audit --audit-level=high && pnpm --dir tools/quality audit --audit-level=high",
+    "check": "pnpm run typecheck && pnpm run doctor:expo && pnpm run doctor:react && pnpm run doctor:slop && pnpm run audit",
     "gsd:install": "gsd-core --codex --local"
   },
   "dependencies": {

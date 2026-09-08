@@ -4,7 +4,7 @@
 
 | Component | Pin | Source |
 | --- | --- | --- |
-| Node / npm | 24.20.0 / 11.19.0 | `.nvmrc`, `packageManager` |
+| Node / pnpm | 24.20.0 / 10.34.5 | `.nvmrc`, `packageManager` |
 | Expo / React Native / React | 57.0.20 / 0.86.3 / 19.2.3 | root manifest and lockfile |
 | TypeScript | 6.0.3 | root lockfile |
 | Java | Temurin 17.0.20.1+1 | CI API version notation: `17.0.20+101` |
@@ -13,9 +13,9 @@
 | Gradle / Android Gradle plugin | 9.3.1 / 8.12.0 | generated wrapper / React Native version catalog |
 | GSD Core | `@opengsd/gsd-core` 1.13.0 | root lockfile |
 | React Doctor / Expo Doctor | 0.9.13 / 1.20.4 | root lockfile |
-| aislop | 0.16.0 | `tools/quality/package-lock.json` |
+| aislop | 0.16.0 | `tools/quality/pnpm-lock.yaml` |
 
-Node, Expo, React, React Native, TypeScript, GSD, React Doctor and aislop declare MIT
+Node, pnpm, Expo, React, React Native, TypeScript, GSD, React Doctor and aislop declare MIT
 licenses. Temurin uses GPLv2 with the Classpath Exception. Android SDK packages carry
 Google's SDK terms; Gradle is Apache-2.0. Runtime/protocol packages for Kehto and
 Applesauce have not yet been selected or license-audited. Lockfiles record transitive
@@ -23,23 +23,22 @@ package versions; this table is not a complete distribution license inventory.
 
 ## Install and check
 
-Use Node 24.20.0, then run from the repository root:
+Use Node 24.20.0 and pnpm 10.34.5, then run from the repository root:
 
 ```powershell
-npm.cmd ci
-npm.cmd run quality:install
-npm.cmd run check
-npm.cmd run export:android
+pnpm install --frozen-lockfile
+pnpm run quality:install
+pnpm run check
+pnpm run export:android
 ```
 
-On this Windows machine, the system Node is 22.13.1 and its npm launcher refers to a
-missing roaming installation. A checksum-verified Node 24.20.0 and JDK are installed
-under ignored `.tools/`. Enable them in the current PowerShell session:
+Use the pinned pnpm version from `packageManager` with Node 24.20.0. If the optional
+local tool bundle is present under ignored `.tools/`, enable it for this session:
 
 ```powershell
 . ./scripts/use-local-tools.ps1
 node --version
-npm.cmd --version
+pnpm --version
 java -version
 ```
 
@@ -63,15 +62,15 @@ package names; the sdkmanager compatibility wrapper split old semicolon names.
 ```powershell
 . ./scripts/use-local-tools.ps1
 & ./.tools/android-sdk/cmdline-tools/23.0/cmdline-tools/bin/android.exe --sdk "$env:ANDROID_HOME" sdk install platforms/android-36 build-tools/36.0.0 ndk/27.1.12297006 cmake/3.22.1
-npm.cmd run prebuild:android
+pnpm run prebuild:android
 ./android/gradlew.bat -p android assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a
 ```
 
-On Linux/macOS use `npm` and `cd android && ./gradlew assembleRelease --no-daemon
+On Linux/macOS use `pnpm` and `cd android && ./gradlew assembleRelease --no-daemon
 -PreactNativeArchitectures=arm64-v8a`. The scaffold targets ARM64 in this command;
 choose `x86_64` for a matching emulator. Prebuild may regenerate `android/`; commit
 configuration/plugins instead of editing that tree. Gradle downloads native artifacts
-from Maven/Google and its distribution server; npm and those registries remain build
+from Maven/Google and its distribution server; the package registry and those registries remain build
 dependencies. No EAS command or Expo account is required by this route.
 
 The expected output is `android/app/build/outputs/apk/release/app-release-unsigned.apk`.
@@ -102,19 +101,28 @@ unsigned build. Its hash and verification are in `phase-zero.md`. This is not a
 production release. Device checks are paused pending local security-prompt approval;
 build and signature checks do not need that prompt accepted.
 
+## Dependency policy
+
+The root and tools/quality directories each have an independent pnpm workspace and
+lockfile to preserve the scanner's separate dependency tree. Both pin pnpm 10.34.5,
+require a seven-day release age for new resolutions, reject provenance downgrades,
+and allow only esbuild dependency build scripts. Use frozen installs for both;
+the root workspace also carries the scoped Xcode UUID override.
+
 ## Quality gates
 
-`npm run check` runs TypeScript, all Expo Doctor checks, React Doctor with warnings
-blocking, aislop with score >=90, and separate npm audit gates blocking high/critical
+`pnpm run check` runs TypeScript, all Expo Doctor checks, React Doctor with warnings
+blocking, aislop with score >=90, and separate pnpm audit gates blocking high/critical
 advisories for both lockfiles. No blanket rule suppressions are configured. Generated
 GSD/native/tool files are excluded from app scanning. Justify any future exception
 with a finding, affected paths, rationale and removal condition in a reviewed change.
 
 React Doctor's score/telemetry and Socket.dev scan are disabled; local diagnostics
-remain enabled. npm audit is explicit. aislop is isolated because its React 19.2.8
-dependency conflicts with Expo's React 19.2.3 pin. Its Windows audit subprocess fails
-with `spawn npm ENOENT`; the separate audit gate compensates without pretending that
-internal engine succeeded. The 90 score threshold is a code-quality gate, not a
+remain enabled. pnpm audit is explicit. aislop is isolated because its React 19.2.8
+dependency conflicts with Expo's React 19.2.3 pin. The scanner can fail to launch its
+package-manager audit subprocess on Windows;
+the separate pnpm audit gate remains mandatory. Report any skipped engine explicitly.
+The 90 score threshold is a code-quality gate, not a
 security acceptance threshold. A scoped `xcode -> uuid@11.1.1` override removes
 GHSA-w5hq-g745-h8pq without downgrading Expo. Xcode's only UUID API use is `v4()`;
 its CommonJS UUID generation was executed successfully with the override. Remove
@@ -126,7 +134,7 @@ native release build. Uploaded unsigned output is a build artifact, not a releas
 ## GSD
 
 ```powershell
-npm.cmd run gsd:install
+pnpm run gsd:install
 node .codex/gsd-core/bin/gsd-tools.cjs runtime-identity
 node .codex/gsd-core/bin/gsd-tools.cjs query validate.health
 ```

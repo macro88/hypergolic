@@ -1,7 +1,7 @@
 name: Check
 on:
   push:
-    branches: [revamp]
+    branches: [mobile-revamp]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -11,33 +11,35 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version-file: .nvmrc
-          cache: npm
+          cache: pnpm
           cache-dependency-path: |
-            package-lock.json
-            tools/quality/package-lock.json
-      - run: npm ci
-      - run: npm run quality:install
-      - run: npm run check
-      - run: npm run export:android
+            pnpm-lock.yaml
+            tools/quality/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run quality:install
+      - run: pnpm run check
+      - run: pnpm run export:android
         env:
           EXPO_NO_TELEMETRY: '1'
   android:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version-file: .nvmrc
-          cache: npm
+          cache: pnpm
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
           java-version: '17.0.20+101'
-      - run: npm ci
-      - run: npm run prebuild:android
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run prebuild:android
         env:
           EXPO_NO_TELEMETRY: '1'
       - name: Build unsigned release scaffold

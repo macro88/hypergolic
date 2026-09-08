@@ -2,5 +2,8 @@
   "name": "hypergolic-quality-tools",
   "version": "0.0.0",
   "private": true,
-  "devDependencies": { "aislop": "0.16.0" }
+  "devDependencies": {
+    "aislop": "0.16.0"
+  },
+  "packageManager": "pnpm@10.34.5"
 }
