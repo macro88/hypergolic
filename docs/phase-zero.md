@@ -66,5 +66,7 @@ this development scaffold. Check current validation separately after package-man
 On 8 September 2026, pnpm 10.34.5 frozen installs passed for both dependency trees.
 TypeScript, Expo Doctor (21/21), React Doctor, aislop and both independent pnpm
 audits passed; neither audit reported vulnerabilities. Android export bundled 578
-modules and native prebuild passed. CI for this migration is pending the push;
-historical native build evidence above does not validate these lockfiles.
+modules and native prebuild passed. Both [CI jobs](https://github.com/macro88/hypergolic/actions/runs/34186419994)
+passed at implementation commit `8a052e5`, including the unsigned ARM64 native
+release build and artifact upload. This validates compilation, not device behavior
+or production signing. The subsequent evidence update changes documentation only.

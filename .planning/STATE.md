@@ -23,7 +23,7 @@ See: .planning/PROJECT.md (updated 2026-09-08)
 Phase: 2 of 3 (Independent Android proof / seed phase 1)
 Plan: 0 of TBD in current phase
 Status: Ready to discuss
-Last activity: 2026-09-08 — engineering guidance and pnpm migration; local checks, Android export and prebuild passed; migration CI pending.
+Last activity: 2026-09-08 — engineering guidance and pnpm migration; local checks, Android export and prebuild passed; both migration CI jobs passed at 8a052e5, including the unsigned native build.
 
 ## Accumulated Context
 
