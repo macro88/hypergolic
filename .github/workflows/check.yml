@@ -1,0 +1,50 @@
+name: Check
+on:
+  push:
+    branches: [revamp]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            tools/quality/package-lock.json
+      - run: npm ci
+      - run: npm run quality:install
+      - run: npm run check
+      - run: npm run export:android
+        env:
+          EXPO_NO_TELEMETRY: '1'
+  android:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '17.0.20+101'
+      - run: npm ci
+      - run: npm run prebuild:android
+        env:
+          EXPO_NO_TELEMETRY: '1'
+      - name: Build unsigned release scaffold
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hypergolic-unsigned-scaffold
+          path: android/app/build/outputs/apk/release/*-unsigned.apk
+          if-no-files-found: error

@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "Hypergolic",
+    "slug": "hypergolic",
+    "version": "0.0.0",
+    "platforms": ["android"],
+    "orientation": "portrait",
+    "android": { "package": "org.nostrocket.hypergolic.dev" },
+    "updates": { "enabled": false },
+    "plugins": ["./plugins/withUnsignedRelease.cjs"]
+  }
+}

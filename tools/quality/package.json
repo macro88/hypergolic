@@ -1,0 +1,6 @@
+{
+  "name": "hypergolic-quality-tools",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": { "aislop": "0.16.0" }
+}

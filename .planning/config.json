@@ -1,0 +1,9 @@
+{
+  "mode": "interactive",
+  "runtime": "codex",
+  "resolve_model_ids": "omit",
+  "workflow": { "auto_advance": false, "nyquist_validation": true, "ai_integration_phase": false },
+  "planning": { "commit_docs": true },
+  "parallelization": { "enabled": false },
+  "git": { "create_tag": false }
+}
