@@ -40,7 +40,8 @@ External signers are phase 2.
 
 V1 has a minimal square-logo / focused-napplet-name / avatar-and-short-npub header.
 The [supplied Hypergolic logo](../assets/brand/README.md) is preserved in the brand
-assets. Its header size starts with a 32-pixel recommendation for device testing.
+assets. The confirmed starting header size is 32 logical pixels, to be validated
+on the native device.
 The logo has no tap action. The avatar opens trusted settings, including the full
 copyable npub, saved identities and Open napplet. A pasted published napplet link
 opens after verification; later launches reopen the last successful napplet subject
@@ -55,7 +56,9 @@ them. Switching stops at the first and last napplet with a small resistance
 animation instead of wrapping. Handle taps still open the overview at either end.
 Normal switching preserves input and scroll. Closing terminates
 the session and pending approvals while preserving saved data; unsaved or unknown
-state requires a Keep open / Close anyway warning. The dirty-state contract and
+state requires a Keep open / Close anyway warning. After a card is closed, keep
+the overview open while other napplets remain; do not automatically focus another
+napplet. The final-napplet empty state is still an open decision. The dirty-state contract and
 exact native gestures still need selection and phone validation.
 
 Every v1 event update requires explicit confirmation. Approval requests from an

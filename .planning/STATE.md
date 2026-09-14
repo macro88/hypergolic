@@ -23,7 +23,7 @@ See: .planning/PROJECT.md (updated 2026-09-14)
 Phase: 2 of 3 (Independent Android proof / seed phase 1)
 Plan: 0 of TBD in current phase
 Status: Ready to discuss
-Last activity: 2026-09-14 — completed quick task 260914-szf: supplied logo captured and opening-order/end-stop decisions recorded. Native product/security acceptance remains open.
+Last activity: 2026-09-14 — quick task 260914-szf follow-up: confirmed the 32-logical-pixel header logo and keeping overview open after a card closes while others remain. Native product/security acceptance remains open.
 
 ## Accumulated Context
 

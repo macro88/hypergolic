@@ -11,12 +11,15 @@ code_commit: 97f31e0cc33880f05d0f4e709443291a4bfccc54
 Preserved the supplied original at `assets/brand/hypergolic-logo.png` and recorded
 its intended noninteractive shell-header role. The PNG is 1254 × 1254 with a
 transparent background. A static comparison at 24/32/40 CSS pixels on dark and white
-surfaces was visually inspected. 32 logical pixels is the implementation starting
-recommendation, still subject to native validation; no alternative artwork was made.
+surfaces was visually inspected. The 32-logical-pixel starting size was subsequently
+confirmed on 14 September, still subject to native validation; no alternative
+artwork was made.
 
 Confirmed navigation: preserve opening order, append newly opened napplets, and
 stop at either end with a small resistance animation. Handle taps still show the
-accepted two-column overview. Exact motion and native behavior remain unimplemented.
+accepted two-column overview. After closing a card, keep the overview open while
+other napplets remain, as subsequently confirmed on 14 September. The final-card
+empty state is still open. Exact motion and native behavior remain unimplemented.
 
 Verification: source and project copies match SHA-256
 `16fcc05023863f81bbc74395fb039b59f9634fef0930f370541a979979b92448`;

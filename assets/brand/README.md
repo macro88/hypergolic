@@ -11,9 +11,8 @@ logo has no tap action in v1. Keep its square canvas and aspect ratio, and use t
 original colours without cropping or adding a surrounding shape.
 
 A static browser comparison at 24, 32 and 40 CSS pixels on warm-dark and white
-surfaces was inspected. **32 logical pixels is the recommended starting size**,
-subject to native header/device validation; that size is not a separately confirmed
-product decision. The four-point silhouette remains recognisable, while fine glow
+surfaces was inspected. **32 logical pixels is the confirmed starting size**,
+accepted on 14 September 2026 and subject to native header/device validation. The four-point silhouette remains recognisable, while fine glow
 and texture recede at small sizes.
 
 This asset is not yet wired into the native shell, launcher icon or splash screen.
