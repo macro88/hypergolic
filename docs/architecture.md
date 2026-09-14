@@ -46,7 +46,8 @@ to verification. The catalogue is a future napplet.
 
 V1 includes multiple loaded napplets: thumb-height inset side handles for previous/
 next, handle taps for a zoom overview, card taps for zoom return and upward card
-swipes for close. Normal switching preserves input and scroll. Closing terminates
+swipes for close. The accepted phone overview starts with a two-column grid; card
+sizing and motion remain subject to device testing. Normal switching preserves input and scroll. Closing terminates
 the session and pending approvals while preserving saved data; unsaved or unknown
 state requires a Keep open / Close anyway warning. The dirty-state contract and
 exact native gestures still need selection and phone validation.
