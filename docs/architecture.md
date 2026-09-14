@@ -68,9 +68,12 @@ validation.
 Every v1 event update requires explicit confirmation in a trusted shell-owned
 sheet. Show the requested action and content, requesting napplet and publisher,
 and selected identity. Exact event details are expandable; the actions are
-Approve once and Reject. This makes the request understandable while retaining
-access to the precise event for inspection. Layout refinement, exact payload
-binding and request lifecycle handling still need implementation and validation.
+Approve once and Reject. Review multiple signing requests one at a time, with no
+Approve all control in v1, including when one action produces several events.
+Each approval stays specific and independently testable, at the cost of more taps.
+This makes the request understandable while retaining access to the precise event
+for inspection. Layout refinement, exact payload binding and request lifecycle
+handling still need implementation and validation.
 Approval requests from an unfocused napplet wait for focus and show an overview
 indicator. Future policy by event kind, publisher and napplet may permit silent
 background signing; that engine is deferred. Identity switching confirms once,
