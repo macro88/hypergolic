@@ -39,6 +39,8 @@ External signers are phase 2.
 ## Confirmed product direction
 
 V1 has a minimal square-logo / focused-napplet-name / avatar-and-short-npub header.
+The [supplied Hypergolic logo](../assets/brand/README.md) is preserved in the brand
+assets. Its header size starts with a 32-pixel recommendation for device testing.
 The logo has no tap action. The avatar opens trusted settings, including the full
 copyable npub, saved identities and Open napplet. A pasted published napplet link
 opens after verification; later launches reopen the last successful napplet subject
@@ -47,7 +49,11 @@ to verification. The catalogue is a future napplet.
 V1 includes multiple loaded napplets: thumb-height inset side handles for previous/
 next, handle taps for a zoom overview, card taps for zoom return and upward card
 swipes for close. The accepted phone overview starts with a two-column grid; card
-sizing and motion remain subject to device testing. Normal switching preserves input and scroll. Closing terminates
+sizing and motion remain subject to device testing. Loaded napplets keep their
+opening order, with new napplets appended at the end; focusing does not reorder
+them. Switching stops at the first and last napplet with a small resistance
+animation instead of wrapping. Handle taps still open the overview at either end.
+Normal switching preserves input and scroll. Closing terminates
 the session and pending approvals while preserving saved data; unsaved or unknown
 state requires a Keep open / Close anyway warning. The dirty-state contract and
 exact native gestures still need selection and phone validation.
