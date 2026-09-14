@@ -18,8 +18,10 @@ artwork was made.
 Confirmed navigation: preserve opening order, append newly opened napplets, and
 stop at either end with a small resistance animation. Handle taps still show the
 accepted two-column overview. After closing a card, keep the overview open while
-other napplets remain, as subsequently confirmed on 14 September. The final-card
-empty state is still open. Exact motion and native behavior remain unimplemented.
+other napplets remain, as subsequently confirmed on 14 September. Closing the final
+napplet leaves a quiet empty overview with an Open napplet action using the existing
+settings flow, also confirmed on 14 September. Exact motion and native behavior
+remain unimplemented.
 
 Verification: source and project copies match SHA-256
 `16fcc05023863f81bbc74395fb039b59f9634fef0930f370541a979979b92448`;

@@ -58,8 +58,10 @@ Normal switching preserves input and scroll. Closing terminates
 the session and pending approvals while preserving saved data; unsaved or unknown
 state requires a Keep open / Close anyway warning. After a card is closed, keep
 the overview open while other napplets remain; do not automatically focus another
-napplet. The final-napplet empty state is still an open decision. The dirty-state contract and
-exact native gestures still need selection and phone validation.
+napplet. Closing the final napplet leaves a quiet empty overview with an Open
+napplet action using the existing settings flow. Identity/settings stay accessible.
+The dirty-state contract and exact native gestures still need selection and phone
+validation.
 
 Every v1 event update requires explicit confirmation. Approval requests from an
 unfocused napplet wait for focus and show an overview indicator. Future policy by
