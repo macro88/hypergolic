@@ -32,8 +32,10 @@ the bridge surface need review together before runtime code is introduced.
 First launch must create and securely persist an identity; later launches must reuse
 it. Storage failures must never cause silent replacement. Explicit `nsec` import
 belongs in trusted settings after entry. Retain previous identities encrypted,
-provide a saved-identity selector and optional manual backup protected by device
-authentication. A profile editor is only a UI example, not a required napplet.
+provide a saved-identity selector and optional manual backup. Export and deletion
+require device authentication; keep them unavailable when authentication cannot
+be completed. Require another saved identity before deleting the last one.
+A profile editor is only a UI example, not a required napplet.
 External signers are phase 2.
 
 ## Confirmed product direction
@@ -47,7 +49,16 @@ copyable npub, saved identities and Open napplet. A pasted published napplet lin
 opens after verification. After an ordinary exit with an open napplet, later launches
 reopen the last active napplet subject to verification. Deliberately closing all
 napplets persists the empty state across restarts and overrides automatic reopening.
-The catalogue is a future napplet.
+Restore the overview list and opening order, and reload other napplets from saved
+data when selected. Normal live switching preserves unsaved state; unsaved drafts
+are not guaranteed to survive process termination in v1. The catalogue is a future
+napplet.
+
+V1 accepts compatible napplets from any publisher when their artifacts verify.
+On first open, show the publisher and requested access for explicit confirmation.
+Verification does not establish publisher trust or bypass signing approval. Keep
+the selected version pinned until the user accepts a verified update, respecting
+unsaved-work and session safeguards.
 
 V1 includes multiple loaded napplets: thumb-height inset side handles for previous/
 next, handle taps for a zoom overview, card taps for zoom return and upward card
@@ -73,7 +84,9 @@ Approve all control in v1, including when one action produces several events.
 Each approval stays specific and independently testable, at the cost of more taps.
 Dismissing the signing sheet rejects the current request and returns to the
 napplet. Other requests remain pending, with review paused until the user resumes
-it. Dismissal gives the user a reliable exit from the approval flow.
+it. Dismissal gives the user a reliable exit from the approval flow. Pending signing
+requests are cancelled after process termination and relaunch; napplets must submit
+fresh requests.
 This makes the request understandable while retaining access to the precise event
 for inspection. Layout refinement, exact payload binding and request lifecycle
 handling still need implementation and validation.
@@ -84,21 +97,25 @@ cancels pending requests and restarts all loaded sessions under the single selec
 identity. Cancelling preserves them.
 Saved data is scoped to user + verified publisher + stable napplet identity.
 
+Use the [RocketShell relay defaults](relays.md) as editable local startup lists,
+keeping network reads/writes separate from lookup/manifest discovery. Automatic
+NIP-65 relay-list discovery and routing are deferred beyond v1.
+
 Purpose-built test napplets are approved, with embedding first and publication
 under the designated key later. The standalone UX Lab and its browser tests are
 implemented separately from the app. See [test napplets](test-napplets.md) for the
 approved suite, source registry, commands, evidence and remaining native work.
 
-## Seed review: implementation blockers
+## Remaining engineering gates
 
-| Decision needed | Required engineering output |
+| Area | Required engineering output |
 | --- | --- |
-| Published napplet loading | Select link contract, delivery/publisher trust, artifact/version and rollback policy; identify fixture publisher, signer and relay/Blossom destinations |
+| Published napplet loading | Pin the link/delivery contract; implement accepted first-open trust and explicit verified updates; define version retention/failure handling and fixture publisher/signer/release destinations |
 | Kehto/NAP/native adaptation | Pin compatible Kehto, NAP, NIP-5A and proposed NIP-5D revisions; define schemas, caller binding, error/resource limits and smallest host capability surface |
 | Identity protection | Choose Android storage/encryption and secure manual export handling; implement confirmed failed-read, preservation and whole-shell switch behavior |
-| Signing approval | Define exact payload authorization, binding through asynchronous work, revocation, timeout and restart behavior |
+| Signing approval | Bind exact payload authorization through asynchronous work; implement accepted cancellation/restart rules; define queue bounds, expiry, revocation and partial failures |
 | WebView isolation | Define CSP/network/navigation rules, native bridge reachability, origin/message binding, per-napplet storage isolation and device attack tests |
-| Remaining UX and relay details | Tune native gestures, zoom, keyboard/accessibility and memory behavior; define dirty-state reports and refine the confirmed approval sheet; settle NIP-65 deferral and NIP-42 from selected relays |
+| Remaining UX and relay details | Tune native gestures, zoom, keyboard/accessibility and memory behavior; define dirty-state reports and refine the confirmed approval sheet; wire editable relay defaults and test authentication requirements |
 
 Resolve these before their dependent implementation. Library selection and static
 scanner scores cannot settle them. The seed already specifies useful negative

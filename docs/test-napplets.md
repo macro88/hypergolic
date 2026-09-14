@@ -20,7 +20,10 @@ locations. These relay and release arrangements are agreed but not implemented.
 
 Embedding the fixture first is approved, followed by publication of the same bytes
 under the designated publisher. The publisher npub, trusted signer and destinations
-remain unidentified. No fixture is embedded in Hypergolic, signed or published yet.
+remain unidentified. The shell's public startup relay lists are now selected from
+RocketShell; see [relay configuration](relays.md). Fixture publication destinations
+remain a separate release configuration. No fixture is embedded in Hypergolic,
+signed or published yet.
 UX Lab has no network/signing/storage requirement, so its standalone tests do not
 need the relay or a test identity.
 
@@ -71,5 +74,5 @@ Next, select and review the minimal Kehto/WebView host boundary and native test
 driver, then load multiple copies of the built UX artifact in Hypergolic. Prove
 inset-handle reachability and scroll arbitration, zoom overview/return, unknown-state
 close warning, and state preservation with actual phone input. Storage, signing,
-remote trust, dirty-state reporting and process-death behavior remain separately
-specified gates; browser results cannot close them.
+remote trust, dirty-state reporting and process-death handling still require
+implementation against the confirmed architecture; browser results cannot close them.
