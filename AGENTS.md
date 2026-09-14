@@ -29,9 +29,10 @@ ESM-only output on native/config-plugin files.
 
 Do not implement key storage, signing approval, remote napplet trust policy or
 identity-switch safeguards until their open decisions are resolved. First-launch
-identity creation/reuse, post-entry trusted settings for import, and napplet-owned
-profile editing remain confirmed. A browser runtime does not prove Android WebView
-isolation. Build, signing, device behavior and security each need their own evidence.
+identity creation/reuse and post-entry trusted settings for import remain confirmed.
+The profile napplet is a UI example, not a required product feature. A browser
+runtime does not prove Android WebView isolation. Build, signing, device behavior
+and security each need their own evidence.
 
 ## Workflow and checks
 

@@ -31,19 +31,48 @@ the bridge surface need review together before runtime code is introduced.
 
 First launch must create and securely persist an identity; later launches must reuse
 it. Storage failures must never cause silent replacement. Explicit `nsec` import
-belongs in trusted settings after entry. Profile name/photo editing belongs in a
-napplet. External signers are phase 2. These are confirmed requirements.
+belongs in trusted settings after entry. Retain previous identities encrypted,
+provide a saved-identity selector and optional manual backup protected by device
+authentication. A profile editor is only a UI example, not a required napplet.
+External signers are phase 2.
+
+## Confirmed product direction
+
+V1 has a minimal square-logo / focused-napplet-name / avatar-and-short-npub header.
+The logo has no tap action. The avatar opens trusted settings, including the full
+copyable npub, saved identities and Open napplet. A pasted published napplet link
+opens after verification; later launches reopen the last successful napplet subject
+to verification. The catalogue is a future napplet.
+
+V1 includes multiple loaded napplets: thumb-height inset side handles for previous/
+next, handle taps for a zoom overview, card taps for zoom return and upward card
+swipes for close. Normal switching preserves input and scroll. Closing terminates
+the session and pending approvals while preserving saved data; unsaved or unknown
+state requires a Keep open / Close anyway warning. The dirty-state contract and
+exact native gestures still need selection and phone validation.
+
+Every v1 event update requires explicit confirmation. Approval requests from an
+unfocused napplet wait for focus and show an overview indicator. Future policy by
+event kind, publisher and napplet may permit silent background signing; that engine
+is deferred. Identity switching confirms once, cancels pending requests and restarts
+all loaded sessions under the single selected identity. Cancelling preserves them.
+Saved data is scoped to user + verified publisher + stable napplet identity.
+
+Purpose-built test napplets are approved, with embedding first and publication
+under the designated key later. The standalone UX Lab and its browser tests are
+implemented separately from the app. See [test napplets](test-napplets.md) for the
+approved suite, source registry, commands, evidence and remaining native work.
 
 ## Seed review: implementation blockers
 
 | Decision needed | Required engineering output |
 | --- | --- |
-| Remote profile napplet arrangement remains proposed | Confirm delivery, publisher key, artifact/version and rollback policy; select relay and Blossom endpoints |
+| Published napplet loading | Select link contract, delivery/publisher trust, artifact/version and rollback policy; identify fixture publisher, signer and relay/Blossom destinations |
 | Kehto/NAP/native adaptation | Pin compatible Kehto, NAP, NIP-5A and proposed NIP-5D revisions; define schemas, caller binding, error/resource limits and smallest host capability surface |
-| Identity protection | Choose Android storage/encryption and backup behavior; define failed-read behavior and import cancellation/replacement preservation |
+| Identity protection | Choose Android storage/encryption and secure manual export handling; implement confirmed failed-read, preservation and whole-shell switch behavior |
 | Signing approval | Define exact payload authorization, binding through asynchronous work, revocation, timeout and restart behavior |
 | WebView isolation | Define CSP/network/navigation rules, native bridge reachability, origin/message binding, per-napplet storage isolation and device attack tests |
-| Product details | Left icon/action, minimum settings/navigation, permission UI, and NIP-65 deferral; determine NIP-42 from selected relays |
+| Remaining UX and relay details | Tune native gestures, zoom, keyboard/accessibility and memory behavior; define dirty-state reports and approval UI; settle NIP-65 deferral and NIP-42 from selected relays |
 
 Resolve these before their dependent implementation. Library selection and static
 scanner scores cannot settle them. The seed already specifies useful negative
