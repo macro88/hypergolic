@@ -1,0 +1,30 @@
+---
+quick_id: 260914-szf
+status: complete
+mode: quick
+execution: inline
+code_commit: 97f31e0cc33880f05d0f4e709443291a4bfccc54
+---
+
+# Project logo and navigation decisions captured
+
+Preserved the supplied original at `assets/brand/hypergolic-logo.png` and recorded
+its intended noninteractive shell-header role. The PNG is 1254 × 1254 with a
+transparent background. A static comparison at 24/32/40 CSS pixels on dark and white
+surfaces was visually inspected. 32 logical pixels is the implementation starting
+recommendation, still subject to native validation; no alternative artwork was made.
+
+Confirmed navigation: preserve opening order, append newly opened napplets, and
+stop at either end with a small resistance animation. Handle taps still show the
+accepted two-column overview. Exact motion and native behavior remain unimplemented.
+
+Verification: source and project copies match SHA-256
+`16fcc05023863f81bbc74395fb039b59f9634fef0930f370541a979979b92448`;
+all six size samples decoded and retained square aspect ratio. PNG metadata was
+inspected: orientation, dimensions, sRGB and XMP toolkit metadata only; no personal
+identifiers were found. Diff/link/privacy checks passed. Original artwork and prior
+local iOS/ignore edits were preserved. Source commits remain local.
+
+No app UI, native configuration, dependencies or fixture behavior changed. No build
+or automated regression suite was rerun for this asset/documentation task. The
+logo is not yet installed as a launcher icon, splash screen or actual shell header.
