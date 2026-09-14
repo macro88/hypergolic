@@ -23,7 +23,7 @@ See: .planning/PROJECT.md (updated 2026-09-14)
 Phase: 2 of 3 (Independent Android proof / seed phase 1)
 Plan: 0 of TBD in current phase
 Status: Ready to discuss
-Last activity: 2026-09-14 — quick task 260914-szf follow-up: confirmed a quiet empty overview with Open napplet through settings after the final napplet closes. Native product/security acceptance remains open.
+Last activity: 2026-09-14 — quick task 260914-szf follow-up: explicit closure of all napplets preserves the empty state across restarts; ordinary restarts reopen the last active napplet subject to verification. Native product/security acceptance remains open.
 
 ## Accumulated Context
 

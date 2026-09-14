@@ -44,8 +44,10 @@ assets. The confirmed starting header size is 32 logical pixels, to be validated
 on the native device.
 The logo has no tap action. The avatar opens trusted settings, including the full
 copyable npub, saved identities and Open napplet. A pasted published napplet link
-opens after verification; later launches reopen the last successful napplet subject
-to verification. The catalogue is a future napplet.
+opens after verification. After an ordinary exit with an open napplet, later launches
+reopen the last active napplet subject to verification. Deliberately closing all
+napplets persists the empty state across restarts and overrides automatic reopening.
+The catalogue is a future napplet.
 
 V1 includes multiple loaded napplets: thumb-height inset side handles for previous/
 next, handle taps for a zoom overview, card taps for zoom return and upward card
