@@ -71,6 +71,9 @@ and selected identity. Exact event details are expandable; the actions are
 Approve once and Reject. Review multiple signing requests one at a time, with no
 Approve all control in v1, including when one action produces several events.
 Each approval stays specific and independently testable, at the cost of more taps.
+Dismissing the signing sheet rejects the current request and returns to the
+napplet. Other requests remain pending, with review paused until the user resumes
+it. Dismissal gives the user a reliable exit from the approval flow.
 This makes the request understandable while retaining access to the precise event
 for inspection. Layout refinement, exact payload binding and request lifecycle
 handling still need implementation and validation.

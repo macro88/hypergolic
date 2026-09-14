@@ -33,7 +33,11 @@ all control in v1, including when one action produces several events; this was
 subsequently confirmed on 14 September. Rationale: keep approval specific and
 independently testable, accepting more taps for multi-event actions, while making
 each request understandable and preserving access to the precise event. Payload
-binding, request lifecycle and native UI implementation remain open; the confirmation does not introduce a protocol contract.
+binding, request lifecycle and native UI implementation remain open; the
+confirmation does not introduce a protocol contract. The subsequent dismissal
+decision rejects the current request and returns to the napplet, leaving other
+requests pending with review paused until the user resumes. Rationale: give
+dismissal a clear meaning and a reliable exit from the approval flow.
 
 Verification: source and project copies match SHA-256
 `16fcc05023863f81bbc74395fb039b59f9634fef0930f370541a979979b92448`;
