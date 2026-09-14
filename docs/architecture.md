@@ -65,11 +65,17 @@ napplet action using the existing settings flow. Identity/settings stay accessib
 The dirty-state contract and exact native gestures still need selection and phone
 validation.
 
-Every v1 event update requires explicit confirmation. Approval requests from an
-unfocused napplet wait for focus and show an overview indicator. Future policy by
-event kind, publisher and napplet may permit silent background signing; that engine
-is deferred. Identity switching confirms once, cancels pending requests and restarts
-all loaded sessions under the single selected identity. Cancelling preserves them.
+Every v1 event update requires explicit confirmation in a trusted shell-owned
+sheet. Show the requested action and content, requesting napplet and publisher,
+and selected identity. Exact event details are expandable; the actions are
+Approve once and Reject. This makes the request understandable while retaining
+access to the precise event for inspection. Layout refinement, exact payload
+binding and request lifecycle handling still need implementation and validation.
+Approval requests from an unfocused napplet wait for focus and show an overview
+indicator. Future policy by event kind, publisher and napplet may permit silent
+background signing; that engine is deferred. Identity switching confirms once,
+cancels pending requests and restarts all loaded sessions under the single selected
+identity. Cancelling preserves them.
 Saved data is scoped to user + verified publisher + stable napplet identity.
 
 Purpose-built test napplets are approved, with embedding first and publication
@@ -86,7 +92,7 @@ approved suite, source registry, commands, evidence and remaining native work.
 | Identity protection | Choose Android storage/encryption and secure manual export handling; implement confirmed failed-read, preservation and whole-shell switch behavior |
 | Signing approval | Define exact payload authorization, binding through asynchronous work, revocation, timeout and restart behavior |
 | WebView isolation | Define CSP/network/navigation rules, native bridge reachability, origin/message binding, per-napplet storage isolation and device attack tests |
-| Remaining UX and relay details | Tune native gestures, zoom, keyboard/accessibility and memory behavior; define dirty-state reports and approval UI; settle NIP-65 deferral and NIP-42 from selected relays |
+| Remaining UX and relay details | Tune native gestures, zoom, keyboard/accessibility and memory behavior; define dirty-state reports and refine the confirmed approval sheet; settle NIP-65 deferral and NIP-42 from selected relays |
 
 Resolve these before their dependent implementation. Library selection and static
 scanner scores cannot settle them. The seed already specifies useful negative
