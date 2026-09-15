@@ -20,7 +20,8 @@ final class TestFilePolicy: FilePolicy, Sendable {
   }
   func verify(_ url: URL, directory: Bool) throws {
     if url.lastPathComponent.hasSuffix(".sealed"), state.withLock({ $0.failFinal }) { throw StoreFailure.unavailable }
-    let fresh = URL(fileURLWithPath: url.path, isDirectory: directory)
+    var fresh = URL(fileURLWithPath: url.path, isDirectory: directory)
+    fresh.removeAllCachedResourceValues()
     let values = try fresh.resourceValues(forKeys: [.isExcludedFromBackupKey, .isSymbolicLinkKey])
     let mode = (try FileManager.default.attributesOfItem(atPath: fresh.path)[.posixPermissions] as? NSNumber)?.intValue
     guard values.isExcludedFromBackup == true, values.isSymbolicLink == false, mode == (directory ? 0o700 : 0o600) else { throw StoreFailure.unavailable }
@@ -85,6 +86,16 @@ struct FileHarness {
   // The OS reports effective inherited exclusion: the protected parent still excludes this child.
   #expect(try h.files.read(.stage) == Data("ciphertext".utf8))
   url = h.root; try url.setResourceValues(values)
+  // Establish effective removal before testing refusal; inherited metadata can settle asynchronously.
+  var excluded = true
+  for _ in 0..<50 {
+    var fresh = URL(fileURLWithPath: h.root.path, isDirectory: true)
+    fresh.removeAllCachedResourceValues()
+    excluded = try fresh.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup == true
+    if !excluded { break }
+    Thread.sleep(forTimeInterval: 0.01)
+  }
+  try #require(!excluded, "The fixture must actually lose effective backup exclusion")
   #expect(throws: StoreFailure.unavailable) { try h.files.prepare() }
   #expect(throws: StoreFailure.unavailable) { try h.files.hasArtifacts() }
   #expect(throws: StoreFailure.unavailable) { try h.files.read(.stage) }

@@ -56,3 +56,9 @@ the Android results and fail if their scenario is not implemented.
 ## Android workspace scenarios
 
 The [workspace harness](android-workspace.md) adds causally correlated multi-WebView switching, content-state retention, overview scrolling and closing scenarios. It uses fresh native controls and an explicit installed APK hash. The older single-view driver remains for its original boundary checkpoint; it must not select an arbitrary target in the shared workspace.
+
+
+The separate [identity system-authentication journey](android-identity-actions/README.md#actual-system-pin-deletion-journey)
+explicitly manages a public PIN only on its named disposable auth emulator. Those
+credential-setup actions are confined to that driver and are not part of the generic
+host trace driver described above.

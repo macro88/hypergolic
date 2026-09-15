@@ -44,3 +44,9 @@ python3 -B runner.py run --build /path/to/artifacts/file-policy-iphone --output 
 Keep the physical device unlocked and the probe foreground during these file-policy checks. The runner validates the exact generated host, test bundle, and dependency set before execution. It rejects changed source/products, unsigned physical builds, filtered suites, skipped tests, and unexpected test counts. Results remain in `Tests.xcresult`, `test-summary.json`, and `run.json`; a successful Simulator report is explicitly labeled `simulator-unsupported`.
 
 The owning probe has passed its one Simulator test with zero skips, confirming unsupported protection and no secret payload creation. Both SDK branches compile. The portable source is byte-identical to that exercised probe; physical-device execution and identity-vault integration remain separate acceptance work.
+
+
+The refreshed cache-clearing policy has passed a new Simulator run (one unsupported-
+protection test, no skips), and its unsigned iPhoneOS branch compiles. The reviewed
+source manifest names the exact current policy. This remains environment/compilation
+evidence; no physical authentication or locked-device result is implied.

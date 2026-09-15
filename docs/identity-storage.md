@@ -4,7 +4,8 @@ The application now enters through one process-owned identity vault. Android has
 shown the same valid public identity in its header and trusted Settings after a
 real process restart. iOS native storage builds, but its protected-file behavior
 still requires a physical iPhone. [Identity import and whole-shell switching](identity-switching.md)
-are now integrated with a shared trusted Settings flow. Authenticated backup/deletion,
+are integrated with shared trusted Settings. Inactive deletion now has the Android
+system-authentication evidence below. Manual backup, iOS physical authentication,
 signing and full device acceptance remain open.
 
 ## Ownership and first entry
@@ -32,15 +33,17 @@ fixed service and verified readback. Its adapter accepts the actual Android API;
 iOS-only Keychain accessibility constants are not required. Expo's generated
 backup and device-transfer rules exclude the SecureStore preferences. Actual
 backup transport, device lock behavior and physical-device security remain to be
-validated. The current Android deletion authorization path denies requests.
+validated. Android deletion uses the native authenticated effect described below;
+the SecureStore adapter refuses deletion when that effect is absent.
 
 iOS keeps Nostr secret payloads in authenticated encrypted files. Only the wrapping
 key and nonsecret inventory receipt enter Keychain. The file adapter requires
 complete file protection, backup exclusion, restricted permissions, regular files
 and its fixed native-owned directory. Atomic replacement and durability checks
 remain mandatory. The native action owner binds authentication and one-use deletion
-grants to the live process/session and exact target; the user-facing action flow
-and real-device authentication are not yet accepted.
+grants to the live process/session and exact target. The shared action UI and native
+availability method now compile, but real-device authentication and the complete
+iOS action journey are not yet accepted.
 
 ## Simulator limitation
 
@@ -141,14 +144,14 @@ again at its effect, consumes the exact token once, and serializes revocation wi
 the synchronous erase. A failed erase cannot reuse its token. Background, settings
 dismissal, inventory mutation and runtime retirement invalidate earlier authority.
 
-The owning JVM suite passes 95 assertions, including changed native inventory, late
+The owning JVM suite now passes 126 assertions, including changed native inventory, late
 authentication, expiry during the final read, replacement sessions, failed effects
 and concurrent revocation. Android prebuild and the actual module's Release Java
 and Kotlin compilation pass. These tests use explicit native port doubles; they
 do not establish Android OS authentication or protected storage behavior.
 The native fixed-service reader and erase effect now pass the separate runtime
-probe below. The Expo owner/lifecycle and system prompt are still to be wired. Android deletion remains denied in production;
-backup/reveal and both platforms' user-facing actions remain unfinished.
+probe below. The subsequent Expo/system-prompt integration has the independent
+evidence recorded in the next section. Manual backup remains unfinished.
 
 
 `SecureStoreIdentityRecords` reads the actual protected inventory and every identity
@@ -166,3 +169,58 @@ The probe's authentication result is still a double; no system-authentication or
 physical-device acceptance is implied. See the [native authority and record proof](../tests/native/android-identity-actions/README.md)
 for repeatable commands and exact boundaries. Full local aislop remains 100/100;
 React Doctor numeric scoring still requires explicit external-request approval.
+
+
+## Native authentication and Settings integration
+
+Android identity admission now binds the exact native-created main AppContext and
+React Native JavaScript thread. Replacement claims retire the earlier authority;
+module destruction, activity background and user departure revoke it. The action
+module obtains protected records, entropy and monotonic time natively. No Expo
+method accepts an authentication outcome, inventory, runtime identity or file path.
+Late cancellation cleans up only its own attempt, including after a newer attempt
+has started. Authentication expiry is checked again after native inventory/entropy
+work, before issuing a grant.
+
+The shared Settings review displays the exact inactive identity and explains loss
+of local key access. No-lock/unavailable authentication cannot enable confirmation.
+The Android API 30+ system prompt accepts a strong biometric or device credential;
+a PIN-only device works. API 26–29 remains unsupported by this new action adapter
+and is an open v1 compatibility item, not a silently changed application minimum.
+Cancellation is effective during workspace flush, protected-key verification,
+native Settings opening, authentication and journaling. Native erasure checks and
+consumes the exact target/token synchronously. An unconfirmed Android erase cannot
+become success through an in-memory absence readback. Known native denial with the
+key still present leaves the exact journal retryable; inconsistent outcomes require
+recovery. iOS erase-error durability handling needs the next targeted review before
+its action journey is accepted.
+
+The actual isolated Android Release app passes eight checks in one run: no lock,
+exact review cancellation, system cancellation, background revocation, wrong PIN,
+the native 60-second timeout, successful PIN deletion with all three loaded napplet
+drafts retained, and deletion/current-workspace persistence across restart. It uses
+only a public disposable test key and a named disposable auth emulator. APK bytes,
+owning source snapshots and harness hashes match before/after. APK SHA256:
+`0e98e9b517e671e4b04c89f828a69c4ad1244072fb7c534be64c03aa257052d8`.
+The UI review, removed identity and retained live draft screenshots were inspected.
+Android protects the system credential dialog from screenshots; its captures are
+blank. Native hierarchy, foreground ownership and callback/effect behavior supply
+that portion of the evidence; no screenshot protection was bypassed.
+
+The protected-record probe again passes 89 assertions on the prior isolated
+installation, with all pre-existing protected records unchanged. The current
+native authority passes 126 JVM assertions. Shared checks pass 291 security tests,
+13 bootstrap tests, 80 storage tests, 27 capability tests, 25 shell tests and
+TypeScript. Both production JS exports, Android Release and the actual iOS Debug
+Simulator native build pass. Local React Doctor has zero findings but no numeric
+score; full aislop is 100/100. External scoring approval is still pending.
+The iOS owning suite passes all 52 tests. A previously intermittent macOS exclusion
+test now establishes actual effective metadata removal before checking refusal;
+protection verification clears cached URL resource values before reading. This
+neither supplies Simulator Data Protection nor establishes physical-device proof.
+The normal iOS app remains unavailable on Simulator. See the [repeatable Android
+action journey](../tests/native/android-identity-actions/README.md).
+
+The refreshed actual file-policy probe passes its one Simulator unsupported-protection
+test with no skips; its unsigned iPhoneOS branch also compiles. Exact current source
+hashes are recorded by the [file-policy harness](../tests/native/ios-file-policy/README.md).

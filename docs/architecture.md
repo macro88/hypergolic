@@ -24,7 +24,9 @@ a physical iPhone. See the [identity checkpoint](identity-storage.md). The
 [workspace controller](workspace-storage.md) persists opening order, selection and
 explicit empty state per identity. Confirmed [identity changes](identity-switching.md)
 revoke the old authority and restart all loaded napplets. Authenticated identity
-actions, signing, relay publication and published loading remain incomplete.
+backup, signing, relay publication and published loading remain incomplete. Inactive
+identity deletion now has a shared review and an Android system-PIN journey; iOS
+action acceptance still requires a physical device.
 The supplied logo is visible in the native header. Native journeys, boundary
 probes and their limits are recorded separately; full v1 acceptance remains open.
 

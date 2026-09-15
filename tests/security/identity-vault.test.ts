@@ -588,3 +588,31 @@ test('failed key verification drains other reads and wipes their buffers before 
   assert.deepEqual(h.durable, durable);
   assert.equal(h.generated, 1);
 });
+
+
+test('native revocation before erase preserves a retryable journal when the key remains', async () => {
+  const { h } = await established(2), deps = h.dependencies();
+  deps.secrets.deleteSecret = async () => { throw new VaultError('AUTHORIZATION_DENIED'); };
+  const vault = new IdentityVault(deps); await vault.open();
+  await errorCode(vault.deleteIdentity(key(1)), 'AUTHORIZATION_DENIED');
+  assert.equal(vault.getSnapshot().pendingDeletion, key(1));
+  assert(h.durable.keys.has(key(1)));
+  deps.secrets.deleteSecret = h.dependencies().secrets.deleteSecret;
+  assert.equal((await vault.deleteIdentity(key(1))).identities.length, 1);
+});
+test('native durable-erase failure cannot become success through an in-memory absence readback', async () => {
+  const { h } = await established(2), deps = h.dependencies();
+  deps.secrets.deleteSecret = async pubkey => { h.durable.keys.delete(pubkey); throw new VaultError('READBACK_FAILED'); };
+  const vault = new IdentityVault(deps); await vault.open();
+  await errorCode(vault.deleteIdentity(key(1)), 'READBACK_FAILED');
+  assert.throws(() => vault.getSnapshot(), { code: 'NOT_READY' });
+  assert.equal(h.durable.db?.pending?.kind, 'delete');
+  assert.equal(h.durable.inventory?.identities.length, 2);
+});
+test('native denial with an unexpectedly absent key enters recovery', async () => {
+  const { h } = await established(2), deps = h.dependencies();
+  deps.secrets.deleteSecret = async pubkey => { h.durable.keys.delete(pubkey); throw new VaultError('AUTHORIZATION_DENIED'); };
+  const vault = new IdentityVault(deps); await vault.open();
+  await errorCode(vault.deleteIdentity(key(1)), 'READBACK_FAILED');
+  assert.throws(() => vault.getSnapshot(), { code: 'NOT_READY' });
+});

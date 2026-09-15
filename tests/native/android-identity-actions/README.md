@@ -11,7 +11,7 @@ The output directory must be new. The runner compiles the owning production
 and after execution, and retains compiler output and a JSON receipt. No native
 authority implementation is copied into the test harness.
 
-The 95 assertions cover missing admission, exact target/session/context, immutable
+The 126 assertions cover missing admission, exact target/session/context, immutable
 inventory, busy requests, one-use consumption, authentication denial, stale and
 cross-owner callbacks, settings replacement, background/retirement, expiry at
 authentication and actual erase, changed inventory, entropy failure, uncertain
@@ -19,11 +19,9 @@ erase, late opening and concurrent revocation. Inventory, authentication result,
 clock and erase ports are explicit doubles. This is neither an Android OS prompt
 nor Android Keystore/SharedPreferences proof.
 
-The native authority is not yet connected to the Expo action module. Android's
-production deletion path continues to deny all requests. Native owner binding,
-system authentication and lifecycle must be connected and verified before that
-path is enabled. The native record reader and erase effect have the separate
-Android runtime proof below.
+The authority is connected to the exact native main AppContext and system prompt.
+Runtime ownership, duplicate claims and exact-attempt cleanup have JVM regressions;
+the actual record adapter and OS-authenticated UI journey have separate proof below.
 
 
 ## Native protected-record probe
@@ -65,3 +63,37 @@ the matching package path, and set `testBuildType "release"` plus
 Build `assembleRelease assembleReleaseAndroidTest`, attest the source/artifacts,
 and install both APKs with the same local test certificate. This setup is confined
 to the isolated fixture; it adds no production test receiver or diagnostic API.
+
+
+## Actual system-PIN deletion journey
+
+`tests/native/identity_deletion.py` runs only against the standalone isolated
+identity fixture on the explicitly named `Hypergolic_Auth_API_36` emulator. Prepare
+that disposable API 36 image with the public test PIN `123456`, the current attested
+APK, its generated disposable identity selected and its three initial UX Lab
+napplets. Do not configure a real credential or use a normal application. The
+runner imports only the public scalar-2 test identity, clears/restores the public
+emulator PIN for the no-lock case, and deletes that imported identity. It never
+clears app data. Existing app artifacts and emulator setup are separate steps.
+
+```sh
+python3 tests/native/identity_deletion.py --source "$PWD" --serial emulator-5556 \
+  --package org.nostrocket.hypergolic.identityfixture \
+  --activity org.nostrocket.hypergolic.dev.MainActivity \
+  --expected-apk-sha256 APP_SHA256 --output /private/tmp/hypergolic-system-deletion \
+  identity-deletion
+```
+
+Eight checks pass: no-lock denial/selected-key exclusion; exact-review cancellation;
+system cancellation; background revocation; wrong-PIN denial; the 60-second native
+timeout; successful PIN deletion with three actual loaded DOM drafts retained;
+and the removed inventory/current workspace after a process restart. The runner
+validates the native system dialog's title and foreground owner. System credential
+screenshots are intentionally blank under Android capture protection; UI hierarchy
+and actual authentication/effect results are the evidence for the prompt itself.
+Review the ordinary Settings/draft screenshots separately.
+
+This is API 36 emulator evidence, not physical-device or biometric-enrollment proof.
+API 26–29 action compatibility, iOS physical authentication, backup/reveal, signing
+and remote loading remain outside this journey. The production module adds no test
+credential, test-mode switch, authentication-result setter or reset interface.

@@ -29,7 +29,7 @@ export function IdentityShell({ owner }: { owner: TrustedIdentityOwner }) {
   </SafeAreaView>;
   return <OwnerContext value={owner}><RuntimeContext value={owner.runtime ?? null}>
     <WorkspaceEntry key={state.session.epoch} identity={{ npub: formatNpub(state.session.vault.selectedPubkey) }}
-      controller={state.session.workspace} blocked={state.phase === 'switching'} settingsComponent={IdentitySettings} />
+      controller={state.session.workspace} blocked={state.phase === 'switching' || state.phase === 'deleting'} settingsComponent={IdentitySettings} />
   </RuntimeContext></OwnerContext>;
 }
 const styles = StyleSheet.create({

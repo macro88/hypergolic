@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createIOSIdentityActions, type IdentityActionsModule } from '../../src/security/ios-identity-actions.ts';
+import { createIdentityActions, type IdentityActionsModule } from '../../src/security/identity-actions.ts';
 import { VaultError, type DeletionGrant } from '../../src/security/identity-vault.ts';
 
 const selected = '22'.repeat(32), target = '11'.repeat(32), other = '33'.repeat(32);
@@ -23,6 +23,7 @@ class NativeFixture implements IdentityActionsModule {
   opening: ReturnType<typeof deferred<string>> | null = null;
   authentication: ReturnType<typeof deferred<string>> | null = null;
   grants = new Map<string, { session: string; target: string }>();
+  async isDeletionAvailableAsync() { return true; }
   activateIdentityActions() { this.activations += 1; if (this.activationFailure) throw new Error('native diagnostic must not escape'); }
   beginSettingsAsync(key: string, revision: number): Promise<string> {
     this.calls.push(['begin', key, revision]);
@@ -46,16 +47,16 @@ class NativeFixture implements IdentityActionsModule {
   }
 }
 async function ready() {
-  const native = new NativeFixture(), actions = createIOSIdentityActions(native, 'ios');
+  const native = new NativeFixture(), actions = createIdentityActions(native, 'ios');
   await actions.beginSettings(context);
   return { native, actions };
 }
-test('activation requires iOS and native admission; failure is constant and never retried', () => {
+test('activation requires a supported native platform and native admission; failure is constant and never retried', () => {
   const native = new NativeFixture();
-  assert.throws(() => createIOSIdentityActions(native, 'android'), { code: 'STORAGE_FAILURE' });
+  assert.throws(() => createIdentityActions(native, 'web'), { code: 'STORAGE_FAILURE' });
   assert.equal(native.activations, 0);
   native.activationFailure = true;
-  assert.throws(() => createIOSIdentityActions(native, 'ios'), { code: 'STORAGE_FAILURE', message: 'STORAGE_FAILURE' });
+  assert.throws(() => createIdentityActions(native, 'ios'), { code: 'STORAGE_FAILURE', message: 'STORAGE_FAILURE' });
   assert.equal(native.activations, 1);
 });
 test('native receives exact context and an immutable grant exposes no token', async () => {
@@ -79,7 +80,7 @@ test('selected target, changed selection/revision and missing settings never rea
   assert.equal(native.calls.filter(c => c[0] === 'authorize').length, 0);
 });
 test('invalid contexts are rejected before native beginning', async () => {
-  const native = new NativeFixture(), actions = createIOSIdentityActions(native, 'ios');
+  const native = new NativeFixture(), actions = createIdentityActions(native, 'ios');
   for (const revision of [0, -1, 1.5, Infinity, NaN, Number.MAX_SAFE_INTEGER + 1]) {
     await assert.rejects(actions.beginSettings({ ...context, revision }), denied);
   }
@@ -113,7 +114,7 @@ for (const reason of ['background', 'runtime loss', 'expiry']) test(`native ${re
   assert.throws(() => actions.tokens.consume(grant, target), denied);
 });
 test('dismissal while settings open is pending closes the exact late session and rejects duplicate opening', async () => {
-  const native = new NativeFixture(), actions = createIOSIdentityActions(native, 'ios');
+  const native = new NativeFixture(), actions = createIdentityActions(native, 'ios');
   native.opening = deferred<string>();
   const pending = actions.beginSettings(context);
   await assert.rejects(actions.beginSettings(context), denied);
@@ -146,4 +147,26 @@ test('local revocation happens even when native cancellation throws', async () =
   native.cancelDeletion = () => { throw new Error('private diagnostic'); };
   assert.throws(() => actions.cancelDeletion(), denied);
   assert.throws(() => grant.assertActive(), denied);
+});
+
+
+for (const platform of ['android', 'ios'] as const) test(`${platform}: shared owner requires native availability and binds the exact erase token`, async () => {
+  const native = new NativeFixture(), actions = createIdentityActions(native, platform);
+  assert.equal(await actions.isDeletionAvailable(), true);
+  native.isDeletionAvailableAsync = async () => false;
+  assert.equal(await actions.isDeletionAvailable(), false);
+  native.isDeletionAvailableAsync = async () => { throw new Error('native private details'); };
+  assert.equal(await actions.isDeletionAvailable(), false);
+  await actions.beginSettings(context);
+  const grant = await actions.authorizeDeletion(request);
+  assert.equal(actions.tokens.consume(grant, target), 'grant_fixture_value_1');
+  actions.dispose();
+  assert.equal(await actions.isDeletionAvailable(), false);
+  await assert.rejects(actions.authorizeDeletion(request), denied);
+});
+test('late availability cannot reopen a disposed owner', async () => {
+  const native = new NativeFixture(), actions = createIdentityActions(native, 'android');
+  const result = deferred<boolean>(); native.isDeletionAvailableAsync = () => result.promise;
+  const available = actions.isDeletionAvailable(); actions.dispose(); result.resolve(true);
+  assert.equal(await available, false);
 });

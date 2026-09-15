@@ -258,3 +258,27 @@ test('retained authority after deletion still rejects a later identity switch an
   transition.getSnapshot().session.workspace.change(emptyWorkspace()); await transition.getSnapshot().session.workspace.flush();
   assert.equal(transition.getSnapshot().session.workspace.getSnapshot().error, 'REVOKED');
 });
+
+
+test('cancel during the initial deletion flush never opens authentication and preserves the live workspace', async t => {
+  const { transition, protectedStore } = await start(t);
+  await transition.confirm(request(transition));
+  const before = transition.getSnapshot().session;
+  const deleting = transition.deleteInactive(pubkey(1), before);
+  transition.cancelDeletion(before);
+  await assert.rejects(deleting, { code: 'AUTHORIZATION_DENIED' });
+  assert.equal(protectedStore.authCalls, 0);
+  assert.equal(transition.getSnapshot().session, before);
+  assert.equal(transition.getSnapshot().phase, 'ready');
+  await transition.deleteInactive(pubkey(1), before);
+  assert.equal(protectedStore.authCalls, 1);
+});
+test('cancel while protected keys are verified never reaches a later authentication prompt', async t => {
+  const { transition, native, protectedStore } = await start(t);
+  await transition.confirm(request(transition));
+  const before = transition.getSnapshot().session;
+  protectedStore.secure.onStep = name => { if (name.startsWith('get:secret.')) transition.cancelDeletion(before); };
+  await assert.rejects(transition.deleteInactive(pubkey(1), before), { code: 'AUTHORIZATION_DENIED' });
+  assert.equal(protectedStore.authCalls, 0);
+  assert.equal(transition.getSnapshot().session, before);
+});

@@ -3,8 +3,8 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import assert from 'node:assert/strict';
-import { IdentityVault, type VaultDependencies } from '../../src/security/identity-vault.ts';
-import { createProtectedSecrets, type NativePlatform, type ProtectedOptions, type SecureStoreModule } from '../../src/security/android-encrypted-secrets.ts';
+import { IdentityVault, type VaultDependencies, type EncryptedSecrets } from '../../src/security/identity-vault.ts';
+import { createProtectedSecrets, secretStorageKey, VAULT_SERVICE, type NativePlatform, type ProtectedOptions, type SecureStoreModule } from '../../src/security/android-encrypted-secrets.ts';
 import { IDENTITY_DATABASE, openIdentityMetadata, type SQLiteConnection, type SQLiteModule } from '../../src/security/identity-metadata.ts';
 
 export const pubkey = (n: number) => n.toString(16).padStart(2, '0').repeat(32);
@@ -43,6 +43,14 @@ export class SecureFake extends Faults implements SecureStoreModule {
     assert(options); this.options.push(options);
     return this.run(`delete:${key}`, () => { this.values.delete(key); });
   }
+}
+/** Explicit test-only authenticated erase double; never a production fallback. */
+export function deletionFixture(native: SecureFake): Pick<EncryptedSecrets, 'deleteSecret'> {
+  return { deleteSecret(pubkey, grant) {
+    grant.assertActive();
+    const options = native.options[0] ?? Object.freeze({ keychainService: VAULT_SERVICE, requireAuthentication: false as const });
+    return native.deleteItemAsync(secretStorageKey(pubkey), options);
+  } };
 }
 export class SqliteFake extends Faults implements SQLiteModule {
   readonly directory = mkdtempSync(join(tmpdir(), 'identity-adapter-sqlite-'));
@@ -83,7 +91,7 @@ export class Integrated {
   authActive = true;
   async owner(platform: NativePlatform = 'ios') {
     const database = await openIdentityMetadata(this.sqlite, platform);
-    const secrets = await createProtectedSecrets(this.secure, 'android');
+    const secrets = await createProtectedSecrets(this.secure, 'android', deletionFixture(this.secure));
     const dependencies: VaultDependencies = {
       database, secrets,
       // Deterministic fake keys belong ONLY to this test file. No real keys, crypto or nsec decoding.

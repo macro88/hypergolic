@@ -105,8 +105,11 @@ fresh authenticated retry; its key is not silently removed. Unknown outcomes or
 unexpected inventory changes require recovery. Unaccepted inventory revisions
 still fail workspace and capability checks.
 
-Seven new shared regressions pass with real SQLite and explicit key/authentication
-doubles; the complete storage suite passes 78 tests and the capability suite 27.
-TypeScript passes. These checks establish controller/authority preservation, not
-new native UI or OS-authentication evidence. Native authentication, Settings action
-controls and the full device deletion journey remain to be connected.
+The complete storage suite now passes 80 tests and the capability suite 27, with
+real SQLite and explicit key/authentication doubles. Cancellation also covers the
+initial flush and key verification before an OS prompt can open. The shared UI
+shows the exact inactive key, separate confirmation and native authentication.
+An actual Android system-PIN journey retains all three loaded napplet drafts after
+deleting the inactive identity; its inventory and current workspace survive restart.
+See [native authentication evidence](identity-storage.md#native-authentication-and-settings-integration)
+for source/artifact boundaries and the remaining iOS physical-device acceptance.

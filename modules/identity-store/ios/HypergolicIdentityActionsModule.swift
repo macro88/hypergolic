@@ -24,6 +24,9 @@ public final class HypergolicIdentityActionsModule: Module {
         }
       }
     }
+    AsyncFunction("isDeletionAvailableAsync") { () async -> Bool in
+      await SystemDeviceDeletionAuthentication.isAvailable()
+    }
     AsyncFunction("beginSettingsAsync") { (selected: String, revision: Double) async throws -> String in
       try await actionResult {
         let revision = try actionRevision(revision)

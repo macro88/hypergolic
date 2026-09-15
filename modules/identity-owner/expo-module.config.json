@@ -1,1 +1,1 @@
-{"platforms":["android","apple"],"android":{"modules":["org.nostrocket.hypergolic.identityowner.IdentityOwnerModule"]},"apple":{"modules":["IdentityOwnerModule"],"podspecPath":"ios/HypergolicIdentityOwner.podspec"}}
+{"platforms":["android","apple"],"android":{"modules":["org.nostrocket.hypergolic.identityowner.IdentityOwnerModule","org.nostrocket.hypergolic.identityowner.IdentityActionsModule"]},"apple":{"modules":["IdentityOwnerModule"],"podspecPath":"ios/HypergolicIdentityOwner.podspec"}}

@@ -4,6 +4,7 @@ import type { NativeDeletionTokens } from './ios-encrypted-secrets.ts';
 /** Exact trusted-shell Expo contract. No caller-selected runtime, epoch, service or path. */
 export interface IdentityActionsModule {
   activateIdentityActions(): void;
+  isDeletionAvailableAsync(): Promise<boolean>;
   beginSettingsAsync(selectedPubkey: string, revision: number): Promise<string>;
   endSettings(session: string): void;
   cancelDeletion(session: string): void;
@@ -21,8 +22,8 @@ function validContext(value: Context): boolean {
 function denied(): never { throw new VaultError('AUTHORIZATION_DENIED'); }
 
 /** Call only after the native one-shot process claim. Retain one instance with the trusted vault. */
-export function createIOSIdentityActions(module: IdentityActionsModule, platform: string) {
-  if (platform !== 'ios') throw new VaultError('STORAGE_FAILURE');
+export function createIdentityActions(module: IdentityActionsModule, platform: string) {
+  if (platform !== 'ios' && platform !== 'android') throw new VaultError('STORAGE_FAILURE');
   try { module.activateIdentityActions(); } catch { throw new VaultError('STORAGE_FAILURE'); }
   const grants = new WeakMap<DeletionGrant, GrantRecord>();
   let current: (Context & { session: string }) | null = null;
@@ -92,6 +93,12 @@ export function createIOSIdentityActions(module: IdentityActionsModule, platform
     grants.delete(grant);
     return record.token;
   } });
+  async function isDeletionAvailable(): Promise<boolean> {
+    if (closed) return false;
+    try { return await module.isDeletionAvailableAsync() === true && !closed; } catch { return false; }
+  }
   function dispose() { try { endSettings(); } finally { closed = true; } }
-  return Object.freeze({ beginSettings, endSettings, cancelDeletion, authorizeDeletion, tokens, dispose });
+  return Object.freeze({ beginSettings, endSettings, cancelDeletion, authorizeDeletion, tokens, dispose, isDeletionAvailable });
 }
+
+export type IdentityActions = ReturnType<typeof createIdentityActions>;

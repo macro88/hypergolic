@@ -392,7 +392,7 @@ export class IdentityVault {
     return this.snapshot();
   }
   /** Only inactive identities may be deleted; choose and validate a replacement first. */
-  deleteIdentity(key: string): Promise<VaultSnapshot> { return this.serial(() => this.guarded(async () => {
+  deleteIdentity(key: string, assertActive?: () => void): Promise<VaultSnapshot> { return this.serial(() => this.guarded(async () => {
     const current = this.requireReady(true), base = current.inventory;
     if (current.pending && (current.pending.kind !== 'delete' || current.pending.pubkey !== key)) throw new VaultError('PENDING_DELETION');
     if (!base.identities.some(i => i.pubkey === key)) throw new VaultError('NOT_FOUND');
@@ -400,14 +400,24 @@ export class IdentityVault {
     await this.verifyKeys(base, key);
     let grant: DeletionGrant;
     try {
+      assertActive?.();
       grant = await this.deps.authorizeDeletion(Object.freeze({ pubkey: key, selectedPubkey: base.selectedPubkey!, revision: base.revision }));
-      grant.assertActive();
+      assertActive?.(); grant.assertActive();
     } catch { throw new VaultError('AUTHORIZATION_DENIED'); }
     if (!current.pending) await this.writeDb(base, { kind: 'delete', operationId: this.id(), pubkey: key });
-    try { grant.assertActive(); } catch { throw new VaultError('AUTHORIZATION_DENIED'); }
-    try { await this.deps.secrets.deleteSecret(key, grant); } catch { /* Verify absence after uncertain erase. */ }
+    try { assertActive?.(); grant.assertActive(); } catch { throw new VaultError('AUTHORIZATION_DENIED'); }
+    let deniedAtEffect = false;
+    try { await this.deps.secrets.deleteSecret(key, grant); } catch (error) {
+      if (error instanceof VaultError && error.code === 'READBACK_FAILED') throw error;
+      deniedAtEffect = error instanceof VaultError && error.code === 'AUTHORIZATION_DENIED';
+      // Other legacy transport outcomes still need the core's absence check.
+    }
     const remaining = await this.readSecret(key);
-    if (remaining) { remaining.secretKey.fill(0); throw new VaultError('READBACK_FAILED', 'Secret deletion was not confirmed'); }
+    if (remaining) {
+      remaining.secretKey.fill(0);
+      throw new VaultError(deniedAtEffect ? 'AUTHORIZATION_DENIED' : 'READBACK_FAILED');
+    }
+    if (deniedAtEffect) throw new VaultError('READBACK_FAILED');
     await this.commit(nextInventory(base, { identities: base.identities.filter(i => i.pubkey !== key) }));
     return this.snapshot();
   })); }

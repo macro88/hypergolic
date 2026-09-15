@@ -97,6 +97,12 @@ final class DeletionAuthority {
   synchronized void cancel(String expectedSession) {
     if (session != null && session.equals(expectedSession)) { attempt = null; grant = null; }
   }
+  /** Late timeout/coroutine cleanup must never cancel a newer attempt in the same Settings session. */
+  synchronized void cancelAttempt(Attempt value) {
+    if (value == null) return;
+    if (attempt == value) attempt = null;
+    if (grant != null && grant.attempt == value) grant = null;
+  }
   private boolean matches(Attempt value) {
     return activated && !retired && foreground && value.owner == owner && value.epoch == epoch
         && value.session.equals(session) && value.inventory.equals(inventory);
@@ -141,6 +147,7 @@ final class DeletionAuthority {
     compareCurrent(reader.read());
     String next = token();
     // Entropy can fail. Do not leave the attempt active, and do not issue an unbounded grant.
+    require(matches(value) && now() < value.deadline);
     grant = new Grant(value, next, deadline(GRANT_MILLIS));
     return next;
   }
@@ -153,6 +160,11 @@ final class DeletionAuthority {
   }
   synchronized void assertActive(String expectedSession, String target, String expectedToken) {
     validate(expectedSession, target, expectedToken);
+  }
+  /** Bridge erasure accepts only target/token; the Settings owner comes from native grant state. */
+  synchronized void eraseAuthorized(String target, String expectedToken, Erase effect) {
+    require(grant != null);
+    erase(grant.attempt.session, target, expectedToken, effect);
   }
   /** Inventory is re-read at the actual effect. Revocation and erase serialize on this monitor. */
   synchronized void erase(String expectedSession, String target, String expectedToken, Erase effect) {

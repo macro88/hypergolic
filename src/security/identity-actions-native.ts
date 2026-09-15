@@ -1,12 +1,14 @@
 import { requireNativeModule } from 'expo';
-import { createIOSIdentityActions, type IdentityActionsModule } from './ios-identity-actions.ts';
+import { createIdentityActions, type IdentityActionsModule } from './identity-actions.ts';
+import { createAndroidDeletionPort, type AndroidIdentityDeletionModule } from './android-identity-deletion.ts';
 import { VaultError } from './identity-vault.ts';
 
 /** Native process admission must already have succeeded in the one trusted bootstrap. */
-export function loadIOSIdentityActions(platform: string) {
-  if (platform !== 'ios') throw new VaultError('STORAGE_FAILURE');
-  let module: IdentityActionsModule;
-  try { module = requireNativeModule<IdentityActionsModule>('HypergolicIdentityActions'); }
+export function loadIdentityActions(platform: string) {
+  if (platform !== 'ios' && platform !== 'android') throw new VaultError('STORAGE_FAILURE');
+  let module: IdentityActionsModule & AndroidIdentityDeletionModule;
+  try { module = requireNativeModule<IdentityActionsModule & AndroidIdentityDeletionModule>('HypergolicIdentityActions'); }
   catch { throw new VaultError('STORAGE_FAILURE'); }
-  return createIOSIdentityActions(module, platform);
+  const actions = createIdentityActions(module, platform);
+  return Object.freeze({ ...actions, androidDeletion: platform === 'android' ? createAndroidDeletionPort(module, actions.tokens) : undefined });
 }

@@ -20,7 +20,8 @@ struct SystemFilePolicy: FilePolicy {
   }
   func verify(_ url: URL, directory: Bool) throws {
     #if os(iOS)
-    let fresh = URL(fileURLWithPath: url.path, isDirectory: directory)
+    var fresh = URL(fileURLWithPath: url.path, isDirectory: directory)
+    fresh.removeAllCachedResourceValues()
     let values = try fresh.resourceValues(forKeys: [.isExcludedFromBackupKey, .isSymbolicLinkKey])
     let attributes = try FileManager.default.attributesOfItem(atPath: fresh.path)
     guard values.isExcludedFromBackup == true, values.isSymbolicLink == false,

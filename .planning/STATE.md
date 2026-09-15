@@ -16,7 +16,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-14)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Authenticated identity actions: Android native deletion authority and protected-record/erase probes pass; the shared deletion transition now preserves the current workspace. OS authentication, lifecycle binding and Settings controls remain next.
+**Current focus:** Authenticated identity actions: shared Settings deletion and Android native owner/system-PIN integration pass the eight-check actual journey, preserving three live napplet drafts. Manual backup, iOS erase-durability review and physical action proof, biometric/older-Android coverage remain next.
 
 ## Current Position
 
@@ -27,7 +27,7 @@ Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue,
 
 Previous native action checkpoint: 2026-09-15 — Added the Android native deletion authority with 95 owning JVM assertions and the protected-record/erase reader with 89 actual Android assertions. Existing SDK records are unchanged; disposable data alone was erased. The actual Release app and separate instrumentation APK build and their installed bytes match. The production deletion path remains denied pending native context/lifecycle and system-prompt integration; authentication in the record probe is a double. See docs/identity-storage.md.
 
-Last activity: 2026-09-15 — Added shared inactive-identity deletion with exact-session/result checks, journal retry, unchanged workspace/epoch and accepted inventory-revision handling. All 78 storage and 27 capability tests and TypeScript pass; this is shared controller/SQL proof, not new native authentication or UI evidence. Settings action controls and OS/native lifecycle wiring remain open.
+Last activity: 2026-09-15 — Connected Android native main-context ownership, lifecycle, system authentication and guarded erasure with shared Settings. All eight actual PIN/cancel/background/timeout/draft/restart checks pass on the isolated API 36 auth emulator. Native record probe remains 89/89 with existing records unchanged; native authority is 126/126. Shared security 291, bootstrap 13, storage 80, capability 27 and shell 25 tests pass. TypeScript, both exports, Android Release and actual iOS Debug Simulator compilation pass; iOS owning unit suite is 52/52. Aislop 100/100; local React Doctor zero findings/no numeric score. Remaining limits and source/artifact evidence are in docs/identity-storage.md. No source push or remote change.
 
 Previous environment checkpoint: 2026-09-12 — local iOS development setup completed: native Simulator Debug build, input/navigation, Hermes/logging, reload, Fast Refresh and cold launch verified. Original scaffold and Android artifacts preserved. This environment checkpoint does not advance the product/security phase; see docs/development.md.
 

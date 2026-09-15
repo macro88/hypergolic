@@ -187,7 +187,53 @@ public final class DeletionAuthorityProof {
     check(completed.get() && retired.get() && error.get() == null && !eraser.isAlive() && !retirement.isAlive());
     denied(() -> r.authority.assertActive(r.session, FIRST, token));
   }
+  private static void runtimeOwnership() {
+    IdentityOwnerContextRegistry r = new IdentityOwnerContextRegistry();
+    Object context = new Object(), foreign = new Object();
+    AtomicInteger revokes = new AtomicInteger();
+    check(!r.owns(context)); check(!r.register(context, revokes::incrementAndGet));
+    check(r.claim(context, true)); check(r.owns(context)); check(!r.owns(foreign));
+    check(!r.register(foreign, revokes::incrementAndGet));
+    check(r.register(context, revokes::incrementAndGet)); check(!r.register(context, () -> {}));
+    r.retireIfOwned(foreign); check(r.owns(context) && revokes.get() == 0);
+    r.retireIfOwned(context); check(!r.owns(context) && revokes.get() == 1);
+    r.retireIfOwned(context); check(revokes.get() == 1); check(!r.claim(context, true));
+    IdentityOwnerContextRegistry wrongThread = new IdentityOwnerContextRegistry();
+    check(!wrongThread.claim(context, false)); check(!wrongThread.claim(context, true));
+    IdentityOwnerContextRegistry missing = new IdentityOwnerContextRegistry();
+    check(!missing.claim(null, true)); check(!missing.claim(context, true));
+    IdentityOwnerContextRegistry duplicate = new IdentityOwnerContextRegistry();
+    check(duplicate.claim(context, true)); check(duplicate.register(context, revokes::incrementAndGet));
+    check(!duplicate.claim(foreign, true)); check(!duplicate.owns(context) && revokes.get() == 2);
+  }
+  private static void completionCannotOutliveAuthentication() {
+    long[] time = { 0 }; int[] reads = { 0 }, entropy = { 0 };
+    DeletionAuthority a = new DeletionAuthority(() -> {
+      if (++reads[0] == 3) time[0] = DeletionAuthority.AUTH_MILLIS;
+      return inventory(1, SECOND, Map.of(FIRST, key(11), SECOND, key(12)));
+    }, () -> time[0], () -> key(++entropy[0]));
+    a.activate(); a.updateForeground(true); String session = a.beginSettings(SECOND, 1);
+    DeletionAuthority.Attempt attempt = a.begin(session, FIRST, SECOND, 1);
+    denied(() -> a.complete(attempt, true));
+    denied(() -> a.complete(attempt, true));
+    denied(() -> a.eraseAuthorized(FIRST, key(2), key -> { throw new AssertionError("Expired callback erased"); }));
+    check(!a.canPresent(attempt));
+  }
+  private static void exactAttemptCleanup() {
+    Rig r = new Rig(); DeletionAuthority.Attempt first = r.begin();
+    r.authority.cancelAttempt(first); check(!r.authority.canPresent(first));
+    DeletionAuthority.Attempt next = r.begin();
+    r.authority.cancelAttempt(first); check(r.authority.canPresent(next));
+    String token = r.authority.complete(next, true);
+    r.authority.cancelAttempt(first); r.authority.assertActive(r.session, FIRST, token);
+    r.authority.cancelAttempt(next); denied(() -> r.authority.assertActive(r.session, FIRST, token));
+    String fresh = r.approve(); AtomicInteger erased = new AtomicInteger();
+    denied(() -> r.authority.eraseAuthorized(SECOND, fresh, key -> erased.incrementAndGet()));
+    r.authority.eraseAuthorized(FIRST, fresh, key -> { check(FIRST.equals(key)); erased.incrementAndGet(); });
+    check(erased.get() == 1); denied(() -> r.authority.eraseAuthorized(FIRST, fresh, key -> erased.incrementAndGet()));
+  }
   public static void main(String[] args) throws Exception {
+    runtimeOwnership(); exactAttemptCleanup(); completionCannotOutliveAuthentication();
     admissionAndInputs(); exactTargetAndOneUse(); failedAndLateAuthentication(); revokeBeforeEffect(); expiry();
     inventoryChangesAtEachBoundary(); uncertainEraseCannotReplay(); unavailablePortsAndFinalExpiry(); lateSettingsOpening(); eraseAndRevocationAreOrdered();
     System.out.println("{\"status\":\"passed\",\"assertions\":" + assertions + ",\"scope\":\"Production native authority with explicit inventory/auth/clock doubles; no Android OS authentication or storage effect proof.\"}");

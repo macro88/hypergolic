@@ -3,10 +3,11 @@ import { createRuntimeOwner, type RuntimeOwner } from '../runtime/runtime-owner'
 import { loadNativeCapabilityPort } from '../runtime/native-capability-port';
 import * as SQLite from 'expo-sqlite';
 import * as SecureStore from 'expo-secure-store';
+import type { IdentityActions } from './identity-actions';
 import { IdentityVault, VaultError } from './identity-vault';
 import { openIdentityMetadata } from './identity-metadata';
 import { createProtectedSecrets } from './android-encrypted-secrets';
-import { loadIOSIdentityActions } from './identity-actions-native';
+import { loadIdentityActions } from './identity-actions-native';
 import { loadIOSIdentitySecrets } from './identity-store-native';
 import { identityCrypto, formatNpub, publicKeyFromNsec } from './identity-crypto';
 import { openShellDatabase } from '../storage/database';
@@ -15,6 +16,7 @@ import { assertBundledWorkspace, initialTestWorkspace } from '../shell/fixtures'
 
 export interface TrustedIdentityOwner {
   readonly transition: IdentityTransition;
+  readonly actions?: IdentityActions;
   readonly runtime?: RuntimeOwner;
   readonly formatNpub: typeof formatNpub;
 }
@@ -36,17 +38,20 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
 export async function openTrustedIdentityOwner(): Promise<TrustedIdentityOwner> {
   const platform = Platform.OS;
   if (platform !== 'android' && platform !== 'ios') throw new VaultError('STORAGE_FAILURE');
-  const denyDeletion = (): never => { throw new VaultError('AUTHORIZATION_DENIED'); };
-  const actions = platform === 'ios' ? loadIOSIdentityActions(platform) : null;
+  const actions = loadIdentityActions(platform);
   const secrets = platform === 'ios'
-    ? await loadIOSIdentitySecrets(platform, actions!.tokens)
-    : await createProtectedSecrets(SecureStore, platform);
+    ? await loadIOSIdentitySecrets(platform, actions.tokens)
+    : await createProtectedSecrets(SecureStore, platform, actions.androidDeletion);
   const database = await openIdentityMetadata(SQLite, platform);
-  const vault = new IdentityVault({ ...identityCrypto, secrets, database, authorizeDeletion: actions?.authorizeDeletion ?? (async () => denyDeletion()) });
+  const vault = new IdentityVault({ ...identityCrypto, secrets, database, authorizeDeletion: async request => {
+    await actions.beginSettings({ selectedPubkey: request.selectedPubkey, revision: request.revision });
+    return actions.authorizeDeletion(request);
+  } });
   try {
     await vault.open();
-    return Object.freeze({ ...await openOwnerWorkspace(vault, platform), formatNpub });
+    return Object.freeze({ ...await openOwnerWorkspace(vault, platform), formatNpub, actions });
   } catch (error) {
+    try { actions.dispose(); } catch { /* Native owner remains consumed. */ }
     try { await database.close(); } catch { /* Preserve the initialization failure. */ }
     throw error;
   }

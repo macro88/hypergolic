@@ -20,7 +20,7 @@ function storageFailure(error: unknown): never {
   throw error instanceof VaultError ? error : new VaultError('STORAGE_FAILURE');
 }
 /** Android only. iOS uses the backup-excluded native encrypted file store. */
-export async function createProtectedSecrets(module: SecureStoreModule, platform: NativePlatform): Promise<EncryptedSecrets> {
+export async function createProtectedSecrets(module: SecureStoreModule, platform: NativePlatform, deletion?: Pick<EncryptedSecrets, 'deleteSecret'>): Promise<EncryptedSecrets> {
   if (platform !== 'android') throw new VaultError('STORAGE_FAILURE');
   try {
     if (!await module.isAvailableAsync()) throw new VaultError('STORAGE_FAILURE');
@@ -68,9 +68,10 @@ export async function createProtectedSecrets(module: SecureStoreModule, platform
       return writeOnce(secretStorageKey(pubkey), encoded);
     },
     deleteSecret: (pubkey, grant) => {
-      const key = secretStorageKey(pubkey);
+      const key = publicKey(pubkey);
+      if (!deletion) throw new VaultError('AUTHORIZATION_DENIED');
       try { grant.assertActive(); } catch { throw new VaultError('AUTHORIZATION_DENIED'); }
-      return remove(key);
+      return deletion.deleteSecret(key, grant);
     },
   };
   return Object.freeze(adapter);

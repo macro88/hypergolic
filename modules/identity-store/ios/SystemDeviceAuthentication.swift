@@ -2,6 +2,14 @@ import Foundation
 import LocalAuthentication
 
 struct SystemDeviceDeletionAuthentication: DeviceDeletionAuthentication {
+  @MainActor static func isAvailable() -> Bool {
+    guard let description = Bundle.main.object(forInfoDictionaryKey: "NSFaceIDUsageDescription") as? String,
+      !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
+    let context = LAContext()
+    defer { context.invalidate() }
+    var error: NSError?
+    return context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) && error == nil
+  }
   @MainActor func authenticate(attemptID: UInt64, canPresent: @escaping @Sendable () -> Bool) async throws {
     try await DeviceAuthenticationProcess.shared.authenticate(attemptID: attemptID, canPresent: canPresent)
   }

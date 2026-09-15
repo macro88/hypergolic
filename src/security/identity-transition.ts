@@ -32,6 +32,7 @@ export class IdentityChangeError extends Error {
 export class IdentityTransition {
   private state!: TransitionSnapshot;
   private input: string | null = null;
+  private activeDeletion: { session: IdentitySession; cancelled: boolean } | null = null;
   private readonly listeners = new Set<() => void>();
   private readonly ports: TransitionPorts;
   private constructor(ports: TransitionPorts) { this.ports = ports; }
@@ -109,6 +110,9 @@ export class IdentityTransition {
       throw error instanceof VaultError ? error : new IdentityChangeError('RECOVERY_REQUIRED');
     } finally { input = null; }
   }
+  cancelDeletion(session: IdentitySession): void {
+    if (this.state.phase === 'deleting' && this.activeDeletion?.session === session) this.activeDeletion.cancelled = true;
+  }
   /** Call only from the trusted deletion confirmation with its exact captured session. */
   async deleteInactive(pubkey: string, expected: IdentitySession): Promise<void> {
     this.requireReady();
@@ -118,6 +122,9 @@ export class IdentityTransition {
     if (pubkey === base.selectedPubkey || base.identities.length < 2) throw new VaultError('DELETE_SELECTED');
     if (base.pendingDeletion !== null && base.pendingDeletion !== pubkey) throw new VaultError('PENDING_DELETION');
     if (!this.ports.vault.deleteIdentity) throw new VaultError('AUTHORIZATION_DENIED');
+    const operation = { session: expected, cancelled: false };
+    const assertActive = () => { if (operation.cancelled) throw new VaultError('AUTHORIZATION_DENIED'); };
+    this.activeDeletion = operation;
     expected.workspace.freeze();
     this.publish('deleting');
     try {
@@ -125,7 +132,8 @@ export class IdentityTransition {
       if (expected.workspace.getSnapshot().error !== null || JSON.stringify(this.ports.vault.getSnapshot()) !== JSON.stringify(base)) {
         throw new IdentityChangeError('RECOVERY_REQUIRED');
       }
-      const vault = await this.ports.vault.deleteIdentity(pubkey);
+      assertActive();
+      const vault = await this.ports.vault.deleteIdentity(pubkey, assertActive);
       if (!isExpectedDeletion(base, vault, pubkey, true) || JSON.stringify(vault) !== JSON.stringify(this.ports.vault.getSnapshot())) {
         throw new IdentityChangeError('RECOVERY_REQUIRED');
       }
@@ -134,7 +142,7 @@ export class IdentityTransition {
     } catch (error) {
       this.failedDeletion(expected, pubkey, error);
       throw error instanceof VaultError ? error : new IdentityChangeError('RECOVERY_REQUIRED');
-    }
+    } finally { if (this.activeDeletion === operation) this.activeDeletion = null; }
   }
   private failedDeletion(previous: IdentitySession, target: string, error: unknown): void {
     if (error instanceof VaultError && error.code === 'AUTHORIZATION_DENIED' && previous.workspace.getSnapshot().error === null) {
