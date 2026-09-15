@@ -48,8 +48,8 @@ transactions are prepared core operations; published update UX is still pending.
 Workspace persistence stores descriptors, not live WebView state or approval
 requests. Drafts still need a napplet's saved-data capability to survive termination.
 Identity import and rebinding are covered in the subsequent
-[identity-switching checkpoint](identity-switching.md). Lazy restoration, published
-descriptors and full standalone application acceptance remain open.
+[identity-switching checkpoint](identity-switching.md). Published descriptors and
+full standalone application acceptance remain open.
 
 ## Verification
 
@@ -74,3 +74,30 @@ source and the Android harness's inherited limitation wording were corrected;
 these edits change no operation or assertion. Physical-device checks and the
 React Doctor external numeric score remain open. Full local aislop is 100/100 and
 React Doctor has zero findings, without suppressing source or lowering gates.
+
+## Lazy restoration checkpoint
+
+The restored workspace now starts only its last focused napplet. Other saved
+entries show “Open to load” in overview until selected. A visited napplet stays
+mounted while focus/settings/overview change; only closing or an identity epoch
+change discards that live view. This follows UX-09 without changing saved order,
+instance IDs, the explicit-empty model or the native capability limits.
+
+The previous eager startup intermittently left the focused iOS State Lab with
+“No identity selected”. A clean launch passed once and then reproduced the failure;
+those failed runs remain preserved. Startup request contention is a plausible
+cause (native admission is globally bounded), not a directly instrumented finding.
+After lazy restoration, three consecutive XCTest process-restart runs each passed
+identity connection, exact deletion review, unavailable-authentication denial and
+live-draft retention after cancellation. Both rebuilt platforms also pass the
+three-check State Lab close/reopen shared/instance-storage journey.
+
+Current Android APK: `cec0ebf35cad2c4db95e371712710d8b3c4b5456a6b81c539f741d0620120c4b`.
+The iOS public-only fixture input seal is
+`9193c7d41f56eff98194c375a7285f9ae3f8d7d55a1d42d99ad6f4a659a68c5a`.
+Its native identity/secret modules remain absent. This is Simulator UI/runtime
+proof; protected iOS keys and authentication still require physical-device proof.
+Raw receipts: `/private/tmp/hypergolic-ios-delete-unavailable-06` through `-08`,
+`/private/tmp/hypergolic-lazy-ios-close-01` and
+`/private/tmp/hypergolic-lazy-android-close-01`. TypeScript and 25 shell tests pass;
+full aislop remains 100/100 and local React Doctor has zero findings/no numeric score.

@@ -97,3 +97,30 @@ This is API 36 emulator evidence, not physical-device or biometric-enrollment pr
 API 26–29 action compatibility, iOS physical authentication, backup/reveal, signing
 and remote loading remain outside this journey. The production module adds no test
 credential, test-mode switch, authentication-result setter or reset interface.
+
+## Actual system-fingerprint deletion journey
+
+`tests/native/identity_biometric.py` uses the same isolated API 36 fixture and
+public scalar-2 import key. Enroll virtual fingerprint 1 through Android Settings
+on the named disposable emulator before running; leave virtual fingerprint 2
+unenrolled. The driver changes neither enrollment nor device credentials. Do not
+run the PIN-only journey concurrently: its no-lock setup removes enrollment.
+
+```sh
+python3 tests/native/identity_biometric.py --source "$PWD" --serial emulator-5556 \
+  --package org.nostrocket.hypergolic.identityfixture \
+  --activity org.nostrocket.hypergolic.dev.MainActivity \
+  --expected-apk-sha256 APP_SHA256 --output /private/tmp/hypergolic-fingerprint-deletion \
+  identity-biometric
+```
+
+Four checks exercise the real Android BiometricPrompt: an unrecognised fingerprint
+and system cancellation preserve the identity; leaving the app revokes the request
+even when a matching sensor event follows; a fresh matched fingerprint deletes
+only the inactive identity with all three live napplet drafts retained; and the
+result/selected workspace survive restart. These are real OS callbacks from an
+emulated sensor, not physical biometric hardware or iOS authentication proof.
+The runner checks installed bytes and source/harness snapshots before and after.
+System-protected screenshots remain blank; the native hierarchy and actual effect
+checks supply that evidence. Keep failed/disconnected runs alongside successful
+reruns; never relabel an interrupted run as passed.

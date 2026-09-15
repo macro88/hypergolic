@@ -111,7 +111,7 @@ export function OverviewCard({ session, rect, captionHeight, busy, selected, pen
     <Animated.View
       style={[styles.card, { width: rect.width, height: rect.height + captionHeight }, movement]}>
       <GestureDetector gesture={tap}><View accessible focusable accessibilityState={{ disabled: busy }} onLayout={({ nativeEvent }) => onMeasure(id, { expected: rect, actual: { ...rect, width: nativeEvent.layout.width, height: nativeEvent.layout.height } })} ref={view => setRef(id, view)} testID={`overview-card-${id}`} accessibilityRole="button" accessibilityLabel={`Open ${title}`}
-        accessibilityHint="Returns to this loaded napplet. Swipe quickly upward to close it."
+        accessibilityHint="Opens this napplet. Swipe quickly upward to close it."
         accessibilityActions={[{ name: 'activate', label: `Open ${title}` }, { name: 'close', label: `Close ${title}` }]}
         onAccessibilityTap={() => { if (!busy) onFocus(id); }}
         onAccessibilityAction={({ nativeEvent }) => {

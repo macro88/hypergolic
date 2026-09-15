@@ -232,3 +232,36 @@ and after file removal, sanitized errors and consumed-token replay. All 295 secu
 13 bootstrap and 80 storage tests, TypeScript and the iOS export pass. Full aislop
 remains 100/100; local React Doctor has zero findings and no numeric score. This is
 shared adapter/core verification; it does not add physical iOS execution evidence.
+
+## Fingerprint and iOS review checkpoint
+
+The isolated API 36 Release fixture now passes four real-system fingerprint checks:
+unrecognised/cancelled authentication preserves inventory, leaving the app revokes
+the request, matching authentication deletes only the inactive public test identity
+while retaining all three live drafts, and deletion/current workspace survive a
+process restart. Enrollment was performed through Android Settings on the named
+`Hypergolic_Auth_API_36` emulator, using only its public test PIN and virtual sensor.
+No production test credential or authentication-result setter was added.
+
+Both the initial fingerprint run and the final lazy-restoration build pass. One
+intermediate attempt stopped when ADB reported that the emulator was offline; its
+failed receipt is retained, and the subsequent full run passed. Current APK:
+`cec0ebf35cad2c4db95e371712710d8b3c4b5456a6b81c539f741d0620120c4b`.
+The final receipt is `/private/tmp/hypergolic-android-biometric-deletion-03/result.json`.
+The PIN journey remains independently recorded against its earlier attested APK.
+This does not establish physical biometric hardware or Android API 26–29 acceptance.
+
+The shared iOS deletion review also passes three checks on each of three consecutive
+clean launches: the exact inactive npub, no confirmation when authentication is
+unavailable, and cancelled review retaining identity/inventory/live draft. The
+public-only fixture uses an explicit unavailable-authentication double; all native
+identity/secret modules remain absent. All 90 installed product files match the
+attested app before and after these runs. The earlier intermittent eager-startup
+failure and lazy-restoration fix are recorded in [workspace storage](workspace-storage.md).
+Physical iPhone key protection, system authentication and actual deletion remain open.
+
+Private receipts and inspected screenshots are retained in
+`.tools/evidence/identity-actions-lazy-20260915` and the canonical Notes checkpoint.
+TypeScript, 25 shell tests and all 50 native-driver tests pass. Full aislop remains
+100/100 and local React Doctor has zero findings. Its external numeric score still
+awaits explicit approval; zero findings are not recorded as a verified 100 score.

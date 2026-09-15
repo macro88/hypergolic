@@ -13,6 +13,7 @@ final class WorkspaceTests: XCTestCase {
   private var nonce = ""
   private let placeholder = "Something you will recognise…"
   private let expected: [String: Set<String>] = [
+    "identity-delete-unavailable": ["delete-exact-target", "unavailable-has-no-confirm", "cancel-keeps-workspace"],
     "state-close": ["state-close-warning", "state-reopen-shared", "state-reopen-instance"],
     "state-storage": ["state-identity", "state-storage-operations", "state-restart", "state-instance-scope", "state-owner-isolation", "state-identity-isolation"],
     "identity-switch": ["identity-settings-safe-area", "identity-cancel-retains-live-state", "identity-import-restarts-all", "identity-duplicate-and-selector", "identity-selection-after-restart"],
@@ -44,6 +45,46 @@ final class WorkspaceTests: XCTestCase {
       "allChecksPassed": allPassed, "checks": checks, "observations": observations, "gestures": gestures,
       "proofScope": "Public native XCTest gestures and accessibility. Temporary fixture values/scroll positions only; native generation identity and transition frame pacing are not directly observed."
     ], "workspace-report")
+  }
+
+  func testIdentityDeleteUnavailable() throws {
+    guard ProcessInfo.processInfo.environment["HG_TARGET_BUNDLE_ID"] == "org.nostrocket.hypergolic.identityuifixture" else { throw Failure.invalid("Requires public identity UI fixture") }
+    app.terminate()
+    try until("Previous fixture process retired") { self.app.state == .notRunning }
+    observations["cleanLaunchBeforeDraft"] = true
+    app.launch()
+    let original = try selectedIdentity(), title = currentTitle()
+    try until("State Lab identity connection and editable field") {
+      (try? self.web().staticTexts.matching(NSPredicate(format: "label == %@", "Identity connected")).count) == 1
+        && (try? self.web().textViews.matching(NSPredicate(format: "label == %@", "String value")).firstMatch.isEnabled) == true
+    }
+    let field = try stateField("value")
+    let marker = "NoDelete" + nonce
+    field.typeText(marker)
+    guard let draft = field.value as? String, draft.contains(marker) else { throw Failure.invalid("Draft input was not retained") }
+    try dismissKeyboard()
+    try identityPress("shell-settings")
+    let other = try one(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@ AND NOT label CONTAINS %@", "identity-select-", original)), "inactive saved identity")
+    guard let range = other.label.range(of: "npub1[023456789acdefghjklmnpqrstuvwxyz]{58}", options: .regularExpression) else { throw Failure.invalid("Missing target public identity") }
+    let target = String(other.label[range])
+    let key = String(other.identifier.dropFirst("identity-select-".count))
+    try identityPress("identity-delete-" + key)
+    let reviewed = app.staticTexts.matching(identifier: "identity-delete-npub").firstMatch
+    try until("Exact inactive identity review") { reviewed.exists && reviewed.label == target }
+    record("delete-exact-target", true, ["targetNpub": target, "selectedNpub": original])
+    let unavailable = app.staticTexts.matching(identifier: "identity-delete-unavailable").firstMatch
+    try until("Explicit unavailable authentication fixture") { unavailable.exists && unavailable.label.contains("unavailable") }
+    record("unavailable-has-no-confirm", !app.buttons.matching(identifier: "identity-delete-confirm").firstMatch.exists,
+      ["scope": "Public-key fixture with explicit authentication-unavailable double; no native OS authentication or secret erasure"])
+    capture("identity-delete-unavailable")
+    try identityPress("identity-delete-cancel")
+    try until("Unchanged two-identity inventory") { self.app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "identity-select-")).count == 2 }
+    try identityPress("settings-done")
+    record("cancel-keeps-workspace", try selectedIdentity() == original && currentTitle() == title && stateField("value").value as? String == draft,
+      ["title": title, "selectedNpub": original, "savedIdentities": 2])
+    try dismissKeyboard()
+    capture("identity-delete-cancelled-live-state")
+    complete = true
   }
 
   func testStateClose() throws {

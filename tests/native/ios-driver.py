@@ -21,6 +21,7 @@ EXPECTED_CHECKS = {
     "native-text-input", "typed-rendered-mirror",
 }
 SCENARIOS = {
+    "identity-delete-unavailable": {"checks": {"delete-exact-target", "unavailable-has-no-confirm", "cancel-keeps-workspace"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testIdentityDeleteUnavailable"},
     "state-close": {"checks": {"state-close-warning", "state-reopen-shared", "state-reopen-instance"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testStateClose"},
     "state-storage": {"checks": {"state-identity", "state-storage-operations", "state-restart", "state-instance-scope", "state-owner-isolation", "state-identity-isolation"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testStateStorage"},
     "identity-switch": {"checks": {"identity-settings-safe-area", "identity-cancel-retains-live-state", "identity-import-restarts-all", "identity-duplicate-and-selector", "identity-selection-after-restart"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testIdentitySwitch"},
@@ -140,7 +141,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--expected-title", default="UX Lab 1")
     parser.add_argument("--expected-session", default="ux-lab-1")
     parser.add_argument("--timeout", type=float, default=30)
-    parser.add_argument("scenario", choices=["state-close", "state-storage", "identity-switch", "workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "identity", "host-boundary", "renderer-loss"])
+    parser.add_argument("scenario", choices=["identity-delete-unavailable", "state-close", "state-storage", "identity-switch", "workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "identity", "host-boundary", "renderer-loss"])
     parser.add_argument("--output", type=Path, required=True, help="New private evidence directory, never overwritten")
     args = parser.parse_args(argv)
     if args.scenario not in SCENARIOS:

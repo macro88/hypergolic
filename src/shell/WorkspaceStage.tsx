@@ -23,6 +23,9 @@ interface LiveProps {
   onHostEvent?: (event: HostEvent) => void;
 }
 const LiveSession = memo(function LiveSession({ session, index, size, rect, progress, position, scrollY, swipeY, swipeId, active, raised, onHostEvent }: LiveProps) {
+  // A keyed session starts when first focused and stays mounted until close or identity change.
+  const [loaded, setLoaded] = useState(raised);
+  if (raised && !loaded) setLoaded(true);
   const [status, setStatus] = useState('Starting runtime');
   const target = cardTransform(size, rect);
   const sessionId = session.id;
@@ -44,8 +47,9 @@ const LiveSession = memo(function LiveSession({ session, index, size, rect, prog
   return (
     <Animated.View collapsable={false} pointerEvents={active ? 'auto' : 'none'} importantForAccessibility={active ? 'auto' : 'no-hide-descendants'} accessibilityElementsHidden={!active}
       style={[styles.live, { width, height, zIndex: raised ? 2 : 1 }, movement]}>
-      <NappletHost active={active} session={session} onHostEvent={onNativeEvent} style={styles.host} />
-      <Text testID={`runtime-status-${session.id}`} importantForAccessibility={active ? 'auto' : 'no-hide-descendants'} accessibilityElementsHidden={!active} accessibilityLiveRegion={active ? 'polite' : 'none'} style={styles.runtimeStatus}>{status}</Text>
+      {loaded ? <NappletHost active={active} session={session} onHostEvent={onNativeEvent} style={styles.host} />
+        : <View style={styles.unloaded}><Text style={styles.reopen}>Open to load</Text></View>}
+      <Text testID={`runtime-status-${session.id}`} importantForAccessibility={active ? 'auto' : 'no-hide-descendants'} accessibilityElementsHidden={!active} accessibilityLiveRegion={active ? 'polite' : 'none'} style={styles.runtimeStatus}>{loaded ? status : 'Not loaded'}</Text>
     </Animated.View>
   );
 });
@@ -105,5 +109,7 @@ const styles = StyleSheet.create({
   stage: { flex: 1, marginHorizontal: 12, marginBottom: 8, borderRadius: 22, overflow: 'hidden', backgroundColor: colors.background },
   live: { position: 'absolute', left: 0, top: 0, overflow: 'hidden', borderRadius: 18, backgroundColor: colors.background },
   host: { flex: 1, marginHorizontal: HANDLE_GUTTER },
+  unloaded: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  reopen: { color: colors.muted, fontSize: 22 },
   runtimeStatus: { color: colors.muted, fontSize: 10, textAlign: 'center', paddingVertical: 5, backgroundColor: colors.background },
 });
