@@ -29,7 +29,8 @@
     "export:ios": "pnpm run runtime:build && expo export --platform ios",
     "test:quality": "node --test tests/quality/*.test.mjs",
     "test:security": "node --experimental-strip-types --test tests/security/*.test.ts && node --test tests/preflight/bootstrap.test.mjs",
-    "test:storage": "node --experimental-strip-types --test tests/storage/*.test.ts"
+    "test:storage": "node --experimental-strip-types --test tests/storage/*.test.ts",
+    "test:capabilities": "node --experimental-strip-types --test tests/runtime/*.test.ts"
   },
   "dependencies": {
     "expo": "57.0.20",

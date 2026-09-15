@@ -21,6 +21,101 @@ final class BoundaryTests: XCTestCase {
     return value
   }
 
+  private func configured() async throws -> Probe {
+    let p = Probe(); probe = p
+    let config: [String: Any] = ["sessionId": p.session, "epoch": 3,
+      "user": String(repeating: "1", count: 64), "publisher": String(repeating: "2", count: 64),
+      "appId": "state-lab", "version": String(repeating: "3", count: 64),
+      "instanceId": "native-probe-instance", "fixture": "state-lab", "domains": ["identity", "storage", "theme"]]
+    try await p.ready(configuration: String(decoding: JSONSerialization.data(withJSONObject: config), as: UTF8.self))
+    return p
+  }
+
+  private func request(_ p: Probe, sequence: Int = 1) async throws -> String {
+    let generation = try p.generation
+    _ = try await p.json("""
+      window.capabilityReply = null;
+      window.addEventListener('message', event => {
+        if (event.isTrusted && event.source === window && event.data?.type === 'hypergolic.native-response') {
+          window.capabilityReply = JSON.parse(event.data.message);
+        }
+      });
+      HypergolicHost.postMessage(JSON.stringify({type:'capability',sessionId:'\(generation)',sequence:\(sequence),
+        message:JSON.stringify({type:'storage.set',id:'native-probe',key:'literal',value:'string value'})}));
+      return {sent:true};
+      """, frame: p.main)
+    try await p.until("native capability token") { p.events.contains { $0["type"] as? String == "capability" } }
+    return try XCTUnwrap(p.events.last?["token"] as? String)
+  }
+
+  func testCapabilityNativeSnapshotOneUseAndOriginalReply() async throws {
+    let p = try await configured()
+    let token = try await request(p)
+    let raw = try XCTUnwrap(CapabilityTransport.leases.take(token))
+    XCTAssertNil(CapabilityTransport.leases.take(token))
+    XCTAssertTrue(CapabilityTransport.leases.isActive(token))
+    let snapshot = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any])
+    let registration = try XCTUnwrap(snapshot["registration"] as? [String: Any])
+    XCTAssertEqual(registration["generation"] as? String, try p.generation)
+    XCTAssertEqual(registration["sessionId"] as? String, p.session)
+    XCTAssertEqual(registration["user"] as? String, String(repeating: "1", count: 64))
+    XCTAssertEqual(registration["publisher"] as? String, String(repeating: "2", count: 64))
+    let payload = try XCTUnwrap(snapshot["request"] as? String)
+    XCTAssertEqual(try JSONSerialization.jsonObject(with: Data(payload.utf8)) as? [String: String],
+      ["type":"storage.set","id":"native-probe","key":"literal","value":"string value"])
+    CapabilityTransport.finish(token, response: "{\"type\":\"storage.set.result\",\"id\":\"native-probe\"}")
+    let result = try await p.json("""
+      return await new Promise((resolve,reject)=>{
+        const deadline=performance.now()+3000;
+        const read=()=>{if(window.capabilityReply)resolve(window.capabilityReply);
+          else if(performance.now()>deadline)reject(Error('No native reply'));else setTimeout(read,10);}; read();
+      });
+      """, frame: p.main)
+    XCTAssertEqual(result["sequence"] as? Int, 1)
+    XCTAssertEqual(result["sessionId"] as? String, try p.generation)
+    XCTAssertEqual(result["response"] as? String, "{\"type\":\"storage.set.result\",\"id\":\"native-probe\"}")
+    XCTAssertFalse(CapabilityTransport.leases.isActive(token))
+  }
+
+  func testCapabilityGuestSyntheticWrongFrameAndGenerationCannotAdmit() async throws {
+    let p = try await configured()
+    let generation = try p.generation
+    let payload = "{\"type\":\"capability\",\"sessionId\":\"\(generation)\",\"sequence\":1,\"message\":\"{}\"}"
+    let encoded = String(decoding: try JSONSerialization.data(withJSONObject: [payload]), as: UTF8.self)
+    for frame in [p.guest, p.main] {
+      let source = frame?.isMainFrame == true ? "window.dispatchEvent(new MessageEvent('message',{source:window,data:value}));" : "parent.postMessage(value,'*');"
+      _ = try await p.json("const value={type:'hypergolic.native-diagnostic',message:\(encoded)[0]};\(source)return {sent:true};",frame:frame)
+    }
+    let child = try await p.diagnostic(payload, frame: p.guest)
+    XCTAssertEqual(child["accepted"] as? Bool, false)
+    let foreign = try await p.diagnostic(payload.replacingOccurrences(of: generation, with: "foreign-generation"), frame: p.main)
+    XCTAssertEqual(foreign["accepted"] as? Bool, false)
+    try await p.barrier()
+    XCTAssertEqual(p.events.count, 1)
+  }
+
+  func testCapabilityCloseRevokesClaimedAndQueuedWork() async throws {
+    let p = try await configured()
+    let token = try await request(p)
+    XCTAssertNotNil(CapabilityTransport.leases.take(token))
+    p.close()
+    XCTAssertFalse(CapabilityTransport.leases.isActive(token))
+    XCTAssertFalse(CapabilityTransport.leases.sessionActive(try p.generation))
+    CapabilityTransport.finish(token, response: "must-not-deliver")
+    XCTAssertNil(CapabilityTransport.leases.take(token))
+  }
+
+  func testCapabilityFrameNavigationRevokesBeforeReplacement() async throws {
+    let p = try await configured()
+    let token = try await request(p)
+    XCTAssertNotNil(CapabilityTransport.leases.take(token))
+    _ = try? await p.json("location.href='about:blank';return {attempted:true};",frame:p.guest)
+    try await p.until("native frame revocation") { !CapabilityTransport.leases.isActive(token) }
+    XCTAssertEqual(p.events.last?["type"] as? String, "error")
+    XCTAssertTrue(p.host.subviews.isEmpty)
+    XCTAssertNil(CapabilityTransport.leases.take(token))
+  }
+
   func testGenuineKehtoHandshakeAndThemeWithVerifiedResources() async throws {
     let p = try await makeReady()
     let value = try await p.json("""

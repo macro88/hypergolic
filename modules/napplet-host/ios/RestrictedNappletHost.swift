@@ -1,3 +1,4 @@
+import CoreFoundation
 import CryptoKit
 import UIKit
 import WebKit
@@ -12,6 +13,8 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   private let generation = UUID().uuidString.lowercased()
   private let bridgeWorld = WKContentWorld.world(name: "org.nostrocket.hypergolic.diagnostics.v1")
   private let bridgeName = "HypergolicDiagnostic"
+  private var configuration: CapabilityConfiguration?
+  private var configurationSource: String?
   private var sessionId: String?
   private var expectedURL: URL?
   private var webView: WKWebView?
@@ -53,6 +56,18 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     if !isActive { webView?.endEditing(true) }
   }
 
+  func startConfiguredSession(_ raw: String) {
+    guard !disposed else { return }
+    if sessionId != nil {
+      guard raw != configurationSource else { return }
+      fail("session-reuse-blocked"); return
+    }
+    do { configuration = try CapabilityConfiguration(raw, generation: generation) }
+    catch { fail("invalid-session"); return }
+    configurationSource = raw
+    startSession(configuration!.sessionId)
+  }
+
   func startSession(_ id: String) {
     guard !disposed else { return }
     if sessionId == id { return }
@@ -65,6 +80,10 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       let assets = try verifiedAssets()
       var components = URLComponents(url: assets.index, resolvingAgainstBaseURL: false)!
       components.queryItems = [URLQueryItem(name: "sessionId", value: generation)]
+      if let configuration {
+        components.queryItems?.append(URLQueryItem(name: "fixture", value: configuration.fixture))
+        guard CapabilityTransport.leases.register(generation) else { fail("capability-unavailable"); return }
+      }
       guard let url = components.url else { fail("invalid-session"); return }
       expectedURL = url
       live = true
@@ -186,8 +205,12 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
         const value = event.data;
         if (!value || typeof value !== 'object' || Array.isArray(value) ||
             Object.keys(value).length !== 2 || value.type !== 'hypergolic.native-diagnostic' ||
-            typeof value.message !== 'string' || new TextEncoder().encode(value.message).length > 2048) return;
-        void native.postMessage(value.message).catch(() => {});
+            typeof value.message !== 'string' || new TextEncoder().encode(value.message).length > 2097152) return;
+        void native.postMessage(value.message).then(response => {
+          if (typeof response === 'string' && location.href === \(jsString(url.absoluteString))) {
+            window.postMessage({type:'hypergolic.native-response',message:response}, '*');
+          }
+        }).catch(() => {});
       });
     })();
     """
@@ -200,7 +223,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       if (window !== window.top || location.href !== \(jsString(url.absoluteString))) return;
       const post = window.postMessage.bind(window);
       const adapter = Object.freeze({postMessage(message) {
-        if (typeof message !== 'string' || new TextEncoder().encode(message).length > 2048) return;
+        if (typeof message !== 'string' || new TextEncoder().encode(message).length > 2097152) return;
         post({type:'hypergolic.native-diagnostic',message}, '*');
       }});
       Object.defineProperty(window, 'HypergolicHost', {value:adapter,writable:false,configurable:false});
@@ -220,10 +243,15 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       webView?.url?.absoluteString == expectedURL.absoluteString,
       message.frameInfo.securityOrigin.protocol == "file",
       message.frameInfo.securityOrigin.host.isEmpty, message.frameInfo.securityOrigin.port == 0,
-      let text = message.body as? String, text.utf8.count <= 2048,
+      let text = message.body as? String, text.utf8.count <= CapabilityLeaseRegistry.maxBytes,
       let data = text.data(using: .utf8),
       let value = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
       value["sessionId"] as? String == generation else { reply(nil, "Diagnostic rejected"); return }
+    if value["type"] as? String == "capability" {
+      receiveCapability(value, reply: reply)
+      return
+    }
+    guard text.utf8.count <= 2048 else { reply(nil, "Diagnostic rejected"); return }
     switch value["type"] as? String {
     case "ready" where value.count == 2 && !ready:
       ready = true
@@ -242,6 +270,30 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     }
   }
 
+  private func receiveCapability(_ value: [String: Any],
+      reply: @escaping @MainActor @Sendable (Any?, String?) -> Void) {
+    guard ready, let configuration,
+      Set(value.keys) == Set(["type", "sessionId", "sequence", "message"]),
+      let sequence = value["sequence"] as? NSNumber, CFGetTypeID(sequence) != CFBooleanGetTypeID(),
+      sequence.doubleValue.isFinite, sequence.doubleValue >= 1, sequence.doubleValue <= 9_007_199_254_740_991,
+      sequence.doubleValue.rounded(.towardZero) == sequence.doubleValue,
+      let message = value["message"] as? String, let snapshot = try? configuration.request(message)
+      else { reply(nil, "Capability rejected"); return }
+    let counter = sequence.uint64Value
+    let respond: @MainActor @Sendable (String?) -> Void = { [weak self] response in
+      guard let self, self.live, !self.disposed,
+        self.webView?.url?.absoluteString == self.expectedURL?.absoluteString else { reply(nil, "Session unavailable"); return }
+      let result: [String: Any] = ["type": "capability.result", "sessionId": self.generation,
+        "sequence": counter, "response": response as Any? ?? NSNull()]
+      guard let bytes = try? JSONSerialization.data(withJSONObject: result) else { reply(nil, "Capability rejected"); return }
+      reply(String(decoding: bytes, as: UTF8.self), nil)
+    }
+    guard let token = CapabilityTransport.admit(generation, sequence: counter, snapshot: snapshot, reply: respond) else {
+      respond(nil); return
+    }
+    onEvent?(["type": "capability", "sessionId": configuration.sessionId, "generation": generation, "token": token])
+  }
+
   private func emit(_ type: String, code: String? = nil) {
     var event: [String: Any] = ["type": type, "sessionId": sessionId ?? ""]
     if let code { event["code"] = code }
@@ -251,6 +303,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   private func fail(_ code: String) {
     guard !disposed else { return }
     live = false
+    CapabilityTransport.leases.revoke(generation)
     emit("error", code: code)
     destroySession()
   }
@@ -259,6 +312,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     guard !disposed else { return }
     disposed = true
     live = false
+    CapabilityTransport.revoke(generation)
     deadline?.cancel()
     deadline = nil
     receiver?.owner = nil

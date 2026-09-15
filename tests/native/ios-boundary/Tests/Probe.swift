@@ -55,16 +55,17 @@ final class Probe: NSObject, WKScriptMessageHandler {
     else if url == "about:srcdoc" { guest = frame }
   }
 
-  func start(_ id: String? = nil) throws {
+  func start(_ id: String? = nil, configuration: String? = nil) throws {
     let app = try XCTUnwrap(UIApplication.shared.delegate as? AppDelegate)
     let container = try XCTUnwrap(app.window?.rootViewController?.view)
     host.frame = container.bounds
     container.addSubview(host)
-    host.startSession(id ?? session)
+    if let configuration { host.startConfiguredSession(configuration) }
+    else { host.startSession(id ?? session) }
   }
 
-  func ready() async throws {
-    try start()
+  func ready(configuration: String? = nil) async throws {
+    try start(configuration: configuration)
     try await until("genuine native ready plus real main/guest frames") {
       self.events.contains { $0["type"] as? String == "ready" } && self.main != nil && self.guest != nil
     }

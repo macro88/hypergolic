@@ -13,7 +13,9 @@ Final React Doctor and aislop scores must both be 100/100 without hiding finding
 
 `index.ts` registers `src/App.tsx` with Expo. The Android and iOS screens host the
 bundled UX Lab through the [restricted native Kehto view](native-contract.md).
-The native views expose readiness and theme only. The shell now enters through
+The current application runtime exposes readiness and theme only. The next
+[native identity/storage admission layer](native-capabilities.md) is implemented and
+partly native-tested, with owner/runtime connection still pending. The shell now enters through
 a native process-owned identity vault; Android public-identity continuity is
 observed, while iOS protected storage needs a physical iPhone. See the
 [identity implementation checkpoint](identity-storage.md). The [workspace controller](workspace-storage.md) now persists opening order, last

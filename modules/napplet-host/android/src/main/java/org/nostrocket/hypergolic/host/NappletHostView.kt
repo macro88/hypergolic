@@ -26,6 +26,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   private val onHostEvent by EventDispatcher()
   override val shouldUseAndroidLayout = true
   private var sessionId: String? = null
+  private var configuration: CapabilityConfiguration? = null
   private val generation = UUID.randomUUID().toString()
   private var live = false
   private var loaded = false
@@ -85,7 +86,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
         } ?: blocked()
       }
       override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-        if (request.isForMainFrame) fail("navigation-blocked")
+        if (request.isForMainFrame || (configuration != null && ready)) fail("navigation-blocked")
         return true
       }
       override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
@@ -103,14 +104,25 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
       }
     }
     if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
-      WebViewCompat.addWebMessageListener(webView, "HypergolicHost", setOf(ORIGIN)) { view, message, origin, mainFrame, _ ->
+      WebViewCompat.addWebMessageListener(webView, "HypergolicHost", setOf(ORIGIN)) { view, message, origin, mainFrame, reply ->
         if (!live || view !== webView || !mainFrame || origin.toString() != ORIGIN || view.url != expectedUrl) return@addWebMessageListener
         if (message.type != WebMessageCompat.TYPE_STRING) return@addWebMessageListener
         val text = message.data ?: return@addWebMessageListener
-        if (text.toByteArray(Charsets.UTF_8).size > 2048) return@addWebMessageListener
+        if (text.toByteArray(Charsets.UTF_8).size > CapabilityLeaseRegistry.MAX_BYTES) return@addWebMessageListener
         try {
           val data = JSONObject(text)
           if (data.optString("sessionId") != generation) return@addWebMessageListener
+          if (data.optString("type") == "capability") {
+            receiveCapability(data) { response ->
+              if (live && !disposed && view === webView && view.url == expectedUrl) {
+                val result = JSONObject().put("type", "capability.result").put("sessionId", generation)
+                  .put("sequence", data.getLong("sequence")).put("response", response ?: JSONObject.NULL)
+                reply.postMessage(result.toString())
+              }
+            }
+            return@addWebMessageListener
+          }
+          if (text.toByteArray(Charsets.UTF_8).size > 2048) return@addWebMessageListener
           when (data.optString("type")) {
             "ready" -> if (data.length() == 2 && !ready) { ready = true; emit("ready") }
             "error" -> if (data.length() == 3 && data.optString("code").matches(Regex("[a-z-]{1,80}"))) fail(data.getString("code"))
@@ -132,7 +144,34 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
       ?.hideSoftInputFromWindow(token, 0)
   }
 
+  fun startConfiguredSession(raw: String) {
+    if (disposed) return
+    if (sessionId != null) {
+      // A native generation is immutable, including repeated React prop updates.
+      try {
+        if (CapabilityConfiguration(raw, generation).snapshot == configuration?.snapshot) return
+      } catch (_: Exception) { }
+      fail("session-reuse-blocked"); return
+    }
+    try { configuration = CapabilityConfiguration(raw, generation) }
+    catch (_: Exception) { fail("invalid-session"); return }
+    startSession(configuration!!.sessionId)
+  }
+
+  private fun receiveCapability(data: JSONObject, reply: (String?) -> Unit) {
+    val config = configuration ?: return
+    if (!ready || data.keys().asSequence().toSet() != setOf("type", "sessionId", "sequence", "message")) return
+    val number = data.get("sequence")
+    if ((number !is Int && number !is Long) || data.get("message") !is String) return
+    val sequence = (number as Number).toLong()
+    if (sequence !in 1..9_007_199_254_740_991L) return
+    val token = CapabilityTransport.admit(generation, sequence, config.request(data.getString("message")), reply)
+    if (token == null) { reply(null); return }
+    onHostEvent(mapOf("type" to "capability", "sessionId" to config.sessionId, "generation" to generation, "token" to token))
+  }
+
   fun startSession(id: String) {
+    if (disposed) return
     if (sessionId == id) return
     if (sessionId != null) { fail("session-reuse-blocked"); return }
     sessionId = id
@@ -140,8 +179,10 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
       fail("webview-update-required"); return
     }
+    if (configuration != null && !CapabilityTransport.leases.register(generation)) { fail("capability-unavailable"); return }
     live = true
     expectedUrl = "$ORIGIN/assets/runtime/index.html?sessionId=$generation"
+    configuration?.let { expectedUrl += "&fixture=" + it.fixture }
     webView.loadUrl(expectedUrl!!)
     webView.postDelayed({ if (live && !ready) fail("readiness-timeout") }, 15000)
   }
@@ -154,6 +195,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   private fun fail(code: String) {
     if (disposed) return
     live = false
+    CapabilityTransport.leases.revoke(generation)
     emit("error", code)
     destroySession()
   }
@@ -161,6 +203,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (disposed) return
     disposed = true
     live = false
+    CapabilityTransport.revoke(generation)
     if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
       WebViewCompat.removeWebMessageListener(webView, "HypergolicHost")
     }

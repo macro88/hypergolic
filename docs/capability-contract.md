@@ -115,8 +115,9 @@ The pinned Kehto storage path bypasses services.storage and uses synchronous bro
 localStorage. It can emit apparent success after persistence failure. Keep it disabled
 and route storage natively. services.relay sees an already-signed event, so replacing
 that service alone cannot implement approval. Keep Kehto auth.getSigner null; own
-the entire approve-and-publish operation natively. Reviewed scratch patches/tests
-must still be integrated and proven on both native platforms.
+the entire approve-and-publish operation natively. The reviewed whole-operation patches are integrated and browser-tested. The
+[native admission checkpoint](native-capabilities.md) records broker, registry and
+WK transport proof; genuine SDK journeys on both platforms remain open.
 
 Before and after asynchronous reads and immediately before every cryptographic or
 network effect, validate live registration, epoch, focused review ownership, expiry

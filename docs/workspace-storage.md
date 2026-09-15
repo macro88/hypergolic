@@ -34,8 +34,9 @@ partitioned by user, publisher, stable app, version and shared/instance scope.
 The integrated core also provides bounded string storage and atomic accepted-version
 copy/selection/receipts. It retains the original version and checks exact copied
 rows and bytes in one transaction. These ports are **not yet exposed to napplets**:
-verified publisher/app registration, native request admission and final generation
-checks must be wired before the capability is available. Identity switching must
+the [native admission broker](native-capabilities.md) and generation checks are
+implemented, but the trusted owner, catalogue and runtime still need connection
+before the capability is available. Identity switching must
 revoke old bindings and rebuild the loaded sessions before these ports can be used
 under another identity.
 

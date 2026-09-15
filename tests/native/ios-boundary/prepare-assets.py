@@ -9,6 +9,8 @@ def prepare():
  native=REPO/'modules/napplet-host/ios'
  assert digest((native/'RestrictedNappletHost.swift').read_bytes())==expected['coreSha256'],'Owning core changed: review and rebaseline boundary tests'
  assert digest((native/'NappletHostView.swift').read_bytes())==expected['wrapperSha256'],'Expo wrapper changed: review integration scope'
+ for name,key in [('CapabilityLeaseRegistry.swift','leaseSha256'),('CapabilityTransport.swift','transportSha256')]:
+  assert digest((native/name).read_bytes())==expected[key],'Native capability authority changed: review boundary tests'
  inputs={name:(native/'Resources/runtime'/name).read_bytes() for name in ['index.html','host.js','assets-manifest.json']}
  assert digest(inputs['assets-manifest.json'])==expected['manifestSha256'],'Runtime manifest changed: review fixture scope'
  manifest=json.loads(inputs['assets-manifest.json']);assert manifest['assets']==expected['assets'];assert manifest['fixture']==expected['fixture']
