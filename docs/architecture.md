@@ -2,11 +2,20 @@
 
 ## Implemented
 
-`index.ts` registers `src/App.tsx` with Expo. The app renders one static development
-screen. `app.json` configures Android only, disables hosted updates, and uses the
-development application ID `org.nostrocket.hypergolic.dev`. That ID reserves no
-production naming decision. There is no EAS project, hosted build config, key,
-relay connection, instantiated WebView, or runtime bridge.
+`index.ts` registers `src/App.tsx` with Expo. The current Android screen hosts the
+bundled UX Lab through the [restricted native Kehto view](native-contract.md).
+It is a first runtime proof with readiness and theme only; product identity,
+signing, saved data and published loading remain unimplemented. The supplied logo
+is visible in the native header. Current emulator evidence covers actual input,
+theme, listed boundary denials and renderer-failure teardown; full native acceptance
+and remaining release/device adversarial probes stay open.
+
+`app.json` configures Android and disables hosted updates, using the development
+application ID `org.nostrocket.hypergolic.dev`. That identifier reserves no
+production naming decision. There is no EAS project, hosted build configuration,
+user key or relay connection. V1 must support Android and iOS; this first native
+checkpoint demonstrates Android only. iOS napplet execution and physical-device
+acceptance remain open.
 
 Expo generates the ignored `android/` tree. Source configuration and the lockfile
 are authoritative. `plugins/withUnsignedRelease.cjs` replaces the generated release
@@ -26,8 +35,9 @@ The React Native shell owns identities, signing decisions, permissions, and nati
 operations. A bundled trusted Kehto host adapts the selected NAP subset inside a
 restricted WebView. Verified napplet bytes remain untrusted; publisher pinning does
 not grant native authority. Applesauce supplies selected Nostr event/relay plumbing.
-Neither Kehto nor Applesauce is installed yet: package/protocol compatibility and
-the bridge surface need review together before runtime code is introduced.
+Kehto is now installed in an isolated web build with reviewed package/protocol
+pins and a theme-only boundary. Applesauce and the privileged native adapters are
+planned; their contracts and exact authorization must be validated before exposure.
 
 First launch must create and securely persist an identity; later launches must reuse
 it. Storage failures must never cause silent replacement. Explicit `nsec` import

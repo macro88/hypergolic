@@ -23,7 +23,7 @@ GSD phase 3 is the seed's phase 2. Product sequencing is unchanged.
 **Depends on:** Phase 1 and decisions in `docs/architecture.md`
 **Plans:** 6 sequential plans; product defaults accepted, engineering execution in progress.
 
-- [ ] 02-01: Native host, real fixture trace and boundary checks.
+- [x] 02-01: Native host, real fixture trace and boundary checks.
 - [ ] 02-02: Multi-napplet gestures, zoom overview and live state.
 - [ ] 02-03: Protected identities, persistence and whole-shell switching.
 - [ ] 02-04: Exact signing approval and controlled capability fixtures.

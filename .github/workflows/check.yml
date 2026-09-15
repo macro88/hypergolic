@@ -19,8 +19,11 @@ jobs:
           cache-dependency-path: |
             pnpm-lock.yaml
             tools/quality/pnpm-lock.yaml
+            runtime/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - run: pnpm run runtime:install
       - run: pnpm run quality:install
+      - run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/native -p 'test_*.py'
       - run: pnpm run check
       - run: pnpm run export:android
         env:
@@ -39,15 +42,16 @@ jobs:
           distribution: temurin
           java-version: '17.0.20+101'
       - run: pnpm install --frozen-lockfile
+      - run: pnpm run runtime:install
       - run: pnpm run prebuild:android
         env:
           EXPO_NO_TELEMETRY: '1'
-      - name: Build unsigned release scaffold
+      - name: Build unsigned native runtime proof
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a
       - uses: actions/upload-artifact@v4
         with:
-          name: hypergolic-unsigned-scaffold
+          name: hypergolic-unsigned-runtime-proof
           path: android/app/build/outputs/apk/release/*-unsigned.apk
           if-no-files-found: error
   ux-lab:
@@ -72,4 +76,28 @@ jobs:
         with:
           name: ux-lab-browser-evidence
           path: napplets/ux-lab/test-results/
+          if-no-files-found: warn
+
+  runtime-host:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: runtime
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: runtime/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium webkit
+      - run: pnpm verify
+      - run: pnpm audit --audit-level=high
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: runtime-host-browser-evidence
+          path: runtime/test-results/
           if-no-files-found: warn

@@ -1,0 +1,20 @@
+diff --git a/dist/index.js b/dist/index.js
+index 523bcf16686659726604376dea98363a06f86049..b672689a31b08682e221b6837dce8264a12ee41a 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1286,8 +1286,13 @@ function nappletNamespacePrelude(domains) {
+   const allowed = new Set(domains);
+   const requestTimeoutMs = 3e4;
+   function id() {
+-    if (target.crypto?.randomUUID) return target.crypto.randomUUID();
+-    return `napplet-${Date.now()}-${Math.random().toString(16).slice(2)}`;
++    if (typeof target.crypto?.randomUUID === "function") return target.crypto.randomUUID();
++    if (typeof target.crypto?.getRandomValues !== "function") {
++      throw new Error("Secure randomness unavailable");
++    }
++    const bytes = new Uint8Array(16);
++    target.crypto.getRandomValues(bytes);
++    return `napplet-${Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("")}`;
+   }
+   function post(message) {
+     target.parent.postMessage(message, "*");

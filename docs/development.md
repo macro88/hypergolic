@@ -168,3 +168,18 @@ the active Codex configuration. GSD phase numbers map to seed phases in the road
 - [React Doctor](https://github.com/millionco/react-doctor)
 - [aislop](https://github.com/scanaislop/aislop)
 - [Android CLI](https://developer.android.com/tools/agents/android-cli)
+
+## Native napplet host checkpoint
+
+The Android app now has a local Expo module under `modules/napplet-host` and a
+separately locked Kehto build under `runtime`. Run `pnpm run runtime:install` once
+per lock update. Android prebuild/export scripts run `runtime:build`, which verifies
+and copies the generated trusted assets. A direct Gradle build fails if those
+assets are absent. Regenerate them after any runtime source/fixture/patch change.
+
+The initial native host Debug build passed with the pinned toolchain and displayed
+UX Lab, the host theme and the native readiness diagnostic on the existing API 36
+ARM64 emulator. It does not establish the complete shell, signing, persistent
+identity or published loader. See [the native contract](native-contract.md) and
+phase-2 execution records for current checks and remaining gates. Source pushes and
+remote replacement are reserved for the owner; continue on `mobile-revamp`.

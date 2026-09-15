@@ -1,12 +1,12 @@
 ---
 gsd_state_version: '1.0'
-status: planning
+status: executing
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
-  percent: 33
+  total_plans: 7
+  completed_plans: 2
+  percent: 28
 ---
 
 # Project State
@@ -21,9 +21,9 @@ See: .planning/PROJECT.md (updated 2026-09-14)
 ## Current Position
 
 Phase: 2 of 3 (Independent Android proof / seed phase 1)
-Plan: 0 of TBD in current phase
-Status: Ready to plan native runtime integration
-Last activity: 2026-09-14 — completed quick task 260914-ujk: recorded all six v1 product defaults and adopted RocketShell network/lookup relay configuration. Configuration/source checks pass; native integration remains pending.
+Plan: Android host checkpoint complete; two-platform plan correction in progress
+Status: Adding iOS parity and integrating shared switcher
+Last activity: 2026-09-15 — first Android host checkpoint built and measured. User correction: v1 must work on both Android and iOS; Android-only completion and iOS deferral are superseded. iOS host preparation and shared switcher integration are next. Final React Doctor and aislop targets are 100/100. Identity/signing/loading and full v1 acceptance remain open. Progress metadata counts plans, not product completion.
 
 ## Accumulated Context
 
@@ -33,9 +33,9 @@ See `docs/architecture.md` for confirmed requirements and unresolved policy.
 
 ### Blockers/Concerns
 
-Select and validate remaining security/protocol/delivery implementations before dependent native work.
+First theme-only native contract is selected. Validate privileged adapters and delivery contracts before their dependent work. Preserve Expo 57.0.20 despite the existing Doctor patch-version mismatch. Source remote/push remains owner-only.
 Codex skill discovery after restarting at the app repository remains pending.
-Device checks are paused pending local security-prompt approval. No device run occurred.
+Android native host checks are verified. Equivalent iOS napplet execution and full native security acceptance remain open.
 See `docs/phase-zero.md` for actual checks and artifacts.
 
 ### Quick Tasks Completed

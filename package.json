@@ -10,21 +10,25 @@
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
-    "prebuild:android": "expo prebuild --platform android --no-install",
-    "export:android": "expo export --platform android",
+    "prebuild:android": "pnpm run runtime:build && expo prebuild --platform android --no-install",
+    "export:android": "pnpm run runtime:build && expo export --platform android",
     "typecheck": "tsc --noEmit",
     "doctor:expo": "expo-doctor",
     "doctor:react": "react-doctor . --no-telemetry --no-supply-chain --yes --blocking warning",
     "doctor:slop": "node tools/quality/node_modules/aislop/dist/cli.js ci",
     "quality:install": "pnpm --dir tools/quality install --frozen-lockfile",
-    "audit": "pnpm audit --audit-level=high && pnpm --dir tools/quality audit --audit-level=high",
+    "audit": "pnpm audit --audit-level=high && pnpm --dir runtime audit --audit-level=high && pnpm --dir tools/quality audit --audit-level=high",
     "check": "pnpm run typecheck && pnpm run doctor:expo && pnpm run doctor:react && pnpm run doctor:slop && pnpm run audit",
-    "gsd:install": "gsd-core --codex --local"
+    "gsd:install": "gsd-core --codex --local",
+    "runtime:install": "pnpm --dir runtime install --frozen-lockfile",
+    "runtime:build": "node scripts/build-runtime.mjs",
+    "runtime:test": "pnpm --dir runtime verify"
   },
   "dependencies": {
     "expo": "57.0.20",
     "react": "19.2.3",
-    "react-native": "0.86.3"
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "5.7.0"
   },
   "devDependencies": {
     "@opengsd/gsd-core": "1.13.0",

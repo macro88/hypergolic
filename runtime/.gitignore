@@ -1,0 +1,5 @@
+node_modules/
+dist/
+assets-manifest.json
+test-results/
+playwright-report/
