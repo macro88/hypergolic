@@ -2,7 +2,14 @@
 
 Reviewed 15 September 2026 by `/root/runtime_contract`, using the generic-agent fallback for the repository's `gsd-plan-checker` role. This is static plan verification, not implementation or device acceptance.
 
-## VERIFICATION PASSED
+## Historical review — superseded by the platform correction
+
+The result below covers the original six plans only. The 15 September user
+correction requires Android and iOS in v1 and maximum quality scores. Revised
+plans plus 02-07 require a fresh review; this old pass must not be represented
+as approval of the revised plan set.
+
+## Original VERIFICATION PASSED
 
 All six actual source plans were reread after the corrections below. **0 blockers, 0 warnings, 0 advisories remain.** The reviewed plans are ready for sequential execution at their stated scope. This result does not mean the implementation or any acceptance row is complete.
 
@@ -93,3 +100,5 @@ Only trailing whitespace changed after the final static pass; task content is un
 | 02-04-PLAN.md | 3 | 29 | 4 | `8e48167dbff0367c44cdd6fea23044f3cab866430d185f88896af626214bd3c8` |
 | 02-05-PLAN.md | 3 | 23 | 5 | `da88066cd8c79ecceccb3fa68424cb2f2452f78a4ac9d40a3ba5be9fc12c118b` |
 | 02-06-PLAN.md | 3 | 18 | 6 | `426cef77ddfa0d64548669031ae6693fc807d4e701e5bfee005b6c979df7f00f` |
+
+The replacement seven-plan review is [02-PLATFORM-PLAN-REVIEW.md](02-PLATFORM-PLAN-REVIEW.md).

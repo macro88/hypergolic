@@ -20,7 +20,7 @@ Exact Expo-compatible baseline: secure-store57.0.3, crypto57.0.2, local-authenti
 
 ## R-05: Failure-safe inventory and state
 
-SQLite nonsecret durable receipt, identities, operation journal, workspace and scoped napplet_kv; secrets exclusively SecureStore. Initialization staging/readback before first selected identity is displayed. Protected receipt detects surviving key inventory; corrupt/missing/read-failed established identity is a recovery error. SecureStore may return null after crypto failure and may ignore commit boolean; verify every write and deletion by readback. Recover interrupted import/delete without dropping or recreating identities. Switching lock validates destination/persists first, then increments epoch, cancels all privileged work and replaces every session; failed persistence/cancel retains old sessions. Namespace identity + publisher + stable app, not version; prepared statements/byte quotas.
+SQLite nonsecret durable receipt, identities, operation journal, workspace and scoped napplet_kv; secrets exclusively SecureStore. Initialization staging/readback before first selected identity is displayed. Protected receipt detects surviving key inventory; corrupt/missing/read-failed established identity is a recovery error. SecureStore may return null after crypto failure and may ignore commit boolean; verify every write and deletion by readback. Recover interrupted import/delete without dropping or recreating identities. Switching lock validates destination/persists first, then increments epoch, cancels all privileged work and replaces every session; failed persistence/cancel retains old sessions. The original no-version physical namespace proposal is superseded by selected NAP-STORAGE PR3 f71e84ebca7474db260346cbfc2d88f41b4e421e: identity+publisher+stable-app owner with isolated aggregate/version+scope+instance keys. Accepted verified same-owner updates atomically copy saved data into a new empty version namespace while retaining the old version; prepared statements, quota and rollback checks. See docs/capability-contract.md.
 
 ## R-06: Authenticated export/deletion
 
@@ -59,3 +59,22 @@ Full native product and security requirements are unimplemented. Current scaffol
 - https://applesauce.build/typedoc/classes/applesauce-relay.RelayPool.html
 
 Research archive refs: SecureStore b76ecf192c5325793bcea31dd9bb8efd91f9ad7f; Crypto52fc013ec8c75e89ba8f83c167e4b6b0416e6bf7; LocalAuthenticationa4789f1e53353f4929b0baddcfe5a7c622b99c71; ApplesauceCoree5a93dc9e8d621137590845e139926638e954312; ApplesauceRelayfaf30d2b5fd785acaf5b72c3095867348528583f; NostrTools6ebe59f1239176598140ceae6b3277edca77ecc4. Library archive review is implementation evidence, not device proof.
+
+
+## R-09: Android and iOS parity correction
+
+D-18 requires real native hosts, local standalone builds and complete platform-specific
+journeys on Android and iOS in v1.02-07 owns the first WKWebView path;02-02 through
+02-05 explicitly exercise both drivers;02-06 owns physical iPhone signing, Keychain/
+auth/gesture proof and no-Metro Release evidence alongside Android. iOS18.4 is the
+selected initial minimum because its public WKUIDelegate file-picker denial callback
+is unavailable on older iOS. Verify the actual iOS26.5 Simulator first, then the
+owner's supported phone. Public app-store publication is separate.
+
+## R-10: Maximum source quality
+
+D-19 requires React Doctor100/100 and aislop100/100 on final current source, complete
+scans and no new suppressions. The React Doctor no-telemetry flag also disables its
+score API; a clean no-score report is useful but is not a measured100. Final proof
+must request and retain an actual score, with no missing-score-to-success fallback.
+Expo Doctor's existing patch recommendation remains a separately disclosed exception.

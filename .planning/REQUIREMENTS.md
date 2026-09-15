@@ -1,8 +1,13 @@
-# Requirements: independent Android proof
+# Requirements: independent Android and iOS proof
 
 Status: planned, derived 15 September 2026 from accepted product decisions. Every row remains open unless a final current-state evidence record proves it. The implementation baseline is a static native development screen, standalone UX Lab, supplied logo, and unused relay seed arrays. Historical browser/scaffold evidence is partial only.
 
-The goal is the complete agreed native shell and independent Android proof, including purpose-built fixture publication under the designated project key. The theme-only first native trace is a dependency, not the finish line.
+The goal is the complete agreed native shell on both Android and iOS, including purpose-built fixture publication under the designated project key. The theme-only first native trace is a dependency, not the finish line.
+
+The user explicitly corrected platform scope on 15 September 2026: every applicable
+native journey below must pass on **both Android and iOS**, with evidence recorded
+separately. An Android pass or shared-code unit test is not iOS proof. Existing
+baseline labels describe the earlier starting point, not current completion.
 
 ## Acceptance matrix
 
@@ -42,8 +47,8 @@ The goal is the complete agreed native shell and independent Android proof, incl
 | FIX-01 | UX Lab -> State Lab -> Approval Lab, controlled local relay, stable UI identifiers | All fixtures build/conform; tests use public napplet APIs and user-visible shell controls, no privileged fixture approval/storage bypass | partial UX only |
 | FIX-02 | Same fixture bytes embedded and published under designated project key | Artifact hash parity, signed release metadata/publisher plus real Nostr/Blossom retrieval; repeat representative behavior through published route | missing |
 | FIX-03 | Disposable run identities separate from release publisher, retained across restart | Evidence records public test IDs + fixture versions/hashes; reset only between independent runs; project key never used for routine generated events | missing |
-| BUILD-01 | Pinned compatible dependencies/protocols/licenses, checks + native build | Lockfiles/ref inventory and scope-limited conformance; typecheck, React Doctor, aislop, audit, fixture verify, Android export/prebuild/Gradle from current state | partial scaffold |
-| BUILD-02 | Locally signed independent Android v1 APK, installed/cold-launched without Metro/Expo hosted services | Current APK payload/signature/hash/permissions inspection; no-Metro launch and full journey on Android; retained commands, exact device/OS, artifact and failures | partial old scaffold |
+| BUILD-01 | Pinned compatible dependencies/protocols/licenses, checks + native build | Lockfiles/ref inventory and scope-limited conformance; typecheck, React Doctor 100/100, aislop 100/100, audit, fixture verify, Android Gradle and iOS Xcode build/export from current state; no finding suppression | partial scaffold |
+| BUILD-02 | Locally built standalone Android APK and iOS app, installed/cold-launched without Metro/Expo hosted services | Current Android/iOS payload, signing/provisioning, hash and permissions inspection; no-Metro launch and full journey on both platforms; retained commands, exact device/OS, artifact and failures | partial old scaffold |
 | BUILD-03 | Preserve current branch/checkout until ready; owner handles new remote/push | Final branch/remotes/status prove no source remote mutation/push; coherent local commits preserve pre-existing edits | currently satisfied |
 
 ## Traceability
@@ -78,19 +83,19 @@ The goal is the complete agreed native shell and independent Android proof, incl
 | LOAD-03 | 02-05 | 02-06 |
 | RELAY-01 | 02-05 | 02-06 |
 | RELAY-02 | 02-04, 02-05 | 02-06 |
-| SEC-01 | 02-01, 02-04 | 02-06 |
-| SEC-02 | 02-01, 02-05 | 02-06 |
-| SEC-03 | 02-01 | 02-06 |
+| SEC-01 | 02-01, 02-07, 02-04 | 02-06 |
+| SEC-02 | 02-01, 02-07, 02-05 | 02-06 |
+| SEC-03 | 02-01, 02-07 | 02-06 |
 | FIX-01 | 02-01, 02-03, 02-04 | 02-06 |
 | FIX-02 | 02-06 | 02-06 |
 | FIX-03 | 02-04 | 02-06 |
-| BUILD-01 | 02-01 | 02-06 |
+| BUILD-01 | 02-01, 02-07 | 02-06 |
 | BUILD-02 | 02-06 | 02-06 |
 | BUILD-03 | 02-06 | 02-06 |
 
 ## Exclusions
 
-External signers, configurable silent-signing policy, catalogue, feeds, DMs, zaps/payments, mandatory profile editing and independent iOS distribution are later work. Hex key import is not required. Unsaved drafts need not survive process termination. The source remote and source push remain owner-controlled.
+External signers, configurable silent-signing policy, catalogue, feeds, DMs, zaps/payments, mandatory profile editing and public app-store publication are later work. Working standalone iOS v1 builds and device validation are required. Hex key import is not required. Unsaved drafts need not survive process termination. The source remote and source push remain owner-controlled.
 
 ## Evidence discipline
 

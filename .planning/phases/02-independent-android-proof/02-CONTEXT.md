@@ -1,6 +1,6 @@
-# Phase 02 context: Independent Android proof
+# Phase 02 context: Independent Android and iOS proof
 
-Goal: complete the accepted native shell, publish controlled test fixtures, and prove the full journey on an independently signed Android APK. Source status at planning is scaffold-only. Product decisions are settled; remaining implementation choices below are engineering discretion.
+Goal: complete the accepted native shell, publish controlled test fixtures, and prove the full journey on Android and iOS using local standalone builds. The user explicitly corrected the earlier Android-only finish line on 15 September 2026. Source status at planning is scaffold-only. Product decisions are settled; remaining implementation choices below are engineering discretion.
 
 ## Decisions
 
@@ -9,7 +9,7 @@ Goal: complete the accepted native shell, publish controlled test fixtures, and 
 Use current mobile-revamp checkout, preserve existing edits and cleaned history. The owner alone changes the source remote and pushes to the new repository; local source commits and private Notes routine sync remain separate.
 
 ### D-02
-Expo/React Native shell, Kehto trusted web host, Applesauce Nostr integration; preserve Expo 57.0.20. Build locally signed standalone Android without Expo Go, Metro or Expo hosted services for final proof.
+Expo/React Native shell, Kehto trusted web host, Applesauce Nostr integration; preserve Expo 57.0.20. Build standalone Android and iOS without Expo Go, Metro or Expo hosted services for final proof. Both platforms require real native runtime, gestures, identities, signing, saved state and published loading; an iOS placeholder or Simulator scaffold is insufficient.
 
 ### D-03
 Minimal header: supplied 32 logical-pixel square logo with no tap action, focused napplet name, avatar + shortened selected npub opening trusted settings. Profile photo if available, deterministic local fallback; full copyable npub in settings.
@@ -55,6 +55,11 @@ Disposable automation identities stay separate from release publisher; same iden
 
 ### D-17
 No further broad interview prerequisite. Resolve engineering details by research/tests; ask only material scope/privacy tradeoffs or genuinely missing publisher/signing/device inputs, batched by exception.
+### D-18
+V1 must work on both Android and iOS. Native security and device behavior require independent platform evidence; shared React Native code or Android success cannot close iOS acceptance. Public app-store publication is a separate activity.
+
+### D-19
+Final React Doctor and aislop scores must both be 100/100. Fix findings instead of suppressing them, excluding task source or lowering gates. Keep the accepted Expo pin and report its separate Doctor mismatch honestly.
 </decisions>
 
 ## Agent discretion
@@ -63,8 +68,8 @@ Pin reviewed compatible protocols and packages; select exact supported link form
 
 ## Deferred ideas
 
-External signers, silent policy configuration, catalogue napplet, social/DM/zaps, app-store distribution and independent iOS proof. These are not acceptance dependencies. Process-death unsaved draft recovery is not promised.
+External signers, silent policy configuration, catalogue napplet, social/DM/zaps, public app-store distribution. These are not acceptance dependencies. Process-death unsaved draft recovery is not promised.
 
 ## Actual external inputs
 
-Fixture publisher npub, authorized signing method and intended verified relay/Blossom publication destinations remain unknown. Prepare concrete unsigned release artifacts first, then collect these values without requesting the nsec in chat. Physical phone must be connected/unlocked/authorized for phone-specific validation. Existing local test signing certificate supports a clearly labelled standalone test APK; production identity/certificate custody is separate. Source remotes/push are owner-only.
+Fixture publisher npub, authorized signing method and intended verified relay/Blossom publication destinations remain unknown. Prepare concrete unsigned release artifacts first, then collect these values without requesting the nsec in chat. Android and iPhone devices must be connected/unlocked/authorized for platform-specific validation. iOS device signing/team/provisioning must be checked when building the installable artifact; account enrollment is owner-controlled. Existing local test signing certificate supports a clearly labelled standalone test APK; production identity/certificate custody is separate. Source remotes/push are owner-only.

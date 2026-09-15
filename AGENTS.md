@@ -22,7 +22,7 @@ third-party notices. Do not change that identity without a request.
 
 ## Stack and scope
 
-Use Expo and React Native for the Android shell, Kehto for the intended web runtime,
+Use Expo and React Native for the Android and iOS shell, Kehto for the web runtime,
 and Applesauce for Nostr integration. Follow the existing strict TypeScript and Expo
 module conventions; do not impose Kehto's framework-free package architecture or
 ESM-only output on native/config-plugin files.
@@ -31,7 +31,7 @@ Do not implement key storage, signing approval, remote napplet trust policy or
 identity-switch safeguards until their open decisions are resolved. First-launch
 identity creation/reuse and post-entry trusted settings for import remain confirmed.
 The profile napplet is a UI example, not a required product feature. A browser
-runtime does not prove Android WebView isolation. Build, signing, device behavior
+runtime does not prove Android WebView or iOS WKWebView isolation. Build, signing, device behavior
 and security each need their own evidence.
 
 ## Workflow and checks
@@ -43,9 +43,9 @@ for native/config-plugin changes, `pnpm run prebuild:android` plus the relevant 
 build in `docs/development.md`. Documentation-only edits need command/link, diff and
 privacy checks; do not claim a build was rerun when it was not.
 
-Add regression coverage for changed behavior using real contract cases. Keep React
-Doctor and aislop gates passing; justify exceptions rather than lowering gates to
-hide findings. Update affected setup and architecture docs in the same change.
+Add regression coverage for changed behavior using real contract cases. Require complete React
+Doctor and aislop reports with scores of 100/100; fix findings without suppressing
+source or lowering either gate. Update affected setup and architecture docs in the same change.
 
 Install GSD with `pnpm run gsd:install`. Use the installed Codex skills appropriate to
 the task: `$gsd-quick` for a small change, `$gsd-debug` for investigation, and
