@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getIdentityState, startIdentity, subscribeIdentity } from '../security/identity-state';
-import { Shell } from './Shell';
+import { WorkspaceEntry } from './WorkspaceEntry';
 import { colors } from './theme';
 
 const unavailableMessages = {
@@ -15,6 +15,10 @@ const unavailableMessages = {
     heading: 'Your identity needs attention',
     detail: 'Your saved identity could not be opened. Restart the app to try again. Hypergolic has not replaced your identity.',
   },
+  'workspace-required': {
+    heading: 'Your workspace needs attention',
+    detail: 'Your saved workspace could not be opened. Restart the app to try again. Hypergolic has kept your saved data.',
+  },
   'device-required': {
     heading: 'Use a physical iPhone',
     detail: 'Simulator cannot provide the file protection required for identity storage. Open Hypergolic on an iPhone to continue.',
@@ -24,7 +28,7 @@ const unavailableMessages = {
 export function IdentityEntry() {
   const state = useSyncExternalStore(subscribeIdentity, getIdentityState);
   useEffect(() => { startIdentity(); }, []);
-  if (state.status === 'ready') return <Shell identity={{ npub: state.identity.npub }} />;
+  if (state.status === 'ready') return <WorkspaceEntry identity={{ npub: state.identity.npub }} controller={state.workspace} />;
   const message = state.status === 'opening' ? null : unavailableMessages[state.status];
   return <SafeAreaView style={styles.screen}>
     <View style={styles.brand}>

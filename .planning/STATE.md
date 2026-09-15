@@ -16,14 +16,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-14)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Protected first-entry identity checkpoint, then durable workspace and identity management on Android/iOS.
+**Current focus:** Identity import and whole-shell switching after the protected entry and workspace persistence checkpoints.
 
 ## Current Position
 
 Phase: 2 of 3 (Independent Android and iOS proof / seed phase 1)
 Plan: 02-03 secure identities and saved state; remaining 02-07 device acceptance
-Status: First-entry identity integrated; Android restart passes; physical-iPhone identity proof and remaining plan tasks open
-Last activity: 2026-09-15 — Integrated the process-owned identity vault and platform adapters. Android diagnostics-free cold-restart proof passes with the same public identity. Normal iOS Simulator entry fails safely before metadata writes because file protection is unavailable; a separate identity-free Release fixture passes shared UI switching checks. Portable identity/file-policy probes are included. Aislop is 100/100 and complete React Doctor has zero findings, but numeric scoring remains pending authorization. This is a partial 02-03 checkpoint, not plan completion. Progress metadata counts plans, not product completion.
+Status: Identity entry and workspace descriptors integrated; Android and isolated iOS workspace restarts pass; identity management and physical security remain open
+Last activity: 2026-09-15 — Workspace persistence now retains opening order, last active napplet and explicit empty state. Native restart journeys pass on Android's normal debug app and a separate iOS Release fixture using actual SQLite. The latter excludes identity/signing modules and does not close physical-iPhone identity acceptance. The storage core passes 62 tests; full local aislop is 100/100 and React Doctor has zero findings, numeric scoring still pending permission. Next: import/whole-shell switching and then authenticated actions. Progress metadata counts plans, not product completion.
 
 Previous environment checkpoint: 2026-09-12 — local iOS development setup completed: native Simulator Debug build, input/navigation, Hermes/logging, reload, Fast Refresh and cold launch verified. Original scaffold and Android artifacts preserved. This environment checkpoint does not advance the product/security phase; see docs/development.md.
 

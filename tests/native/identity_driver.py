@@ -49,6 +49,8 @@ def harness_snapshot(source: Path) -> dict:
              'identity-encoding.mjs': HERE / 'identity-encoding.mjs',
              'source/tests/native/driver.py': source / 'tests/native/driver.py',
              'source/tests/native/receiver.py': source / 'tests/native/receiver.py'}
+    workspace_driver = HERE / 'workspace_restart.py'
+    if workspace_driver.is_file(): paths['workspace_restart.py'] = workspace_driver
     return {name: sha256(path) for name, path in paths.items()}
 
 
@@ -136,6 +138,7 @@ def load_base(source: Path):
 
 
 class IdentityRestart:
+    scenario = 'identity-restart'
     def __init__(self, driver):
         self.driver = driver
         self.package = driver.args.package
@@ -205,7 +208,8 @@ class IdentityRestart:
         self.driver.result['finalPid'] = second_pid
 
 
-def main(argv=None):
+def main(argv=None, scenario_type=None):
+    scenario_type = scenario_type or IdentityRestart
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path, required=True)
     parser.add_argument('--serial', required=True)
@@ -215,7 +219,7 @@ def main(argv=None):
     parser.add_argument('--timeout', type=float, default=90)
     parser.add_argument('--expected-apk-sha256', required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('scenario', choices=('identity-restart',))
+    parser.add_argument('scenario', choices=(scenario_type.scenario,))
     args = parser.parse_args(argv)
     if not re.fullmatch(r'[a-f0-9]{64}', args.expected_apk_sha256):
         parser.error('An exact expected installed APK SHA-256 is required')
@@ -239,7 +243,7 @@ def main(argv=None):
         active.metadata()
         active.result['appBefore'] = copy.deepcopy(active.result['app'])
         require_equal(args.expected_apk_sha256, active.result['appBefore']['installedBaseApkSha256'], 'Expected installed APK')
-        IdentityRestart(active).run()
+        scenario_type(active).run()
         active.metadata()
         active.result['appAfter'] = copy.deepcopy(active.result['app'])
         require_equal(active.result['appBefore']['installedBaseApkSha256'], active.result['appAfter']['installedBaseApkSha256'], 'Installed APK')

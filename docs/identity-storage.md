@@ -85,7 +85,7 @@ Its visible device-required screen and unchanged existing nonsecret database/
 protected-directory contents were checked. No secret content was inspected.
 Android public-identity continuity and the absence of an iOS storage fallback are
 separate findings. Completing import/switching, device-authenticated actions,
-scoped workspace storage, approval/publish, verified loading and final standalone
+napplet saved-data access, approval/publish, verified loading and final standalone
 Android/iOS acceptance remains necessary.
 
 ## Recorded checkpoint
@@ -124,3 +124,6 @@ no known vulnerabilities. Expo Doctor passes 20 of 21 checks; the remaining chec
 requests newer patches for Expo, Crypto, Image, SecureStore and SQLite. The
 explicit Expo 57.0.20 pin is preserved; no compatibility exclusion or suppression
 has been added. The aggregate `pnpm run check` is therefore not green.
+
+Workspace descriptor persistence is now integrated; see [workspace storage](workspace-storage.md)
+for the subsequent Android and isolated iOS native restart evidence.

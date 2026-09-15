@@ -13,6 +13,7 @@ final class WorkspaceTests: XCTestCase {
   private var nonce = ""
   private let placeholder = "Something you will recognise…"
   private let expected: [String: Set<String>] = [
+    "workspace-restart": ["selected-napplet-after-restart", "opening-order-after-restart", "explicit-empty-after-restart"],
     "card-cancel": ["short-card-stroke-cancel", "two-touch-card-cancel", "cancelled-card-state-retained"],
     "closing": ["seed-close-state", "gentle-overview-scroll", "rapid-swipe-warning", "keep-open-retains-state", "close-removes-only-target", "other-session-state-retained", "visible-close-controls", "quiet-empty-overview", "empty-settings-and-open"],
     "switch-state": ["seed-a", "seed-b-isolated", "edge-roundtrip-a", "two-column-overview", "overview-restore-b", "stop-at-last", "stop-at-first-and-restore-a"],
@@ -40,6 +41,60 @@ final class WorkspaceTests: XCTestCase {
       "allChecksPassed": allPassed, "checks": checks, "observations": observations, "gestures": gestures,
       "proofScope": "Public native XCTest gestures and accessibility. Temporary fixture values/scroll positions only; native generation identity and transition frame pacing are not directly observed."
     ], "workspace-report")
+  }
+
+  func testWorkspaceRestart() throws {
+    try focused(1)
+    try workspaceSaved()
+    try nativeTap(one(app.buttons.matching(identifier: "shell-settings"), "Settings"), name: "open-settings")
+    try nativeTap(one(app.buttons.matching(identifier: "settings-open-ux-lab"), "Open UX Lab"), name: "open-fourth-fixture")
+    try focused(4)
+    try workspaceSaved()
+    capture("before-workspace-restart")
+    try restartWorkspaceApp()
+    try focused(4)
+    try workspaceSaved()
+    record("selected-napplet-after-restart", currentTitle() == "UX Lab 4", ["title": currentTitle()])
+    capture("restored-focused")
+    try openOverview(expected: [1, 2, 3, 4])
+    let cards = try [1, 2, 3, 4].map { number in
+      try one(app.buttons.matching(identifier: "overview-card-ux-lab-\(number)"), "restored card", visible: false)
+    }
+    let a = cards[0].frame, b = cards[1].frame, c = cards[2].frame, d = cards[3].frame
+    record("opening-order-after-restart", a.maxX < b.minX && abs(a.minY - b.minY) < 2
+      && abs(c.minX - a.minX) < 2 && abs(d.minX - b.minX) < 2 && abs(c.minY - d.minY) < 2
+      && c.minY > max(a.maxY, b.maxY), ["cards": cards.map(attributes)])
+    capture("restored-order")
+    for number in 1...4 {
+      try nativeTap(one(app.buttons.matching(identifier: "overview-close-ux-lab-\(number)"), "Close first remaining fixture"), name: "close-fixture-\(number)")
+      try warning(for: number)
+      try nativeTap(one(app.buttons.matching(identifier: "close-confirm"), "Close anyway"), name: "confirm-close-\(number)")
+      try overviewReady(Array(1...4).filter { $0 > number })
+      try workspaceSaved()
+    }
+    guard try emptyOverview() else { throw Failure.invalid("Workspace did not become empty before restart") }
+    capture("empty-before-restart")
+    try restartWorkspaceApp()
+    try until("Restored explicit empty workspace") { self.currentTitle() == "Hypergolic" && (try? self.emptyOverview()) == true }
+    try workspaceSaved()
+    record("explicit-empty-after-restart", try emptyOverview(), ["title": currentTitle(), "sessions": overviewIDs()])
+    capture("empty-after-restart")
+    complete = true
+  }
+
+  private func workspaceSaved() throws {
+    try until("Workspace save complete") {
+      self.app.descendants(matching: .any).matching(identifier: "workspace-saved").firstMatch.exists
+        && !self.app.descendants(matching: .any).matching(identifier: "workspace-saving").firstMatch.exists
+    }
+  }
+  private func restartWorkspaceApp() throws {
+    app.terminate()
+    try until("Target process terminated") { self.app.state == .notRunning }
+    app.launch()
+    try until("Target relaunched in foreground") { self.app.state == .runningForeground }
+    let completed = observations["completedRestarts"] as? Int ?? 0
+    observations["completedRestarts"] = completed + 1
   }
 
   func testSwitchState() throws {

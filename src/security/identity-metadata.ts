@@ -2,18 +2,8 @@ import { VaultError, type DatabaseRecord, type MetadataDatabase } from './identi
 import { decodeDatabase, encodeDatabase } from './identity-codec.ts';
 import type { NativePlatform } from './android-encrypted-secrets.ts';
 
-/** Only this adapter owns this connection. No connection or arbitrary SQL escapes its closure. */
-export interface SQLiteConnection {
-  execAsync(sql: string): Promise<void>;
-  runAsync(sql: string, ...params: (string | number | null)[]): Promise<{ changes: number }>;
-  getAllAsync<T>(sql: string, ...params: (string | number | null)[]): Promise<T[]>;
-  isInTransactionAsync(): Promise<boolean>;
-  closeAsync(): Promise<void>;
-}
-/** Structural subset checked against Expo SQLite 57.0.2, not an alternative persistence implementation. */
-export interface SQLiteModule {
-  openDatabaseAsync(name: string, options: { useNewConnection: true; enableChangeListener: false }): Promise<SQLiteConnection>;
-}
+import type { SQLiteConnection, SQLiteModule } from '../storage/sqlite.ts';
+export type { SQLiteConnection, SQLiteModule } from '../storage/sqlite.ts';
 export interface IdentityMetadata extends MetadataDatabase { close(): Promise<void> }
 export const IDENTITY_DATABASE = 'hypergolic-identity-v1.db';
 const TABLE = 'CREATE TABLE vault_metadata (singleton INTEGER PRIMARY KEY CHECK (singleton = 1), revision INTEGER NOT NULL CHECK (revision >= 0), payload TEXT NOT NULL CHECK (length(payload) <= 8192))';

@@ -2,20 +2,25 @@ import { IdentityDeviceRequired } from './identity-device-required';
 import { createOwnerBootstrap, IdentityRestartRequired } from './owner-bootstrap';
 import { claimIdentityOwner } from './native-identity-owner';
 import type { PublicIdentitySnapshot } from './trusted-identity-owner';
+import type { WorkspaceController } from '../storage/workspace-controller';
 
 type IdentityState = Readonly<
   | { status: 'opening' }
-  | { status: 'ready'; identity: PublicIdentitySnapshot }
-  | { status: 'restart-required' | 'recovery-required' | 'device-required' }
+  | { status: 'ready'; identity: PublicIdentitySnapshot; workspace: WorkspaceController }
+  | { status: 'restart-required' | 'recovery-required' | 'device-required' | 'workspace-required' }
 >;
 const listeners = new Set<() => void>();
 let state: IdentityState = Object.freeze({ status: 'opening' });
 const startOwner = createOwnerBootstrap(claimIdentityOwner, async () => {
   const { initializeNativeRandom } = await import('./crypto-bootstrap');
   initializeNativeRandom();
-  const { openTrustedIdentityOwner } = await import('./trusted-identity-owner');
-  return openTrustedIdentityOwner();
+  const { openTrustedIdentityOwner, WorkspaceStartupError } = await import('./trusted-identity-owner');
+  try { return await openTrustedIdentityOwner(); } catch (error) {
+    if (error instanceof WorkspaceStartupError) throw new WorkspaceEntryError();
+    throw error;
+  }
 });
+class WorkspaceEntryError extends Error {}
 let observed = false;
 
 function publish(next: IdentityState) {
@@ -31,9 +36,10 @@ export function startIdentity(): void {
   if (observed) return;
   observed = true;
   void startOwner().then(owner => {
-    publish({ status: 'ready', identity: owner.getPublicSnapshot() });
+    publish({ status: 'ready', identity: owner.getPublicSnapshot(), workspace: owner.workspace });
   }).catch(error => {
-    if (error instanceof IdentityDeviceRequired) publish({ status: 'device-required' });
+    if (error instanceof WorkspaceEntryError) publish({ status: 'workspace-required' });
+    else if (error instanceof IdentityDeviceRequired) publish({ status: 'device-required' });
     else publish({ status: error instanceof IdentityRestartRequired ? 'restart-required' : 'recovery-required' });
   });
 }

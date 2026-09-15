@@ -21,6 +21,7 @@ EXPECTED_CHECKS = {
     "native-text-input", "typed-rendered-mirror",
 }
 SCENARIOS = {
+    "workspace-restart": {"checks": {"selected-napplet-after-restart", "opening-order-after-restart", "explicit-empty-after-restart"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testWorkspaceRestart"},
     "card-cancel": {"checks": {"short-card-stroke-cancel", "two-touch-card-cancel", "cancelled-card-state-retained"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testCardCancellation"},
     "closing": {"checks": {"seed-close-state", "gentle-overview-scroll", "rapid-swipe-warning", "keep-open-retains-state", "close-removes-only-target", "other-session-state-retained", "visible-close-controls", "quiet-empty-overview", "empty-settings-and-open"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testClosing"},
     "trace-host": {"checks": EXPECTED_CHECKS, "kind": "hypergolic-ios-trace-v1", "test": "HostTraceTests/testHostTrace"},
@@ -136,7 +137,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--expected-title", default="UX Lab 1")
     parser.add_argument("--expected-session", default="ux-lab-1")
     parser.add_argument("--timeout", type=float, default=30)
-    parser.add_argument("scenario", choices=["card-cancel", "trace-host", "switch-state", "gestures", "closing", "identity", "host-boundary", "renderer-loss"])
+    parser.add_argument("scenario", choices=["workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "identity", "host-boundary", "renderer-loss"])
     parser.add_argument("--output", type=Path, required=True, help="New private evidence directory, never overwritten")
     args = parser.parse_args(argv)
     if args.scenario not in SCENARIOS:

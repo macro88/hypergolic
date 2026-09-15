@@ -47,3 +47,17 @@ no known vulnerabilities. Expo Doctor passes 20 of 21 checks; the remaining chec
 requests newer patches for Expo, Crypto, Image, SecureStore and SQLite. The
 explicit Expo 57.0.20 pin is preserved; no compatibility exclusion or suppression
 has been added. The aggregate `pnpm run check` is therefore not green.
+
+## Workspace persistence integration
+
+The public-identity-scoped workspace database and controller now drive the actual
+shell. Opening order, last selection and explicit empty state survive native
+restarts on Android and the separate iOS SQLite fixture. The integrated core passes
+62 storage/controller tests. Its string and accepted-update ports are not yet wired
+through the native napplet boundary. See [workspace storage](../../../docs/workspace-storage.md)
+for commands, failure behavior and the limits of each native result.
+
+Next: import and whole-shell identity switching, authenticated actions, then the
+native capability/approval/loading work. The saved workspace does not include
+volatile drafts, and lazy restoration remains open. React Doctor's numeric request
+and physical-iPhone identity proof remain pending. Stop at 45% weekly account use.
