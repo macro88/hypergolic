@@ -170,12 +170,18 @@ lockfile to preserve the scanner's separate dependency tree. Both pin pnpm 10.34
 require a seven-day release age for new resolutions, reject provenance downgrades,
 and allow only esbuild dependency build scripts. Use frozen installs for both;
 the root workspace also carries the scoped Xcode UUID override.
+The quality workspace allows the exact `adm-zip@0.6.1` security release before
+that age threshold to resolve GHSA-vwc7-r8mq-g2x9. Future versions remain subject
+to the normal delay. The [maintainer release](https://github.com/cthackers/adm-zip/releases/tag/v0.6.1)
+fixes extraction through destination symlinks; local ancestor/leaf symlink probes
+reject writes while ordinary extraction still succeeds. The quality lockfile
+audit reports no known vulnerabilities after this update.
 
 ## Quality gates
 
 `pnpm run check` runs TypeScript, all Expo Doctor checks, React Doctor with warnings
-blocking, aislop with score >=90, and separate pnpm audit gates blocking high/critical
-advisories for both lockfiles. No blanket rule suppressions are configured. Generated
+blocking, aislop requiring 100/100, and separate pnpm audit gates blocking high/critical
+advisories in the root, runtime and quality-tool lockfiles. No blanket rule suppressions are configured. Generated
 GSD/native/tool files are excluded from app scanning. Justify any future exception
 with a finding, affected paths, rationale and removal condition in a reviewed change.
 
@@ -311,3 +317,19 @@ Use the portable [native harnesses](../tests/native/README.md). After source or
 native changes, explicitly cold-launch the installed app when HMR is disconnected.
 Fetching current Metro script text does not attest the bytes executing in Hermes.
 Preserve failed-run receipts alongside later passing evidence.
+
+## First-entry identity checkpoint
+
+See [identity storage](identity-storage.md) for the integrated owner/vault,
+platform restrictions and exact acceptance scope. Reproduce public Android
+continuity with [the identity driver](../tests/native/android-identity.md), and
+Foundation file protection with [the native iOS probe](../tests/native/ios-file-policy/README.md).
+Private receipts are under `.tools/evidence/identity-checkpoint-20260915`.
+
+At this checkpoint the local type/security/shell and full static scans pass;
+the configured `aislop` score is 100/100.
+React Doctor has zero diagnostics but no authorized numeric score yet. All three
+dependency audits are clear. Expo Doctor's patch compatibility check remains red:
+it expects Expo ~57.0.22, Crypto ~57.0.3, Image ~57.0.5, SecureStore ~57.0.4 and
+SQLite ~57.0.3. Existing reviewed pins, including Expo 57.0.20, are preserved.
+Do not report the aggregate check or full v1 acceptance as passed.

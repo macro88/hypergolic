@@ -184,7 +184,7 @@ export function Shell({ initialWorkspace, workspace: controlledWorkspace, onWork
         <SafeAreaView style={styles.settingsScreen}>
           <View style={styles.settingsHeader}><Text accessibilityRole="header" style={styles.settingsTitle}>Settings</Text><Pressable ref={settingsClose} accessibilityRole="button" testID="settings-done" onPress={() => setSettings(false)} style={styles.done}><Text style={styles.doneText}>Done</Text></Pressable></View>
           {SettingsContent ? <SettingsContent closeSettings={() => setSettings(false)} openBundledTest={openBundledTest} /> : <View style={styles.settingsBody}>
-            <Text style={styles.settingsText}>{identity ? identity.npub : 'Identity is not configured in this build.'}</Text>
+            <Text selectable testID="settings-full-npub" style={styles.settingsText}>{identity ? identity.npub : 'Identity is not configured in this build.'}</Text>
             <Text accessibilityRole="header" style={styles.settingsSection}>Bundled test napplets</Text>
             <Pressable testID="settings-open-ux-lab" accessibilityRole="button" onPress={openBundledTest} style={styles.openTest}><Text style={styles.openTestText}>Open UX Lab</Text><Text style={styles.addMark} accessible={false}>+</Text></Pressable>
           </View>}

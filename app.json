@@ -12,7 +12,10 @@
       "package": "org.nostrocket.hypergolic.dev"
     },
     "ios": {
-      "bundleIdentifier": "org.nostrocket.hypergolic.dev"
+      "bundleIdentifier": "org.nostrocket.hypergolic.dev",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Use Face ID to approve identity backup and deletion."
+      }
     },
     "updates": {
       "enabled": false
@@ -25,6 +28,12 @@
           "ios": {
             "deploymentTarget": "18.4"
           }
+        }
+      ],
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true
         }
       ]
     ]

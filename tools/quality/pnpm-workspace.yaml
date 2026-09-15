@@ -1,6 +1,9 @@
 packages:
   - '.'
 minimumReleaseAge: 10080
+# Reviewed security fix for GHSA-vwc7-r8mq-g2x9; no exception for future versions.
+minimumReleaseAgeExclude:
+  - adm-zip@0.6.1
 trustPolicy: no-downgrade
 onlyBuiltDependencies:
   - esbuild
