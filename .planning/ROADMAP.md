@@ -21,7 +21,14 @@ GSD phase 3 is the seed's phase 2. Product sequencing is unchanged.
 ### Phase 2: Independent Android proof
 **Goal:** Complete the seed's phase 1 acceptance checklist on a device.
 **Depends on:** Phase 1 and decisions in `docs/architecture.md`
-**Plans:** TBD after security and delivery decisions
+**Plans:** 6 sequential plans; product defaults accepted, engineering execution in progress.
+
+- [ ] 02-01: Native host, real fixture trace and boundary checks.
+- [ ] 02-02: Multi-napplet gestures, zoom overview and live state.
+- [ ] 02-03: Protected identities, persistence and whole-shell switching.
+- [ ] 02-04: Exact signing approval and controlled capability fixtures.
+- [ ] 02-05: Verified published loading, explicit updates and editable relays.
+- [ ] 02-06: Published fixture parity, native security and independent signed APK.
 
 ### Phase 3: External signing
 **Goal:** Add Android signer-app and relay-based remote signing without changing napplet authority.
