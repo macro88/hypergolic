@@ -128,3 +128,41 @@ has been added. The aggregate `pnpm run check` is therefore not green.
 
 Workspace descriptor persistence is now integrated; see [workspace storage](workspace-storage.md)
 for the subsequent Android and isolated iOS native restart evidence.
+
+
+## Android deletion authority checkpoint
+
+The native-only `DeletionAuthority` now provides the approval state machine needed
+for the Android action adapter. Settings ownership captures a validated immutable
+inventory; an authentication attempt is bound to that owner, session, identity and
+revision. Attempts expire after 60 seconds and successful grants after 15 seconds,
+using the injected native monotonic clock. Every deletion validates the inventory
+again at its effect, consumes the exact token once, and serializes revocation with
+the synchronous erase. A failed erase cannot reuse its token. Background, settings
+dismissal, inventory mutation and runtime retirement invalidate earlier authority.
+
+The owning JVM suite passes 95 assertions, including changed native inventory, late
+authentication, expiry during the final read, replacement sessions, failed effects
+and concurrent revocation. Android prebuild and the actual module's Release Java
+and Kotlin compilation pass. These tests use explicit native port doubles; they
+do not establish Android OS authentication or protected storage behavior.
+The native fixed-service reader and erase effect now pass the separate runtime
+probe below. The Expo owner/lifecycle and system prompt are still to be wired. Android deletion remains denied in production;
+backup/reveal and both platforms' user-facing actions remain unfinished.
+
+
+`SecureStoreIdentityRecords` reads the actual protected inventory and every identity
+envelope using the existing Android Keystore key. It creates no key, writes no
+secret and accepts only the pinned SDK's canonical format. It rejects legacy or
+unknown formats, invalid payloads and incomplete staging without changing them.
+The native erase effect removes one exact inactive identity after the authority's
+final validation and checks the synchronous preference commit and absence.
+
+The isolated Android runtime probe passes 89 assertions. It reads both existing
+SDK-written identities, then tests invalid records and actual erase on disposable
+preferences. Existing protected records remain byte-identical. The installed app
+and test APK bytes and owning sources are checked before and after execution.
+The probe's authentication result is still a double; no system-authentication or
+physical-device acceptance is implied. See the [native authority and record proof](../tests/native/android-identity-actions/README.md)
+for repeatable commands and exact boundaries. Full local aislop remains 100/100;
+React Doctor numeric scoring still requires explicit external-request approval.
