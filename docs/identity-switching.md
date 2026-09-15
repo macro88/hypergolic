@@ -86,3 +86,27 @@ Android source maps verify 41 owning source files against the release inputs;
 iOS verifies the corresponding shared source in its 1,110-module bundle.
 No source push or remote change is part of this checkpoint. Authenticated backup/deletion, native capabilities, signing, published
 loading and full physical-device acceptance remain unfinished.
+
+
+## Inactive identity deletion transition
+
+The shared owner now accepts deletion only from the trusted confirmation's exact
+current session. It freezes and flushes workspace changes before calling the
+authenticated vault operation. Successful deletion must remove only the requested
+inactive identity, retain the selected identity and vault, advance the inventory
+revision exactly once, and match the vault's actual readback. The workspace
+controller and identity epoch remain unchanged, preserving the mounted-view
+identity and selected napplet data. A subsequent identity switch still revokes
+that authority permanently.
+
+A known authentication denial preserves the current session. If approval was lost
+after writing the deletion journal, the exact pending identity is exposed for a
+fresh authenticated retry; its key is not silently removed. Unknown outcomes or
+unexpected inventory changes require recovery. Unaccepted inventory revisions
+still fail workspace and capability checks.
+
+Seven new shared regressions pass with real SQLite and explicit key/authentication
+doubles; the complete storage suite passes 78 tests and the capability suite 27.
+TypeScript passes. These checks establish controller/authority preservation, not
+new native UI or OS-authentication evidence. Native authentication, Settings action
+controls and the full device deletion journey remain to be connected.

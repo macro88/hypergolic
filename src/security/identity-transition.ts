@@ -2,6 +2,7 @@ import { IdentityVault, VaultError, type VaultSnapshot } from './identity-vault.
 import type { ShellDatabase } from '../storage/database.ts';
 import { openWorkspaceController, type WorkspaceController } from '../storage/workspace-controller.ts';
 import type { Workspace } from '../shell/workspace.ts';
+import { isExpectedDeletion } from './identity-deletion.ts';
 
 export interface IdentityChange { readonly pubkey: string; readonly kind: 'import' | 'select' }
 export interface IdentitySession {
@@ -10,13 +11,13 @@ export interface IdentitySession {
   readonly epoch: number;
 }
 export interface TransitionSnapshot {
-  readonly phase: 'ready' | 'confirming' | 'switching' | 'recovery';
+  readonly phase: 'ready' | 'confirming' | 'switching' | 'deleting' | 'recovery';
   readonly session: IdentitySession;
   readonly pending: IdentityChange | null;
-  readonly failure: 'CHANGE_REJECTED' | 'LIMIT_REACHED' | null;
+  readonly failure: 'CHANGE_REJECTED' | 'LIMIT_REACHED' | 'DELETION_REJECTED' | 'DELETION_PENDING' | null;
 }
 export interface TransitionPorts {
-  readonly vault: Pick<IdentityVault, 'getSnapshot' | 'select' | 'importNsec'>;
+  readonly vault: Pick<IdentityVault, 'getSnapshot' | 'select' | 'importNsec'> & Partial<Pick<IdentityVault, 'deleteIdentity'>>;
   readonly database: ShellDatabase;
   readonly publicKeyFromNsec: (input: string) => string;
   readonly seed: () => Workspace;
@@ -50,7 +51,9 @@ export class IdentityTransition {
   private async openWorkspace(vault: VaultSnapshot, epoch: number, seed: () => Workspace): Promise<WorkspaceController> {
     const binding = this.ports.database.bindWorkspace({ user: vault.selectedPubkey, assertActive: () => {
       const actual = this.ports.vault.getSnapshot();
-      if (actual.selectedPubkey !== vault.selectedPubkey || actual.revision !== vault.revision ||
+      const accepted = this.state?.session;
+      const revision = accepted?.epoch === epoch ? accepted.vault.revision : vault.revision;
+      if (actual.vaultId !== vault.vaultId || actual.selectedPubkey !== vault.selectedPubkey || actual.revision !== revision ||
           (this.state && this.state.session.epoch > epoch)) throw new IdentityChangeError('STALE');
     } });
     return openWorkspaceController(binding, seed, this.ports.assertAvailable);
@@ -106,6 +109,48 @@ export class IdentityTransition {
       throw error instanceof VaultError ? error : new IdentityChangeError('RECOVERY_REQUIRED');
     } finally { input = null; }
   }
+  /** Call only from the trusted deletion confirmation with its exact captured session. */
+  async deleteInactive(pubkey: string, expected: IdentitySession): Promise<void> {
+    this.requireReady();
+    if (this.state.session !== expected) throw new IdentityChangeError('STALE');
+    const base = expected.vault;
+    if (!base.identities.some(identity => identity.pubkey === pubkey)) throw new VaultError('NOT_FOUND');
+    if (pubkey === base.selectedPubkey || base.identities.length < 2) throw new VaultError('DELETE_SELECTED');
+    if (base.pendingDeletion !== null && base.pendingDeletion !== pubkey) throw new VaultError('PENDING_DELETION');
+    if (!this.ports.vault.deleteIdentity) throw new VaultError('AUTHORIZATION_DENIED');
+    expected.workspace.freeze();
+    this.publish('deleting');
+    try {
+      await expected.workspace.flush();
+      if (expected.workspace.getSnapshot().error !== null || JSON.stringify(this.ports.vault.getSnapshot()) !== JSON.stringify(base)) {
+        throw new IdentityChangeError('RECOVERY_REQUIRED');
+      }
+      const vault = await this.ports.vault.deleteIdentity(pubkey);
+      if (!isExpectedDeletion(base, vault, pubkey, true) || JSON.stringify(vault) !== JSON.stringify(this.ports.vault.getSnapshot())) {
+        throw new IdentityChangeError('RECOVERY_REQUIRED');
+      }
+      this.publish('ready', Object.freeze({ ...expected, vault }));
+      expected.workspace.resume();
+    } catch (error) {
+      this.failedDeletion(expected, pubkey, error);
+      throw error instanceof VaultError ? error : new IdentityChangeError('RECOVERY_REQUIRED');
+    }
+  }
+  private failedDeletion(previous: IdentitySession, target: string, error: unknown): void {
+    if (error instanceof VaultError && error.code === 'AUTHORIZATION_DENIED' && previous.workspace.getSnapshot().error === null) {
+      try {
+        const vault = this.ports.vault.getSnapshot();
+        if (isExpectedDeletion(previous.vault, vault, target, false)) {
+          const session = JSON.stringify(vault) === JSON.stringify(previous.vault) ? previous : Object.freeze({ ...previous, vault });
+          this.publish('ready', session, null, vault.pendingDeletion === null ? 'DELETION_REJECTED' : 'DELETION_PENDING');
+          previous.workspace.resume();
+          return;
+        }
+      } catch { /* Unknown deletion outcomes require reopening the durable journal. */ }
+    }
+    previous.workspace.revoke();
+    this.publish('recovery');
+  }
   private failedChange(previous: IdentitySession, error: unknown): void {
     let unchanged = false;
     try {
@@ -126,9 +171,9 @@ export class IdentityTransition {
     const session = this.state.session;
     return Object.freeze({ user: session.vault.selectedPubkey, epoch: session.epoch, assertActive: () => {
       const current = this.state;
-      if ((current.phase !== 'ready' && current.phase !== 'confirming') || current.session !== session) throw new IdentityChangeError('STALE');
+      if ((current.phase !== 'ready' && current.phase !== 'confirming') || current.session.workspace !== session.workspace || current.session.epoch !== session.epoch) throw new IdentityChangeError('STALE');
       const actual = this.ports.vault.getSnapshot();
-      if (actual.selectedPubkey !== session.vault.selectedPubkey || actual.revision !== session.vault.revision) throw new IdentityChangeError('STALE');
+      if (actual.vaultId !== session.vault.vaultId || actual.selectedPubkey !== session.vault.selectedPubkey || actual.revision !== current.session.vault.revision) throw new IdentityChangeError('STALE');
     } });
   }
 }

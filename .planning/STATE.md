@@ -16,7 +16,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-14)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Authenticated identity actions: Android native deletion authority and protected-record/erase probes pass; OS authentication, lifecycle binding and shared action UI remain next.
+**Current focus:** Authenticated identity actions: Android native deletion authority and protected-record/erase probes pass; the shared deletion transition now preserves the current workspace. OS authentication, lifecycle binding and Settings controls remain next.
 
 ## Current Position
 
@@ -25,7 +25,9 @@ Plan: 02-03 secure identities and saved state; remaining 02-07 device acceptance
 Status: Identity entry, workspace persistence and import/switch UI integrated; isolated native journeys pass on both platforms; State Lab saved-data access is integrated; authenticated actions, signing, remote loading and physical security remain open
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
-Last activity: 2026-09-15 — Added the Android native deletion authority with 95 owning JVM assertions and the protected-record/erase reader with 89 actual Android assertions. Existing SDK records are unchanged; disposable data alone was erased. The actual Release app and separate instrumentation APK build and their installed bytes match. The production deletion path remains denied pending native context/lifecycle and system-prompt integration; authentication in the record probe is a double. See docs/identity-storage.md.
+Previous native action checkpoint: 2026-09-15 — Added the Android native deletion authority with 95 owning JVM assertions and the protected-record/erase reader with 89 actual Android assertions. Existing SDK records are unchanged; disposable data alone was erased. The actual Release app and separate instrumentation APK build and their installed bytes match. The production deletion path remains denied pending native context/lifecycle and system-prompt integration; authentication in the record probe is a double. See docs/identity-storage.md.
+
+Last activity: 2026-09-15 — Added shared inactive-identity deletion with exact-session/result checks, journal retry, unchanged workspace/epoch and accepted inventory-revision handling. All 78 storage and 27 capability tests and TypeScript pass; this is shared controller/SQL proof, not new native authentication or UI evidence. Settings action controls and OS/native lifecycle wiring remain open.
 
 Previous environment checkpoint: 2026-09-12 — local iOS development setup completed: native Simulator Debug build, input/navigation, Hermes/logging, reload, Fast Refresh and cold launch verified. Original scaffold and Android artifacts preserved. This environment checkpoint does not advance the product/security phase; see docs/development.md.
 

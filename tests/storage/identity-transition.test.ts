@@ -147,3 +147,114 @@ test('corrupt destination workspace is preserved and blocks entry after durable 
   assert.equal(transition.getSnapshot().phase, 'recovery');
   assert.equal(sqlite.raw().prepare('SELECT payload FROM workspaces WHERE user = ?').get(pubkey(2))?.payload, 'invalid fixture data');
 });
+
+test('deleting an inactive identity preserves the live workspace, capability authority and selected saved data', async t => {
+  const { transition, database, native } = await start(t);
+  await transition.confirm(request(transition));
+  const before = transition.getSnapshot().session, authority = transition.sessionAuthority();
+  const strings = database.bindStorage(registration({ user: authority.user, assertActive: authority.assertActive }));
+  await strings.port.set('draft', 'retained current identity');
+  before.workspace.change(openNapplet(before.workspace.getSnapshot().workspace, bundledUXDescriptor(4)));
+  await transition.deleteInactive(pubkey(1), before);
+  const after = transition.getSnapshot();
+  assert.equal(after.phase, 'ready'); assert.equal(after.session.workspace, before.workspace);
+  assert.equal(after.session.epoch, before.epoch); assert.equal(after.session.vault.selectedPubkey, pubkey(2));
+  assert.equal(after.session.vault.revision, before.vault.revision + 1);
+  assert.deepEqual(after.session.vault.identities.map(item => item.pubkey), [pubkey(2)]);
+  authority.assertActive(); assert.equal(await strings.port.get('draft'), 'retained current identity');
+  assert.equal(before.workspace.getSnapshot().workspace.sessions.length, 4);
+  before.workspace.change(emptyWorkspace()); await before.workspace.flush();
+  assert.equal(before.workspace.getSnapshot().error, null);
+  assert.equal((await native.vault.open()).identities.length, 1);
+});
+
+test('rejected deletion keeps the mounted session, while selected, absent and stale targets never authenticate', async t => {
+  const { transition, protectedStore } = await start(t);
+  const original = transition.getSnapshot().session;
+  await assert.rejects(transition.deleteInactive(pubkey(1), original), { code: 'DELETE_SELECTED' });
+  await assert.rejects(transition.deleteInactive(pubkey(7), original), { code: 'NOT_FOUND' });
+  assert.equal(protectedStore.authCalls, 0);
+  await transition.confirm(request(transition)); const selected = transition.getSnapshot().session;
+  await assert.rejects(transition.deleteInactive(pubkey(1), original), { code: 'STALE' });
+  protectedStore.authActive = false;
+  await assert.rejects(transition.deleteInactive(pubkey(1), selected), { code: 'AUTHORIZATION_DENIED' });
+  assert.equal(transition.getSnapshot().session, selected);
+  assert.equal(transition.getSnapshot().failure, 'DELETION_REJECTED');
+  transition.sessionAuthority().assertActive();
+  selected.workspace.change(emptyWorkspace()); await selected.workspace.flush();
+  assert.equal(selected.workspace.getSnapshot().error, null);
+});
+
+test('deletion freezes and flushes workspace before authenticating, and prevents concurrent identity changes', async t => {
+  const { transition, sqlite, protectedStore } = await start(t);
+  await transition.confirm(request(transition)); const before = transition.getSnapshot().session;
+  const gate = deferred(), entered = deferred();
+  sqlite.onStep = async sql => { if (sql.startsWith('UPDATE workspaces')) { entered.resolve(); await gate.promise; } };
+  before.workspace.change(openNapplet(before.workspace.getSnapshot().workspace, bundledUXDescriptor(4)));
+  const deletion = transition.deleteInactive(pubkey(1), before); await entered.promise;
+  assert.equal(transition.getSnapshot().phase, 'deleting'); assert.equal(protectedStore.authCalls, 0);
+  assert.throws(transition.sessionAuthority().assertActive, { code: 'STALE' });
+  assert.throws(() => transition.prepareSelect(pubkey(1)), { code: 'BUSY' });
+  await assert.rejects(transition.deleteInactive(pubkey(1), before), { code: 'BUSY' });
+  before.workspace.change(emptyWorkspace()); assert.equal(before.workspace.getSnapshot().workspace.sessions.length, 4);
+  gate.resolve(); await deletion; assert.equal(protectedStore.authCalls, 1);
+});
+
+test('failed workspace persistence stops deletion before authentication or key removal', async t => {
+  const { transition, sqlite, protectedStore, native } = await start(t);
+  await transition.confirm(request(transition)); const before = transition.getSnapshot().session;
+  sqlite.faults.push({ prefix: 'UPDATE workspaces', mode: 'before' }); before.workspace.change(emptyWorkspace());
+  await assert.rejects(transition.deleteInactive(pubkey(1), before), { code: 'RECOVERY_REQUIRED' });
+  assert.equal(protectedStore.authCalls, 0); assert.equal(native.vault.getSnapshot().identities.length, 2);
+  assert.equal(transition.getSnapshot().phase, 'recovery');
+});
+
+test('unexpected inventory changes and uncertain delete outcomes revoke the live session', async t => {
+  for (const mode of ['changed', 'uncertain'] as const) {
+    const { transition, ports } = await start(t);
+    await transition.confirm(request(transition)); const before = transition.getSnapshot().session;
+    const authority = transition.sessionAuthority();
+    ports.vault.deleteIdentity = async () => {
+      if (mode === 'uncertain') throw new VaultError('READBACK_FAILED');
+      return { ...before.vault, selectedPubkey: pubkey(1), revision: before.vault.revision + 1 };
+    };
+    await assert.rejects(transition.deleteInactive(pubkey(1), before));
+    assert.equal(transition.getSnapshot().phase, 'recovery'); assert.throws(authority.assertActive, { code: 'STALE' });
+  }
+});
+
+test('approval lost after journal commit preserves the workspace and exposes the exact deletion to retry', async t => {
+  const { transition, protectedStore, native } = await start(t);
+  await transition.confirm(request(transition)); const before = transition.getSnapshot().session;
+  const authority = transition.sessionAuthority();
+  protectedStore.sqlite.onStep = name => { if (name === 'exec:COMMIT') protectedStore.authActive = false; };
+  await assert.rejects(transition.deleteInactive(pubkey(1), before), { code: 'AUTHORIZATION_DENIED' });
+  const pending = transition.getSnapshot();
+  assert.equal(pending.phase, 'ready'); assert.equal(pending.failure, 'DELETION_PENDING');
+  assert.equal(pending.session.workspace, before.workspace); assert.equal(pending.session.epoch, before.epoch);
+  assert.equal(pending.session.vault.pendingDeletion, pubkey(1));
+  assert.equal(pending.session.vault.identities.find(value => value.pubkey === pubkey(1))?.status, 'deleting');
+  authority.assertActive(); assert.equal(native.vault.getSnapshot().identities.length, 2);
+  protectedStore.sqlite.onStep = null; protectedStore.authActive = true;
+  await assert.rejects(transition.deleteInactive(pubkey(1), before), { code: 'STALE' });
+  await transition.deleteInactive(pubkey(1), pending.session);
+  assert.equal(transition.getSnapshot().session.workspace, before.workspace); authority.assertActive();
+  assert.equal(transition.getSnapshot().session.vault.pendingDeletion, null);
+  assert.equal(protectedStore.authCalls, 2);
+});
+
+test('retained authority after deletion still rejects a later identity switch and an unaccepted inventory revision', async t => {
+  const { transition, ports } = await start(t);
+  await transition.confirm(request(transition)); const before = transition.getSnapshot().session;
+  const authority = transition.sessionAuthority();
+  await transition.deleteInactive(pubkey(1), before); authority.assertActive();
+  await transition.confirm(request(transition, 'nsec1fixture-3'));
+  assert.throws(authority.assertActive, { code: 'STALE' });
+  const back = transition.prepareSelect(pubkey(2)); assert(back); await transition.confirm(back);
+  assert.throws(authority.assertActive, { code: 'STALE' });
+  const currentAuthority = transition.sessionAuthority(), accepted = transition.getSnapshot().session.vault;
+  ports.vault.getSnapshot = () => ({ ...accepted, revision: accepted.revision + 1 });
+  assert.throws(currentAuthority.assertActive, { code: 'STALE' });
+  transition.getSnapshot().session.workspace.change(emptyWorkspace()); await transition.getSnapshot().session.workspace.flush();
+  assert.equal(transition.getSnapshot().session.workspace.getSnapshot().error, 'REVOKED');
+});

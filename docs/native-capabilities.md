@@ -17,7 +17,8 @@ foreign or malformed responses. No browser storage or signer fallback is enabled
 
 One React component lifetime owns one immutable view binding; ordinary workspace
 snapshot cloning or focus changes must not reset request history. The process
-owner captures selected identity, epoch and vault revision and checks exact live
+owner captures selected identity and epoch, checks the accepted inventory revision,
+and checks exact live
 workspace membership before broker work. New State Lab openings use native UUID
 instance IDs, persisted across restarts and replaced on a later opening after close.
 The read-only public identity result must match the selected shell identity.
@@ -62,7 +63,7 @@ old IDs and admitting a replay. A valid next transport sequence is consumed even
 when admission is overloaded. Gaps and previous sequences cannot acquire leases.
 
 Close, navigation failure and teardown synchronously revoke the native generation.
-The broker additionally requires selected identity/epoch/revision and workspace
+The broker additionally requires selected identity/epoch, the accepted inventory revision, and workspace
 membership checks from its owning shell. The integrated owner also rejects a
 failed workspace binding and an altered saved descriptor.
 Every database operation rechecks authority around awaits and before commit. A
@@ -168,3 +169,11 @@ show the Result text unobscured. This covers the observed overlap, not full phys
 device gesture or accessibility acceptance. TypeScript and all 25 shell tests pass;
 full aislop remains 100/100 and the local React Doctor scan has zero findings.
 External numeric scoring is still awaiting explicit authorisation.
+
+
+An explicitly validated inactive-identity deletion may advance the accepted
+inventory revision without changing the selected identity, workspace controller
+or epoch. Existing storage bindings can remain usable afterward. Any unaccepted
+revision change still fails, and a later identity switch permanently revokes the
+earlier bindings. The shared deletion transition tests cover both boundaries;
+its user-facing native action flow is not yet enabled.
