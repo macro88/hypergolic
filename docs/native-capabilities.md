@@ -1,9 +1,32 @@
 # Native identity and storage admission checkpoint
 
-The shared broker and both native request transports are implemented. The running
-shell still uses the original UX Lab/theme configuration. Its React Native owner,
-fixture catalogue and bundled Kehto runtime must be connected before State Lab can
-use real saved data. No signer, relay access or published loader is enabled here.
+The process-owned identity/workspace authority, shared broker and both native
+transports now connect genuine Kehto/SDK identity and storage operations to native
+SQLite. Settings can open State Lab, a peer app, and the same app under another
+reserved unsigned publisher namespace. These are embedded test artifacts, not
+remote verified releases. No signer, relay access or published loader is enabled.
+
+## Runtime and shell integration
+
+The reviewed fixture catalogue pins exact HTML and NIP-5A aggregate hashes. Build
+and runtime checks verify those bytes before creating the sandboxed guest. Only
+the fixture's reviewed domains are exposed. Real Kehto source-window, session,
+ACL and firewall checks precede the host-only operation adapter. Its native client
+bounds pending requests, correlates the original operation/ID, and rejects late,
+foreign or malformed responses. No browser storage or signer fallback is enabled.
+
+One React component lifetime owns one immutable view binding; ordinary workspace
+snapshot cloning or focus changes must not reset request history. The process
+owner captures selected identity, epoch and vault revision and checks exact live
+workspace membership before broker work. New State Lab openings use native UUID
+instance IDs, persisted across restarts and replaced on a later opening after close.
+The read-only public identity result must match the selected shell identity.
+
+State Lab's output values are exposed as text to native accessibility. Its SDK
+buttons exercise missing/empty distinctions and literal saved strings through the
+same real request path that a compatible napplet will use. See the Android
+`tests/native/state_storage.py` and iOS `state-storage` scenario for native journeys;
+these use isolated installed fixtures and never reset the normal app's data.
 
 ## Ownership and request lifetime
 
@@ -40,7 +63,8 @@ when admission is overloaded. Gaps and previous sequences cannot acquire leases.
 
 Close, navigation failure and teardown synchronously revoke the native generation.
 The broker additionally requires selected identity/epoch/revision and workspace
-membership checks from its owning shell. That owner integration is still pending.
+membership checks from its owning shell. The integrated owner also rejects a
+failed workspace binding and an altered saved descriptor.
 Every database operation rechecks authority around awaits and before commit. A
 revoked pre-commit write rolls back. Revocation after commit cannot recall the write,
 but cannot produce a stale success response. Each request binding is then released.
@@ -55,7 +79,7 @@ empty, failures use the canonical result/error shape, and write success follows
 commit. Caller-supplied user, publisher, app, version or instance fields are denied.
 Malformed requests, absent domains and foreign registrations cannot reach storage.
 
-## Verification on 15 September 2026
+## Earlier transport verification on 15 September 2026
 
 - `pnpm typecheck` and `pnpm test:capabilities` pass: 22 broker tests use actual
   on-disk SQLite, including owner separation, reopen, quota rollback, mutation,
@@ -78,6 +102,56 @@ Malformed requests, absent domains and foreign registrations cannot reach storag
   Doctor: zero diagnostics across 105 files after fixing two lookup warnings.
   Numeric scoring remains unapproved/unverified. No findings are suppressed.
 
-The physical-iPhone security gate, genuine SDK storage on both native platforms,
-identity-switch/close behavior through the connected owner, and complete v1
-acceptance remain open. Runtime assets are unchanged by this transport checkpoint.
+This earlier transport receipt describes the preceding runtime assets. The later
+State Lab integration requires its own native journey and refreshed boundary
+receipts; compilation alone does not carry these passes forward. Physical-iPhone
+security and complete v1 acceptance remain open.
+
+## State Lab integration verification on 15 September 2026
+
+- Android prebuild and both production JavaScript exports pass.
+- Root TypeScript, 27 broker/owner tests, 71 storage/transition tests and 25 shell
+  tests pass. Owner tests use the actual identity transition and SQLite, including
+  a close during a pending write and fresh native IDs when display numbers repeat.
+- The complete browser runtime suite passes all 76 cases across Chromium and
+  WebKit. Twelve exercise the genuine State Lab SDK and Kehto adapter with an
+  explicitly simulated native transport; they are not native device evidence.
+  State Lab's independent suite passes 30 tests; each conformance run reports
+  five passes and five explicitly skipped manifest/wire/lifecycle checks.
+- Android's isolated standalone Release app passes all six native State Lab journey
+  checks in one run: selected identity, all storage operations and empty/missing
+  distinctions, cold restart, shared/instance separation, app/publisher separation,
+  and cancelled/confirmed identity switches with return to the original data.
+  Native ADB input and accessibility observations are used; no debug JavaScript
+  evaluation or database mutation supplies the results. Installed APK bytes are
+  checked before and after; 108 source files and bundled source contents were
+  compared with the owning checkout before installation. Three separate native
+  close/reopen checks also pass: exact warning, shared retention and a fresh private
+  instance namespace.
+- The isolated iOS Release fixture passes the corresponding six native XCTest
+  checks in one run, plus three separate close/reopen checks. Real shared UI,
+  identity transitions, Kehto, WK transport and Expo SQLite are compiled together.
+  The fixture's vault stores public keys only, carries a visible fixture label,
+  and excludes protected identity/signing modules. The observed SDK public key
+  independently decodes from the selected native npub. Installed app bytes and
+  source snapshots are stable across each run. This is not physical-iPhone key
+  storage or authentication evidence.
+- The refreshed source-linked WK suite passes all 17 tests in one run with the new
+  runtime assets. All 18 sealed inputs and 12 products match after execution.
+  Its four capability cases deliberately use a theme-only fixture and privileged
+  native injection to isolate transport/source/revocation mechanics; a transported
+  storage message is not a storage permission grant. Broker/domain enforcement and
+  actual SDK/SQLite integration have the separate checks above.
+- Full aislop is 100/100 with zero findings across 109 supported files; 29 files,
+  predominantly Swift, are unsupported. Full local React Doctor reports zero
+  diagnostics across 115 files; external numeric scoring still needs explicit
+  authorisation. No source suppressions or lowered gates were introduced.
+
+Private evidence is retained under
+`.tools/evidence/state-integration-checkpoint-20260915`, with complete original
+runs preserved separately, including test-driver failures. Native output labels,
+clipped controls, inset handles and platform-specific select controls were checked
+through real UI rather than inferred from browser tests. Android and iOS restart
+screenshots were inspected. At some scroll positions the inset handles obscure
+the leading edge of State Lab text; that visual defect remains open. Physical security, authenticated actions, signing,
+remote loading/updates and complete v1 acceptance remain open.

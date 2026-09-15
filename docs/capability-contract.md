@@ -117,7 +117,8 @@ and route storage natively. services.relay sees an already-signed event, so repl
 that service alone cannot implement approval. Keep Kehto auth.getSigner null; own
 the entire approve-and-publish operation natively. The reviewed whole-operation patches are integrated and browser-tested. The
 [native admission checkpoint](native-capabilities.md) records broker, registry and
-WK transport proof; genuine SDK journeys on both platforms remain open.
+WK transport proof and the connected owner/runtime. The isolated native State Lab
+journeys have separate receipts; remote loading and signing remain unavailable.
 
 Before and after asynchronous reads and immediately before every cryptographic or
 network effect, validate live registration, epoch, focused review ownership, expiry

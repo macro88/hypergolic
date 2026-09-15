@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { build } from 'vite';
 import assert from 'node:assert/strict';
+import { BUNDLED_FIXTURES } from '../../src/runtime/bundled-catalog.ts';
 
 const root = new URL('../', import.meta.url);
 const bytes = await readFile(new URL('fixtures/ux-lab.html', root));
@@ -24,10 +25,32 @@ assert.deepEqual(manifest.tags.filter(t => t[0] === 'requires'), []);
 assert(/^<!doctype html>\s*<html lang="en">\s*<head>/i.test(html), 'Only reviewed generated fixture HTML is admitted');
 assert.equal((html.match(/<head>/gi) ?? []).length, 1);
 assert(!/Content-Security-Policy|<base\b|<iframe\b|<script[^>]+src=/i.test(html));
+const fixtures = {};
+for (const [name, reviewed] of Object.entries(BUNDLED_FIXTURES)) {
+  const source = await readFile(new URL(`fixtures/${name}.html`, root));
+  const content = new TextDecoder('utf-8', { fatal: true }).decode(source);
+  assert(Buffer.from(content, 'utf8').equals(source));
+  assert.equal(sha256(source), reviewed.sha256, `${name} bytes changed: review and repin`);
+  assert.equal(sha256(`${reviewed.sha256} /index.html\n`), reviewed.aggregateHash);
+  const record = JSON.parse(await readFile(new URL(`fixtures/${name}-manifest.json`, root), 'utf8'));
+  assert.equal(record.kind, 35129);
+  assert.equal(record.pubkey, undefined);
+  assert.equal(record.sig, undefined);
+  assert.deepEqual(record.tags.filter(t => t[0] === 'd'), [['d', reviewed.appId]]);
+  assert.deepEqual(record.tags.filter(t => t[0] === 'path'), [['path', '/index.html', reviewed.sha256]]);
+  assert.deepEqual(record.tags.filter(t => t[0] === 'x'), [['x', reviewed.aggregateHash, 'aggregate']]);
+  assert.equal(record.aggregateHash, reviewed.aggregateHash);
+  assert.deepEqual(record.tags.filter(t => t[0] === 'requires').map(t => t[1]).sort(), reviewed.domains.filter(d => d !== 'theme').sort());
+  assert(/^<!doctype html>\s*<html lang="en">\s*<head>/i.test(content));
+  assert.equal((content.match(/<head>/gi) ?? []).length, 1);
+  assert(!/Content-Security-Policy|<base\b|<iframe\b|<script[^>]+src=/i.test(content));
+  fixtures[name] = { ...reviewed, html: content };
+}
 const bundle = await build({
   configFile: false,
   root: root.pathname,
   define: {
+    __BUNDLED_FIXTURES__: JSON.stringify(fixtures),
     __UX_HTML__: JSON.stringify(html),
     __UX_SHA256__: JSON.stringify(lock.sha256),
     __UX_AGGREGATE__: JSON.stringify(lock.aggregateHash),
@@ -93,5 +116,5 @@ for (const name of ['index.html', 'host.js']) {
   const value = await readFile(new URL(`dist/${name}`, root));
   files[name] = { sha256: sha256(value), bytes: value.byteLength };
 }
-await writeFile(new URL('assets-manifest.json', root), JSON.stringify({ schema: 1, fixture: lock, bundledPackages: bundledPackages.map(({ name, version, license }) => ({ name, version, license })), assets: files }, null, 2) + '\n');
+await writeFile(new URL('assets-manifest.json', root), JSON.stringify({ schema: 1, fixture: lock, fixtures: BUNDLED_FIXTURES, bundledPackages: bundledPackages.map(({ name, version, license }) => ({ name, version, license })), assets: files }, null, 2) + '\n');
 console.log(JSON.stringify({ fixture: lock, assets: files }, null, 2));

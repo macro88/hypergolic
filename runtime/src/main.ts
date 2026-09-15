@@ -3,14 +3,19 @@ import {
   resolveShellEnvironment, type ShellAdapter,
 } from '@kehto/shell';
 import { createThemeService } from '@kehto/services';
+import type { HostOperationContext, NappletMessage } from '@kehto/runtime';
+import { identityResult, parseCapabilityRequest } from '../../src/runtime/capability-protocol';
+import { createNativeClient, type NativeHost } from './native-client';
 
 type FailureCode = 'invalid-session' | 'bridge-unavailable' | 'fixture-integrity'
   | 'runtime-bootstrap' | 'runtime-timeout' | 'frame-navigation';
 type HostDiagnostic = { type: 'ready'; sessionId: string }
   | { type: 'error'; sessionId: string; code: FailureCode };
-interface NativeHost { postMessage(message: string): void }
 const hostWindow = window as Window & { HypergolicHost?: NativeHost };
-const sessionId = new URL(window.location.href).searchParams.get('sessionId') ?? '';
+const parameters = new URL(window.location.href).searchParams;
+const sessionId = parameters.get('sessionId') ?? '';
+const fixtureName = parameters.get('fixture') ?? 'ux-lab';
+const fixture = Object.hasOwn(__BUNDLED_FIXTURES__, fixtureName) ? __BUNDLED_FIXTURES__[fixtureName] : undefined;
 let stopped = false;
 let cleanup: (() => void) | undefined;
 
@@ -50,11 +55,21 @@ async function digest(value: string): Promise<string> {
   return [...new Uint8Array(hash)].map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-function makeHooks(): ShellAdapter {
+function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipient: () => () => boolean): ShellAdapter {
   const unavailable = (): never => { throw new Error('Capability unavailable'); };
   const theme = createThemeService({ initialTheme: {
     colors: { background: '#140f0b', text: '#f3efeb', primary: '#e8805d' },
   } });
+  const supported = new Set(fixture!.domains);
+  const storage = async ({ message, send }: HostOperationContext): Promise<void> => { send({ ...await native.request(message) }); };
+  const identity = { descriptor: { name: 'identity', version: '1.0.0' },
+    handleMessage(_windowId: string, message: NappletMessage, send: (message: NappletMessage) => void): void {
+      const live = captureRecipient();
+      void native.request(message).then(response => { if (live()) send(response); }).catch(() => {
+        if (!live()) return;
+        try { send(identityResult(parseCapabilityRequest(message), '') as NappletMessage); } catch { /* Unknown operation. */ }
+      });
+    } };
   return {
     relayPool: {
       getRelayPool: () => null, trackSubscription: unavailable,
@@ -71,32 +86,47 @@ function makeHooks(): ShellAdapter {
     hotkeys: { executeHotkeyFromForward: unavailable },
     workerRelay: { getWorkerRelay: () => null },
     crypto: { verifyEvent: async () => false },
-    services: { theme: theme.handler },
+    services: { theme: theme.handler, ...(supported.has('identity') ? { identity } : {}) },
+    ...(supported.has('storage') ? { operationOverrides: {
+      'storage.get': storage, 'storage.set': storage, 'storage.remove': storage, 'storage.keys': storage,
+    } } : {}),
     capabilities: {
-      disabledDomains: ['relay', 'identity', 'storage', 'inc', 'keys', 'media', 'notify'],
-      resolveEnvironment: () => ({ domains: ['theme'], services: ['theme'] }),
+      disabledDomains: ['relay', 'identity', 'storage', 'inc', 'keys', 'media', 'notify'].filter(domain => !supported.has(domain)),
+      resolveEnvironment: () => ({ domains: [...supported], services: ['theme', ...(supported.has('identity') ? ['identity'] : [])] }),
     },
   };
 }
 
-function validEnvelope(value: unknown): value is { type: 'shell.ready' } | { type: 'theme.get'; id: string } {
+const privilegedRequests = new Set(['identity.getPublicKey', 'identity.getRelays', 'identity.getProfile',
+  'identity.getFollows', 'identity.getMutes', 'identity.getBlocked', 'identity.getList',
+  'identity.getZaps', 'identity.getBadges', 'storage.get', 'storage.set', 'storage.remove', 'storage.keys']);
+function validEnvelope(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const message = value as Record<string, unknown>;
   const keys = Object.keys(message);
   if (message.type === 'shell.ready') return keys.length === 1;
+  if (typeof message.type === 'string' && privilegedRequests.has(message.type)) {
+    try { return typeof message.id === 'string' && message.id.length > 0 && message.id.length <= 128
+      && new TextEncoder().encode(JSON.stringify(value)).length <= 2 * 1024 * 1024; }
+    catch { return false; }
+  }
   return message.type === 'theme.get' && keys.length === 2
     && typeof message.id === 'string' && message.id.length > 0 && message.id.length <= 128
     && keys.every(key => key === 'type' || key === 'id');
 }
 
 function mount(): void {
-  const hooks = makeHooks();
+  const native = createNativeClient(hostWindow.HypergolicHost!, sessionId);
+  const hooks = makeHooks(native, () => {
+    const entry = bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId);
+    return () => !stopped && entry !== undefined && bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId) === entry;
+  });
   const bridge = createShellBridge(hooks);
-  const identity = Object.freeze({ dTag: 'ux-lab', aggregateHash: __UX_AGGREGATE__ });
+  const identity = Object.freeze({ dTag: fixture!.appId, aggregateHash: fixture!.aggregateHash });
   const environment = resolveShellEnvironment(hooks, identity);
   const frame = document.createElement('iframe');
   frame.id = 'napplet';
-  frame.title = 'UX Lab';
+  frame.title = fixture!.title;
   frame.setAttribute('sandbox', 'allow-scripts');
   frame.setAttribute('referrerpolicy', 'no-referrer');
   frame.setAttribute('allow', "camera 'none'; microphone 'none'; geolocation 'none'; payment 'none'; clipboard-read 'none'; clipboard-write 'none'");
@@ -140,13 +170,14 @@ function mount(): void {
     frame.removeEventListener('load', loaded);
     bridge.runtime.destroyWindow(sessionId);
     originRegistry.unregister(sessionId);
+    native.destroy();
     bridge.destroy();
     frame.remove();
   };
   window.addEventListener('message', receive);
   frame.addEventListener('load', loaded);
   window.addEventListener('pagehide', () => { stopped = true; cleanup?.(); }, { once: true });
-  frame.srcdoc = injectNappletNamespacePrelude(injectCsp(__UX_HTML__), environment.capabilities);
+  frame.srcdoc = injectNappletNamespacePrelude(injectCsp(fixture!.html), environment.capabilities);
 }
 
 async function start(): Promise<void> {
@@ -155,8 +186,9 @@ async function start(): Promise<void> {
     fail('bridge-unavailable'); return;
   }
   try {
-    const actual = await digest(__UX_HTML__);
-    if (actual !== __UX_SHA256__ || await digest(`${actual} /index.html\n`) !== __UX_AGGREGATE__) {
+    if (!fixture) { fail('fixture-integrity'); return; }
+    const actual = await digest(fixture.html);
+    if (actual !== fixture.sha256 || await digest(`${actual} /index.html\n`) !== fixture.aggregateHash) {
       fail('fixture-integrity'); return;
     }
     if (stopped) return;

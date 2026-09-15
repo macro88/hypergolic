@@ -40,3 +40,12 @@ on close or frame navigation. Capability requests use privileged native injectio
 no real SDK storage, database, signer or Expo-wrapper journey is claimed here.
 All 18 sealed inputs and 12 products matched after execution. Historical failed
 receipts remain preserved separately. See [scope and remaining work](../../../docs/native-capabilities.md).
+
+
+The subsequent State Lab runtime revision also passes all 17 methods in one run.
+The baseline pins all three bundled fixture records and the new host asset bytes.
+The four transport-only methods now configure UX Lab with the theme domain, so
+SDK startup does not introduce an unrelated identity request. Their injected
+storage-shaped message tests native snapshot transport only; it grants no storage
+permission. Genuine SDK/Expo SQLite and identity switching pass in the separate
+owning-app State Lab journey. The revised seal retains 18 inputs and 12 products.

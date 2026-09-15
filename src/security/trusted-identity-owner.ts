@@ -1,4 +1,6 @@
 import { Platform } from 'react-native';
+import { createRuntimeOwner, type RuntimeOwner } from '../runtime/runtime-owner';
+import { loadNativeCapabilityPort } from '../runtime/native-capability-port';
 import * as SQLite from 'expo-sqlite';
 import * as SecureStore from 'expo-secure-store';
 import { IdentityVault, VaultError } from './identity-vault';
@@ -13,15 +15,17 @@ import { assertBundledWorkspace, initialTestWorkspace } from '../shell/fixtures'
 
 export interface TrustedIdentityOwner {
   readonly transition: IdentityTransition;
+  readonly runtime?: RuntimeOwner;
   readonly formatNpub: typeof formatNpub;
 }
 export class WorkspaceStartupError extends Error {
   constructor() { super('Workspace could not be opened'); this.name = 'WorkspaceStartupError'; }
 }
-async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<IdentityTransition> {
+async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<{ transition: IdentityTransition; runtime: RuntimeOwner }> {
   const database = await openShellDatabase(SQLite, platform).catch(() => { throw new WorkspaceStartupError(); });
   try {
-    return await IdentityTransition.open({ vault, database, publicKeyFromNsec, seed: initialTestWorkspace, assertAvailable: assertBundledWorkspace });
+    const transition = await IdentityTransition.open({ vault, database, publicKeyFromNsec, seed: initialTestWorkspace, assertAvailable: assertBundledWorkspace });
+    return { transition, runtime: createRuntimeOwner(database, transition, loadNativeCapabilityPort()) };
   } catch {
     try { await database.close(); } catch { /* Preserve the workspace failure. */ }
     throw new WorkspaceStartupError();
@@ -41,7 +45,7 @@ export async function openTrustedIdentityOwner(): Promise<TrustedIdentityOwner> 
   const vault = new IdentityVault({ ...identityCrypto, secrets, database, authorizeDeletion: actions?.authorizeDeletion ?? (async () => denyDeletion()) });
   try {
     await vault.open();
-    return Object.freeze({ transition: await openOwnerWorkspace(vault, platform), formatNpub });
+    return Object.freeze({ ...await openOwnerWorkspace(vault, platform), formatNpub });
   } catch (error) {
     try { await database.close(); } catch { /* Preserve the initialization failure. */ }
     throw error;

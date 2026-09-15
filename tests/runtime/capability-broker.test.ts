@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createCapabilityBroker, type NativeCapabilityPort } from '../../src/runtime/capability-broker.ts';
+import { createCapabilityBroker } from '../../src/runtime/capability-broker.ts';
 import { CAPABILITY_LIMITS, decodeNativeRegistration, IDENTITY_OPERATIONS, parseCapabilityRequest,
   type NativeRegistration } from '../../src/runtime/capability-protocol.ts';
+import { NativeLeases } from './native-leases.ts';
 import { openShellDatabase } from '../../src/storage/database.ts';
 import { deferred, hex, setup } from '../storage/harness.ts';
 
@@ -11,30 +12,6 @@ function registration(patch: Partial<NativeRegistration> = {}): NativeRegistrati
     user: hex(1), publisher: hex(2), appId: 'state-lab', version: hex(3),
     instanceId: 'state-lab-1', fixture: 'state-lab', domains: ['theme', 'identity', 'storage'], ...patch };
 }
-/** Test-only lease adapter. Native origin, frame, expiry and module behavior need device proof. */
-class NativeLeases implements NativeCapabilityPort {
-  private entries = new Map<string, { raw: string; active: boolean; claimed: boolean }>();
-  readonly results = new Map<string, unknown>();
-  finishCalls = 0;
-  add(config: NativeRegistration, request: unknown): string {
-    const token = 'native-token-' + this.entries.size;
-    this.entries.set(token, { raw: JSON.stringify({ registration: config, request: JSON.stringify(request) }), active: true, claimed: false });
-    return token;
-  }
-  take(token: string): string | null {
-    const entry = this.entries.get(token);
-    if (!entry || !entry.active || entry.claimed) return null;
-    entry.claimed = true; return entry.raw;
-  }
-  isActive(token: string): boolean { return this.entries.get(token)?.active ?? false; }
-  revoke(token: string): void { const entry = this.entries.get(token); if (entry) entry.active = false; }
-  finish(token: string, response: string | null): void {
-    this.finishCalls++;
-    this.results.set(token, this.isActive(token) && response !== null ? JSON.parse(response) : null);
-    this.revoke(token);
-  }
-}
-
 test('real SQLite write/read/remove/list preserve original IDs, literal strings and empty-vs-missing', async t => {
   const { database } = await setup(t), native = new NativeLeases(), config = registration();
   const broker = createCapabilityBroker(database, native, { registration: config, assertActive() {} });

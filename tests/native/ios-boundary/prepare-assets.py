@@ -13,7 +13,7 @@ def prepare():
   assert digest((native/name).read_bytes())==expected[key],'Native capability authority changed: review boundary tests'
  inputs={name:(native/'Resources/runtime'/name).read_bytes() for name in ['index.html','host.js','assets-manifest.json']}
  assert digest(inputs['assets-manifest.json'])==expected['manifestSha256'],'Runtime manifest changed: review fixture scope'
- manifest=json.loads(inputs['assets-manifest.json']);assert manifest['assets']==expected['assets'];assert manifest['fixture']==expected['fixture']
+ manifest=json.loads(inputs['assets-manifest.json']);assert manifest['assets']==expected['assets'];assert manifest['fixture']==expected['fixture'];assert manifest['fixtures']==expected['fixtures']
  assert set(manifest['assets'])=={'index.html','host.js'}
  for name,record in manifest['assets'].items():
   assert digest(inputs[name])==record['sha256'];assert len(inputs[name])==record['bytes']

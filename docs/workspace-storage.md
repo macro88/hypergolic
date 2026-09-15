@@ -31,14 +31,19 @@ partitioned by user, publisher, stable app, version and shared/instance scope.
 
 ## Prepared storage capabilities
 
-The integrated core also provides bounded string storage and atomic accepted-version
-copy/selection/receipts. It retains the original version and checks exact copied
-rows and bytes in one transaction. These ports are **not yet exposed to napplets**:
-the [native admission broker](native-capabilities.md) and generation checks are
-implemented, but the trusted owner, catalogue and runtime still need connection
-before the capability is available. Identity switching must
-revoke old bindings and rebuild the loaded sessions before these ports can be used
-under another identity.
+The integrated core provides bounded string storage and atomic accepted-version
+copy/selection/receipts. Storage get/set/remove/keys are now available to reviewed
+State Lab fixtures through the [native broker](native-capabilities.md). The trusted
+owner binds every request to the current identity epoch, immutable descriptor and
+live workspace membership. Confirmed identity changes rebuild all views; late old
+callbacks cannot acquire another identity's storage binding.
+
+New State Lab openings receive native UUID v4 instance IDs, which persist with the
+workspace across process restarts. Closing and reopening obtains another ID even
+when a display number is reused. Shared storage remains keyed by identity,
+publisher, app and version; instance storage additionally uses that persisted ID.
+Already-saved numeric UX Lab descriptors remain compatible. Accepted-version copy
+transactions are prepared core operations; published update UX is still pending.
 
 Workspace persistence stores descriptors, not live WebView state or approval
 requests. Drafts still need a napplet's saved-data capability to survive termination.

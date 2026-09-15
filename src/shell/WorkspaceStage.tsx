@@ -44,7 +44,7 @@ const LiveSession = memo(function LiveSession({ session, index, size, rect, prog
   return (
     <Animated.View collapsable={false} pointerEvents={active ? 'auto' : 'none'} importantForAccessibility={active ? 'auto' : 'no-hide-descendants'} accessibilityElementsHidden={!active}
       style={[styles.live, { width, height, zIndex: raised ? 2 : 1 }, movement]}>
-      <NappletHost active={active} sessionId={session.id} onHostEvent={onNativeEvent} style={styles.host} />
+      <NappletHost active={active} session={session} onHostEvent={onNativeEvent} style={styles.host} />
       <Text testID={`runtime-status-${session.id}`} importantForAccessibility={active ? 'auto' : 'no-hide-descendants'} accessibilityElementsHidden={!active} accessibilityLiveRegion={active ? 'polite' : 'none'} style={styles.runtimeStatus}>{status}</Text>
     </Animated.View>
   );

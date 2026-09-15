@@ -5,6 +5,7 @@ import type { TrustedIdentityOwner } from '../security/trusted-identity-owner';
 import { IdentitySettings } from './IdentitySettings';
 import { WorkspaceEntry } from './WorkspaceEntry';
 import { colors } from './theme';
+import { RuntimeContext } from '../runtime/RuntimeContext';
 
 const OwnerContext = createContext<TrustedIdentityOwner | null>(null);
 export function useIdentityOwner(): TrustedIdentityOwner {
@@ -26,10 +27,10 @@ export function IdentityShell({ owner }: { owner: TrustedIdentityOwner }) {
     <Text accessibilityRole="header" style={styles.heading}>Your identity needs attention</Text>
     <Text style={styles.detail}>The identity change could not be confirmed. Restart Hypergolic to reopen your saved identity and workspace.</Text>
   </SafeAreaView>;
-  return <OwnerContext value={owner}>
+  return <OwnerContext value={owner}><RuntimeContext value={owner.runtime ?? null}>
     <WorkspaceEntry key={state.session.epoch} identity={{ npub: formatNpub(state.session.vault.selectedPubkey) }}
       controller={state.session.workspace} blocked={state.phase === 'switching'} settingsComponent={IdentitySettings} />
-  </OwnerContext>;
+  </RuntimeContext></OwnerContext>;
 }
 const styles = StyleSheet.create({
   problem: { flex: 1, justifyContent: 'center', padding: 32, gap: 18, backgroundColor: colors.background },

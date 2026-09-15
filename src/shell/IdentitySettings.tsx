@@ -52,8 +52,8 @@ function ConfirmIdentity({ pending, transition, npub }: { pending: IdentityChang
       onPress={() => { void transition.confirm(pending).catch(() => undefined); }} />
   </View>;
 }
-export function IdentitySettings({ openBundledTest }: SettingsActions) {
-  const { transition, formatNpub } = useIdentityOwner();
+export function IdentitySettings({ openBundledTest, openStateLab }: SettingsActions) {
+  const { transition, formatNpub, runtime } = useIdentityOwner();
   const state = useSyncExternalStore(transition.subscribe, transition.getSnapshot);
   const [importing, setImporting] = useState(false);
   const closeImport = useCallback(() => setImporting(false), []);
@@ -82,6 +82,11 @@ export function IdentitySettings({ openBundledTest }: SettingsActions) {
       <Action title="Import identity" testID="settings-import-identity" onPress={() => setImporting(true)} />
       <Text accessibilityRole="header" style={styles.title}>Bundled test napplets</Text>
       <Action title="Open UX Lab" testID="settings-open-ux-lab" onPress={openBundledTest} subdued />
+      {runtime && <>
+        <Action title="Open State Lab" testID="settings-open-state-lab" onPress={() => openStateLab('state-lab')} subdued />
+        <Action title="Open State Lab Peer" testID="settings-open-state-lab-peer" onPress={() => openStateLab('state-lab-peer')} subdued />
+        <Action title="Open State Lab · other publisher" testID="settings-open-state-lab-other-publisher" onPress={() => openStateLab('state-lab-other-publisher')} subdued />
+      </>}
     </>}
   </ScrollView>;
 }

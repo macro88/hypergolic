@@ -13,6 +13,8 @@ final class WorkspaceTests: XCTestCase {
   private var nonce = ""
   private let placeholder = "Something you will recognise…"
   private let expected: [String: Set<String>] = [
+    "state-close": ["state-close-warning", "state-reopen-shared", "state-reopen-instance"],
+    "state-storage": ["state-identity", "state-storage-operations", "state-restart", "state-instance-scope", "state-owner-isolation", "state-identity-isolation"],
     "identity-switch": ["identity-settings-safe-area", "identity-cancel-retains-live-state", "identity-import-restarts-all", "identity-duplicate-and-selector", "identity-selection-after-restart"],
     "workspace-restart": ["selected-napplet-after-restart", "opening-order-after-restart", "explicit-empty-after-restart"],
     "card-cancel": ["short-card-stroke-cancel", "two-touch-card-cancel", "cancelled-card-state-retained"],
@@ -42,6 +44,223 @@ final class WorkspaceTests: XCTestCase {
       "allChecksPassed": allPassed, "checks": checks, "observations": observations, "gestures": gestures,
       "proofScope": "Public native XCTest gestures and accessibility. Temporary fixture values/scroll positions only; native generation identity and transition frame pacing are not directly observed."
     ], "workspace-report")
+  }
+
+  func testStateClose() throws {
+    guard ProcessInfo.processInfo.environment["HG_TARGET_BUNDLE_ID"] == "org.nostrocket.hypergolic.identityuifixture" else { throw Failure.invalid("Requires isolated State Lab fixture") }
+    let original = try selectedIdentity()
+    let first = try openState("state-lab")
+    let value = "Close" + nonce
+    try stateField("key").typeText(nonce)
+    try dismissKeyboard()
+    try stateField("value").typeText(value)
+    try dismissKeyboard()
+    try stateAction("Write", status: "Write confirmed.")
+    try stateScope(instance: true)
+    try stateAction("Write", status: "Write confirmed.")
+    try stateRead(value)
+    try workspaceSaved()
+    let title = currentTitle()
+    try identityPress("handle-right")
+    let close = app.buttons.matching(identifier: "overview-close-" + first).firstMatch
+    try stateNativeReveal(close)
+    try identityPress("overview-close-" + first)
+    try until("Exact close warning") { self.app.staticTexts.matching(NSPredicate(format: "label == %@", "Close " + title + "?")).firstMatch.exists }
+    capture("state-close-warning")
+    record("state-close-warning", true, ["instance": first, "title": title])
+    try identityPress("close-confirm")
+    try until("Only target card removed") { !self.app.buttons.matching(identifier: "overview-card-" + first).firstMatch.exists }
+    try workspaceSaved()
+    let second = try openState("state-lab")
+    guard first != second else { throw Failure.invalid("Reopened instance reused closed native ID") }
+    try stateField("key").typeText(nonce)
+    try dismissKeyboard()
+    try stateRead(value)
+    record("state-reopen-shared", try selectedIdentity() == original, ["closed": first, "opened": second, "value": value])
+    try stateScope(instance: true)
+    try stateAction("Read", status: "No value saved.")
+    record("state-reopen-instance", true, ["closed": first, "opened": second, "oldInstanceNotInherited": true])
+    capture("state-reopened-instance")
+    complete = true
+  }
+
+  func testStateStorage() throws {
+    guard ProcessInfo.processInfo.environment["HG_TARGET_BUNDLE_ID"] == "org.nostrocket.hypergolic.identityuifixture" else { throw Failure.invalid("State test requires the isolated public identity fixture") }
+    if app.buttons.matching(identifier: "settings-done").firstMatch.isHittable { try identityPress("settings-done") }
+    try dismissKeyboard()
+    let original = try selectedIdentity()
+    let first = try openState("state-lab")
+    capture("state-open")
+    let key = "sample" + nonce
+    try stateField("key").typeText(nonce)
+    try dismissKeyboard()
+    let publicValues = try web().staticTexts.matching(NSPredicate(format: "label MATCHES %@", "[0-9a-f]{64}")).allElementsBoundByIndex
+    guard publicValues.count == 1 else { throw Failure.invalid("Expected one rendered public key") }
+    let publicKey = publicValues[0].label
+    observations["stateIdentity"] = ["npub": original, "pubkey": publicKey]
+    record("state-identity", true, ["npub": original, "pubkey": publicKey, "instance": first])
+    try stateAction("Read", status: "No value saved.")
+    try stateAction("Write", status: "Write confirmed.")
+    try stateAction("Read", status: "Read an empty string.")
+    let value = "Stored" + nonce
+    try stateField("value").typeText(value)
+    try dismissKeyboard()
+    try stateAction("Write", status: "Write confirmed.")
+    try stateRead(value)
+    try stateAction("List keys", status: nil)
+    try until("Saved key visible") { (try? self.stateResult().staticTexts.matching(NSPredicate(format: "label == %@", key)).count) == 1 }
+    try stateAction("Remove", status: "Remove confirmed.")
+    try stateAction("Read", status: "No value saved.")
+    try stateAction("Write", status: "Write confirmed.")
+    try stateRead(value)
+    record("state-storage-operations", true, ["key": key, "value": value, "emptyDistinctFromMissing": true])
+    capture("state-saved")
+    try workspaceSaved()
+    try restartWorkspaceApp()
+    try stateReady(first)
+    try stateField("key").typeText(nonce)
+    try dismissKeyboard()
+    try stateRead(value)
+    record("state-restart", try selectedIdentity() == original, ["instance": first, "value": value])
+    capture("state-restarted")
+    // The rest of the journey uses the same nonce in separately opened trusted fixtures.
+    try stateScope(instance: true)
+    try stateAction("Read", status: "No value saved.")
+    try stateField("value").typeText("Private" + nonce)
+    try dismissKeyboard()
+    try stateAction("Write", status: "Write confirmed.")
+    let second = try openState("state-lab")
+    try stateField("key").typeText(nonce)
+    try dismissKeyboard()
+    try stateRead(value)
+    try stateScope(instance: true)
+    try stateAction("Read", status: "No value saved.")
+    record("state-instance-scope", first != second, ["first": first, "second": second, "shared": value])
+    for variant in ["state-lab-peer", "state-lab-other-publisher"] {
+      _ = try openState(variant)
+      try stateField("key").typeText(nonce)
+      try dismissKeyboard()
+      try stateAction("Read", status: "No value saved.")
+    }
+    record("state-owner-isolation", true, ["key": key, "appAndPublisherIsolated": true])
+    // Return to the first loaded State Lab using its persistent instance identifier.
+    try stateFocus(first)
+    try stateScope(instance: false)
+    try stateRead(value)
+    try identityPress("shell-settings")
+    let other = try one(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@ AND NOT label CONTAINS %@", "identity-select-", original)), "other saved identity")
+    let otherID = other.identifier
+    try nativeTap(other, name: "select-other-identity")
+    try identityPress("identity-change-cancel")
+    try identityPress("settings-done")
+    try stateRead(value)
+    try identityPress("shell-settings")
+    try identityPress(otherID)
+    try identityPress("identity-change-confirm")
+    try stateReady(first)
+    try stateField("key").typeText(nonce)
+    try dismissKeyboard()
+    try stateAction("Read", status: "No value saved.")
+    try identityPress("shell-settings")
+    try identityPress("identity-select-" + publicKey)
+    try identityPress("identity-change-confirm")
+    try stateReady(first)
+    try stateField("key").typeText(nonce)
+    try dismissKeyboard()
+    try stateRead(value)
+    record("state-identity-isolation", try selectedIdentity() == original, ["returnedValue": value, "npub": original])
+    capture("state-identity-restored")
+    complete = true
+  }
+  private func stateReady(_ id: String) throws {
+    try until("State Lab native and SDK ready") {
+      self.app.staticTexts.matching(identifier: "runtime-status-" + id).firstMatch.label == "Runtime connected"
+        && (try? self.web().staticTexts.matching(NSPredicate(format: "label == %@", "Identity connected")).count) == 1
+    }
+  }
+  private func openState(_ variant: String) throws -> String {
+    try identityPress("shell-settings")
+    let button = app.buttons.matching(identifier: "settings-open-" + variant).firstMatch
+    try stateNativeReveal(button)
+    try identityPress("settings-open-" + variant)
+    try until("New State Lab title") { self.currentTitle().hasPrefix("State Lab") && !self.app.buttons.matching(identifier: "settings-done").firstMatch.exists }
+    let statuses = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).allElementsBoundByIndex.filter { $0.isHittable }
+    guard statuses.count == 1 else { throw Failure.invalid("Expected one focused runtime status") }
+    let id = String(statuses[0].identifier.dropFirst("runtime-status-".count))
+    guard id.hasPrefix(variant + "-") else { throw Failure.invalid("Wrong opened fixture") }
+    try stateReady(id)
+    return id
+  }
+  private func stateField(_ id: String) throws -> XCUIElement {
+    let host = try web()
+    let field = id == "key" ? host.textFields.matching(NSPredicate(format: "label == %@", "Key")).firstMatch
+      : host.textViews.matching(NSPredicate(format: "label == %@", "String value")).firstMatch
+    try stateReveal(field, in: host)
+    try clearTap(field, within: host, name: "state-field-" + id)
+    return field
+  }
+  private func stateReveal(_ element: XCUIElement, in host: XCUIElement) throws {
+    guard element.exists else { throw Failure.invalid("Missing State Lab control") }
+    for _ in 0..<8 {
+      let point = CGPoint(x: element.frame.midX, y: element.frame.midY)
+      if element.isHittable && host.frame.insetBy(dx: 12, dy: 20).contains(point) { return }
+      let towardTop = point.y < host.frame.midY
+      try contentDrag(in: host, from: CGVector(dx: 0.5, dy: towardTop ? 0.25 : 0.75),
+        to: CGVector(dx: 0.5, dy: towardTop ? 0.7 : 0.3), name: "reveal-state-control")
+    }
+    throw Failure.invalid("Cannot reach State Lab control centre")
+  }
+  private func stateAction(_ title: String, status: String?) throws {
+    let before = try stateRequests()
+    let host = try web()
+    let button = host.buttons.matching(NSPredicate(format: "label == %@", title)).firstMatch
+    try stateReveal(button, in: host)
+    try clearTap(button, within: host, name: "state-action-" + title)
+    try until("A new SDK request") { (try? self.stateRequests()) == before + 1 }
+    if let status { try until(status) { (try? self.stateResult().staticTexts.matching(NSPredicate(format: "label == %@", status)).count) == 1 } }
+    else { try until("Keys response") { (try? self.stateResult().staticTexts.matching(NSPredicate(format: "label MATCHES %@", "[0-9]+ saved keys\\.")).count) == 1 } }
+  }
+  private func stateResult() throws -> XCUIElement {
+    try one(web().otherElements.matching(NSPredicate(format: "label == %@", "Result, region")), "State Lab result region", visible: false)
+  }
+  private func stateRequests() throws -> Int {
+    let output = try one(stateResult().otherElements.matching(NSPredicate(format: "label MATCHES %@", "[0-9]+, application status")), "SDK request counter", visible: false)
+    guard let count = Int(output.label.components(separatedBy: ",")[0]) else { throw Failure.invalid("Missing SDK request counter") }
+    return count
+  }
+  private func stateRead(_ value: String) throws {
+    try stateAction("Read", status: "Read complete.")
+    try until("Saved string rendered") { (try? self.stateResult().staticTexts.matching(NSPredicate(format: "label == %@", value)).count) == 1 }
+  }
+  private func stateScope(instance: Bool) throws {
+    let host = try web()
+    let menu = host.otherElements.matching(NSPredicate(format: "label == %@ AND value != nil", "Save in")).firstMatch
+    try stateReveal(menu, in: host)
+    try clearTap(menu, within: host, name: "state-scope")
+    let label = instance ? "This instance only" : "All instances of this napplet"
+    capture("scope-menu")
+    let choice = app.buttons.matching(NSPredicate(format: "label == %@", label)).firstMatch
+    guard choice.isHittable else { throw Failure.invalid("Unobservable storage scope option") }
+    choice.tap()
+    try dismissKeyboard()
+  }
+  private func stateNativeReveal(_ element: XCUIElement) throws {
+    let scroll = app.scrollViews.firstMatch
+    guard scroll.exists else { throw Failure.invalid("Missing native scroll surface") }
+    for _ in 0..<10 {
+      let centre = CGPoint(x: element.frame.midX, y: element.frame.midY)
+      if element.isHittable && scroll.frame.insetBy(dx: 8, dy: 20).contains(centre) { return }
+      if centre.y < scroll.frame.midY { scroll.swipeDown(velocity: .slow) }
+      else { scroll.swipeUp(velocity: .slow) }
+    }
+    throw Failure.invalid("Could not reveal native control centre")
+  }
+  private func stateFocus(_ id: String) throws {
+    try identityPress("handle-right")
+    let card = app.buttons.matching(identifier: "overview-card-" + id).firstMatch
+    try stateNativeReveal(card)
+    try nativeTap(one(app.buttons.matching(identifier: "overview-card-" + id), "State Lab card"), name: "focus-state")
+    try stateReady(id)
   }
 
   func testIdentitySwitch() throws {

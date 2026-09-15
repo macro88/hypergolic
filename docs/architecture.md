@@ -11,23 +11,22 @@ Final React Doctor and aislop scores must both be 100/100 without hiding finding
 
 ## Implemented
 
-`index.ts` registers `src/App.tsx` with Expo. The Android and iOS screens host the
-bundled UX Lab through the [restricted native Kehto view](native-contract.md).
-The current application runtime exposes readiness and theme only. The next
-[native identity/storage admission layer](native-capabilities.md) is implemented and
-partly native-tested, with owner/runtime connection still pending. The shell now enters through
-a native process-owned identity vault; Android public-identity continuity is
-observed, while iOS protected storage needs a physical iPhone. See the
-[identity implementation checkpoint](identity-storage.md). The [workspace controller](workspace-storage.md) now persists opening order, last
-selection and explicit empty state per public identity. The shared
-[identity selector and import flow](identity-switching.md) now restart all loaded
-napplets after a confirmed change. Authenticated identity actions, signing, napplet
-saved-data access and published loading remain incomplete. The SDK-based State Lab
-and peer fixture now build independently, and the pinned Kehto whole-operation
-adapter passes browser checks; neither is exposed as a native privilege yet. The supplied logo
-is visible in the native header. Current emulator evidence covers actual input,
-theme, listed boundary denials and renderer-failure teardown; full native acceptance
-and remaining release/device adversarial probes stay open.
+`index.ts` registers `src/App.tsx` with Expo. Both native hosts run verified,
+bundled UX Lab and State Lab artifacts through the restricted Kehto view. The
+[identity/storage integration](native-capabilities.md) connects the genuine SDK to
+a process-owned identity authority and SQLite; the original UX Lab retains only
+theme access. State Lab and its peer are unsigned, embedded test artifacts with
+reserved fixture namespaces. Their presence does not establish publisher trust.
+
+The shell enters through a native identity vault; Android protected entry and
+public identity continuity have native evidence, while iOS protected storage needs
+a physical iPhone. See the [identity checkpoint](identity-storage.md). The
+[workspace controller](workspace-storage.md) persists opening order, selection and
+explicit empty state per identity. Confirmed [identity changes](identity-switching.md)
+revoke the old authority and restart all loaded napplets. Authenticated identity
+actions, signing, relay publication and published loading remain incomplete.
+The supplied logo is visible in the native header. Native journeys, boundary
+probes and their limits are recorded separately; full v1 acceptance remains open.
 
 `app.json` enables Android and iOS, disables hosted updates and uses
 `org.nostrocket.hypergolic.dev` as the development package/bundle identifier. The
@@ -57,9 +56,9 @@ operations. A bundled trusted Kehto host adapts the selected NAP subset inside a
 restricted WebView. Verified napplet bytes remain untrusted; publisher pinning does
 not grant native authority. Applesauce supplies selected Nostr event/relay plumbing.
 Kehto is now installed in an isolated web build with reviewed package/protocol
-pins and a theme-only boundary. Applesauce and the privileged native adapters are
-planned under the [selected capability contract](capability-contract.md); native
-conformance and exact authorization must be validated before exposure.
+pins and a restricted identity/storage/theme boundary. Applesauce relay plumbing
+and approved signing remain planned under the [selected capability contract](capability-contract.md);
+the native broker never falls through to a browser signer or localStorage.
 
 First launch must create and securely persist an identity; later launches must reuse
 it. Storage failures must never cause silent replacement. Explicit `nsec` import

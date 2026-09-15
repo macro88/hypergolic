@@ -21,12 +21,14 @@ final class BoundaryTests: XCTestCase {
     return value
   }
 
+  // Transport-only admission; this theme-only fixture confers no storage permission.
+  // Genuine SDK authorization and SQLite are exercised in the owning-app journey.
   private func configured() async throws -> Probe {
     let p = Probe(); probe = p
     let config: [String: Any] = ["sessionId": p.session, "epoch": 3,
       "user": String(repeating: "1", count: 64), "publisher": String(repeating: "2", count: 64),
-      "appId": "state-lab", "version": String(repeating: "3", count: 64),
-      "instanceId": "native-probe-instance", "fixture": "state-lab", "domains": ["identity", "storage", "theme"]]
+      "appId": "ux-lab", "version": String(repeating: "3", count: 64),
+      "instanceId": "native-probe-instance", "fixture": "ux-lab", "domains": ["theme"]]
     try await p.ready(configuration: String(decoding: JSONSerialization.data(withJSONObject: config), as: UTF8.self))
     return p
   }
@@ -60,6 +62,7 @@ final class BoundaryTests: XCTestCase {
     XCTAssertEqual(registration["sessionId"] as? String, p.session)
     XCTAssertEqual(registration["user"] as? String, String(repeating: "1", count: 64))
     XCTAssertEqual(registration["publisher"] as? String, String(repeating: "2", count: 64))
+    XCTAssertEqual(registration["domains"] as? [String], ["theme"])
     let payload = try XCTUnwrap(snapshot["request"] as? String)
     XCTAssertEqual(try JSONSerialization.jsonObject(with: Data(payload.utf8)) as? [String: String],
       ["type":"storage.set","id":"native-probe","key":"literal","value":"string value"])

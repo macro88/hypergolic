@@ -6,6 +6,7 @@ import expo.modules.kotlin.modules.ModuleDefinition
 class NappletHostModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("HypergolicNappletHost")
+    Function("newInstanceId") { java.util.UUID.randomUUID().toString() }
     Function("takeCapability") { token: String -> CapabilityTransport.leases.take(token) }
     Function("isCapabilityActive") { token: String -> CapabilityTransport.leases.isActive(token) }
     Function("finishCapability") { token: String, response: String? -> CapabilityTransport.finish(token, response) }

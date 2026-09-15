@@ -333,3 +333,36 @@ dependency audits are clear. Expo Doctor's patch compatibility check remains red
 it expects Expo ~57.0.22, Crypto ~57.0.3, Image ~57.0.5, SecureStore ~57.0.4 and
 SQLite ~57.0.3. Existing reviewed pins, including Expo 57.0.20, are preserved.
 Do not report the aggregate check or full v1 acceptance as passed.
+
+
+## Native State Lab journeys
+
+Use an already-installed, attested isolated test app; these drivers never install,
+wipe data or operate on the normal application. The Android fixture contains the
+production identity/runtime implementation under a separate application ID. The
+Simulator fixture uses public keys only and excludes protected identity modules.
+Fresh output directories preserve failures and exact build/source receipts.
+
+```sh
+python3 tests/native/state_storage.py --source "$PWD" --serial EXPLICIT_SERIAL \
+  --package org.nostrocket.hypergolic.identityfixture \
+  --activity org.nostrocket.hypergolic.dev.MainActivity \
+  --expected-apk-sha256 VERIFIED_INSTALLED_APK_SHA256 \
+  --output /tmp/hypergolic-state-UNIQUE state-storage
+python3 tests/native/state_close.py --source "$PWD" --serial EXPLICIT_SERIAL \
+  --package org.nostrocket.hypergolic.identityfixture \
+  --activity org.nostrocket.hypergolic.dev.MainActivity \
+  --expected-apk-sha256 VERIFIED_INSTALLED_APK_SHA256 \
+  --output /tmp/hypergolic-close-UNIQUE state-close
+python3 tests/native/ios-driver.py --udid EXPLICIT_SIMULATOR_UUID \
+  --bundle-id org.nostrocket.hypergolic.identityuifixture \
+  --repo VERIFIED_PUBLIC_FIXTURE_SOURCE \
+  --output /tmp/hypergolic-ios-state-UNIQUE state-storage
+```
+
+The iOS `state-close` scenario separately verifies the exact close warning, shared
+storage retention and a fresh private instance namespace. `state-storage` requires
+two saved public test identities and exercises the actual confirmed selector.
+Android requires Node from the pinned local tools for canonical npub decoding.
+Read the scenario receipt and inspect screenshots; a compiled fixture or successful
+command alone does not establish the [native acceptance scope](native-capabilities.md).

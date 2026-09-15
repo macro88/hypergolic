@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ComponentType } from 'react';
+import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ComponentType } from 'react';
 import { AccessibilityInfo, BackHandler, Keyboard, Modal, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { cancelAnimation, Easing, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -11,11 +11,12 @@ import { WorkspaceStage } from './WorkspaceStage';
 import { directionForHandle, type HandleSide } from './motion';
 import { adjacentNapplet, closeNapplet, focusNapplet, openNapplet, showOverview, type NappletDescriptor, type Workspace } from './workspace';
 import { colors } from './theme';
+import { RuntimeContext } from '../runtime/RuntimeContext';
 
-import { bundledUXDescriptor, initialTestWorkspace } from './fixtures';
+import { bundledDescriptor, initialTestWorkspace, type BundledVariant } from './fixtures';
 
 const noPending = new Set<string>();
-export interface SettingsActions { closeSettings: () => void; openBundledTest: () => void }
+export interface SettingsActions { closeSettings: () => void; openBundledTest: () => void; openStateLab: (variant: Exclude<BundledVariant, 'ux-lab'>) => void }
 export interface ShellProps {
   blocked?: boolean;
   initialWorkspace?: Workspace;
@@ -40,6 +41,7 @@ function useReducedMotion(): boolean {
 }
 
 export function Shell({ blocked = false, initialWorkspace, workspace: controlledWorkspace, onWorkspaceChange, identity, pendingApprovals, onBeforeClose, onHostEvent, settingsComponent: SettingsContent }: ShellProps) {
+  const runtime = useContext(RuntimeContext);
   const [localWorkspace, setLocalWorkspace] = useState(() => initialWorkspace ?? initialTestWorkspace());
   const workspace = controlledWorkspace ?? localWorkspace;
   const current = useRef(workspace);
@@ -59,7 +61,7 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
   const settingsClose = useRef<View>(null);
   const focusedIndex = Math.max(0, workspace.sessions.findIndex(session => session.id === workspace.focusedId));
   const focused = workspace.sessions.find(session => session.id === workspace.focusedId);
-  const nextFixtureNumber = useRef(Math.max(3, ...workspace.sessions.map(session => Number(session.id.match(/^ux-lab-(\d+)$/)?.[1] ?? 0))) + 1);
+  const nextFixtureNumber = useRef(Math.max(3, ...workspace.sessions.map(session => Number(session.title.match(/ ([1-9][0-9]*)$/)?.[1] ?? 0))) + 1);
   const progress = useSharedValue(workspace.overview ? 1 : 0);
   const position = useSharedValue(focusedIndex);
   const scrollY = useSharedValue(0);
@@ -157,15 +159,18 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
     requestAnimationFrame(() => overview.current?.focusCard(null));
   };
   const openSettings = () => { if (!blocked && !busyRef.current) { Keyboard.dismiss(); setSettings(true); } };
-  const openBundledTest = () => {
-    while (current.current.sessions.some(session => session.id === `ux-lab-${nextFixtureNumber.current}`)) nextFixtureNumber.current++;
-    const descriptor = bundledUXDescriptor(nextFixtureNumber.current++);
+  const openFixture = (variant: BundledVariant) => {
+    while (current.current.sessions.some(session => session.id === `${variant}-${nextFixtureNumber.current}`)) nextFixtureNumber.current++;
+    if (variant !== 'ux-lab' && !runtime) return;
+    const number = nextFixtureNumber.current++;
+    const descriptor = variant === 'ux-lab' ? bundledDescriptor(variant, number) : runtime!.descriptor(variant, number);
     const next = openNapplet(current.current, descriptor);
     position.set(next.sessions.length - 1);
     progress.set(0);
     change(next);
     setSettings(false);
   };
+  const openBundledTest = () => openFixture('ux-lab');
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'right', 'bottom', 'left']}>
       <StatusBar barStyle="light-content" />
@@ -184,7 +189,7 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
       }}>
         <SafeAreaProvider><SafeAreaView style={styles.settingsScreen}>
           <View style={styles.settingsHeader}><Text accessibilityRole="header" style={styles.settingsTitle}>Settings</Text><Pressable ref={settingsClose} disabled={blocked} accessibilityState={{ disabled: blocked }} accessibilityRole="button" testID="settings-done" onPress={() => setSettings(false)} style={styles.done}><Text style={styles.doneText}>Done</Text></Pressable></View>
-          {settings && (SettingsContent ? <SettingsContent closeSettings={() => setSettings(false)} openBundledTest={openBundledTest} /> : <View style={styles.settingsBody}>
+          {settings && (SettingsContent ? <SettingsContent closeSettings={() => setSettings(false)} openBundledTest={openBundledTest} openStateLab={openFixture} /> : <View style={styles.settingsBody}>
             <Text selectable testID="settings-full-npub" style={styles.settingsText}>{identity ? identity.npub : 'Identity is not configured in this build.'}</Text>
             <Text accessibilityRole="header" style={styles.settingsSection}>Bundled test napplets</Text>
             <Pressable testID="settings-open-ux-lab" accessibilityRole="button" onPress={openBundledTest} style={styles.openTest}><Text style={styles.openTestText}>Open UX Lab</Text><Text style={styles.addMark} accessible={false}>+</Text></Pressable>
