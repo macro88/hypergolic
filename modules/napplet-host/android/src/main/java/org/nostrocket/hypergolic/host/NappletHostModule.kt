@@ -9,6 +9,7 @@ class NappletHostModule : Module() {
     View(NappletHostView::class) {
       Events("onHostEvent")
       Prop("sessionId") { view: NappletHostView, id: String -> view.startSession(id) }
+      Prop("active") { view: NappletHostView, active: Boolean -> view.setActive(active) }
       OnViewDestroys { view: NappletHostView -> view.destroySession() }
     }
   }

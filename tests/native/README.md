@@ -42,3 +42,17 @@ The hierarchy parser distinguishes the outer native WebView from Chromium’s ne
 `diagnostic-boundary` is **explicit trusted-host fault injection**, separate from napplet-origin security proof. It uses the actual existing AndroidX WebMessageListener object in the trusted document, sending wrong-generation, malformed, extra-field, invalid-code, unsupported and oversized diagnostics. Whitespace-padded otherwise valid JSON isolates the 2048-byte gate. Continued native readiness and a real theme response must survive. A subsequent valid error control must produce the exact diagnostic-probe native error and destroy the view/target while preserving the app process. This adds no app API, mock, listener replacement or relaxed origin/CSP setting. It does not forge origin or isMainFrame. This is the only test mode that evaluates trusted-host code.
 
 Browser source-window coverage exists in `runtime/tests/runtime.spec.ts`: an unregistered sandboxed sibling posts ready/theme requests, and a synthetic MessageEvent claims the registered source. Both are denied while a subsequent real registered-frame theme request succeeds. That browser test creates its sibling from trusted test setup. The fixed current Android fixture cannot create a sibling of itself across its opaque boundary, so the browser result does not close the independent native sibling/pre-ready cases.
+
+
+## iOS
+
+The separate [iOS XCTest driver](ios/README.md) operates an explicitly selected,
+already-booted Simulator and an existing installed app. Its first actual trace
+passes native readiness, fixture theme, counter input, typed input and a separate
+rendered mirror. Simulator runner configuration preserves the app under test.
+Native iOS boundary, workspace, device and release checks remain independent from
+the Android results and fail if their scenario is not implemented.
+
+## Android workspace scenarios
+
+The [workspace harness](android-workspace.md) adds causally correlated multi-WebView switching, content-state retention, overview scrolling and closing scenarios. It uses fresh native controls and an explicit installed APK hash. The older single-view driver remains for its original boundary checkpoint; it must not select an arbitrary target in the shared workspace.

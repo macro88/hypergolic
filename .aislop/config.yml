@@ -4,4 +4,4 @@ exclude:
   - android
   - ios
 ci:
-  failBelow: 90
+  failBelow: 100

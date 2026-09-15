@@ -12,7 +12,7 @@
     "android": "expo run:android",
     "prebuild:android": "pnpm run runtime:build && expo prebuild --platform android --no-install",
     "export:android": "pnpm run runtime:build && expo export --platform android",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.tests.json",
     "doctor:expo": "expo-doctor",
     "doctor:react": "react-doctor . --no-telemetry --no-supply-chain --yes --blocking warning",
     "doctor:slop": "node tools/quality/node_modules/aislop/dist/cli.js ci",
@@ -22,16 +22,27 @@
     "gsd:install": "gsd-core --codex --local",
     "runtime:install": "pnpm --dir runtime install --frozen-lockfile",
     "runtime:build": "node scripts/build-runtime.mjs",
-    "runtime:test": "pnpm --dir runtime verify"
+    "runtime:test": "pnpm --dir runtime verify",
+    "test:shell": "node --experimental-strip-types --test src/shell/*.test.ts",
+    "ios": "expo run:ios",
+    "prebuild:ios": "pnpm run runtime:build && expo prebuild --platform ios --no-install",
+    "export:ios": "pnpm run runtime:build && expo export --platform ios",
+    "test:quality": "node --test tests/quality/*.test.mjs"
   },
   "dependencies": {
     "expo": "57.0.20",
+    "expo-build-properties": "57.0.17",
+    "expo-image": "57.0.4",
     "react": "19.2.3",
     "react-native": "0.86.3",
-    "react-native-safe-area-context": "5.7.0"
+    "react-native-gesture-handler": "2.32.0",
+    "react-native-reanimated": "4.5.1",
+    "react-native-safe-area-context": "5.7.0",
+    "react-native-worklets": "0.10.1"
   },
   "devDependencies": {
     "@opengsd/gsd-core": "1.13.0",
+    "@types/node": "26.5.0",
     "@types/react": "19.2.4",
     "expo-doctor": "1.20.4",
     "react-doctor": "0.9.13",

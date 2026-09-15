@@ -7,14 +7,17 @@ const root = new URL('../', import.meta.url);
 const result = spawnSync('pnpm', ['--dir', 'runtime', 'build'], { cwd: root, stdio: 'inherit', shell: process.platform === 'win32' });
 if (result.error) throw result.error;
 if (result.status !== 0) process.exit(result.status ?? 1);
-const manifest = JSON.parse(await readFile(new URL('runtime/assets-manifest.json', root), 'utf8'));
+const manifestBytes = await readFile(new URL('runtime/assets-manifest.json', root));
+const manifest = JSON.parse(manifestBytes.toString('utf8'));
 assert.deepEqual(Object.keys(manifest.assets).sort(), ['host.js', 'index.html']);
-const destination = new URL('modules/napplet-host/android/src/main/assets/runtime/', root);
-await mkdir(destination, { recursive: true });
+const androidDestination = new URL('modules/napplet-host/android/src/main/assets/runtime/', root);
+const iosDestination = new URL('modules/napplet-host/ios/Resources/runtime/', root);
+await Promise.all([androidDestination, iosDestination].map(directory => mkdir(directory, { recursive: true })));
 for (const name of ['index.html', 'host.js']) {
   const bytes = await readFile(new URL(`runtime/dist/${name}`, root));
   assert.equal(createHash('sha256').update(bytes).digest('hex'), manifest.assets[name].sha256);
   assert.equal(bytes.byteLength, manifest.assets[name].bytes);
-  await writeFile(new URL(name, destination), bytes);
+  await Promise.all([androidDestination, iosDestination].map(directory => writeFile(new URL(name, directory), bytes)));
 }
-console.log('Verified trusted runtime assets copied to native module.');
+await writeFile(new URL('assets-manifest.json', iosDestination), manifestBytes);
+console.log('Verified identical trusted runtime assets copied for Android and iOS.');

@@ -12,7 +12,7 @@ interface NativeHost { postMessage(message: string): void }
 const hostWindow = window as Window & { HypergolicHost?: NativeHost };
 const sessionId = new URL(window.location.href).searchParams.get('sessionId') ?? '';
 let stopped = false;
-let cleanup = () => {};
+let cleanup: (() => void) | undefined;
 
 function diagnostic(value: HostDiagnostic): void {
   const encoded = JSON.stringify(value);
@@ -22,7 +22,7 @@ function diagnostic(value: HostDiagnostic): void {
 function fail(code: FailureCode): void {
   if (stopped) return;
   stopped = true;
-  cleanup();
+  cleanup?.();
   const message = document.createElement('p');
   message.setAttribute('role', 'alert');
   message.textContent = 'The napplet could not be loaded.';
@@ -145,7 +145,7 @@ function mount(): void {
   };
   window.addEventListener('message', receive);
   frame.addEventListener('load', loaded);
-  window.addEventListener('pagehide', () => { stopped = true; cleanup(); }, { once: true });
+  window.addEventListener('pagehide', () => { stopped = true; cleanup?.(); }, { once: true });
   frame.srcdoc = injectNappletNamespacePrelude(injectCsp(__UX_HTML__), environment.capabilities);
 }
 

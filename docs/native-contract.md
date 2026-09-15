@@ -1,5 +1,11 @@
 # Native runtime contract
 
+V1 requires both Android and iOS. Android and iOS native hosts, workspace interactions and scoped boundary checks
+are implemented; final native security and device checks
+are being added in 02-07.
+The shared shell must not present an iOS placeholder as v1 support. Final React
+Doctor and aislop targets are both 100/100.
+
 ## Implemented first trace
 
 The Android shell mounts a local Expo `HypergolicNappletHost` view. Each instance
@@ -30,6 +36,52 @@ bounded `theme.get` only, with optional domains/services `["theme"]`. All other
 native domains are explicitly disabled. A diagnostic Ready follows an actual
 Kehto session registration. The fixture's Host colors text independently confirms
 the theme response. Neither diagnostic proves complete product security.
+
+## iOS native host
+
+The same local Expo view now mounts a real WKWebView on iOS. The dedicated
+`HypergolicNappletHostAssets.bundle` contains only the generated trusted HTML,
+JavaScript and their asset manifest. Swift independently checks SHA-256 and byte
+length before loading the exact file URL with a native UUID query. Read access
+is limited to that bundle directory. The shared build copies byte-identical host
+assets to both native packages.
+
+The WKWebView uses a nonpersistent data store, a default-deny content rule list,
+and exact exceptions for the bootstrap documents, packaged script and embedded
+images. The common strict iframe sandbox/CSP and Kehto source-window checks remain
+in effect. The named native message handler exists only in an isolated
+WKContentWorld. A main-frame-only page adapter forwards diagnostic strings through
+a browser-trusted, source-checked message listener in that world. Native receipt
+checks the world, view, main frame, exact URL/file origin, native generation,
+schema and 2 KiB UTF-8 limit. This diagnostic-only route grants no privileged
+capabilities. File-origin WebCrypto availability is checked at runtime and fails
+closed; the installed iPhone Simulator successfully reaches genuine Kehto Ready.
+
+Navigation/action/response delegates deny replacement documents and popups;
+public delegates deny dialogs, file choosing, media/motion permission and
+credential challenges. The minimum deployment target is iOS 18.4 because the
+public WK file-chooser denial callback starts there. The current execution target
+is iPhone 17 / iOS 26.5 Simulator; the minimum OS and physical iPhone remain separate
+acceptance targets. Swift 6 callbacks use the installed WebKit protocol's explicit
+MainActor/Sendable closure annotations, so denial handlers actually conform.
+
+Unmount, recycle, failure and renderer loss revoke the generation, unregister the
+handler and remove the WKWebView. Content rules stay attached until release.
+Unfocusing ends editing only inside that view, preserving its JavaScript state.
+Independent native tests must establish these denials and lifecycle claims;
+Android or desktop WebKit results cannot satisfy the iOS evidence gate.
+
+The production `RestrictedNappletHost.swift` owns the WK policy; the Expo view is
+its lifecycle wrapper. The independent harness compiles that same source directly.
+Thirteen scenarios have observed passes across two preserved Simulator runs;
+the first run had a recorder failure, corrected without weakening its assertion.
+They exercise actual frame/world metadata, source and native-message rejection,
+CSP denials, replacement navigation, and unmount revocation. CSP observations are
+not packet-level zero-egress proof. A retained WK reference can still evaluate
+JavaScript after unmount; the evidence establishes revoked authority and refused
+reuse, not immediate renderer destruction. Real renderer termination, remaining
+permission delegate paths, minimum-OS and physical-device proof remain open.
+See [the portable probe](../tests/native/ios-boundary/README.md).
 
 ## Artifact and browser boundary
 
@@ -105,17 +157,18 @@ stated scope. Exact hashes and remaining probes are
 recorded in `.planning/phases/02-independent-android-proof/02-01-PROGRESS.md`;
 the completed first checkpoint is described in `02-01-SUMMARY.md`.
 
-Typecheck, prebuild/Gradle and Android export pass. The runtime suite passes 26
-browser tests; React Doctor is clean after the recorded secure-request-ID patch.
-Aislop and configured audit gates pass. The aggregate `check` still stops at the
+The first Android checkpoint passed typecheck, prebuild/Gradle and Android export.
+The runtime suite passes 26 browser tests after the cleanup adjustment. Shared UI
+changes require fresh whole-repository quality reports; earlier checkpoint scans
+cannot establish the final scores. The aggregate `check` still stops at the
 existing Expo Doctor 57.0.20 versus ~57.0.22 mismatch; the pin is preserved and no
 check suppression is added. CI was updated for the isolated runtime and inspected
 locally; it has not run remotely because source publication remains owner-controlled.
 
 ## Remaining full-v1 work
 
-See `.planning/REQUIREMENTS.md` and the six phase-2 plans. Multiple loaded views and
+See `.planning/REQUIREMENTS.md` and the seven phase-2 plans. Multiple loaded views and
 gestures, real identity display and encrypted persistence, exact per-event consent,
 verified published loading/updates, relay settings, complete fixtures and native
-security/standalone APK evidence remain separate deliverables. No silent signing,
+security/standalone Android and iOS evidence remain separate deliverables. No silent signing,
 new dirty-state wire protocol or fixture approval bypass is introduced here.

@@ -1,1 +1,10 @@
-{"platforms":["android"],"android":{"modules":["org.nostrocket.hypergolic.host.NappletHostModule"]}}
+{
+  "platforms": ["android", "apple"],
+  "android": {
+    "modules": ["org.nostrocket.hypergolic.host.NappletHostModule"]
+  },
+  "apple": {
+    "modules": ["NappletHostModule"],
+    "podspecPath": "ios/HypergolicNappletHost.podspec"
+  }
+}

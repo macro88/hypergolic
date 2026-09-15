@@ -1,10 +1,11 @@
 # Hypergolic
 
-An Android shell for Nostr napplets, rebuilt on Expo and React Native.
-The current application is a development screen. Identity, signing, Kehto,
-Applesauce, and napplet loading are not implemented.
+An Android and iOS shell for Nostr napplets, built on Expo and React Native.
+The development app runs embedded test napplets in restricted native Kehto views
+with a shared switcher and two-column overview. Protected identity, signing,
+saved state and published napplet loading remain in progress.
 
-- [Development and Android builds](docs/development.md)
+- [Development and native builds](docs/development.md)
 - [Architecture and decisions needed before implementation](docs/architecture.md)
 - [Phase-zero evidence and limitations](docs/phase-zero.md)
 - [GSD project](.planning/PROJECT.md) and [roadmap](.planning/ROADMAP.md)

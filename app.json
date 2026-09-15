@@ -3,10 +3,30 @@
     "name": "Hypergolic",
     "slug": "hypergolic",
     "version": "0.0.0",
-    "platforms": ["android"],
+    "platforms": [
+      "android",
+      "ios"
+    ],
     "orientation": "portrait",
-    "android": { "package": "org.nostrocket.hypergolic.dev" },
-    "updates": { "enabled": false },
-    "plugins": ["./plugins/withUnsignedRelease.cjs"]
+    "android": {
+      "package": "org.nostrocket.hypergolic.dev"
+    },
+    "ios": {
+      "bundleIdentifier": "org.nostrocket.hypergolic.dev"
+    },
+    "updates": {
+      "enabled": false
+    },
+    "plugins": [
+      "./plugins/withUnsignedRelease.cjs",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "18.4"
+          }
+        }
+      ]
+    ]
   }
 }

@@ -1,23 +1,34 @@
 # Architecture
 
+## V1 platform and quality requirements
+
+V1 must work on **Android and iOS**. Both need real native napplet execution and
+the complete shared identity, gesture, approval, persistence and published-loading
+journey. Local standalone builds and platform-specific evidence are required.
+The earlier Android-only finish line and iOS deferral are superseded by the user
+correction of 15 September 2026. Public app-store publication remains separate.
+Final React Doctor and aislop scores must both be 100/100 without hiding findings.
+
 ## Implemented
 
-`index.ts` registers `src/App.tsx` with Expo. The current Android screen hosts the
+`index.ts` registers `src/App.tsx` with Expo. The Android and iOS screens host the
 bundled UX Lab through the [restricted native Kehto view](native-contract.md).
-It is a first runtime proof with readiness and theme only; product identity,
+The native views expose readiness and theme only; product identity,
 signing, saved data and published loading remain unimplemented. The supplied logo
 is visible in the native header. Current emulator evidence covers actual input,
 theme, listed boundary denials and renderer-failure teardown; full native acceptance
 and remaining release/device adversarial probes stay open.
 
-`app.json` configures Android and disables hosted updates, using the development
-application ID `org.nostrocket.hypergolic.dev`. That identifier reserves no
-production naming decision. There is no EAS project, hosted build configuration,
-user key or relay connection. V1 must support Android and iOS; this first native
-checkpoint demonstrates Android only. iOS napplet execution and physical-device
-acceptance remain open.
+`app.json` enables Android and iOS, disables hosted updates and uses
+`org.nostrocket.hypergolic.dev` as the development package/bundle identifier. The
+previous iOS scaffold evidence remains scoped to that earlier checkpoint. A real
+WKWebView host now builds and reaches Kehto Ready on the iPhone Simulator.
+Independent native workspace and boundary checks are recorded in
+[execution progress](../.planning/phases/02-independent-android-proof/02-07-PROGRESS.md).
+Physical-device execution and full native security acceptance remain open. There
+is no EAS project, hosted build configuration, user key or relay connection.
 
-Expo generates the ignored `android/` tree. Source configuration and the lockfile
+Expo generates the ignored `android/` and `ios/` trees. Source configuration and the lockfile
 are authoritative. `plugins/withUnsignedRelease.cjs` replaces the generated release
 debug-key configuration with unsigned output and fails if the template is no longer
 recognized. Final APK signing is a separate local operation with an owner-controlled
@@ -37,7 +48,8 @@ restricted WebView. Verified napplet bytes remain untrusted; publisher pinning d
 not grant native authority. Applesauce supplies selected Nostr event/relay plumbing.
 Kehto is now installed in an isolated web build with reviewed package/protocol
 pins and a theme-only boundary. Applesauce and the privileged native adapters are
-planned; their contracts and exact authorization must be validated before exposure.
+planned under the [selected capability contract](capability-contract.md); native
+conformance and exact authorization must be validated before exposure.
 
 First launch must create and securely persist an identity; later launches must reuse
 it. Storage failures must never cause silent replacement. Explicit `nsec` import
@@ -122,7 +134,7 @@ approved suite, source registry, commands, evidence and remaining native work.
 | --- | --- |
 | Published napplet loading | Pin the link/delivery contract; implement accepted first-open trust and explicit verified updates; define version retention/failure handling and fixture publisher/signer/release destinations |
 | Kehto/NAP/native adaptation | Pin compatible Kehto, NAP, NIP-5A and proposed NIP-5D revisions; define schemas, caller binding, error/resource limits and smallest host capability surface |
-| Identity protection | Choose Android storage/encryption and secure manual export handling; implement confirmed failed-read, preservation and whole-shell switch behavior |
+| Identity protection | Choose Android and iOS storage/encryption and secure manual export handling; implement confirmed failed-read, preservation and whole-shell switch behavior |
 | Signing approval | Bind exact payload authorization through asynchronous work; implement accepted cancellation/restart rules; define queue bounds, expiry, revocation and partial failures |
 | WebView isolation | Define CSP/network/navigation rules, native bridge reachability, origin/message binding, per-napplet storage isolation and device attack tests |
 | Remaining UX and relay details | Tune native gestures, zoom, keyboard/accessibility and memory behavior; define dirty-state reports and refine the confirmed approval sheet; wire editable relay defaults and test authentication requirements |

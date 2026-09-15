@@ -98,8 +98,70 @@ device evidence. The scaffold cannot complete the seed's identity/profile journe
 A development-signed copy from this machine is `.tools/hypergolic-development.apk`.
 It was signed explicitly using the generated Android Debug keystore after the
 unsigned build. Its hash and verification are in `phase-zero.md`. This is not a
-production release. Device checks are paused pending local security-prompt approval;
-build and signature checks do not need that prompt accepted.
+production release. At that phase-zero checkpoint, device checks were awaiting
+local security-prompt approval. Later emulator checks are recorded separately;
+physical-device and seed security acceptance still need their own evidence.
+
+## iOS development
+
+The app enables iOS with development bundle identifier
+`org.nostrocket.hypergolic.dev`. The earlier scaffold targeted iOS 16.4; the native napplet host now targets
+iOS 18.4 and uses Hermes. Keep generated `ios/` ignored; make permanent configuration changes through
+app configuration or plugins. The Android unsigned-release plugin is unchanged.
+
+Verified on 12 September 2026: Xcode 26.6 (17F113), iOS 26.5 Simulator (23F77),
+iPhone 17, and CocoaPods 1.16.2. Pod installation completed with 86 pods using
+Homebrew Ruby 4.0.5 and the pinned Node/pnpm. Native Debug compilation, installation
+and launch passed with no errors and one duplicate `-lc++` linker warning.
+
+Enable the pinned Node/pnpm environment first. Select full Xcode for each shell:
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+```
+
+For an absent native project, generate only iOS to preserve Android:
+
+```sh
+pnpm exec expo prebuild --platform ios --no-install
+```
+
+The normal local build command installs dependencies and starts Metro as needed:
+
+```sh
+pnpm exec expo run:ios --device 'iPhone 17'
+```
+
+The verified setup installed pods first, started Metro on localhost:8081, then ran
+`pnpm exec expo run:ios` with the selected Simulator UUID, `--no-install` and
+`--no-bundler`. Do not combine `--port` with `--no-bundler`; Expo rejects that pair.
+Use `Hypergolic.xcworkspace` when opening the generated project in Xcode.
+
+Simulator checks passed: actual screenshots, Home/Spotlight navigation, typing the
+app name and tapping its result, Hermes evaluation and console events, manual
+reload, cold launch with Metro running, and Fast Refresh before and after cold
+launch. The first live edit stayed stale until one Dev Menu Reload; subsequent
+edits updated automatically while preserving the JS runtime. The initial stale
+connection's cause was not established. Press Command-D in Simulator and choose
+Reload if the development connection becomes stale. The temporary label was fully
+restored. Text entry was tested in Simulator Spotlight; this scaffold has no app
+form, navigation flow or product controls.
+
+The Debug app needs Metro. These checks do not establish offline iOS operation,
+physical-iPhone signing, device behavior or security. For a local iPhone run, sign
+in to Xcode, select a team for the app target, connect/unlock/trust the phone and
+enable Developer Mode, then use `pnpm exec expo run:ios --device`. A phone must reach
+Metro over the local network; this Simulator's localhost address is not the phone's
+address. The owner handles account, pairing and device confirmations.
+
+A free Xcode Personal Team supports personal-device testing, with seven-day
+provisioning and app/device/capability limits. Paid Apple Developer Program membership
+supports TestFlight and broader distribution. EAS internal iPhone builds use paid
+ad hoc signing and registered devices. No physical-iPhone or EAS run is verified.
+See [Apple's account overview](https://developer.apple.com/help/account/basics/about-your-developer-account),
+[Expo's local development guide](https://docs.expo.dev/develop/development-builds/introduction/),
+[Simulator setup](https://docs.expo.dev/workflow/ios-simulator/) and
+[EAS internal distribution](https://docs.expo.dev/build/internal-distribution/).
 
 ## Dependency policy
 
@@ -122,11 +184,14 @@ remain enabled. pnpm audit is explicit. aislop is isolated because its React 19.
 dependency conflicts with Expo's React 19.2.3 pin. The scanner can fail to launch its
 package-manager audit subprocess on Windows;
 the separate pnpm audit gate remains mandatory. Report any skipped engine explicitly.
-The 90 score threshold is a code-quality gate, not a
-security acceptance threshold. A scoped `xcode -> uuid@11.1.1` override removes
+Both final React Doctor and aislop scores must be 100/100. A local React Doctor
+scan with `--no-telemetry` disables its scoring service and does not report a
+numeric score; it cannot satisfy that final gate. Scores do not establish native
+security acceptance. A scoped `xcode -> uuid@11.1.1` override removes
 GHSA-w5hq-g745-h8pq without downgrading Expo. Xcode's only UUID API use is `v4()`;
 its CommonJS UUID generation was executed successfully with the override. Remove
-the override when Xcode's declared dependency is patched. iOS builds remain untested.
+the override when Xcode's declared dependency is patched. The native iOS Simulator
+Debug build also passes; physical-iPhone builds remain untested.
 
 CI runs the same checks and bundles JavaScript, then separately attempts an unsigned
 native release build. Uploaded unsigned output is a build artifact, not a release.
@@ -169,6 +234,7 @@ the active Codex configuration. GSD phase numbers map to seed phases in the road
 - [aislop](https://github.com/scanaislop/aislop)
 - [Android CLI](https://developer.android.com/tools/agents/android-cli)
 
+
 ## Native napplet host checkpoint
 
 The Android app now has a local Expo module under `modules/napplet-host` and a
@@ -183,3 +249,65 @@ ARM64 emulator. It does not establish the complete shell, signing, persistent
 identity or published loader. See [the native contract](native-contract.md) and
 phase-2 execution records for current checks and remaining gates. Source pushes and
 remote replacement are reserved for the owner; continue on `mobile-revamp`.
+
+
+## iOS napplet host build
+
+The local module now includes a Swift WKWebView host and a dedicated verified
+runtime resource bundle. The selected minimum is iOS 18.4, needed for public
+file-chooser denial. With the pinned JavaScript tools and Xcode selected:
+
+```sh
+pnpm run prebuild:ios
+cd ios
+pod install
+cd ..
+pnpm exec expo run:ios --device "$HYPERGOLIC_IOS_UDID" --no-install --no-bundler
+```
+
+Select an explicit Simulator UDID and run Metro separately using the documented
+local workflow. The initial native Debug build installed successfully on iPhone 17
+/ iOS 26.5 and displayed the real UX Lab, Host colors and Runtime connected. A
+Debug dylib may hold the actual native code, so artifact evidence must hash the
+complete installed app bundle rather than only CFBundleExecutable. This is a
+Simulator development build; standalone iPhoneOS signing and physical-device
+acceptance remain required in plan 02-06. `pnpm run export:ios` prepares the iOS
+JavaScript bundle and does not replace a native build or device test.
+
+
+## Maximum quality verification
+
+`pnpm run test:quality` tests the verifier's negative cases. After reviewing and
+authorizing the external React Doctor score request, run the full quality receipt
+against stable source with a fresh output path outside the checkout:
+
+```sh
+node scripts/run-quality.mjs "$PWD" /tmp/hypergolic-quality-UNIQUE.json
+node scripts/verify-quality.mjs "$PWD" /tmp/hypergolic-quality-UNIQUE.json
+```
+
+The fixed command disables Socket lookups and ancillary React Doctor telemetry,
+keeps the actual numeric score service, and separately audits every pnpm lockfile.
+A local clean preflight is required when authorizing only an empty findings list:
+the CLI posts findings before the final verifier can inspect its result. Both
+scores must be exactly 100 with zero findings and complete applicable checks.
+Source changes, missing scores, malformed audits and stale receipts fail. Generated
+native trees and unsupported native languages remain outside these scanners;
+manual native source, build and runtime verification is still required.
+
+## Shared workspace regression checkpoint
+
+The native switcher now passes slow overview scroll, short card-swipe rejection,
+rapid close confirmation, Keep open and selected-card removal on Android and iOS.
+iOS also rejects a real two-finger pinch that starts with both fingers present.
+The shared recognizer checks the actual release coordinates: UIKit can omit a
+movement callback before lifting a short stroke. Temporary trace code is removed.
+The latest source/test TypeScript and 25 shell tests pass; aislop is 100/100 with
+all five engines complete, and React Doctor reports zero findings in a complete
+38-file scan. Its numeric score remains unavailable without the pending scoring
+permission. These are development checkpoint results, not full v1 acceptance.
+
+Use the portable [native harnesses](../tests/native/README.md). After source or
+native changes, explicitly cold-launch the installed app when HMR is disconnected.
+Fetching current Metro script text does not attest the bytes executing in Hermes.
+Preserve failed-run receipts alongside later passing evidence.

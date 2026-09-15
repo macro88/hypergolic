@@ -6,6 +6,8 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.net.http.SslError
 import android.os.Message
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.webkit.*
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewCompat
@@ -117,6 +119,17 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
       }
     }
     addView(webView)
+  }
+
+  fun setActive(active: Boolean) {
+    if (disposed) return
+    webView.importantForAccessibility = if (active) View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+      else View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+    if (active || !webView.hasFocus()) return
+    val token = webView.windowToken
+    webView.clearFocus()
+    (context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager)
+      ?.hideSoftInputFromWindow(token, 0)
   }
 
   fun startSession(id: String) {
