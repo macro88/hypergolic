@@ -76,3 +76,18 @@ inset-handle reachability and scroll arbitration, zoom overview/return, unknown-
 close warning, and state preservation with actual phone input. Storage, signing,
 remote trust, dirty-state reporting and process-death handling still require
 implementation against the confirmed architecture; browser results cannot close them.
+
+## State Lab implementation checkpoint
+
+[State Lab](../napplets/state-lab/README.md) and its distinct `state-lab-peer`
+variant now build as unsigned single-file artifacts with required identity/storage
+domains and optional theme. Thirty browser checks pass using test-only SDK adapters.
+Both upstream conformance runs report 5 passes and 5 skips; the skips include
+resolved manifest, wire traffic and lifecycle evidence, so this is not native or
+complete protocol acceptance. No fixture was published.
+
+The pinned Kehto whole-operation patches are integrated with 64 browser checks
+across Chromium and WebKit. The native host still needs immutable caller
+registration, native liveness/revocation guards, storage transport and actual
+State Lab durability/isolation journeys on Android and iOS. Publisher isolation
+requires separate host-bound fixture publishers, not a napplet-selected field.

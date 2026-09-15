@@ -20,7 +20,9 @@ observed, while iOS protected storage needs a physical iPhone. See the
 selection and explicit empty state per public identity. The shared
 [identity selector and import flow](identity-switching.md) now restart all loaded
 napplets after a confirmed change. Authenticated identity actions, signing, napplet
-saved-data access and published loading remain incomplete. The supplied logo
+saved-data access and published loading remain incomplete. The SDK-based State Lab
+and peer fixture now build independently, and the pinned Kehto whole-operation
+adapter passes browser checks; neither is exposed as a native privilege yet. The supplied logo
 is visible in the native header. Current emulator evidence covers actual input,
 theme, listed boundary denials and renderer-failure teardown; full native acceptance
 and remaining release/device adversarial probes stay open.

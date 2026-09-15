@@ -83,3 +83,22 @@ The vault/transition is not an implemented napplet signing/storage wire capabili
 Next: native identity/storage admission and State Lab, authenticated actions,
 approval and verified published loading. Physical iPhone proof and React Doctor's
 external numeric score remain open. Keep checking account usage; stop at 45%.
+
+## State Lab and Kehto operation adapter
+
+State Lab and its distinct app variant now build as unsigned single-file fixtures.
+Thirty browser UI/SDK checks pass, and both upstream conformance reports have
+5 passes and 5 skips. The reviewed whole-operation Kehto patches are installed
+without package upgrades; 64 browser checks pass against the actual installed
+packages. Test-only adapters stay outside native delivery.
+
+Root TypeScript, Android/iOS JavaScript exports, runtime/fixture dependency audits
+and complete local scanners pass. aislop is 100/100 across 98 supported files.
+React Doctor has zero findings; numeric scoring still requires the previously
+blocked external request. Native privileged capabilities remain disabled.
+
+Next: immutable native registration and synchronous revocation checks, bounded
+identity/storage transport, then actual State Lab saved-data/isolation/restart
+journeys on both native platforms. Existing identity and workspace evidence remains
+scoped to its recorded builds; JavaScript exports are not new native execution
+evidence. Keep work in coherent, budget-checked batches.

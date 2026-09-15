@@ -1,8 +1,39 @@
 diff --git a/dist/index.js b/dist/index.js
-index 523bcf16686659726604376dea98363a06f86049..b672689a31b08682e221b6837dce8264a12ee41a 100644
+index 523bcf1..507694c 100644
 --- a/dist/index.js
 +++ b/dist/index.js
-@@ -1286,8 +1286,13 @@ function nappletNamespacePrelude(domains) {
+@@ -312,6 +312,7 @@ function adaptHooks(shellHooks, deps) {
+     onAclCheck: shellHooks.onAclCheck,
+     onHashMismatch: shellHooks.onHashMismatch,
+     services: shellHooks.services,
++    operationOverrides: shellHooks.operationOverrides,
+     getConfigOverrides: shellHooks.getConfigOverrides
+   };
+ }
+@@ -1265,7 +1266,15 @@ function scriptJson(value) {
+ }
+ function renderNappletNamespacePrelude(options) {
+   const domains = uniqueBareDomains(["shell", ...options.domains]);
+-  return `<script data-kehto-nip5d-injection>(${nappletNamespacePrelude.toString()})(${scriptJson(domains)});</script>`;
++  const requestTimeoutsMs = {};
++  for (const [operation, timeout] of Object.entries(options.requestTimeoutsMs ?? {})) {
++    if (!/^[a-z][a-zA-Z0-9]*\.[a-zA-Z][a-zA-Z0-9.]*$/.test(operation)
++      || !Number.isSafeInteger(timeout) || timeout < 1 || timeout > 2147483647) {
++      throw new TypeError("Invalid host request timeout");
++    }
++    requestTimeoutsMs[operation] = timeout;
++  }
++  return `<script data-kehto-nip5d-injection>(${nappletNamespacePrelude.toString()})(${scriptJson(domains)},${scriptJson(requestTimeoutsMs)});</script>`;
+ }
+ function injectNappletNamespacePrelude(html, options) {
+   const prelude = renderNappletNamespacePrelude(options);
+@@ -1281,13 +1290,18 @@ function injectNappletNamespacePrelude(html, options) {
+   }
+   return `${prelude}${html}`;
+ }
+-function nappletNamespacePrelude(domains) {
++function nappletNamespacePrelude(domains, requestTimeoutsMs = {}) {
+   const target = window;
    const allowed = new Set(domains);
    const requestTimeoutMs = 3e4;
    function id() {
@@ -18,3 +49,36 @@ index 523bcf16686659726604376dea98363a06f86049..b672689a31b08682e221b6837dce8264
    }
    function post(message) {
      target.parent.postMessage(message, "*");
+@@ -1326,7 +1340,7 @@ function nappletNamespacePrelude(domains) {
+       const timer = setTimeout(() => {
+         off();
+         reject(new Error(`${message.type} timed out`));
+-      }, requestTimeoutMs);
++      }, requestTimeoutsMs[message.type] ?? requestTimeoutMs);
+       post(outbound);
+     });
+   }
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+index 0ec36f0..a6bdd59 100644
+--- a/dist/index.d.ts
++++ b/dist/index.d.ts
+@@ -350,6 +350,8 @@ interface ShellEnvironment {
+  * ```
+  */
+ interface ShellAdapter {
++    /** Whole-operation host hooks, forwarded without changing existing service semantics. */
++    operationOverrides?: RuntimeAdapter['operationOverrides'];
+     relayPool: RelayPoolHooks;
+     relayConfig: RelayConfigHooks;
+     windowManager: WindowManagerHooks;
+@@ -599,6 +601,10 @@ interface NappletNamespacePreludeOptions {
+      * Mandatory `shell` is injected even when omitted here.
+      */
+     domains: readonly string[];
++    /** Host-only per-operation deadlines in milliseconds; omitted operations remain 30000.
++     * Values must be safe integers from 1 through 2147483647. Never a napplet wire field.
++     */
++    requestTimeoutsMs?: Readonly<Record<string, number>>;
+ }
+ /**
+  * Render the host-owned NIP-5D bootstrap that exposes available NAP domains

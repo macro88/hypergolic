@@ -5,5 +5,5 @@
     "noUncheckedIndexedAccess": true, "exactOptionalPropertyTypes": true,
     "noEmit": true, "skipLibCheck": true, "types": []
   },
-  "include": ["src"]
+  "include": ["src", "tests/fixtures"]
 }

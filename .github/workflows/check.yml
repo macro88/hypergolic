@@ -54,11 +54,14 @@ jobs:
           name: hypergolic-unsigned-runtime-proof
           path: android/app/build/outputs/apk/release/*-unsigned.apk
           if-no-files-found: error
-  ux-lab:
+  napplet-labs:
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        fixture: [ux-lab, state-lab]
     defaults:
       run:
-        working-directory: napplets/ux-lab
+        working-directory: napplets/${{ matrix.fixture }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
@@ -66,7 +69,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
-          cache-dependency-path: napplets/ux-lab/pnpm-lock.yaml
+          cache-dependency-path: napplets/${{ matrix.fixture }}/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm verify
@@ -74,8 +77,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ux-lab-browser-evidence
-          path: napplets/ux-lab/test-results/
+          name: ${{ matrix.fixture }}-browser-evidence
+          path: napplets/${{ matrix.fixture }}/test-results/
           if-no-files-found: warn
 
   runtime-host:

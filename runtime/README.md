@@ -1,7 +1,7 @@
 # Hypergolic web runtime
 
-This isolated package builds the trusted Kehto outer document for the Android
-Expo native view. It embeds the reviewed UX Lab bytes as an opaque `srcdoc` iframe.
+This isolated package builds the trusted Kehto outer document for the Android and iOS
+Expo native views. It embeds the reviewed UX Lab bytes as an opaque `srcdoc` iframe.
 It is the first runtime slice; it implements no identity, signing, saved state,
 relay transport or published napplet installation.
 
@@ -16,7 +16,7 @@ pnpm audit --audit-level=high
 ```
 
 `dist/index.html` and `dist/host.js` are the only native runtime assets. Copy them
-to the local native module's assets/runtime directory before Android builds.
+with the root `pnpm runtime:build` command before native builds on either platform.
 `assets-manifest.json` records their SHA256/byte lengths and the fixture provenance
 for the native build verifier. It is a build-time sidecar, not a WebView resource.
 No source map, remote script, CSS file, fixture fetch or native HTML prop is used.
@@ -117,3 +117,32 @@ both the no-`randomUUID` fallback and failure when secure randomness is unavaila
 
 Web Crypto API reference:
 [getRandomValues](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues).
+
+## Whole-operation native adapter seam
+
+The combined shell patch forwards `operationOverrides`; the runtime patch invokes
+only the nine reviewed storage/relay operations after registered-session, domain,
+ACL and firewall admission. A selected override consumes its operation even when
+it throws or rejects. It cannot fall through to a built-in signer. Absent overrides
+retain upstream behavior. Neither patch advertises or grants a capability.
+
+Canonical denial results preserve original IDs/subscription IDs. Reply closures
+stop after session replacement/unregister or bridge teardown. They do not cancel
+native side effects; native admission, payload validation, expiry and revocation
+remain mandatory. `auth.getSigner()` stays null in the native host. Identity uses
+the existing service adapter, not an invented signing domain.
+
+The shell patch also accepts a trusted per-operation timeout map. Unconfigured
+requests retain 30 seconds. A future publication adapter may select 660 seconds
+only with the bounded native deadline in the [selected contract](../docs/capability-contract.md).
+This is host configuration, not a new NAP field or caller-controlled timeout.
+
+`pnpm test` builds a separate test host under ignored `.test-fixtures/` using the
+actual installed patched packages. It is never copied into native assets. Its
+in-memory adapter has no native bridge, key, signer or network. On 15 September
+2026, 38 adapter checks plus the existing 26 runtime checks passed in Chromium
+and WebKit (64 total). Coverage includes the exact admission order, canonical
+ACL/firewall denials, original unsigned payloads, failure without fallback, absent
+hook compatibility, late replies and precise configured/default deadlines.
+The app's current delivery still exposes shell/theme only; native privileged
+operations are not claimed by this browser proof.

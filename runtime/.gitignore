@@ -3,3 +3,4 @@ dist/
 assets-manifest.json
 test-results/
 playwright-report/
+.test-fixtures/
