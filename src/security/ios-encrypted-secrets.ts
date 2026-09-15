@@ -51,6 +51,13 @@ export async function createIOSEncryptedSecrets(module: IdentityStoreModule, pla
     const value = await nativeCall(operation);
     return value === null ? null : decode(value);
   }
+  async function erase(key: string, token: string): Promise<void> {
+    try { await nativeCall(() => module.deleteSecretAsync(key, token)); } catch (error) {
+      if (error instanceof VaultError && error.code === 'AUTHORIZATION_DENIED') throw error;
+      // Native unlink/flush or transport failure cannot be promoted to durable success by a later absence read.
+      throw new VaultError('READBACK_FAILED');
+    }
+  }
   const adapter: EncryptedSecrets = {
     readInventory: () => read(() => module.readInventoryAsync(), decodeInventory),
     writeInventory: value => {
@@ -81,7 +88,7 @@ export async function createIOSEncryptedSecrets(module: IdentityStoreModule, pla
         if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{16,128}$/.test(token)) throw new VaultError('AUTHORIZATION_DENIED');
       } catch { throw new VaultError('AUTHORIZATION_DENIED'); }
       // This invokes the bridge synchronously before the first await. Token belongs to this grant.
-      return nativeCall(() => module.deleteSecretAsync(key, token));
+      return erase(key, token);
     },
   };
   return Object.freeze(adapter);

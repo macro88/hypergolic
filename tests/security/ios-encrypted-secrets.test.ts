@@ -167,3 +167,29 @@ test('native late revocation remains a rejection and token cannot be reused', as
   assert.throws(() => adapter.deleteSecret(key(1), grant), hasCode('AUTHORIZATION_DENIED'));
   assert.equal(module.calls.filter(call => call.method === 'deleteSecret').length, 1);
 });
+
+
+for (const nativeFailure of [
+  { code: 'ERR_IDENTITY_STORE_UNAVAILABLE', message: 'private flush failure' },
+  { code: 'ERR_IDENTITY_STORE_CORRUPT', message: 'private native state' },
+  new Error('private transport failure'),
+]) test('iOS erase uncertainty remains a durable failure even when the file is subsequently absent', async () => {
+  const { module, tokens, adapter } = await setup(), grant = tokens.grant();
+  module.values.set(key(1), encodeSecret(secret()));
+  module.deleteSecretAsync = async (pubkey, nativeToken) => {
+    module.record('deleteSecret', pubkey, nativeToken);
+    module.values.delete(pubkey);
+    throw nativeFailure;
+  };
+  await assert.rejects(adapter.deleteSecret(key(1), grant), hasCode('READBACK_FAILED'));
+  assert.equal(await adapter.readSecret(key(1)), null);
+  assert.throws(() => adapter.deleteSecret(key(1), grant), hasCode('AUTHORIZATION_DENIED'));
+});
+test('iOS failure before erase preserves the record and never retains a native diagnostic', async () => {
+  const { module, tokens, adapter } = await setup();
+  module.values.set(key(1), encodeSecret(secret()));
+  module.deleteSecretAsync = async () => { throw { code: 'ERR_IDENTITY_STORE_UNAVAILABLE', message: 'private storage detail' }; };
+  await assert.rejects(adapter.deleteSecret(key(1), tokens.grant()), error =>
+    error instanceof VaultError && error.code === 'READBACK_FAILED' && error.message === 'READBACK_FAILED' && !('cause' in error));
+  assert.deepEqual(await adapter.readSecret(key(1)), secret());
+});

@@ -192,8 +192,10 @@ native Settings opening, authentication and journaling. Native erasure checks an
 consumes the exact target/token synchronously. An unconfirmed Android erase cannot
 become success through an in-memory absence readback. Known native denial with the
 key still present leaves the exact journal retryable; inconsistent outcomes require
-recovery. iOS erase-error durability handling needs the next targeted review before
-its action journey is accepted.
+recovery. The iOS erase adapter now applies the same conservative failure rule: a
+native unlink/flush or transport failure requires recovery even if a later file read
+returns absence. Only a known native authorization denial remains retryable when
+the core confirms the key is still present. Its physical action journey remains open.
 
 The actual isolated Android Release app passes eight checks in one run: no lock,
 exact review cancellation, system cancellation, background revocation, wrong PIN,
@@ -224,3 +226,9 @@ action journey](../tests/native/android-identity-actions/README.md).
 The refreshed actual file-policy probe passes its one Simulator unsupported-protection
 test with no skips; its unsigned iPhoneOS branch also compiles. Exact current source
 hashes are recorded by the [file-policy harness](../tests/native/ios-file-policy/README.md).
+
+The targeted iOS erase-boundary follow-up adds four regressions for failures before
+and after file removal, sanitized errors and consumed-token replay. All 295 security,
+13 bootstrap and 80 storage tests, TypeScript and the iOS export pass. Full aislop
+remains 100/100; local React Doctor has zero findings and no numeric score. This is
+shared adapter/core verification; it does not add physical iOS execution evidence.
