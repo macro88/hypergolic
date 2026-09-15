@@ -7,3 +7,6 @@ export const colors = {
   accent: '#e8805d',
   border: '#776355',
 } as const;
+
+/** Keeps visible grips beside the guest viewport while touch targets remain larger. */
+export const HANDLE_GUTTER = 12;

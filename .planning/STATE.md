@@ -16,14 +16,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-14)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Native napplet storage admission and State Lab after protected entry, workspace persistence and confirmed identity switching.
+**Current focus:** Authenticated identity actions after the verified State Lab storage and handle-spacing checkpoints.
 
 ## Current Position
 
 Phase: 2 of 3 (Independent Android and iOS proof / seed phase 1)
 Plan: 02-03 secure identities and saved state; remaining 02-07 device acceptance
 Status: Identity entry, workspace persistence and import/switch UI integrated; isolated native journeys pass on both platforms; State Lab saved-data access is integrated; authenticated actions, signing, remote loading and physical security remain open
-Last activity: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. Visual review found handle overlap with some State Lab text; fix that before UX acceptance. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
+Last activity: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
 Previous environment checkpoint: 2026-09-12 — local iOS development setup completed: native Simulator Debug build, input/navigation, Hermes/logging, reload, Fast Refresh and cold launch verified. Original scaffold and Android artifacts preserved. This environment checkpoint does not advance the product/security phase; see docs/development.md.
 

@@ -152,6 +152,19 @@ Private evidence is retained under
 runs preserved separately, including test-driver failures. Native output labels,
 clipped controls, inset handles and platform-specific select controls were checked
 through real UI rather than inferred from browser tests. Android and iOS restart
-screenshots were inspected. At some scroll positions the inset handles obscure
-the leading edge of State Lab text; that visual defect remains open. Physical security, authenticated actions, signing,
+screenshots were inspected. The handle overlap found during this review is fixed
+by the layout checkpoint below. Physical security, authenticated actions, signing,
 remote loading/updates and complete v1 acceptance remain open.
+
+
+## Handle spacing verification on 15 September 2026
+
+The guest viewport reserves 12 points on each side for the visible grips, keeping
+them beside napplet text. Touch targets remain 44 by 88 points. Gesture thresholds,
+ordering and accessibility actions are unchanged. Rebuilt and attested isolated
+Android and iOS apps each pass the existing three-check close/reopen journey, using
+real native input and the same persisted data. Screenshots from both platforms
+show the Result text unobscured. This covers the observed overlap, not full physical
+device gesture or accessibility acceptance. TypeScript and all 25 shell tests pass;
+full aislop remains 100/100 and the local React Doctor scan has zero findings.
+External numeric scoring is still awaiting explicit authorisation.

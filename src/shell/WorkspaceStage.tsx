@@ -6,7 +6,7 @@ import { Handles } from './Handles';
 import { Overview, type OverviewHandle } from './Overview';
 import { cardTransform, clamp, overviewGeometry, resolveCardRect, type HandleSide, type CardMeasurement, type Rect, type Size } from './motion';
 import { adjacentNapplet, type NappletDescriptor, type Workspace } from './workspace';
-import { colors } from './theme';
+import { colors, HANDLE_GUTTER } from './theme';
 
 interface LiveProps {
   session: NappletDescriptor;
@@ -104,6 +104,6 @@ export const WorkspaceStage = forwardRef<OverviewHandle, StageProps>(function Wo
 const styles = StyleSheet.create({
   stage: { flex: 1, marginHorizontal: 12, marginBottom: 8, borderRadius: 22, overflow: 'hidden', backgroundColor: colors.background },
   live: { position: 'absolute', left: 0, top: 0, overflow: 'hidden', borderRadius: 18, backgroundColor: colors.background },
-  host: { flex: 1 },
+  host: { flex: 1, marginHorizontal: HANDLE_GUTTER },
   runtimeStatus: { color: colors.muted, fontSize: 10, textAlign: 'center', paddingVertical: 5, backgroundColor: colors.background },
 });

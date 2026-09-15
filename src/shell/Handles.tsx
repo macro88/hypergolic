@@ -3,7 +3,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useSharedValue, type SharedValue } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { directionForHandle, handlePosition, handleRelease, absolutePointerDrag, type HandleSide } from './motion';
-import { colors } from './theme';
+import { colors, HANDLE_GUTTER } from './theme';
 
 interface Props {
   width: number;
@@ -63,8 +63,8 @@ export function Handles(props: Props) {
 const styles = StyleSheet.create({
   layer: { zIndex: 20 }, hidden: { opacity: 0 },
   target: { position: 'absolute', width: 44, height: 88, justifyContent: 'center', alignItems: 'center' },
-  left: { left: 8 }, right: { right: 8 },
-  pill: { width: 18, height: 66, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
+  left: { left: 0, alignItems: 'flex-start' }, right: { right: 0, alignItems: 'flex-end' },
+  pill: { width: HANDLE_GUTTER, height: 66, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
   line: { width: 3, height: 28, backgroundColor: colors.accent, borderRadius: 2 },
   end: { backgroundColor: colors.muted, height: 18 },
 });
