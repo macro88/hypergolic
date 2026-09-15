@@ -16,14 +16,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-14)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Identity import and whole-shell switching after the protected entry and workspace persistence checkpoints.
+**Current focus:** Native napplet storage admission and State Lab after protected entry, workspace persistence and confirmed identity switching.
 
 ## Current Position
 
 Phase: 2 of 3 (Independent Android and iOS proof / seed phase 1)
 Plan: 02-03 secure identities and saved state; remaining 02-07 device acceptance
-Status: Identity entry and workspace descriptors integrated; Android and isolated iOS workspace restarts pass; identity management and physical security remain open
-Last activity: 2026-09-15 — Workspace persistence now retains opening order, last active napplet and explicit empty state. Native restart journeys pass on Android's normal debug app and a separate iOS Release fixture using actual SQLite. The latter excludes identity/signing modules and does not close physical-iPhone identity acceptance. The storage core passes 62 tests; full local aislop is 100/100 and React Doctor has zero findings, numeric scoring still pending permission. Next: import/whole-shell switching and then authenticated actions. Progress metadata counts plans, not product completion.
+Status: Identity entry, workspace persistence and import/switch UI integrated; isolated native journeys pass on both platforms; privileged napplet capabilities and physical security remain open
+Last activity: 2026-09-15 — Confirmed import and whole-shell switching now preserve cancelled live sessions and restart all loaded napplets under the selected identity. Android's isolated standalone Release app passed import/selector/restart using the production vault. The separate iOS public-key-only fixture passed the shared UI journey after fixing modal safe areas. Neither substitutes for physical-iPhone protected storage. There are 71 storage/transition tests, 278 security tests, 13 bootstrap tests and 25 shell tests; full aislop is 100/100 and React Doctor has zero findings, with external numeric scoring still pending. Weekly usage last checked at 11%; stop at 45%. Progress metadata counts plans, not product completion.
 
 Previous environment checkpoint: 2026-09-12 — local iOS development setup completed: native Simulator Debug build, input/navigation, Hermes/logging, reload, Fast Refresh and cold launch verified. Original scaffold and Android artifacts preserved. This environment checkpoint does not advance the product/security phase; see docs/development.md.
 

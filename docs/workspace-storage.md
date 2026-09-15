@@ -41,8 +41,9 @@ under another identity.
 
 Workspace persistence stores descriptors, not live WebView state or approval
 requests. Drafts still need a napplet's saved-data capability to survive termination.
-Lazy restoration, imported identities, published descriptors and full standalone
-application acceptance remain open.
+Identity import and rebinding are covered in the subsequent
+[identity-switching checkpoint](identity-switching.md). Lazy restoration, published
+descriptors and full standalone application acceptance remain open.
 
 ## Verification
 

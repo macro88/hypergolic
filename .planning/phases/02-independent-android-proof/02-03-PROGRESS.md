@@ -61,3 +61,25 @@ Next: import and whole-shell identity switching, authenticated actions, then the
 native capability/approval/loading work. The saved workspace does not include
 volatile drafts, and lazy restoration remains open. React Doctor's numeric request
 and physical-iPhone identity proof remain pending. Stop at 45% weekly account use.
+
+
+## Confirmed identity switching integration
+
+The process-owned transition now handles nsec review, one confirmation, preserved
+cancelled live sessions, protected import/readback, duplicate selection and complete
+shell remount after identity change. Workspace bindings and session authority check
+identity revision/epoch; uncertain selection/workspace commits require restart.
+The integrated storage suite has 71 cases. See
+[identity switching](../../../docs/identity-switching.md) for the exact limits.
+
+The standalone Android test app passed import/switch/restart with the production
+vault, without reading the generated starting secret or changing the normal app.
+The iOS public-key-only fixture passed five native UI checks. That run exposed and
+then verified a real modal safe-area correction: Done now starts at y=74 below the
+observed y=62 safe-area baseline. The corrected Android artifact also passed two
+cold launches and Settings dismissal. Both final settings screenshots were inspected.
+The vault/transition is not an implemented napplet signing/storage wire capability.
+
+Next: native identity/storage admission and State Lab, authenticated actions,
+approval and verified published loading. Physical iPhone proof and React Doctor's
+external numeric score remain open. Keep checking account usage; stop at 45%.

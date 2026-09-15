@@ -21,6 +21,7 @@ EXPECTED_CHECKS = {
     "native-text-input", "typed-rendered-mirror",
 }
 SCENARIOS = {
+    "identity-switch": {"checks": {"identity-settings-safe-area", "identity-cancel-retains-live-state", "identity-import-restarts-all", "identity-duplicate-and-selector", "identity-selection-after-restart"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testIdentitySwitch"},
     "workspace-restart": {"checks": {"selected-napplet-after-restart", "opening-order-after-restart", "explicit-empty-after-restart"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testWorkspaceRestart"},
     "card-cancel": {"checks": {"short-card-stroke-cancel", "two-touch-card-cancel", "cancelled-card-state-retained"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testCardCancellation"},
     "closing": {"checks": {"seed-close-state", "gentle-overview-scroll", "rapid-swipe-warning", "keep-open-retains-state", "close-removes-only-target", "other-session-state-retained", "visible-close-controls", "quiet-empty-overview", "empty-settings-and-open"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testClosing"},
@@ -65,7 +66,7 @@ def source_manifest(repo: Path) -> dict:
             if path.is_file() and not {"build", ".gradle", "node_modules", ".expo"}.intersection(relative.parts):
                 paths.add(path)
     for name in ("package.json", "pnpm-lock.yaml", "app.json", "app.config.ts", "app.config.js", "babel.config.js",
-                 "babel.config.cjs", "metro.config.js", "metro.config.cjs", "index.ts", "runtime/package.json", "runtime/pnpm-lock.yaml"):
+                 "babel.config.cjs", "metro.config.js", "metro.config.cjs", "index.ts", "index.fixture.tsx", "runtime/package.json", "runtime/pnpm-lock.yaml"):
         path = repo / name
         if path.is_file():
             paths.add(path)
@@ -137,7 +138,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--expected-title", default="UX Lab 1")
     parser.add_argument("--expected-session", default="ux-lab-1")
     parser.add_argument("--timeout", type=float, default=30)
-    parser.add_argument("scenario", choices=["workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "identity", "host-boundary", "renderer-loss"])
+    parser.add_argument("scenario", choices=["identity-switch", "workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "identity", "host-boundary", "renderer-loss"])
     parser.add_argument("--output", type=Path, required=True, help="New private evidence directory, never overwritten")
     args = parser.parse_args(argv)
     if args.scenario not in SCENARIOS:
@@ -224,6 +225,14 @@ def main(argv: list[str] | None = None) -> int:
         result["runner"] = {"bundleIdentifier": runner_id, "executableSha256": sha256(runner / "HypergolicUITests-Runner")}
         document = simulator_run(plistlib.loads(manifests[0].read_bytes()), runner_id, args.bundle_id, nonce,
                                    args.expected_title, args.expected_session, args.timeout, args.scenario)
+        if args.scenario == "identity-switch":
+            if args.bundle_id != "org.nostrocket.hypergolic.identityuifixture":
+                raise RuntimeError("Identity UI scenario requires the isolated public-key fixture")
+            helper = ROOT / "public-test-identity.mjs"
+            fixture = json.loads(subprocess.check_output(["node", str(helper)], text=True, env=environment))
+            result["publicFixtureHelperSha256"] = sha256(helper)
+            for target in test_targets(document):
+                target["EnvironmentVariables"].update({"HG_PUBLIC_TEST_NSEC": fixture["nsec"], "HG_PUBLIC_TEST_NPUB": fixture["npub"]})
         configured = products / "HypergolicSimulator.xctestrun"
         configured.write_bytes(plistlib.dumps(document))
         # Xcode installs only the validated standalone runner; no app build is supplied.

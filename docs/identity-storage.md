@@ -3,9 +3,9 @@
 The application now enters through one process-owned identity vault. Android has
 shown the same valid public identity in its header and trusted Settings after a
 real process restart. iOS native storage builds, but its protected-file behavior
-still requires a physical iPhone. This is partial v1 implementation; import,
-identity switching, authenticated backup/deletion, signing and full device
-acceptance remain open.
+still requires a physical iPhone. [Identity import and whole-shell switching](identity-switching.md)
+are now integrated with a shared trusted Settings flow. Authenticated backup/deletion,
+signing and full device acceptance remain open.
 
 ## Ownership and first entry
 
@@ -14,7 +14,8 @@ A second bootstrap requires a process restart, preventing replacement runtimes
 from opening a competing vault while earlier asynchronous work may still finish.
 Secure native randomness is installed before Nostr code is imported. The Expo
 `getRandomValues` path is used; no development `Math.random` fallback is accepted.
-Only a public snapshot reaches the current shell header and Settings.
+The shell receives public snapshots and narrow trusted identity-change controls;
+no secret accessor or vault storage object reaches a napplet.
 
 The vault keeps public inventory and operation journals in the dedicated
 `hypergolic-identity-v1.db` SQLite database. Protected inventory receipts, staged

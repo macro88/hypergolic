@@ -23,6 +23,11 @@ export function parseNsec(value: string): Uint8Array {
   finally { decodedSecret?.fill(0); }
 }
 
+export function publicKeyFromNsec(input: string): string {
+  const secret = parseNsec(input);
+  try { return derivePublicKey(secret); } finally { secret.fill(0); }
+}
+
 export function newOpaqueId(): string {
   const bytes = new Uint8Array(24);
   try {

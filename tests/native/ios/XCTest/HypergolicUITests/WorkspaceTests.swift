@@ -13,6 +13,7 @@ final class WorkspaceTests: XCTestCase {
   private var nonce = ""
   private let placeholder = "Something you will recognise…"
   private let expected: [String: Set<String>] = [
+    "identity-switch": ["identity-settings-safe-area", "identity-cancel-retains-live-state", "identity-import-restarts-all", "identity-duplicate-and-selector", "identity-selection-after-restart"],
     "workspace-restart": ["selected-napplet-after-restart", "opening-order-after-restart", "explicit-empty-after-restart"],
     "card-cancel": ["short-card-stroke-cancel", "two-touch-card-cancel", "cancelled-card-state-retained"],
     "closing": ["seed-close-state", "gentle-overview-scroll", "rapid-swipe-warning", "keep-open-retains-state", "close-removes-only-target", "other-session-state-retained", "visible-close-controls", "quiet-empty-overview", "empty-settings-and-open"],
@@ -41,6 +42,106 @@ final class WorkspaceTests: XCTestCase {
       "allChecksPassed": allPassed, "checks": checks, "observations": observations, "gestures": gestures,
       "proofScope": "Public native XCTest gestures and accessibility. Temporary fixture values/scroll positions only; native generation identity and transition frame pacing are not directly observed."
     ], "workspace-report")
+  }
+
+  func testIdentitySwitch() throws {
+    let environment = ProcessInfo.processInfo.environment
+    guard environment["HG_TARGET_BUNDLE_ID"] == "org.nostrocket.hypergolic.identityuifixture",
+          let nsec = environment["HG_PUBLIC_TEST_NSEC"], let destination = environment["HG_PUBLIC_TEST_NPUB"]
+    else { throw Failure.invalid("Expected the isolated public identity UI fixture") }
+    try identityFocus(1)
+    let original = try selectedIdentity()
+    let safeTop = try one(app.staticTexts.matching(identifier: "simulator-ui-fixture-label"), "top safe-area fixture label").frame.minY
+    guard safeTop > app.frame.minY else { throw Failure.invalid("Unobservable safe-area baseline") }
+    var saved: [Int: State] = [:]
+    for number in 1...3 {
+      try identityFocus(number)
+      saved[number] = try seed(marker: "identity-" + nonce + "-\(number)", increments: number)
+    }
+    try identityPress("shell-settings")
+    let done = try one(app.buttons.matching(identifier: "settings-done"), "Settings Done")
+    record("identity-settings-safe-area", done.frame.minY >= safeTop && done.frame.height >= 44, ["safeTop": safeTop, "done": attributes(done)])
+    try identityReview("invalid-nsec")
+    try until("Invalid import feedback") { self.app.staticTexts.matching(identifier: "identity-import-error").firstMatch.exists }
+    try identityPress("identity-import-cancel")
+    try identityReview(nsec)
+    try until("Reviewed public identity") { self.app.staticTexts.matching(identifier: "identity-change-npub").firstMatch.label == destination }
+    capture("identity-confirmation")
+    try identityPress("identity-change-cancel")
+    try identityPress("settings-done")
+    guard try selectedIdentity() == original else { throw Failure.invalid("Cancellation changed identity") }
+    for number in 1...3 {
+      try identityFocus(number)
+      guard try state() == saved[number] else { throw Failure.invalid("Cancelled import changed live state") }
+    }
+    record("identity-cancel-retains-live-state", true, ["sessions": 3, "npub": original])
+    try identityPress("shell-settings")
+    try identityReview(nsec)
+    try identityPress("identity-change-confirm")
+    try focused(3)
+    guard try selectedIdentity() == destination else { throw Failure.invalid("Import did not select reviewed identity") }
+    for number in 1...3 {
+      try identityFocus(number)
+      let fresh = try state()
+      guard fresh.counter == 0 && fresh.draft.isEmpty else { throw Failure.invalid("Accepted switch retained old live state") }
+    }
+    record("identity-import-restarts-all", true, ["sessions": 3, "npub": destination])
+    try identityPress("shell-settings")
+    try until("Two saved identities") { self.identityRows().count == 2 }
+    let originalRow = try one(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "identity-select-", original)), "original identity")
+    let originalID = originalRow.identifier
+    capture("identity-inventory")
+    try identityReview(nsec)
+    try until("Duplicate current import dismissed") { self.app.staticTexts.matching(identifier: "settings-full-npub").firstMatch.exists }
+    guard !app.buttons.matching(identifier: "identity-change-confirm").firstMatch.exists && identityRows().count == 2 else { throw Failure.invalid("Duplicate import added an identity or requested a switch") }
+    try identityPress(originalID)
+    try identityPress("identity-change-cancel")
+    guard app.staticTexts.matching(identifier: "settings-full-npub").firstMatch.label == destination else { throw Failure.invalid("Cancelled saved selector changed identity") }
+    try identityPress(originalID)
+    try identityPress("identity-change-confirm")
+    try focused(3)
+    guard try selectedIdentity() == original else { throw Failure.invalid("Saved selector did not restore original public identity") }
+    record("identity-duplicate-and-selector", true, ["identities": 2, "npub": original])
+    try workspaceSaved()
+    try restartWorkspaceApp()
+    try focused(3)
+    guard try selectedIdentity() == original else { throw Failure.invalid("Selected identity did not survive restart") }
+    try identityPress("shell-settings")
+    try until("Retained inventory after restart") { self.identityRows().count == 2 }
+    capture("identity-after-restart")
+    record("identity-selection-after-restart", true, ["npub": original, "identities": identityRows().count, "scope": "Public-key-only fixture inventory; no protected key storage"])
+    complete = true
+  }
+  private func identityRows() -> [XCUIElement] {
+    app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "identity-select-")).allElementsBoundByIndex.filter { $0.exists }
+  }
+  private func selectedIdentity() throws -> String {
+    try until("Full identity header visible") { self.app.buttons.matching(identifier: "shell-settings").firstMatch.isHittable }
+    let button = try one(app.buttons.matching(identifier: "shell-settings"), "identity header")
+    guard button.label.hasPrefix("Settings for npub1") else { throw Failure.invalid("Missing full selected public identity") }
+    return String(button.label.dropFirst("Settings for ".count))
+  }
+  private func identityPress(_ identifier: String) throws {
+    try until("Native identity control " + identifier) { self.app.buttons.matching(identifier: identifier).firstMatch.isHittable }
+    try nativeTap(one(app.buttons.matching(identifier: identifier), identifier), name: identifier)
+  }
+  private func identityReview(_ input: String) throws {
+    try identityPress("settings-import-identity")
+    let field = try one(app.secureTextFields.matching(identifier: "identity-import-input"), "masked secret input")
+    field.tap()
+    field.typeText(input)
+    guard !(field.value as? String ?? "").contains(input) else { throw Failure.invalid("Secret input appeared in accessibility value") }
+    // Public disposable test key only. Return invokes the real trusted Continue handler.
+    field.typeText("\n")
+  }
+  private func identityFocus(_ number: Int) throws {
+    guard var current = Int(currentTitle().replacingOccurrences(of: "UX Lab ", with: "")) else { throw Failure.invalid("No focused fixture") }
+    while current != number {
+      let next = current + (number > current ? 1 : -1)
+      try switchHandle(number > current ? "right" : "left", to: next)
+      current = next
+    }
+    try focused(number)
   }
 
   func testWorkspaceRestart() throws {

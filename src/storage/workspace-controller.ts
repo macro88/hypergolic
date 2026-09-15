@@ -13,6 +13,8 @@ export interface WorkspaceController {
   subscribe(listener: () => void): () => void;
   change(workspace: Workspace): void;
   flush(): Promise<void>;
+  freeze(): void;
+  resume(): void;
   revoke(): void;
 }
 
@@ -34,6 +36,7 @@ export async function openWorkspaceController(
     record = loaded ?? await binding.port.save(snapshotWorkspace(initial), null);
   } catch (error) { binding.revoke(); throw sanitize(error); }
   let state: WorkspaceState = Object.freeze({ workspace: initial, saving: false, error: null });
+  let editable = true;
   let pending: WorkspaceSnapshot | null = null;
   let flushing: Promise<void> | null = null;
   const listeners = new Set<() => void>();
@@ -70,7 +73,7 @@ export async function openWorkspaceController(
     getSnapshot: () => state,
     subscribe: (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; },
     change: (workspace: Workspace) => {
-      if (state.error !== null) return;
+      if (!editable || state.error !== null) return;
       try {
         const next = immutable(workspace);
         assertAvailable(next);
@@ -80,6 +83,8 @@ export async function openWorkspaceController(
       } catch (error) { stop(sanitize(error).code); }
     },
     flush,
+    freeze: () => { editable = false; },
+    resume: () => { if (state.error === null) editable = true; },
     revoke: () => { if (state.error === null) stop('REVOKED'); },
   });
 }

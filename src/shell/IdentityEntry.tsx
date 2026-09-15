@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getIdentityState, startIdentity, subscribeIdentity } from '../security/identity-state';
-import { WorkspaceEntry } from './WorkspaceEntry';
+import { IdentityShell } from './IdentityShell';
 import { colors } from './theme';
 
 const unavailableMessages = {
@@ -28,7 +28,7 @@ const unavailableMessages = {
 export function IdentityEntry() {
   const state = useSyncExternalStore(subscribeIdentity, getIdentityState);
   useEffect(() => { startIdentity(); }, []);
-  if (state.status === 'ready') return <WorkspaceEntry identity={{ npub: state.identity.npub }} controller={state.workspace} />;
+  if (state.status === 'ready') return <IdentityShell owner={state.owner} />;
   const message = state.status === 'opening' ? null : unavailableMessages[state.status];
   return <SafeAreaView style={styles.screen}>
     <View style={styles.brand}>

@@ -1,39 +1,27 @@
 import { Platform } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 import * as SecureStore from 'expo-secure-store';
-import { IdentityVault, VaultError, type VaultSnapshot } from './identity-vault';
+import { IdentityVault, VaultError } from './identity-vault';
 import { openIdentityMetadata } from './identity-metadata';
 import { createProtectedSecrets } from './android-encrypted-secrets';
 import { loadIOSIdentityActions } from './identity-actions-native';
 import { loadIOSIdentitySecrets } from './identity-store-native';
-import { identityCrypto, formatNpub } from './identity-crypto';
+import { identityCrypto, formatNpub, publicKeyFromNsec } from './identity-crypto';
 import { openShellDatabase } from '../storage/database';
-import { openWorkspaceController, type WorkspaceController } from '../storage/workspace-controller';
+import { IdentityTransition } from './identity-transition';
 import { assertBundledWorkspace, initialTestWorkspace } from '../shell/fixtures';
 
-export interface PublicIdentitySnapshot { readonly npub: string; readonly vault: VaultSnapshot }
-
-/** Owned by the one admitted bootstrap; only public snapshots leave this service. */
-class TrustedIdentityOwner {
-  constructor(private readonly vault: IdentityVault, readonly workspace: WorkspaceController) {}
-  getPublicSnapshot(): PublicIdentitySnapshot {
-    const vault = this.vault.getSnapshot();
-    return Object.freeze({ npub: formatNpub(vault.selectedPubkey), vault });
-  }
+export interface TrustedIdentityOwner {
+  readonly transition: IdentityTransition;
+  readonly formatNpub: typeof formatNpub;
 }
-
 export class WorkspaceStartupError extends Error {
   constructor() { super('Workspace could not be opened'); this.name = 'WorkspaceStartupError'; }
 }
-async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<WorkspaceController> {
-  const selected = vault.getSnapshot();
+async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<IdentityTransition> {
   const database = await openShellDatabase(SQLite, platform).catch(() => { throw new WorkspaceStartupError(); });
   try {
-    const binding = database.bindWorkspace({ user: selected.selectedPubkey, assertActive: () => {
-      const current = vault.getSnapshot();
-      if (current.selectedPubkey !== selected.selectedPubkey || current.revision !== selected.revision) throw new Error('Identity changed');
-    } });
-    return await openWorkspaceController(binding, initialTestWorkspace, assertBundledWorkspace);
+    return await IdentityTransition.open({ vault, database, publicKeyFromNsec, seed: initialTestWorkspace, assertAvailable: assertBundledWorkspace });
   } catch {
     try { await database.close(); } catch { /* Preserve the workspace failure. */ }
     throw new WorkspaceStartupError();
@@ -53,7 +41,7 @@ export async function openTrustedIdentityOwner(): Promise<TrustedIdentityOwner> 
   const vault = new IdentityVault({ ...identityCrypto, secrets, database, authorizeDeletion: actions?.authorizeDeletion ?? (async () => denyDeletion()) });
   try {
     await vault.open();
-    return new TrustedIdentityOwner(vault, await openOwnerWorkspace(vault, platform));
+    return Object.freeze({ transition: await openOwnerWorkspace(vault, platform), formatNpub });
   } catch (error) {
     try { await database.close(); } catch { /* Preserve the initialization failure. */ }
     throw error;

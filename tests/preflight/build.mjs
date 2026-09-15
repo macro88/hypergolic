@@ -23,12 +23,13 @@ const mocks = {
  'expo-sqlite': `import {forbidden} from 'test:fixture'; export const openDatabaseAsync=()=>forbidden('open-sqlite');`,
  'expo-secure-store': `import {forbidden} from 'test:fixture'; export const isAvailableAsync=()=>forbidden('secure-store');`,
  'expo-image': `export const Image='Image';`,
- 'react-native-safe-area-context': `export const SafeAreaView='SafeAreaView';`,
+ 'react-native-safe-area-context': `export const SafeAreaView='SafeAreaView',SafeAreaProvider='SafeAreaProvider';`,
  'react': `export * from '${root}/node_modules/react/index.js'; export function useEffect() {} export function useSyncExternalStore(subscribe,getState) { return getState(); }`,
  'native-identity-owner': `import {fixture} from 'test:fixture'; export function claimIdentityOwner(){fixture.calls.push('claim');return fixture.claim;}`,
  'crypto-bootstrap': `import {fixture} from 'test:fixture'; export function initializeNativeRandom(){fixture.calls.push('initialize-random');}`,
- 'identity-crypto': `import {forbidden} from 'test:fixture'; export const identityCrypto={generateSecretKey:()=>forbidden('generate-key'),derivePublicKey:()=>forbidden('derive-key'),parseNsec:()=>forbidden('parse-nsec'),newId:()=>forbidden('random-id'),now:()=>forbidden('clock')}; export const formatNpub=()=>forbidden('format-npub');`,
+ 'identity-crypto': `import {forbidden} from 'test:fixture'; export const identityCrypto={generateSecretKey:()=>forbidden('generate-key'),derivePublicKey:()=>forbidden('derive-key'),parseNsec:()=>forbidden('parse-nsec'),newId:()=>forbidden('random-id'),now:()=>forbidden('clock')}; export const formatNpub=()=>forbidden('format-npub'); export const publicKeyFromNsec=()=>forbidden('import-key');`,
  'Shell': `export const Shell='TEST_ONLY_SHELL';`,
+ 'IdentityShell': `export const IdentityShell='TEST_ONLY_IDENTITY_SHELL';`,
 };
 export async function buildPreflight() {
  const directory = await mkdtemp(join(tmpdir(), 'hypergolic-preflight-test-'));

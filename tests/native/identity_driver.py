@@ -49,8 +49,9 @@ def harness_snapshot(source: Path) -> dict:
              'identity-encoding.mjs': HERE / 'identity-encoding.mjs',
              'source/tests/native/driver.py': source / 'tests/native/driver.py',
              'source/tests/native/receiver.py': source / 'tests/native/receiver.py'}
-    workspace_driver = HERE / 'workspace_restart.py'
-    if workspace_driver.is_file(): paths['workspace_restart.py'] = workspace_driver
+    for name in ('workspace_restart.py', 'identity_switch.py', 'public-test-identity.mjs'):
+        additional = HERE / name
+        if additional.is_file(): paths[name] = additional
     return {name: sha256(path) for name, path in paths.items()}
 
 
@@ -184,7 +185,7 @@ class IdentityRestart:
         self.actions.append({'operation': 'adb-process-retirement', 'arguments': arguments})
         retired = subprocess.run(arguments, text=True, capture_output=True, timeout=15)
         require_retired(retired)
-        response = self.adb('shell', 'am', 'start', '-W', '-n', self.package + '/.MainActivity')
+        response = self.adb('shell', 'am', 'start', '-W', '-n', self.package + '/' + (getattr(self.driver.args, 'activity', None) or '.MainActivity'))
         if re.findall(r'^Status: (.+)$', response, re.MULTILINE) != ['ok']:
             raise RuntimeError('Native Activity Manager did not report a successful launch')
         return {'processRetirement': {'exitCode': retired.returncode, 'stdout': retired.stdout,
@@ -214,6 +215,7 @@ def main(argv=None, scenario_type=None):
     parser.add_argument('--source', type=Path, required=True)
     parser.add_argument('--serial', required=True)
     parser.add_argument('--package', default='org.nostrocket.hypergolic.dev')
+    parser.add_argument('--activity', help='Verified fully qualified launch Activity; defaults to the package MainActivity')
     parser.add_argument('--adb', help='Explicit ADB executable; defaults to PATH or the checkout local tools')
     parser.add_argument('--node', default=shutil.which('node'), help='Node executable for the checkout-owned Nostr decoder')
     parser.add_argument('--timeout', type=float, default=90)
@@ -225,6 +227,8 @@ def main(argv=None, scenario_type=None):
         parser.error('An exact expected installed APK SHA-256 is required')
     if not re.fullmatch(r'[A-Za-z0-9_.-]+', args.serial) or not re.fullmatch(r'[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+', args.package):
         parser.error('Explicit device serial and package required')
+    if args.activity is not None and not re.fullmatch(r'[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+', args.activity):
+        parser.error('A fully qualified Activity is required')
     if args.node is None or not 1 <= args.timeout <= 120:
         parser.error('Node and a timeout from 1 to 120 seconds are required')
     args.source = args.source.resolve()

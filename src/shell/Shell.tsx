@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type Compone
 import { AccessibilityInfo, BackHandler, Keyboard, Modal, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { cancelAnimation, Easing, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import type { HostEvent } from '../runtime/NappletHost';
 import { ClosePrompt } from './ClosePrompt';
 import { Header, type ShellIdentity } from './Header';
@@ -17,6 +17,7 @@ import { bundledUXDescriptor, initialTestWorkspace } from './fixtures';
 const noPending = new Set<string>();
 export interface SettingsActions { closeSettings: () => void; openBundledTest: () => void }
 export interface ShellProps {
+  blocked?: boolean;
   initialWorkspace?: Workspace;
   workspace?: Workspace;
   onWorkspaceChange?: (workspace: Workspace) => void;
@@ -38,7 +39,7 @@ function useReducedMotion(): boolean {
   return reduced;
 }
 
-export function Shell({ initialWorkspace, workspace: controlledWorkspace, onWorkspaceChange, identity, pendingApprovals, onBeforeClose, onHostEvent, settingsComponent: SettingsContent }: ShellProps) {
+export function Shell({ blocked = false, initialWorkspace, workspace: controlledWorkspace, onWorkspaceChange, identity, pendingApprovals, onBeforeClose, onHostEvent, settingsComponent: SettingsContent }: ShellProps) {
   const [localWorkspace, setLocalWorkspace] = useState(() => initialWorkspace ?? initialTestWorkspace());
   const workspace = controlledWorkspace ?? localWorkspace;
   const current = useRef(workspace);
@@ -99,7 +100,7 @@ export function Shell({ initialWorkspace, workspace: controlledWorkspace, onWork
   }, [focusedIndex, position, progress, workspace.overview]);
 
   const focusSession = useCallback((id: string) => {
-    if (busyRef.current) return;
+    if (blocked || busyRef.current) return;
     const state = current.current;
     const index = state.sessions.findIndex(session => session.id === id);
     if (index < 0) return;
@@ -107,27 +108,27 @@ export function Shell({ initialWorkspace, workspace: controlledWorkspace, onWork
     position.set(index);
     change(focusNapplet(state, id));
     runAnimation(progress, 0, () => AccessibilityInfo.announceForAccessibility(state.sessions[index].title));
-  }, [change, position, progress, runAnimation]);
+  }, [blocked, change, position, progress, runAnimation]);
   const openOverview = useCallback(() => {
-    if (busyRef.current) return;
+    if (blocked || busyRef.current) return;
     Keyboard.dismiss();
     overview.current?.revealCard(current.current.focusedId);
     change(showOverview(current.current));
     runAnimation(progress, 1, () => overview.current?.focusCard(current.current.focusedId));
-  }, [change, progress, runAnimation]);
+  }, [blocked, change, progress, runAnimation]);
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       if (keyboardVisible.current) { Keyboard.dismiss(); return true; }
-      if (busyRef.current) return true;
+      if (blocked || busyRef.current) return true;
       if (!workspace.overview) { openOverview(); return true; }
       if (workspace.focusedId) { focusSession(workspace.focusedId); return true; }
       return false;
     });
     return () => subscription.remove();
-  }, [focusSession, openOverview, workspace.focusedId, workspace.overview]);
+  }, [blocked, focusSession, openOverview, workspace.focusedId, workspace.overview]);
   const onHandleEnd = (side: HandleSide, result: 'overview' | 'switch' | 'cancel') => {
     setHandleDragging(false);
-    if (busyRef.current) return;
+    if (blocked || busyRef.current) return;
     if (result === 'overview') { position.set(focusedIndex); openOverview(); return; }
     const id = result === 'switch' ? adjacentNapplet(current.current, directionForHandle(side)) : null;
     const destination = id ? current.current.sessions.findIndex(session => session.id === id) : focusedIndex;
@@ -136,7 +137,7 @@ export function Shell({ initialWorkspace, workspace: controlledWorkspace, onWork
     }, 190);
   };
   const requestClose = (id: string) => {
-    if (busyRef.current || !current.current.sessions.some(session => session.id === id)) return;
+    if (blocked || busyRef.current || !current.current.sessions.some(session => session.id === id)) return;
     Keyboard.dismiss();
     lastCloseId.current = id;
     setClosingId(id);
@@ -155,7 +156,7 @@ export function Shell({ initialWorkspace, workspace: controlledWorkspace, onWork
     lastCloseId.current = null;
     requestAnimationFrame(() => overview.current?.focusCard(null));
   };
-  const openSettings = () => { if (!busyRef.current) { Keyboard.dismiss(); setSettings(true); } };
+  const openSettings = () => { if (!blocked && !busyRef.current) { Keyboard.dismiss(); setSettings(true); } };
   const openBundledTest = () => {
     while (current.current.sessions.some(session => session.id === `ux-lab-${nextFixtureNumber.current}`)) nextFixtureNumber.current++;
     const descriptor = bundledUXDescriptor(nextFixtureNumber.current++);
@@ -170,25 +171,25 @@ export function Shell({ initialWorkspace, workspace: controlledWorkspace, onWork
       <StatusBar barStyle="light-content" />
       <View accessibilityElementsHidden={settings || closingId !== null} importantForAccessibility={settings || closingId ? 'no-hide-descendants' : 'auto'} style={styles.screen}>
         <Header title={focused?.title ?? 'Hypergolic'} identity={identity} onSettings={openSettings} />
-        <WorkspaceStage workspace={workspace} progress={progress} position={position} scrollY={scrollY} swipeY={swipeY} swipeId={swipeId} busy={busy} blocked={settings || closingId !== null} interactive={!handleDragging}
+        <WorkspaceStage workspace={workspace} progress={progress} position={position} scrollY={scrollY} swipeY={swipeY} swipeId={swipeId} busy={busy} blocked={blocked || settings || closingId !== null} interactive={!handleDragging}
           pending={pendingApprovals ?? noPending} ref={overview} onHostEvent={onHostEvent} onFocus={focusSession} onClose={requestClose} onOpen={openSettings}
           onDragEnd={(id, close) => { runAnimation(swipeY, 0, () => { swipeId.set(null); if (close) requestClose(id); }, 140); }}
           onHandleStart={() => { setHandleDragging(true); Keyboard.dismiss(); cancelAnimation(position); }}
           onHandleEnd={onHandleEnd} />
       </View>
       <ClosePrompt title={workspace.sessions.find(session => session.id === closingId)?.title ?? null} onKeepOpen={keepOpen} onClose={confirmClose} onDismiss={() => overview.current?.focusCard(lastCloseId.current)} />
-      <Modal visible={settings} animationType="none" onRequestClose={() => setSettings(false)} onShow={() => {
+      <Modal visible={settings} animationType="none" onRequestClose={() => { if (!blocked) setSettings(false); }} onShow={() => {
         settingsClose.current?.focus();
         if (settingsClose.current) AccessibilityInfo.sendAccessibilityEvent(settingsClose.current, 'focus');
       }}>
-        <SafeAreaView style={styles.settingsScreen}>
-          <View style={styles.settingsHeader}><Text accessibilityRole="header" style={styles.settingsTitle}>Settings</Text><Pressable ref={settingsClose} accessibilityRole="button" testID="settings-done" onPress={() => setSettings(false)} style={styles.done}><Text style={styles.doneText}>Done</Text></Pressable></View>
-          {SettingsContent ? <SettingsContent closeSettings={() => setSettings(false)} openBundledTest={openBundledTest} /> : <View style={styles.settingsBody}>
+        <SafeAreaProvider><SafeAreaView style={styles.settingsScreen}>
+          <View style={styles.settingsHeader}><Text accessibilityRole="header" style={styles.settingsTitle}>Settings</Text><Pressable ref={settingsClose} disabled={blocked} accessibilityState={{ disabled: blocked }} accessibilityRole="button" testID="settings-done" onPress={() => setSettings(false)} style={styles.done}><Text style={styles.doneText}>Done</Text></Pressable></View>
+          {settings && (SettingsContent ? <SettingsContent closeSettings={() => setSettings(false)} openBundledTest={openBundledTest} /> : <View style={styles.settingsBody}>
             <Text selectable testID="settings-full-npub" style={styles.settingsText}>{identity ? identity.npub : 'Identity is not configured in this build.'}</Text>
             <Text accessibilityRole="header" style={styles.settingsSection}>Bundled test napplets</Text>
             <Pressable testID="settings-open-ux-lab" accessibilityRole="button" onPress={openBundledTest} style={styles.openTest}><Text style={styles.openTestText}>Open UX Lab</Text><Text style={styles.addMark} accessible={false}>+</Text></Pressable>
-          </View>}
-        </SafeAreaView>
+          </View>)}
+        </SafeAreaView></SafeAreaProvider>
       </Modal>
     </SafeAreaView>
   );

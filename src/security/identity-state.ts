@@ -1,12 +1,11 @@
 import { IdentityDeviceRequired } from './identity-device-required';
 import { createOwnerBootstrap, IdentityRestartRequired } from './owner-bootstrap';
 import { claimIdentityOwner } from './native-identity-owner';
-import type { PublicIdentitySnapshot } from './trusted-identity-owner';
-import type { WorkspaceController } from '../storage/workspace-controller';
+import type { TrustedIdentityOwner } from './trusted-identity-owner';
 
 type IdentityState = Readonly<
   | { status: 'opening' }
-  | { status: 'ready'; identity: PublicIdentitySnapshot; workspace: WorkspaceController }
+  | { status: 'ready'; owner: TrustedIdentityOwner }
   | { status: 'restart-required' | 'recovery-required' | 'device-required' | 'workspace-required' }
 >;
 const listeners = new Set<() => void>();
@@ -36,7 +35,7 @@ export function startIdentity(): void {
   if (observed) return;
   observed = true;
   void startOwner().then(owner => {
-    publish({ status: 'ready', identity: owner.getPublicSnapshot(), workspace: owner.workspace });
+    publish({ status: 'ready', owner });
   }).catch(error => {
     if (error instanceof WorkspaceEntryError) publish({ status: 'workspace-required' });
     else if (error instanceof IdentityDeviceRequired) publish({ status: 'device-required' });
