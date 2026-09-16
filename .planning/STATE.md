@@ -51,6 +51,7 @@ See `docs/phase-zero.md` for actual checks and artifacts.
 | 260914-s6w | UX Lab fixture and browser regression suite | 2026-09-14 | 88f2c1a | [260914-s6w-build-the-approved-ux-lab-napplet-fixtur](./quick/260914-s6w-build-the-approved-ux-lab-napplet-fixtur/) |
 | 260914-szf | Project logo and stable navigation decisions | 2026-09-14 | 97f31e0 | [260914-szf-record-opening-order-and-preserve-the-su](./quick/260914-szf-record-opening-order-and-preserve-the-su/) |
 | 260914-ujk | Accepted v1 defaults and RocketShell relay configuration | 2026-09-14 | a304450 | [260914-ujk-adopt-accepted-v1-defaults-and-rocketshe](./quick/260914-ujk-adopt-accepted-v1-defaults-and-rocketshe/) |
+| 260916-dwb | Logo-led README with verified scope, setup and trust limits | 2026-09-16 | See task summary | [260916-dwb-rewrite-the-hypergolic-readme-with-the-s](./quick/260916-dwb-rewrite-the-hypergolic-readme-with-the-s/) |
 
 Targeted follow-up: iOS native erase/transport failures remain READBACK_FAILED even when subsequent reads return absence. Four new regressions pass; security is 295/295, bootstrap 13/13, storage 80/80, TypeScript and iOS export pass. Aislop remains 100/100 and local React Doctor has no findings.
 
