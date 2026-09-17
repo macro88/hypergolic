@@ -366,3 +366,75 @@ two saved public test identities and exercises the actual confirmed selector.
 Android requires Node from the pinned local tools for canonical npub decoding.
 Read the scenario receipt and inspect screenshots; a compiled fixture or successful
 command alone does not establish the [native acceptance scope](native-capabilities.md).
+
+## Tester APK command
+
+`pnpm run build:tester` packages the current checkout as a signed standalone ARM64
+Android preview on macOS or Linux. Use the pinned Node/pnpm, Java and Android SDK
+from this guide, with Build Tools 36.0.0 installed. Install root, runtime and quality
+workspaces first. The command runs `prebuild:android`, Gradle `assembleRelease`,
+`zipalign`, signing and final signature/alignment verification. It checks the APK's
+application ID/version against app.json and rejects debuggable or non-ARM64 output.
+
+### One-time signing setup
+
+Reuse your existing tester signing key if available. Otherwise create a dedicated
+key **outside the source checkout** with Android Studio or the JDK's `keytool`.
+For example, replace the path below with your private signing location; its parent
+directory must already exist:
+
+```sh
+keytool -genkeypair -keystore /absolute/private/path/hypergolic-tester.jks \
+  -alias hypergolic-tester -keyalg RSA -keysize 3072 -validity 10000
+```
+
+Follow the interactive password and certificate prompts. Back up the keystore and
+store its password separately. Do not commit either or regenerate a key on each
+build. Android uses the signing identity to determine update compatibility.
+
+```sh
+export HYPERGOLIC_KEYSTORE_PATH="/absolute/private/path/hypergolic-tester.jks"
+# Optional; needed when the keystore contains multiple keys:
+export HYPERGOLIC_KEY_ALIAS="hypergolic-tester"
+pnpm run build:tester --check
+pnpm run build:tester
+```
+
+`--check` verifies local configuration, tool availability and version pins without
+building or unlocking the keystore. It does not validate the password, key alias,
+Gradle dependency availability or device compatibility. `--help` lists usage.
+Signing inherits the terminal and prompts for passwords; no password CLI option
+or generated signing key is provided. An interrupted build may leave
+`.tools/tester-apks/.build.lock`; confirm no build is still running before removing
+that lock. Do not run a separate Android prebuild/Gradle operation concurrently.
+
+### Versioned output and sharing
+
+Set `expo.version` and a positive `expo.android.versionCode` in app.json. VersionCode
+starts at 1; increase it before each distributed update. Keep the application ID
+and key stable. The command does not edit version configuration or install on a
+device. Regeneration of ignored native projects follows the existing Expo workflow.
+
+Each success creates `.tools/tester-apks/<version>-<code>-<commit>-<unique>/`:
+
+- `hypergolic-<version>-<code>-arm64.apk`: signed installable artifact.
+- `SHA256SUMS`: SHA-256 of that exact signed APK.
+- `build.json`: app ID, version, architecture, commit, dirty-worktree flag,
+  build time, APK hash and signing certificate SHA-256 fingerprints.
+
+The receipt contains no keystore path or certificate subject. It is build metadata,
+not a reproducibility attestation or a native security test result. A dirty checkout
+is allowed and marked; commit reviewed changes before a traceable tester release.
+Prior output folders are preserved. Failed runs produce no new successful output
+folder; a stale unsigned APK is removed before Gradle starts.
+
+Cold-launch the exact signed APK with Metro stopped and exercise the intended
+journey before sharing. Verify update installation and retained data for later
+builds. A different key cannot update an existing installation normally; avoid
+uninstalling an identity-bearing app without addressing backup and data loss.
+Share the APK, checksum and test brief through your chosen private channel. Use
+disposable identities for the present preview. This command does not run quality
+gates, install, publish, change remotes or imply v1 acceptance.
+
+Run `pnpm run test:tester` for packaging failure/success contract tests. Those tests
+use controlled tool substitutes and do not establish native runtime behavior.

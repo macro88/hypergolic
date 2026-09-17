@@ -43,7 +43,10 @@ Expo generates the ignored `android/` and `ios/` trees. Source configuration and
 are authoritative. `plugins/withUnsignedRelease.cjs` replaces the generated release
 debug-key configuration with unsigned output and fails if the template is no longer
 recognized. Final APK signing is a separate local operation with an owner-controlled
-keystore. Do not edit generated native files as permanent configuration.
+keystore. The [tester APK command](development.md#tester-apk-command) automates
+building, local signing and artifact verification using that existing key; it does
+not establish native security acceptance. Do not edit generated native files as
+permanent configuration.
 
 APK inspection shows Expo's template currently declares Internet, vibration,
 overlay-window permission, read/write external storage through API 32, and its

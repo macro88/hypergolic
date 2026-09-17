@@ -98,6 +98,35 @@ For both platforms, a Debug build needs Metro. See the
 standalone builds. `export:android` and `export:ios` produce JavaScript bundles;
 they do not produce installable native releases.
 
+## Share an Android tester APK
+
+On macOS or Linux, use the pinned development toolchain and an existing signing
+keystore stored **outside this checkout**. Set its path, then run:
+
+```sh
+export HYPERGOLIC_KEYSTORE_PATH="/absolute/path/to/your-tester-key.jks"
+pnpm run build:tester --check
+pnpm run build:tester
+```
+
+The command builds a standalone **ARM64 Release APK**, prompts for the keystore
+password, and verifies the application ID, version, signature and alignment. Each
+successful run writes a new folder under `.tools/tester-apks/` containing the signed
+APK, `SHA256SUMS` and `build.json` with the source commit and signing fingerprint.
+The APK embeds the app; testers do not need Metro or Expo Go.
+
+Use the same application ID and signing key for updates. Before each distributed
+build, increase `expo.android.versionCode` in `app.json` and update `expo.version`
+as needed. The command does not increment versions or create signing keys.
+
+Cold-launch the exact APK with Metro stopped before sharing it through a private
+download link. Testers should use disposable identities while backup and security
+acceptance remain unfinished. This packaging command does not run the v1 quality
+or device-acceptance gates and does not upload anything.
+
+See [tester build setup](docs/development.md#tester-apk-command) for key creation,
+optional key aliases, output details and troubleshooting.
+
 ## Trust and control
 
 Hypergolic separates the native shell, a bundled Kehto host, and untrusted napplet

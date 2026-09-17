@@ -30,7 +30,9 @@
     "test:quality": "node --test tests/quality/*.test.mjs",
     "test:security": "node --experimental-strip-types --test tests/security/*.test.ts && node --test tests/preflight/bootstrap.test.mjs",
     "test:storage": "node --experimental-strip-types --test tests/storage/*.test.ts",
-    "test:capabilities": "node --experimental-strip-types --test tests/runtime/*.test.ts"
+    "test:capabilities": "node --experimental-strip-types --test tests/runtime/*.test.ts",
+    "build:tester": "node scripts/build-tester.mjs",
+    "test:tester": "node --test tests/build-tester/*.test.mjs"
   },
   "dependencies": {
     "expo": "57.0.20",

@@ -9,7 +9,8 @@
     ],
     "orientation": "portrait",
     "android": {
-      "package": "org.nostrocket.hypergolic.dev"
+      "package": "org.nostrocket.hypergolic.dev",
+      "versionCode": 1
     },
     "ios": {
       "bundleIdentifier": "org.nostrocket.hypergolic.dev",
