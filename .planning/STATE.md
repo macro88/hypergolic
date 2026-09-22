@@ -16,13 +16,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-14)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Authenticated manual backup and remaining v1 actions. Android system PIN and fingerprint deletion pass on the isolated API 36 emulator. Shared iOS review/denial/cancel UI passes; physical iPhone authentication remains open. Lazy restoration now loads only the selected napplet, with repeated iOS cold-launch and both-platform saved-state proof. Older Android, signing and remote loading remain open.
+**Current focus:** Individual signing approval after the authenticated-backup checkpoint. Android system PIN and fingerprint deletion pass on the isolated API 36 emulator. Shared iOS review/denial/cancel UI passes; physical iPhone authentication remains open. Lazy restoration now loads only the selected napplet, with repeated iOS cold-launch and both-platform saved-state proof. Older Android, signing and remote loading remain open.
 
 ## Current Position
 
 Phase: 2 of 3 (Independent Android and iOS proof / seed phase 1)
-Plan: 02-03 secure identities and saved state; remaining 02-07 device acceptance
-Status: Identity/workspace/import/switch integrated; Android authenticated deletion and shared iOS action UI have isolated native proof; State Lab and lazy restoration work on both platforms; authenticated backup, signing, remote loading and physical security remain open
+Plan: 02-04 individual signing approval; remaining 02-03 device security and 02-07 acceptance
+Status: Identity/workspace/import/switch and manual backup implemented; State Lab and lazy restoration work on both platforms. Signing foundations have unit/local-wire proof but remain unconnected. Native signing, remote loading and complete physical security acceptance remain open
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
 Previous native action checkpoint: 2026-09-15 — Added the Android native deletion authority with 95 owning JVM assertions and the protected-record/erase reader with 89 actual Android assertions. Existing SDK records are unchanged; disposable data alone was erased. The actual Release app and separate instrumentation APK build and their installed bytes match. The production deletion path remains denied pending native context/lifecycle and system-prompt integration; authentication in the record probe is a double. See docs/identity-storage.md.
@@ -72,3 +72,13 @@ findings/no external numeric score. Next: individual signing approval authority,
 immutable event verification and revocable publication. Current weekly usage at
 this checkpoint: 14% consumed; continue only below the requested 25% pause point.
 No source push or remote change. See docs/identity-storage.md.
+
+
+Signing foundation checkpoint (2026-09-22): added separate Android/iOS native
+approval lifetime cores, a shared presentation queue, immutable NIP-01 event
+capture, independent signature verification and a revocable Applesauce relay
+adapter. Owning core tests and actual local WebSocket checks pass; no native
+signer, review sheet, relay capability or publication route is enabled yet.
+Plan 02-04 remains in progress. See docs/signing-approval.md and
+.planning/phases/02-independent-android-proof/02-04-PROGRESS.md for exact scope,
+commands and missing integration. No source push or remote change.

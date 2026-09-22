@@ -32,9 +32,12 @@
     "test:storage": "node --experimental-strip-types --test tests/storage/*.test.ts",
     "test:capabilities": "node --experimental-strip-types --test tests/runtime/*.test.ts",
     "build:tester": "node scripts/build-tester.mjs",
-    "test:tester": "node --test tests/build-tester/*.test.mjs"
+    "test:tester": "node --test tests/build-tester/*.test.mjs",
+    "test:relay": "node --experimental-strip-types --test tests/relay/relay-service-wire.test.mjs"
   },
   "dependencies": {
+    "applesauce-core": "6.2.0",
+    "applesauce-relay": "6.2.1",
     "expo": "57.0.20",
     "expo-build-properties": "57.0.17",
     "expo-crypto": "57.0.2",
@@ -47,7 +50,8 @@
     "react-native-gesture-handler": "2.32.0",
     "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "5.7.0",
-    "react-native-worklets": "0.10.1"
+    "react-native-worklets": "0.10.1",
+    "rxjs": "7.8.2"
   },
   "devDependencies": {
     "@opengsd/gsd-core": "1.13.0",
@@ -55,6 +59,7 @@
     "@types/react": "19.2.4",
     "expo-doctor": "1.20.4",
     "react-doctor": "0.9.13",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "ws": "8.21.3"
   }
 }

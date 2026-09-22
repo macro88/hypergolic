@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="A napplet fixture for testing explicit note approval and publication." />
+  <title>Approval Lab</title>
+</head>
+<body>
+<main id="lab" data-testid="lab" data-ready="false">
+  <header>
+    <p class="eyebrow">HYPERGOLIC / TEST 03</p>
+    <h1>Approval Lab</h1>
+    <p>Make a note. Review every request.</p>
+    <p id="identity-status" data-testid="identity-status" role="status">Connecting…</p>
+    <output id="identity" data-testid="identity" aria-label="Selected public identity"></output>
+  </header>
+  <fieldset id="controls" disabled>
+    <legend>Test note</legend>
+    <label for="content">Note content</label>
+    <textarea id="content" data-testid="content" rows="4" maxlength="65536" autocomplete="off" spellcheck="true">Approval Lab test note</textarea>
+    <div class="actions">
+      <button id="send" data-testid="send" type="button">Send note</button>
+      <button id="send-three" data-testid="send-three" type="button">Send 3 notes</button>
+      <button id="send-delayed" data-testid="send-delayed" type="button">Send after 5 seconds</button>
+    </div>
+  </fieldset>
+  <section aria-labelledby="results-title">
+    <div class="section-heading">
+      <h2 id="results-title">Requests</h2>
+      <button id="clear" data-testid="clear" class="quiet" type="button">Clear</button>
+    </div>
+    <p id="status" data-testid="status" role="status" aria-live="polite">No request yet.</p>
+    <ol id="results" data-testid="results" aria-live="polite" aria-label="Publication requests"></ol>
+    <p class="meta">Active <output id="pending" data-testid="pending">0</output> / 4 · Created <output id="requests" data-testid="requests">0</output></p>
+  </section>
+  <footer>
+    <p>Every note asks the shell for a separate approval. Failed requests are never retried automatically.</p>
+    <p class="meta" id="theme-status" data-testid="theme-status">Local palette</p>
+  </footer>
+</main>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

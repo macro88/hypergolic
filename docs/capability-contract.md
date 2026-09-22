@@ -174,3 +174,13 @@ accepted-update copy/rollback, exact-event mutation/replay, queue focus/dismissa
 background/expiry, sign/publish cancellation, independently verified signatures and
 relay receipts, and navigation/renderer revocation. Fake-adapter unit tests and
 Chromium/WebKit host tests are useful precursors, not native security acceptance.
+
+
+## Signing foundation checkpoint — 22 September 2026
+
+The [signing implementation checkpoint](signing-approval.md) records the unconnected
+native lifetime cores, shared presentation queue, exact event/signature validation
+and revocable Applesauce publication adapter. These tests do not enable relay
+access in the native host or satisfy the required native journeys above. Existing
+capability deadlines are unchanged until the native admission and reply adapters
+are connected together.

@@ -9,21 +9,22 @@ example, not a required product napplet.
 | Fixture | Status | Intended coverage |
 | --- | --- | --- |
 | [UX Lab](../napplets/ux-lab/README.md) | Standalone artifact and browser checks implemented | Temporary input/counter, horizontal and vertical content, instance lifecycle, optional colors |
-| State Lab | Planned; storage/identity contracts need selection | Unsaved/saved state, close/reopen and user + publisher + stable napplet isolation |
-| Approval Lab | Planned; signing/outbox contracts need selection | Explicit approve/deny, background deferral, cancellation and independently verified results |
+| [State Lab](../napplets/state-lab/README.md) | Embedded; native storage/identity journeys recorded on Android and iOS | Unsaved/saved state, close/reopen and user + publisher + stable napplet isolation |
+| [Approval Lab](../napplets/approval-lab/README.md) | Standalone unsigned artifact; native integration remains open | Explicit approve/deny, background deferral, cancellation and independently verified results |
 
 Use disposable identities for automated runs and retain the same identity across
 the restart being tested. Keep the fixture publisher separate. A resettable local
 relay will provide repeatable success, rejection, delay and disconnection; a
 separate integration check will retrieve releases from real Nostr/Blossom
-locations. These relay and release arrangements are agreed but not implemented.
+locations. Local relay fault checks now run through `pnpm run test:relay`; native relay
+integration and published release checks remain open.
 
 Embedding the fixture first is approved, followed by publication of the same bytes
 under the designated publisher. The publisher npub, trusted signer and destinations
 remain unidentified. The shell's public startup relay lists are now selected from
 RocketShell; see [relay configuration](relays.md). Fixture publication destinations
-remain a separate release configuration. No fixture is embedded in Hypergolic,
-signed or published yet.
+remain a separate release configuration. UX Lab and State Lab are embedded;
+Approval Lab is standalone. No fixture has been signed or published.
 UX Lab has no network/signing/storage requirement, so its standalone tests do not
 need the relay or a test identity.
 
@@ -55,7 +56,7 @@ selection. Kehto's playground also documents host-owned shell bootstrap missing
 from parts of the published shim. UX Lab does not supply a replacement handshake;
 its Ready label is only a UI observation.
 
-## Evidence and next integration gate
+## Initial UX Lab checkpoint — 14 September 2026
 
 The standalone build, source typecheck, 24 Chromium/WebKit tests, artifact and
 hash assertions, and dependency audit pass. Upstream conformance passes five
@@ -86,8 +87,39 @@ Both upstream conformance runs report 5 passes and 5 skips; the skips include
 resolved manifest, wire traffic and lifecycle evidence, so this is not native or
 complete protocol acceptance. No fixture was published.
 
-The pinned Kehto whole-operation patches are integrated with 64 browser checks
-across Chromium and WebKit. The native host still needs immutable caller
-registration, native liveness/revocation guards, storage transport and actual
-State Lab durability/isolation journeys on Android and iOS. Publisher isolation
-requires separate host-bound fixture publishers, not a napplet-selected field.
+The pinned Kehto whole-operation patches and native identity/storage transport are
+now integrated. The [native capability checkpoint](native-capabilities.md) records
+both-platform State Lab durability, isolation and restart journeys. Publisher
+isolation uses separate host-bound fixture publishers, not a napplet-selected field.
+
+
+## Approval Lab checkpoint — 22 September 2026
+
+Approval Lab uses the real SDK identity and unsigned `relay.publish` surface. Its
+controls submit one note, three individually reviewable notes, or one captured
+note after five seconds. It retains the original content/timestamp/test sequence,
+limits active requests to four, shows results and event IDs, cancels unsubmitted
+timers on identity change/pagehide and ignores stale issued completions. It never
+retries. The shell remains responsible for native request cancellation and signing.
+
+From the repository root:
+
+```sh
+pnpm --dir napplets/approval-lab install --frozen-lockfile
+pnpm --dir napplets/approval-lab verify
+pnpm --dir napplets/approval-lab audit --audit-level=high
+```
+
+Type-check, single-file unsigned build and 32 Chromium/WebKit checks pass.
+Conformance reports five passes, zero failures and five skips. Browser tests use
+an explicit SDK namespace double; they do not prove wire admission or native
+signing. Dark/light phone captures were visually inspected; narrow layouts are
+checked at 240, 320 and 768 pixels. The pinned dependency audit reports no known
+vulnerabilities. The build rejects development signing keys and emits no embedded
+signer, direct network, persistent storage or outbox code.
+
+Approval Lab is not yet included in the verified native catalogue. Its next gate
+is the [native signing integration](signing-approval.md), including actual approval,
+rejection, lifecycle cancellation and independently observed relay receipts on
+Android and iOS. Fixture publication still requires the designated publisher and
+release destinations.

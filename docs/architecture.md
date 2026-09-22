@@ -24,8 +24,11 @@ a physical iPhone. See the [identity checkpoint](identity-storage.md). The
 [workspace controller](workspace-storage.md) persists opening order, selection and
 explicit empty state per identity. Confirmed [identity changes](identity-switching.md)
 revoke the old authority and restart all loaded napplets. Authenticated identity
-backup is being implemented with native-only reveal and explicit device authentication.
-Signing, relay publication and published loading remain incomplete. Inactive
+backup is implemented with native-only reveal and explicit device authentication;
+physical-device acceptance remains open. The [signing foundations](signing-approval.md)
+include native lifetime authorities, immutable event checks and a tested relay
+adapter, but are not connected to the app. Signing, relay publication and published
+loading remain unavailable in the native product. Inactive
 identity deletion now has a shared review and an Android system-PIN journey; iOS
 action acceptance still requires a physical device.
 The supplied logo is visible in the native header. Native journeys, boundary
@@ -62,8 +65,9 @@ operations. A bundled trusted Kehto host adapts the selected NAP subset inside a
 restricted WebView. Verified napplet bytes remain untrusted; publisher pinning does
 not grant native authority. Applesauce supplies selected Nostr event/relay plumbing.
 Kehto is now installed in an isolated web build with reviewed package/protocol
-pins and a restricted identity/storage/theme boundary. Applesauce relay plumbing
-and approved signing remain planned under the [selected capability contract](capability-contract.md);
+pins and a restricted identity/storage/theme boundary. The tested Applesauce relay
+adapter is not yet connected to native approval or protected signing. Integration
+follows the [selected capability contract](capability-contract.md);
 the native broker never falls through to a browser signer or localStorage.
 
 First launch must create and securely persist an identity; later launches must reuse
