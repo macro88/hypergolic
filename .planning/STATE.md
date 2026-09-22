@@ -82,3 +82,13 @@ signer, review sheet, relay capability or publication route is enabled yet.
 Plan 02-04 remains in progress. See docs/signing-approval.md and
 .planning/phases/02-independent-android-proof/02-04-PROGRESS.md for exact scope,
 commands and missing integration. No source push or remote change.
+
+
+Budget pause (2026-09-22): latest weekly usage 24% consumed / 76% remaining.
+Stopping before the 25% limit; no further implementation until approval. Backup
+is committed as 43a65c3; signing foundations and Approval Lab as 6aabaed. The new
+Android PIN/timeout driver is recorded as unverified: emulator lock/sleep prevented
+the native journey and temporary power settings were restored. Signing integration,
+remote loading and physical/older-platform acceptance remain open. Full aislop is
+100/100; local React Doctor has zero findings but no externally verified numeric
+score. No source push or remote change.

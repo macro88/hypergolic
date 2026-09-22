@@ -337,3 +337,31 @@ external scoring approval is still pending. Private evidence is retained under
 `.tools/evidence/identity-backup-20260922`. Physical capture/authentication, the
 backup-specific PIN/timeout journey, and Android API 26–29 support remain open.
 This checkpoint does not complete v1.
+
+
+### Backup PIN/timeout driver checkpoint
+
+The tracked Android backup driver now has a separate `--pin-timeout` mode and
+`identity-backup-pin-timeout` scenario. It requires the isolated API 36 authentication
+fixture, exact installed APK hash and the fixed public scalar-2 selected identity.
+It checks system PIN fallback, protected reveal, accessibility exclusion, automatic
+expiry and fresh authentication afterward, without extracting the private key.
+
+This new journey has **not passed**. Attempts stopped before authentication while
+the emulator was asleep and keyguard was showing; one retained attempt also caught
+a source change during the run and is invalid evidence. The final retry could not
+start after attempted wake/unlock. Temporary power settings were restored. Existing
+six-check fingerprint evidence remains valid; PIN/reveal-timeout acceptance stays
+open. The two PNG-helper tests and standalone CLI help check pass.
+
+Example with an already awake/unlocked disposable fixture and its verified APK:
+
+```sh
+python3 tests/native/identity_backup.py --pin-timeout \
+  --source "$PWD" --serial emulator-5556 \
+  --package org.nostrocket.hypergolic.identityfixture \
+  --activity org.nostrocket.hypergolic.dev.MainActivity \
+  --expected-apk-sha256 "$HYPERGOLIC_FIXTURE_APK_SHA256" \
+  --output /private/tmp/hypergolic-backup-pin-timeout-proof \
+  identity-backup-pin-timeout
+```

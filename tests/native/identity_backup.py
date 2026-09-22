@@ -12,6 +12,8 @@ import struct
 import subprocess
 import zlib
 import re
+import sys
+import time
 
 from driver import node_bounds, parse_nodes
 from identity_biometric import IdentityBiometric
@@ -211,4 +213,69 @@ class IdentityBackup(IdentityBiometric):
         self.driver.result['finalPid'] = single_pid(self.adb('shell', 'pidof', self.package))
 
 
-if __name__ == '__main__': raise SystemExit(main(scenario_type=IdentityBackup))
+class IdentityBackupPinTimeout(IdentityBackup):
+    """Standalone public-fixture PIN and native-reveal expiry acceptance journey."""
+    scenario = 'identity-backup-pin-timeout'
+    PUBLIC_SCALAR_2_NPUB = 'npub1ccz8l9zpa47k6vz9gphftsrumpw80rjt3nhnefat4symjhrsnmjs38mnyd'
+
+    def backup_prompt(self):
+        self.backup_review()
+        require_equal(self.selected_npub, self.control('identity-backup-npub').get('text'), 'Exact selected backup review identity')
+        self.press('identity-backup-confirm')
+        self.system_nodes()
+
+    def inventory(self, count):
+        self.scroll_settings_to_top()
+        require_equal(self.selected_npub, self.control('settings-full-npub').get('text'), 'Selected backup identity in Settings')
+        _, rows = self.driver.nodes()
+        identities = [node for node in rows if node.get('resource-id', '').split('/')[-1].startswith('identity-select-')]
+        require_equal(count, len(identities), 'Saved identity count')
+
+    def use_pin(self):
+        rows = self.system_nodes()
+        choices = [node for node in rows if node.get('package') == 'com.android.systemui'
+                   and 'use pin' in (node.get('text', '') + ' ' + node.get('content-desc', '')).casefold()]
+        if len(choices) != 1: raise RuntimeError('Expected one actual system PIN fallback control')
+        self.tap(choices[0], 'system-use-pin')
+        _, pin_rows = self.driver.wait(lambda nodes: any(node.get('package') == 'com.android.systemui' and node.get('password') == 'true' for node in nodes),
+                                       'actual system PIN entry')
+        if not any(node.get('package') == 'com.android.systemui' and node.get('password') == 'true' for node in pin_rows):
+            raise RuntimeError('System PIN entry was not visible')
+
+    def run(self):
+        if self.package != 'org.nostrocket.hypergolic.identityfixture': raise RuntimeError('Requires isolated identity fixture')
+        if self.adb('emu', 'avd', 'name').splitlines()[0] != 'Hypergolic_Auth_API_36': raise RuntimeError('Requires the disposable authentication emulator')
+        if self.adb('shell', 'getprop', 'ro.build.version.sdk') != '36': raise RuntimeError('Requires the reviewed API 36 image')
+        self.driver.result['scope'] = 'Actual Android system PIN backup authentication and native backup-reveal timeout in the isolated public fixture.'
+        self.driver.result['limitations'] = ['Public fixture PIN only; no real identity, physical device, or biometric claim.', 'The private key is never printed, stored, decoded, extracted, or read from accessibility.', 'No iOS, signing, relay, or restore claim.']
+        self.driver.result['firstLaunch'] = self.cold_launch()
+        self.press('shell-settings')
+        self.scroll_settings_to_top()
+        self.selected_npub = self.control('settings-full-npub').get('text')
+        require_equal(self.PUBLIC_SCALAR_2_NPUB, self.selected_npub, 'Selected public scalar-2 identity')
+        self.inventory(2)
+        self.backup_prompt(); self.use_pin()
+        self.actions.append({'operation': 'native-system-credential', 'publicFixture': True, 'masked': True})
+        started = time.monotonic()
+        self.adb('shell', 'input', 'text', '123456'); self.adb('shell', 'input', 'keyevent', '66')
+        heading = self.native_text('Write down your private key'); hide = self.native_text('Hide private key')
+        hx1, hy1, hx2, _ = node_bounds(heading); bx1, _, bx2, by2 = node_bounds(hide)
+        self.assert_no_secret_accessibility(); self.secure_capture('01-pin-native-reveal-redacted', f'[{min(hx1, bx1)},{hy1}][{max(hx2, bx2)},{by2}]')
+        self.driver.check('system-pin-authentication-opens-protected-native-reveal', {'heading': 'Write down your private key', 'hideButton': 'Hide private key'})
+        self.driver.wait(lambda nodes: any(node.get('resource-id', '').split('/')[-1] == 'settings-full-npub' for node in nodes),
+                         'native backup reveal timeout returns to Settings', timeout=75)
+        elapsed = time.monotonic() - started
+        if elapsed < 50 or elapsed > 75: raise RuntimeError('Unexpected native backup reveal timeout interval')
+        self.inventory(2)
+        self.driver.check('native-backup-reveal-auto-dismisses', {'observedSeconds': elapsed, 'identities': 2})
+        self.backup_prompt(); self.system_nodes(); self.adb('shell', 'input', 'keyevent', '4'); self.press('identity-backup-cancel'); self.inventory(2)
+        self.driver.check('post-timeout-backup-requires-fresh-system-authentication', {'identities': 2})
+        self.press('settings-done')
+        require_equal(self.selected_npub, self.header()[1], 'Final selected backup identity')
+        self.driver.result['finalPid'] = single_pid(self.adb('shell', 'pidof', self.package))
+
+
+if __name__ == '__main__':
+    pin_timeout = '--pin-timeout' in sys.argv
+    if pin_timeout: sys.argv.remove('--pin-timeout')
+    raise SystemExit(main(scenario_type=IdentityBackupPinTimeout if pin_timeout else IdentityBackup))
