@@ -1,5 +1,6 @@
 package org.nostrocket.hypergolic.identityowner;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,11 +8,13 @@ import java.util.Objects;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
-/** Native-only deletion authority. No exported Expo method accepts an inventory or auth result. */
+/** Native-only identity action authority. No exported Expo method accepts an inventory or auth result. */
 final class DeletionAuthority {
   static final long MAX_REVISION = 9_007_199_254_740_991L;
   static final long AUTH_MILLIS = 60_000L;
   static final long GRANT_MILLIS = 15_000L;
+  static final long REVEAL_MILLIS = 60_000L;
+  interface BackupReader { char[] read(String target, String expectedDigest); }
   static final class Denied extends RuntimeException {
     Denied() { super("Identity action unavailable"); }
   }
@@ -45,9 +48,10 @@ final class DeletionAuthority {
     private final long epoch, deadline;
     private final String session, target;
     private final Inventory inventory;
-    private Attempt(Object owner, long epoch, long deadline, String session, String target, Inventory inventory) {
-      this.owner = owner; this.epoch = epoch; this.deadline = deadline;
-      this.session = session; this.target = target; this.inventory = inventory;
+    private final boolean backup;
+    private Attempt(DeletionAuthority authority, long deadline, String target, boolean backup) {
+      this.owner = authority.owner; this.epoch = authority.epoch; this.deadline = deadline;
+      this.session = authority.session; this.target = target; this.inventory = authority.inventory; this.backup = backup;
     }
   }
   private static final class Grant {
@@ -55,6 +59,14 @@ final class DeletionAuthority {
     final String token;
     final long deadline;
     Grant(Attempt attempt, String token, long deadline) { this.attempt = attempt; this.token = token; this.deadline = deadline; }
+  }
+
+  /** Native object identity only; never serialized or returned over the bridge. */
+  static final class BackupLease {
+    private final Attempt attempt;
+    private final long deadline;
+    private boolean read;
+    private BackupLease(Attempt attempt, long deadline) { this.attempt = attempt; this.deadline = deadline; }
   }
 
   private final InventoryReader reader;
@@ -67,6 +79,7 @@ final class DeletionAuthority {
   private String session;
   private Attempt attempt;
   private Grant grant;
+  private BackupLease backupLease;
 
   DeletionAuthority(InventoryReader reader, LongSupplier clock, Supplier<String> entropy) {
     this.reader = Objects.requireNonNull(reader); this.clock = Objects.requireNonNull(clock); this.entropy = Objects.requireNonNull(entropy);
@@ -80,7 +93,7 @@ final class DeletionAuthority {
   private void available() { require(activated && !retired && foreground && epoch < Long.MAX_VALUE); }
   private void invalidate() {
     if (epoch == Long.MAX_VALUE) retired = true; else epoch++;
-    inventory = null; session = null; attempt = null; grant = null;
+    inventory = null; session = null; attempt = null; grant = null; backupLease = null;
   }
   /** Called once after the exact native AppContext's process claim succeeds. */
   synchronized void activate() { require(!activated && !retired); activated = true; }
@@ -95,13 +108,14 @@ final class DeletionAuthority {
     if (session != null && session.equals(expectedSession)) invalidate();
   }
   synchronized void cancel(String expectedSession) {
-    if (session != null && session.equals(expectedSession)) { attempt = null; grant = null; }
+    if (session != null && session.equals(expectedSession)) { attempt = null; grant = null; backupLease = null; }
   }
   /** Late timeout/coroutine cleanup must never cancel a newer attempt in the same Settings session. */
   synchronized void cancelAttempt(Attempt value) {
     if (value == null) return;
     if (attempt == value) attempt = null;
     if (grant != null && grant.attempt == value) grant = null;
+    if (backupLease != null && backupLease.attempt == value) backupLease = null;
   }
   private boolean matches(Attempt value) {
     return activated && !retired && foreground && value.owner == owner && value.epoch == epoch
@@ -126,14 +140,21 @@ final class DeletionAuthority {
     } finally { synchronized (this) { opening = false; } }
   }
   synchronized Attempt begin(String expectedSession, String target, String expectedSelected, long expectedRevision) {
+    return beginAction(expectedSession, target, expectedSelected, expectedRevision, false);
+  }
+  synchronized Attempt beginBackup(String expectedSession, String target, String expectedSelected, long expectedRevision) {
+    return beginAction(expectedSession, target, expectedSelected, expectedRevision, true);
+  }
+  private Attempt beginAction(String expectedSession, String target, String expectedSelected, long expectedRevision, boolean backup) {
     available(); require(!opening && opaque(expectedSession) && key(target) && inventory != null && expectedSession.equals(session));
     require(inventory.selected.equals(expectedSelected) && inventory.revision == expectedRevision);
     compareCurrent(reader.read());
     if (grant != null && now() >= grant.deadline) grant = null;
     if (attempt != null && now() >= attempt.deadline) attempt = null;
-    require(attempt == null && grant == null && inventory.identities.size() >= 2
-        && !target.equals(inventory.selected) && inventory.identities.containsKey(target));
-    attempt = new Attempt(owner, epoch, deadline(AUTH_MILLIS), session, target, inventory);
+    if (backupLease != null && now() >= backupLease.deadline) backupLease = null;
+    require(attempt == null && grant == null && backupLease == null && inventory.identities.containsKey(target));
+    require(backup ? target.equals(inventory.selected) : inventory.identities.size() >= 2 && !target.equals(inventory.selected));
+    attempt = new Attempt(this, deadline(AUTH_MILLIS), target, backup);
     return attempt;
   }
   synchronized boolean canPresent(Attempt value) {
@@ -143,7 +164,7 @@ final class DeletionAuthority {
   synchronized String complete(Attempt value, boolean authenticated) {
     require(value != null && value == attempt);
     attempt = null; // A failed, stale or repeated callback cannot be retried into a grant.
-    require(authenticated && matches(value) && now() < value.deadline);
+    require(!value.backup && authenticated && matches(value) && now() < value.deadline);
     compareCurrent(reader.read());
     String next = token();
     // Entropy can fail. Do not leave the attempt active, and do not issue an unbounded grant.
@@ -151,10 +172,43 @@ final class DeletionAuthority {
     grant = new Grant(value, next, deadline(GRANT_MILLIS));
     return next;
   }
+  synchronized BackupLease completeBackup(Attempt value, boolean authenticated) {
+    require(value != null && value == attempt);
+    attempt = null;
+    require(value.backup && authenticated && matches(value) && now() < value.deadline);
+    compareCurrent(reader.read());
+    require(matches(value) && now() < value.deadline);
+    backupLease = new BackupLease(value, deadline(REVEAL_MILLIS));
+    return backupLease;
+  }
+  synchronized boolean canReveal(BackupLease value) {
+    return value != null && value == backupLease && matches(value.attempt) && now() < value.deadline;
+  }
+  synchronized void closeBackup(BackupLease value) {
+    if (value != null && backupLease == value) backupLease = null;
+  }
+  /** One native read, revalidated after I/O; denied output is wiped before unwinding. */
+  synchronized char[] readBackup(BackupLease value, BackupReader effect) {
+    require(canReveal(value) && !value.read);
+    value.read = true;
+    char[] secret = null;
+    try {
+      compareCurrent(reader.read());
+      require(canReveal(value));
+      secret = effect.read(value.attempt.target, value.attempt.inventory.identities.get(value.attempt.target));
+      compareCurrent(reader.read());
+      require(canReveal(value) && secret != null && secret.length == 63);
+      return secret;
+    } catch (RuntimeException error) {
+      if (secret != null) Arrays.fill(secret, '\0');
+      closeBackup(value);
+      throw new Denied();
+    }
+  }
   private Grant validate(String expectedSession, String target, String expectedToken) {
     require(opaque(expectedSession) && key(target) && opaque(expectedToken));
     Grant value = grant;
-    require(value != null && value.token.equals(expectedToken) && value.attempt.target.equals(target)
+    require(value != null && !value.attempt.backup && value.token.equals(expectedToken) && value.attempt.target.equals(target)
         && value.attempt.session.equals(expectedSession) && matches(value.attempt) && now() < value.deadline);
     return value;
   }

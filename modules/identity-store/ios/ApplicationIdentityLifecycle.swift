@@ -8,6 +8,9 @@ import UIKit
   init(authority: DeletionGrantAuthority) {
     self.authority = authority
     let center = NotificationCenter.default
+    observers.append(center.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: .main) { [authority] _ in
+      MainActor.assumeIsolated { authority.applicationWillResignActive() }
+    })
     // Explicit background/protected-data loss revokes synchronously on the main notification queue.
     observers.append(center.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { [authority] _ in
       authority.updateApplication(foreground: false, protectedData: false)
@@ -21,7 +24,7 @@ import UIKit
       })
     }
     refreshState()
-    // Intentionally no willResignActive observer: LAContext can temporarily make the app inactive.
+    // Resign-active clears an already-visible secret panel. It does not revoke a pending LAContext prompt.
   }
   private func refreshState() {
     authority.updateApplication(foreground: UIApplication.shared.applicationState != .background,

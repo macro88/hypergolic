@@ -32,6 +32,10 @@ final class IdentityActionsBinding: Sendable {
     guard BridgeBounds.isToken(session) else { throw DeletionActionFailure.invalidInput }
     try lease().cancelDeletion(session)
   }
+  func cancelBackup(_ session: String) throws {
+    guard BridgeBounds.isToken(session) else { throw DeletionActionFailure.invalidInput }
+    try lease().cancelBackup(session)
+  }
   func authorizeDeletion(session: String, target: String, selected: String, revision: UInt64) async throws -> String {
     let owner = try lease()
     try owner.assertExpectedContext(settings: session, selected: selected, revision: revision)
@@ -39,5 +43,11 @@ final class IdentityActionsBinding: Sendable {
   }
   func assertDeletionGrant(session: String, token: String, target: String) throws {
     try lease().assertDeletionGrant(settings: session, token: token, target: target)
+  }
+  func showBackup(session: String, target: String, selected: String, revision: UInt64) async throws {
+    let owner = try lease()
+    try owner.assertExpectedContext(settings: session, selected: selected, revision: revision)
+    guard target == selected else { throw DeletionActionFailure.denied }
+    try await owner.showBackup(settings: session, target: target)
   }
 }

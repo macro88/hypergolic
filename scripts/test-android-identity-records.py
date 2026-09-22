@@ -31,6 +31,7 @@ def main():
     relatives = [
         'modules/identity-owner/android/src/main/java/org/nostrocket/hypergolic/identityowner/DeletionAuthority.java',
         'modules/identity-owner/android/src/main/java/org/nostrocket/hypergolic/identityowner/SecureStoreIdentityRecords.java',
+        'modules/identity-owner/android/src/main/java/org/nostrocket/hypergolic/identityowner/BackupNsec.java',
         'tests/native/android-identity-actions/RecordsInstrumentation.java',
         'scripts/test-android-identity-records.py',
         'tests/native/android-identity-actions/secure-store-source.json',

@@ -2,7 +2,7 @@ import CryptoKit
 import Foundation
 
 /// A single actor serializes all Keychain/file operations. Share exactly one instance with the JS vault owner.
-public actor IdentityFileStore: IdentityStoreBackend {
+public actor IdentityFileStore: IdentityStoreBackend, NativeBackupSecretReader {
   private let keychain: any KeychainBackend
   private let files: any EncryptedFiles
   private let entropy: any EntropySource
@@ -127,6 +127,44 @@ public actor IdentityFileStore: IdentityStoreBackend {
       selectedPubkey: selected, receiptDigest: Data(SHA256.hash(data: Data(current.receipt.text.utf8))), identityDigests: digests)
     stateObserver?.validatedInventory(inventory)
     return inventory
+  }
+  /// Native backup-only read. The exact selected/inventory proof stays native and the bridge has no caller for this port.
+  func readBackupSecret(pubkey: String, inventory expected: NativeVaultInventory) throws -> Data {
+    guard Receipt.isPubkey(pubkey), expected.selectedPubkey == pubkey,
+      try validatedInventory() == expected, let current = try context(),
+      current.receipt.selectedPubkey == pubkey else { throw StoreFailure.unauthorized }
+    let slot = SecretSlot.secret(pubkey)
+    guard let ciphertext = try files.read(slot) else { throw StoreFailure.recoveryRequired }
+    // decrypt scrubs its mutable plaintext Data. Swift String storage is immutable and is not claimed to be zeroized.
+    let plaintext = try decrypt(ciphertext, slot: slot, context: current)
+    let payload = try current.receipt.payload(plaintext, slot: slot)
+    guard payload.pubkey == pubkey, payload.scalar != String(repeating: "0", count: 64),
+      payload.scalar < "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141" else {
+      throw StoreFailure.corruptState
+    }
+    var bytes = Array(payload.scalar.utf8)
+    defer { bytes.withUnsafeMutableBufferPointer { $0.initialize(repeating: 0) } }
+    guard bytes.count == 64 else { throw StoreFailure.corruptState }
+    var secret = Data(capacity: 32)
+    for index in stride(from: 0, to: bytes.count, by: 2) {
+      guard let high = Self.hexNibble(bytes[index]), let low = Self.hexNibble(bytes[index + 1]) else {
+        secret.resetBytes(in: 0..<secret.count)
+        throw StoreFailure.corruptState
+      }
+      secret.append((high << 4) | low)
+    }
+    guard secret.count == 32 else {
+      secret.resetBytes(in: 0..<secret.count)
+      throw StoreFailure.corruptState
+    }
+    return secret
+  }
+  private static func hexNibble(_ value: UInt8) -> UInt8? {
+    switch value {
+    case 48...57: value - 48
+    case 97...102: value - 87
+    default: nil
+    }
   }
   public func deleteItem(_ key: String, deletionToken: String? = nil) throws {
     let slot = try SecretSlot(key: key) // Receipt and wrapping key deletion are never generic bridge operations.

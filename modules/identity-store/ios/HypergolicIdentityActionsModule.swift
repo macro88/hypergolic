@@ -27,6 +27,11 @@ public final class HypergolicIdentityActionsModule: Module {
     AsyncFunction("isDeletionAvailableAsync") { () async -> Bool in
       await SystemDeviceDeletionAuthentication.isAvailable()
     }
+    AsyncFunction("isBackupAvailableAsync") { () async -> Bool in
+      guard IdentityStoreAvailability.isSupportedEnvironment,
+        (try? NativeIdentityAuthorizationServices.shared()) != nil else { return false }
+      return await SystemDeviceBackupAuthentication.isAvailable()
+    }
     AsyncFunction("beginSettingsAsync") { (selected: String, revision: Double) async throws -> String in
       try await actionResult {
         let revision = try actionRevision(revision)
@@ -41,6 +46,18 @@ public final class HypergolicIdentityActionsModule: Module {
     }
     Function("cancelDeletion") { (session: String) throws in
       try actionResult { try binding.cancelDeletion(session) }
+    }
+    Function("cancelBackup") { (session: String) throws in
+      try actionResult { try binding.cancelBackup(session) }
+    }
+    AsyncFunction("showBackupAsync") {
+      (session: String, target: String, selected: String, revision: Double) async throws -> Void in
+      try await actionResult {
+        let revision = try actionRevision(revision)
+        guard BridgeBounds.isToken(session), Receipt.isPubkey(target),
+          Receipt.isPubkey(selected) else { throw DeletionActionFailure.invalidInput }
+        try await binding.showBackup(session: session, target: target, selected: selected, revision: revision)
+      }
     }
     AsyncFunction("authorizeDeletionAsync") { (session: String, target: String, selected: String, revision: Double) async throws -> String in
       try await actionResult {

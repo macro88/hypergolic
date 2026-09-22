@@ -21,6 +21,19 @@ protocol DeviceDeletionAuthentication: Sendable {
   @MainActor func authenticate(attemptID: UInt64, canPresent: @escaping @Sendable () -> Bool) async throws
   @MainActor func cancel(attemptID: UInt64)
 }
+protocol DeviceBackupAuthentication: Sendable {
+  @MainActor func authenticateBackup(attemptID: UInt64, canPresent: @escaping @Sendable () -> Bool) async throws
+  @MainActor func cancelBackupAuthentication(attemptID: UInt64)
+}
+protocol NativeBackupSecretReader: Sendable {
+  func readBackupSecret(pubkey: String, inventory: NativeVaultInventory) async throws -> Data
+}
+protocol NativeBackupPresenter: Sendable {
+  @MainActor func presentBackup(attemptID: UInt64, secret: Data,
+    canPresent: @escaping @Sendable () -> Bool) async throws
+  @MainActor func cancelBackupPresentation(attemptID: UInt64)
+  @MainActor func applicationWillResignActive()
+}
 
 enum DeletionActionFailure: String, Error, Sendable {
   case unavailable, denied, busy, staleContext, invalidInput
@@ -47,6 +60,17 @@ final class DeletionGrantAuthority: NativeIdentityGrantOwner, NativeVaultStateOb
     let token: String
     let deadline: Duration
   }
+  private struct BackupAttempt: Sendable {
+    let id: UInt64
+    let binding: Binding
+    let settings: String
+    let target: String
+    let deadline: Duration
+  }
+  private struct Cancellation: Sendable {
+    let deletion: UInt64?
+    let backup: UInt64?
+  }
   private struct State: Sendable {
     var runtime: String?
     var epoch: UInt64 = 0
@@ -58,30 +82,47 @@ final class DeletionGrantAuthority: NativeIdentityGrantOwner, NativeVaultStateOb
     var settings: String?
     var attempt: Attempt?
     var grant: Grant?
+    var backupAttempt: BackupAttempt?
   }
   private let state = Mutex(State())
   private let readInventory: InventoryReader
   private let authentication: any DeviceDeletionAuthentication
+  private let backupAuthentication: (any DeviceBackupAuthentication)?
+  private let backupSecretReader: (any NativeBackupSecretReader)?
+  private let backupPresenter: (any NativeBackupPresenter)?
   private let clock: any DeletionClock
   private let entropy: any EntropySource
   private let authenticationLifetime: Duration = .seconds(60)
   private let grantLifetime: Duration = .seconds(15)
 
   init(readInventory: @escaping InventoryReader, authentication: any DeviceDeletionAuthentication,
+    backupAuthentication: (any DeviceBackupAuthentication)? = nil,
+    backupSecretReader: (any NativeBackupSecretReader)? = nil,
+    backupPresenter: (any NativeBackupPresenter)? = nil,
     clock: any DeletionClock = ContinuousDeletionClock(), entropy: any EntropySource = SystemEntropy()) {
-    self.readInventory = readInventory; self.authentication = authentication; self.clock = clock; self.entropy = entropy
+    self.readInventory = readInventory; self.authentication = authentication
+    self.backupAuthentication = backupAuthentication; self.backupSecretReader = backupSecretReader
+    self.backupPresenter = backupPresenter; self.clock = clock; self.entropy = entropy
   }
-  private func invalidate(_ value: inout State, clearInventory: Bool = false) -> UInt64? {
-    let attemptID = value.attempt?.id
+  private func invalidate(_ value: inout State, clearInventory: Bool = false) -> Cancellation {
+    let cancellation = Cancellation(deletion: value.attempt?.id, backup: value.backupAttempt?.id)
     // Exhaustion stays permanently unavailable; never wrap an epoch and revive an old binding.
     if value.epoch < UInt64.max { value.epoch += 1 }
-    value.binding = nil; value.settings = nil; value.attempt = nil; value.grant = nil
+    value.binding = nil; value.settings = nil; value.attempt = nil; value.grant = nil; value.backupAttempt = nil
     if clearInventory { value.inventory = nil }
-    return attemptID
+    return cancellation
   }
-  private func cancelPrompt(_ id: UInt64?) {
-    guard let id else { return }
-    Task { @MainActor [authentication] in authentication.cancel(attemptID: id) }
+  private func cancelPrompts(_ cancellation: Cancellation?) {
+    guard let cancellation else { return }
+    if let id = cancellation.deletion {
+      Task { @MainActor [authentication] in authentication.cancel(attemptID: id) }
+    }
+    if let id = cancellation.backup {
+      Task { @MainActor [backupAuthentication, backupPresenter] in
+        backupAuthentication?.cancelBackupAuthentication(attemptID: id)
+        backupPresenter?.cancelBackupPresentation(attemptID: id)
+      }
+    }
   }
   private func opaqueToken(using source: any EntropySource) throws -> String {
     var bytes: Data
@@ -97,11 +138,16 @@ final class DeletionGrantAuthority: NativeIdentityGrantOwner, NativeVaultStateOb
     owns(value, runtime: attempt.binding.runtime) && value.binding == attempt.binding
       && value.inventory == attempt.binding.inventory && value.settings == attempt.settings
   }
+  private func matches(_ attempt: BackupAttempt, _ value: State) -> Bool {
+    owns(value, runtime: attempt.binding.runtime) && value.binding == attempt.binding
+      && value.inventory == attempt.binding.inventory && value.settings == attempt.settings
+      && attempt.target == attempt.binding.inventory.selectedPubkey
+  }
   func reserveRuntimeReplacement(entropy: any EntropySource) throws -> String {
-    let (epoch, cancelled) = state.withLock { state -> (UInt64, UInt64?) in
+    let (epoch, cancelled) = state.withLock { state -> (UInt64, Cancellation) in
       let old = invalidate(&state); state.runtime = nil; return (state.epoch, old)
     }
-    cancelPrompt(cancelled)
+    cancelPrompts(cancelled)
     let runtime = try opaqueToken(using: entropy)
     return try state.withLock { state in
       // Another replacement or invalidation can start while native entropy is obtained.
@@ -117,44 +163,44 @@ final class DeletionGrantAuthority: NativeIdentityGrantOwner, NativeVaultStateOb
     let cancelled = state.withLock { state in
       let old = invalidate(&state); state.runtime = runtime; return old
     }
-    cancelPrompt(cancelled)
+    cancelPrompts(cancelled)
   }
   func disposeRuntime(_ runtime: String) {
-    let cancelled = state.withLock { state -> UInt64? in
+    let cancelled = state.withLock { state -> Cancellation? in
       guard state.runtime == runtime else { return nil }
       let old = invalidate(&state); state.runtime = nil; return old
     }
-    cancelPrompt(cancelled)
+    cancelPrompts(cancelled)
   }
   /// Driven only by UIApplication state/notifications. Inactive does not mean background.
   func updateApplication(foreground: Bool, protectedData: Bool) {
-    let cancelled = state.withLock { state -> UInt64? in
+    let cancelled = state.withLock { state -> Cancellation? in
       state.foreground = foreground; state.protectedData = protectedData
       return foreground && protectedData ? nil : invalidate(&state)
     }
-    cancelPrompt(cancelled)
+    cancelPrompts(cancelled)
   }
   func willMutateVault() {
     let cancelled = state.withLock { invalidate(&$0, clearInventory: true) }
-    cancelPrompt(cancelled)
+    cancelPrompts(cancelled)
   }
   func validatedInventory(_ value: NativeVaultInventory) {
-    let cancelled = state.withLock { state -> UInt64? in
+    let cancelled = state.withLock { state -> Cancellation? in
       let changed = state.inventory != nil && state.inventory != value
-      let old = changed ? invalidate(&state) : nil
+      let old: Cancellation? = changed ? invalidate(&state) : nil
       state.inventory = value
       return old
     }
-    cancelPrompt(cancelled)
+    cancelPrompts(cancelled)
   }
   func setContext(runtime: String, expectedSelected: String, expectedRevision: UInt64) async throws {
     guard Receipt.isPubkey(expectedSelected), expectedRevision > 0,
       expectedRevision <= 9_007_199_254_740_991 else { throw DeletionActionFailure.invalidInput }
-    let (epoch, cancelled) = try state.withLock { state -> (UInt64, UInt64?) in
+    let (epoch, cancelled) = try state.withLock { state -> (UInt64, Cancellation) in
       guard owns(state, runtime: runtime) else { throw DeletionActionFailure.staleContext }
       let old = invalidate(&state); return (state.epoch, old)
     }
-    cancelPrompt(cancelled)
+    cancelPrompts(cancelled)
     let inventory: NativeVaultInventory
     do { inventory = try await readInventory() } catch { throw DeletionActionFailure.unavailable }
     try state.withLock { state in
@@ -165,29 +211,45 @@ final class DeletionGrantAuthority: NativeIdentityGrantOwner, NativeVaultStateOb
   }
   func beginSettings(runtime: String) throws -> String {
     let session = try opaqueToken(using: entropy)
-    let cancelled = try state.withLock { state -> UInt64? in
+    let cancelled = try state.withLock { state -> Cancellation in
       guard owns(state, runtime: runtime), let binding = state.binding,
         binding.epoch == state.epoch, binding.inventory == state.inventory else { throw DeletionActionFailure.staleContext }
-      let old = state.attempt?.id
-      state.settings = session; state.attempt = nil; state.grant = nil
+      let old = Cancellation(deletion: state.attempt?.id, backup: state.backupAttempt?.id)
+      state.settings = session; state.attempt = nil; state.grant = nil; state.backupAttempt = nil
       return old
     }
-    cancelPrompt(cancelled)
+    cancelPrompts(cancelled)
     return session
   }
   func dismissSettings(runtime: String, settings: String) {
-    let cancelled = state.withLock { state -> UInt64? in
+    let cancelled = state.withLock { state -> Cancellation? in
       guard state.runtime == runtime, state.settings == settings else { return nil }
-      let old = state.attempt?.id; state.settings = nil; state.attempt = nil; state.grant = nil; return old
+      let old = Cancellation(deletion: state.attempt?.id, backup: state.backupAttempt?.id)
+      state.settings = nil; state.attempt = nil; state.grant = nil; state.backupAttempt = nil; return old
     }
-    cancelPrompt(cancelled)
+    cancelPrompts(cancelled)
   }
   func cancelDeletion(runtime: String, settings: String) {
-    let cancelled = state.withLock { state -> UInt64? in
+    let cancelled = state.withLock { state -> Cancellation? in
       guard state.runtime == runtime, state.settings == settings else { return nil }
-      let old = state.attempt?.id; state.attempt = nil; state.grant = nil; return old
+      let old = state.attempt?.id; state.attempt = nil; state.grant = nil
+      return old.map { Cancellation(deletion: $0, backup: nil) }
     }
-    cancelPrompt(cancelled)
+    cancelPrompts(cancelled)
+  }
+  func cancelBackup(runtime: String, settings: String) {
+    let cancelled = state.withLock { state -> Cancellation? in
+      guard state.runtime == runtime, state.settings == settings,
+        let id = state.backupAttempt?.id else { return nil }
+      state.backupAttempt = nil
+      return Cancellation(deletion: nil, backup: id)
+    }
+    cancelPrompts(cancelled)
+  }
+  @MainActor func applicationWillResignActive() {
+    // An LAContext prompt may make the app inactive before any secret exists in UI.
+    // The presenter only closes an already-visible panel and does not cancel authentication.
+    backupPresenter?.applicationWillResignActive()
   }
   func assertExpectedContext(runtime: String, settings: String, selected: String, revision: UInt64) throws {
     guard Receipt.isPubkey(selected), revision > 0, revision <= 9_007_199_254_740_991 else { throw DeletionActionFailure.invalidInput }
@@ -212,12 +274,26 @@ final class DeletionGrantAuthority: NativeIdentityGrantOwner, NativeVaultStateOb
     }
   }
   private func cancelAttempt(_ id: UInt64) {
-    let cancelled = state.withLock { state -> UInt64? in
+    let cancelled = state.withLock { state -> Cancellation? in
       if state.grant?.attempt.id == id { state.grant = nil }
       guard state.attempt?.id == id else { return nil }
-      state.attempt = nil; return id
+      state.attempt = nil; return Cancellation(deletion: id, backup: nil)
     }
-    cancelPrompt(cancelled)
+    cancelPrompts(cancelled)
+  }
+  private func currentBackupAttempt(_ id: UInt64) -> Bool {
+    state.withLock { state in
+      guard let attempt = state.backupAttempt, attempt.id == id else { return false }
+      return matches(attempt, state) && clock.now() < attempt.deadline
+    }
+  }
+  private func cancelBackupAttempt(_ id: UInt64) {
+    let cancelled = state.withLock { state -> Cancellation? in
+      guard state.backupAttempt?.id == id else { return nil }
+      state.backupAttempt = nil
+      return Cancellation(deletion: nil, backup: id)
+    }
+    cancelPrompts(cancelled)
   }
   func authorizeDeletion(runtime: String, settings: String, target: String) async throws -> String {
     guard BridgeBounds.isToken(settings), Receipt.isPubkey(target) else { throw DeletionActionFailure.invalidInput }
@@ -227,7 +303,7 @@ final class DeletionGrantAuthority: NativeIdentityGrantOwner, NativeVaultStateOb
         binding.inventory == state.inventory, binding.epoch == state.epoch else { throw DeletionActionFailure.staleContext }
       guard binding.inventory.identityDigests.count >= 2, binding.inventory.selectedPubkey != target,
         binding.inventory.identityDigests[target] != nil else { throw DeletionActionFailure.denied }
-      guard state.attempt == nil, state.grant == nil else { throw DeletionActionFailure.busy }
+      guard state.attempt == nil, state.grant == nil, state.backupAttempt == nil else { throw DeletionActionFailure.busy }
       guard state.nextAttempt < UInt64.max else { throw DeletionActionFailure.unavailable }
       state.nextAttempt += 1
       let value = Attempt(id: state.nextAttempt, binding: binding, settings: settings, target: target,
@@ -263,6 +339,59 @@ final class DeletionGrantAuthority: NativeIdentityGrantOwner, NativeVaultStateOb
         throw error as? DeletionActionFailure ?? .denied
       }
     } onCancel: { [weak self] in self?.cancelAttempt(attempt.id) }
+  }
+  func showBackup(runtime: String, settings: String, target: String) async throws {
+    guard BridgeBounds.isToken(settings), Receipt.isPubkey(target) else { throw DeletionActionFailure.invalidInput }
+    guard let backupAuthentication, let backupSecretReader, let backupPresenter else {
+      throw DeletionActionFailure.unavailable
+    }
+    let attempt = try state.withLock { state -> BackupAttempt in
+      if let grant = state.grant, clock.now() >= grant.deadline { state.grant = nil }
+      guard owns(state, runtime: runtime), let binding = state.binding, state.settings == settings,
+        binding.inventory == state.inventory, binding.epoch == state.epoch else { throw DeletionActionFailure.staleContext }
+      guard binding.inventory.selectedPubkey == target,
+        binding.inventory.identityDigests[target] != nil else { throw DeletionActionFailure.denied }
+      guard state.attempt == nil, state.grant == nil, state.backupAttempt == nil else { throw DeletionActionFailure.busy }
+      guard state.nextAttempt < UInt64.max else { throw DeletionActionFailure.unavailable }
+      state.nextAttempt += 1
+      let value = BackupAttempt(id: state.nextAttempt, binding: binding, settings: settings, target: target,
+        deadline: clock.now() + authenticationLifetime)
+      state.backupAttempt = value
+      return value
+    }
+    let timeout = Task { [weak self] in
+      do { try await Task.sleep(for: .seconds(60)) } catch { return }
+      self?.cancelBackupAttempt(attempt.id)
+    }
+    defer {
+      timeout.cancel()
+      state.withLock { if $0.backupAttempt?.id == attempt.id { $0.backupAttempt = nil } }
+    }
+    try await withTaskCancellationHandler {
+      do {
+        let initial = try await readInventory()
+        guard initial == attempt.binding.inventory, currentBackupAttempt(attempt.id),
+          !Task.isCancelled else { throw DeletionActionFailure.denied }
+        try await backupAuthentication.authenticateBackup(attemptID: attempt.id) {
+          [weak self] in self?.currentBackupAttempt(attempt.id) == true
+        }
+        guard currentBackupAttempt(attempt.id), !Task.isCancelled else { throw DeletionActionFailure.denied }
+        let refreshed = try await readInventory()
+        guard refreshed == attempt.binding.inventory else { throw DeletionActionFailure.denied }
+        var secret = try await backupSecretReader.readBackupSecret(pubkey: target, inventory: refreshed)
+        defer { secret.resetBytes(in: 0..<secret.count) }
+        let finalInventory = try await readInventory()
+        guard finalInventory == refreshed, secret.count == 32,
+          currentBackupAttempt(attempt.id), !Task.isCancelled else { throw DeletionActionFailure.denied }
+        try await backupPresenter.presentBackup(attemptID: attempt.id, secret: secret) {
+          [weak self] in self?.currentBackupAttempt(attempt.id) == true
+        }
+        guard currentBackupAttempt(attempt.id), !Task.isCancelled else { throw DeletionActionFailure.denied }
+      } catch {
+        cancelBackupAttempt(attempt.id)
+        throw error as? DeletionActionFailure ?? .denied
+      }
+    } onCancel: { [weak self] in self?.cancelBackupAttempt(attempt.id) }
   }
   func consumeDeletionGrant(token: String, targetPubkey: String) throws {
     try state.withLock { state in

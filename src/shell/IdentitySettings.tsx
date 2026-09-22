@@ -5,6 +5,7 @@ import type { IdentityChange, IdentitySession, IdentityTransition } from '../sec
 import type { IdentityActions } from '../security/identity-actions';
 import { VaultError } from '../security/identity-vault';
 import { useIdentityOwner } from './IdentityShell';
+import { IdentityBackup } from './IdentityBackup';
 import { colors } from './theme';
 
 function Action({ title, testID, onPress, subdued = false }: { title: string; testID: string; onPress: () => void; subdued?: boolean }) {
@@ -96,18 +97,22 @@ export function IdentitySettings({ openBundledTest, openStateLab }: SettingsActi
   const state = useSyncExternalStore(transition.subscribe, transition.getSnapshot);
   const [importing, setImporting] = useState(false);
   const [deletion, setDeletion] = useState<DeletionReview | null>(null);
+  const [backupReview, setBackupReview] = useState(false);
   const closeDeletion = useCallback(() => setDeletion(null), []);
   const closeImport = useCallback(() => setImporting(false), []);
   useEffect(() => {
     const subscription = AppState.addEventListener('change', next => {
       if (next !== 'background') return; // iOS system authentication may temporarily make the app inactive.
       transition.cancelDeletion(transition.getSnapshot().session);
+      try { actions?.cancelBackup(); } catch { /* Native backup authority is independently revoked by endSettings. */ }
       try { actions?.endSettings(); } catch { /* Local session is already invalidated. */ }
       closeDeletion();
+      setBackupReview(false);
     });
     return () => {
       subscription.remove();
       transition.cancelDeletion(transition.getSnapshot().session);
+      try { actions?.cancelBackup(); } catch { /* Local backup revocation runs before native cleanup. */ }
       try { actions?.endSettings(); } catch { /* Native lifetime independently revokes grants. */ }
     };
   }, [actions, closeDeletion, transition]);
@@ -118,6 +123,10 @@ export function IdentitySettings({ openBundledTest, openStateLab }: SettingsActi
   if (deletion && actions) return <ScrollView contentContainerStyle={styles.body}>
     <DeleteIdentity review={deletion} transition={transition} actions={actions} npub={formatNpub(deletion.pubkey)}
       busy={state.phase === 'deleting'} onClose={closeDeletion} />
+  </ScrollView>;
+  if (backupReview && actions) return <ScrollView contentContainerStyle={styles.body}>
+    <IdentityBackup actions={actions} session={state.session} npub={formatNpub(state.session.vault.selectedPubkey)} reviewing
+      onReview={() => setBackupReview(true)} onClose={() => setBackupReview(false)} Action={Action} />
   </ScrollView>;
   if (state.phase === 'deleting') return <View style={styles.body}>
     <ActivityIndicator color={colors.accent} /><Text style={styles.title}>Finishing identity action…</Text>
@@ -132,6 +141,8 @@ export function IdentitySettings({ openBundledTest, openStateLab }: SettingsActi
     {state.failure && <Text testID="identity-change-error" accessibilityLiveRegion="polite" style={styles.detail}>{failureMessage(state.failure)}</Text>}
     {importing ? <ImportIdentity transition={transition} onClose={closeImport} /> : <>
       <Text selectable testID="settings-full-npub" style={styles.npub}>{formatNpub(state.session.vault.selectedPubkey)}</Text>
+      {actions && <IdentityBackup actions={actions} session={state.session} npub={formatNpub(state.session.vault.selectedPubkey)} reviewing={false}
+        onReview={() => setBackupReview(true)} onClose={() => setBackupReview(false)} Action={Action} />}
       <Text accessibilityRole="header" style={styles.title}>Saved identities</Text>
       {state.session.vault.identities.map(identity => <View key={identity.pubkey} style={styles.identity}><Pressable accessibilityRole="button"
         disabled={identity.pubkey === state.session.vault.selectedPubkey || identity.status !== 'active'}

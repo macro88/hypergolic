@@ -105,6 +105,28 @@ public final class RecordsInstrumentation extends Instrumentation {
     check(records.get(slot("inventory")).equals(prefs.getString(slot("inventory"), null)));
     denied(() -> authority.erase(current, FIRST, approved, reader::erase));
   }
+  private void nativeBackup(SharedPreferences prefs, Map<String, String> records, SecureStoreIdentityRecords reader) {
+    restore(prefs, records);
+    DeletionAuthority authority = new DeletionAuthority(reader, SystemClock::elapsedRealtime, RecordsInstrumentation::token);
+    authority.activate(); authority.updateForeground(true);
+    String session = authority.beginSettings(SECOND, 1);
+    DeletionAuthority.Attempt rejected = authority.beginBackup(session, SECOND, SECOND, 1);
+    denied(() -> authority.completeBackup(rejected, false)); check(records.equals(prefs.getAll()));
+    DeletionAuthority.BackupLease lease = authority.completeBackup(authority.beginBackup(session, SECOND, SECOND, 1), true); // Explicit OS-auth double.
+    char[] revealed = authority.readBackup(lease, reader::backup);
+    try {
+      check(java.util.Arrays.equals(revealed, "nsec1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqptcfk2".toCharArray()));
+      check(records.equals(prefs.getAll()));
+      denied(() -> authority.readBackup(lease, reader::backup));
+    } finally { java.util.Arrays.fill(revealed, '\0'); authority.closeBackup(lease); }
+    DeletionAuthority.Inventory inventory = reader.read();
+    denied(() -> reader.backup(SECOND, "0".repeat(64)));
+    denied(() -> reader.backup(FIRST, inventory.identities.get(SECOND)));
+    DeletionAuthority.BackupLease obsolete = authority.completeBackup(authority.beginBackup(session, SECOND, SECOND, 1), true);
+    authority.updateForeground(false);
+    denied(() -> authority.readBackup(obsolete, reader::backup));
+    check(records.equals(prefs.getAll()));
+  }
   @Override public void onStart() {
     Bundle result = new Bundle(); Context context = getTargetContext();
     SharedPreferences actual = context.getSharedPreferences("SecureStore", Context.MODE_PRIVATE);
@@ -125,11 +147,12 @@ public final class RecordsInstrumentation extends Instrumentation {
       step = "invalid-envelopes"; invalidEnvelopes(disposable, records, reader);
       step = "invalid-payloads"; invalidPayloads(disposable, records, reader);
       step = "native-effect"; nativeEffect(disposable, records, reader);
+      step = "native-backup"; nativeBackup(disposable, records, reader);
       step = "preserve-existing-sdk-records"; check(before.equals(actual.getAll()));
       check(real.equals(new SecureStoreIdentityRecords(context).read()));
       result.putString("result", "passed"); result.putInt("assertions", assertions); result.putBoolean("existingRecordsUnchanged", true);
       result.putString("selectedPublicKey", real.selected); result.putInt("identityCount", real.identities.size());
-      result.putString("scope", "Android Keystore, SDK-record compatibility and actual disposable preference erase; OS authentication is an explicit double.");
+      result.putString("scope", "Android Keystore, SDK-record compatibility and actual disposable preference erase and native backup encoding; OS authentication is an explicit double.");
     } catch (Throwable ignored) { result.putString("result", "failed"); result.putString("step", step); }
     finally {
       wrappingKey = null;

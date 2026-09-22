@@ -14,8 +14,9 @@ import kotlinx.coroutines.withTimeout
 /** Trusted shell module. Native construction supplies context, inventory, clock and OS authentication. */
 class IdentityActionsModule : Module() {
   private class Binding(val records: SecureStoreIdentityRecords, val authority: DeletionAuthority, val prompt: SystemDeletionAuthentication) {
-    fun background() { authority.updateForeground(false); prompt.cancel() }
-    fun retire() { authority.retire(); prompt.cancel() }
+    val backup = NativeBackupPanel()
+    fun background() { authority.updateForeground(false); prompt.cancel(); backup.cancel() }
+    fun retire() { authority.retire(); prompt.cancel(); backup.cancel() }
   }
   private class EraseUnconfirmed : RuntimeException()
   @Volatile private var binding: Binding? = null
@@ -60,17 +61,50 @@ class IdentityActionsModule : Module() {
         activity != null && owner.prompt.available(activity)
       }
     } }
+    AsyncFunction("isBackupAvailableAsync") Coroutine { -> action {
+      val owner = owned()
+      withContext(Dispatchers.Main.immediate) {
+        val activity = appContext.currentActivity
+        activity != null && owner.prompt.available(activity)
+      }
+    } }
+    Function("cancelBackup") { session: String -> action {
+      mainJavaScript(); val owner = owned(); owner.authority.cancel(session)
+      owner.prompt.cancel(); owner.backup.cancel()
+    } }
+    AsyncFunction("showBackupAsync") Coroutine { session: String, target: String, selected: String, value: Double -> action {
+      val owner = owned(); val expected = revision(value)
+      val attempt = withContext(Dispatchers.Default) { owner.authority.beginBackup(session, target, selected, expected) }
+      try {
+        val accepted = withTimeout(DeletionAuthority.AUTH_MILLIS) {
+          withContext(Dispatchers.Main.immediate) {
+            val activity = appContext.currentActivity ?: throw DeletionAuthority.Denied()
+            owner.prompt.authenticate(activity, SystemDeletionAuthentication.Purpose.BACKUP) { owner.authority.canPresent(attempt) }
+          }
+        }
+        val lease = withContext(Dispatchers.Default) { owner.authority.completeBackup(attempt, accepted) }
+        // Keep the mutable secret local even when cancellation wins a dispatcher handoff.
+        var secret: CharArray? = null
+        try {
+          withContext(Dispatchers.Default) { secret = owner.authority.readBackup(lease, owner.records::backup) }
+          withContext(Dispatchers.Main.immediate) {
+            val activity = appContext.currentActivity ?: throw DeletionAuthority.Denied()
+            owner.backup.show(activity, secret ?: throw DeletionAuthority.Denied(), owner.authority, lease)
+          }
+        } finally { secret?.fill('\u0000'); owner.authority.closeBackup(lease) }
+      } finally { owner.authority.cancelAttempt(attempt); owner.prompt.cancel(); owner.backup.cancel() }
+    } }
     AsyncFunction("beginSettingsAsync") Coroutine { selected: String, value: Double -> action {
       val owner = owned(); val expected = revision(value)
       withContext(Dispatchers.Default) { owner.authority.beginSettings(selected, expected) }
     } }
     Function("endSettings") { session: String -> action {
       mainJavaScript(); val owner = owned(); owner.authority.endSettings(session)
-      owner.prompt.cancel()
+      owner.prompt.cancel(); owner.backup.cancel()
     } }
     Function("cancelDeletion") { session: String -> action {
       mainJavaScript(); val owner = owned(); owner.authority.cancel(session)
-      owner.prompt.cancel()
+      owner.prompt.cancel(); owner.backup.cancel()
     } }
     AsyncFunction("authorizeDeletionAsync") Coroutine { session: String, target: String, selected: String, value: Double -> action {
       val owner = owned(); val expected = revision(value)

@@ -5,8 +5,9 @@ shown the same valid public identity in its header and trusted Settings after a
 real process restart. iOS native storage builds, but its protected-file behavior
 still requires a physical iPhone. [Identity import and whole-shell switching](identity-switching.md)
 are integrated with shared trusted Settings. Inactive deletion now has the Android
-system-authentication evidence below. Manual backup, iOS physical authentication,
-signing and full device acceptance remain open.
+system-authentication evidence below. Manual backup is implemented on both native
+platforms with the scoped evidence below. iOS physical authentication, older Android
+compatibility, signing and full device acceptance remain open.
 
 ## Ownership and first entry
 
@@ -265,3 +266,74 @@ Private receipts and inspected screenshots are retained in
 TypeScript, 25 shell tests and all 50 native-driver tests pass. Full aislop remains
 100/100 and local React Doctor has zero findings. Its external numeric score still
 awaits explicit approval; zero findings are not recorded as a verified 100 score.
+
+
+## Manual backup implementation (22 September 2026)
+
+The shared Settings review requests backup only for the selected identity and
+shows its exact public npub before an explicit authentication tap. Its narrow
+native interface returns only completion. Secrets, nsec rendering and reveal
+controls stay in native code; the shared component cannot read a private key.
+Backup and deletion share the same pending-action lock and exact Settings session.
+Each cancellation, replacement session or background transition invalidates earlier
+work. Missing native backup methods leave the feature unavailable.
+
+On Android, the native authority binds fresh device authentication to backup of
+the exact selected identity and protected inventory. A backup attempt cannot issue
+a deletion grant. After authentication, one native read checks the encrypted record
+digest and inventory again, and returns a mutable character buffer only to the
+native panel. The panel draws directly to a Canvas in a `FLAG_SECURE` window,
+excludes secret content from accessibility/autofill/content capture, and clears
+its owned buffer on hide, focus loss, background, cancellation or expiry. There is
+no clipboard/share action or secret bridge return. Authentication and reveal each
+expire within 60 seconds. Java/JSON String and platform rendering-buffer erasure
+are not claimed.
+
+Nsec encoding follows [NIP-19 at the reviewed revision](https://github.com/nostr-protocol/nips/blob/01e707bacdc87cf262db80545aecaa8f17ac2a4f/19.md):
+ordinary Bech32, `nsec` prefix, 32-byte nonzero secp256k1 scalar. Owning JVM checks
+include reference vectors, action confusion, late authentication, stale inventory,
+cancellation, expiry, failed reads and wiping denied output. The current suite
+passes 126 deletion/ownership assertions, 88 backup assertions and 13 encoding
+assertions. These are native authority tests with explicit OS-auth/storage doubles;
+they do not substitute for the separate device journey.
+
+The user approved an iOS limitation on 22 September: show a screenshot warning and
+use supported native protection while permitting authenticated manual reveal.
+Apple provides [recording/mirroring detection](https://developer.apple.com/documentation/uikit/uiscreen/iscaptured)
+and [background snapshot guidance](https://developer.apple.com/documentation/uikit/preparing-your-ui-to-run-in-the-background),
+but arbitrary screenshots cannot reliably be prevented. The reveal must start
+hidden and remain hidden during recording/mirroring, clear before app-switcher
+snapshots and require fresh authentication after dismissal. No secure-text-field
+layer workaround is part of this design. Physical iPhone validation remains required;
+the production Simulator storage policy remains unchanged.
+
+The isolated Android Release app passes all six actual backup checks: exact review
+and cancellation, system cancellation, unrecognised fingerprint, background
+revocation during authentication, native reveal/hide with screenshot redaction and
+private-key accessibility exclusion, then background clearing and fresh
+authentication on return. The installed APK is
+`ead0b781e4e625da5079e83ccc1c323d9be348d0a218d0aa59bbe878af33e44d`
+before and after execution; source and driver seals are unchanged. The review and
+redacted panel captures were visually inspected. Earlier harness-label and ADB
+timeout failures remain recorded; the complete sixth run is the accepted receipt.
+The separate protected-record probe passes 99 assertions and preserves both SDK
+identity records byte-for-byte. These are disposable emulator identities.
+
+iOS passes 60 owning native tests (95 parameterized cases) and three actual UIKit
+panel tests. The latter source-links the production presenter/encoder and uses
+public scalar 2 with an authentication double. It covers initial concealment,
+accessibility exclusion, large-text Done reachability, cancellation during
+presentation, synchronous resign-active hiding and completion after dismissal.
+See the [repeatable Simulator panel harness](../tests/native/identity-unit/ios-backup-panel/README.md).
+The unsigned production Simulator Release app builds with a nonempty bundled
+JavaScript payload; app-owned source hashes remain unchanged during the build.
+This is packaging and panel evidence, not protected storage or LocalAuthentication
+evidence. No physical iPhone was connected for this checkpoint.
+
+Shared TypeScript, 309 security, 13 bootstrap, 80 storage, 27 capability and 25 shell
+tests pass; Android Release and the iOS export also pass. Full aislop is 100/100,
+with no findings. Local React Doctor has no findings and no numeric score; its
+external scoring approval is still pending. Private evidence is retained under
+`.tools/evidence/identity-backup-20260922`. Physical capture/authentication, the
+backup-specific PIN/timeout journey, and Android API 26–29 support remain open.
+This checkpoint does not complete v1.

@@ -40,7 +40,7 @@ See `docs/architecture.md` for confirmed requirements and unresolved policy.
 ### Blockers/Concerns
 
 First theme-only native contract is selected. Validate privileged adapters and delivery contracts before their dependent work. Preserve Expo 57.0.20 despite the existing Doctor patch-version mismatch. Source remote/push remains owner-only.
-Resume budget: check the account usage counter after each small batch and stop at 45% weekly usage, saving a checkpoint before stopping.
+Resume budget (2026-09-22): check account usage after each small batch; pause at 25% weekly usage consumed / 75% remaining and ask before continuing. Delegate bounded audits/encoding to Luna, shared UI/test drivers to Terra, and iOS native actions to Sol; root owns Android authority, integration and review. This replaces the previous 45% stopping point.
 Android emulator and iPhone Simulator scaffold checks are verified. Physical-iPhone signing and execution remain untested; native security acceptance is still open.
 See `docs/phase-zero.md` for actual checks and artifacts.
 
@@ -57,3 +57,18 @@ See `docs/phase-zero.md` for actual checks and artifacts.
 Targeted follow-up: iOS native erase/transport failures remain READBACK_FAILED even when subsequent reads return absence. Four new regressions pass; security is 295/295, bootstrap 13/13, storage 80/80, TypeScript and iOS export pass. Aislop remains 100/100 and local React Doctor has no findings.
 
 Last activity: 2026-09-15 — Android fingerprint deletion passes four OS-callback checks on the current isolated APK. Three consecutive clean iOS launches pass exact review, explicit unavailable-auth denial and cancelled-review live-state retention. Both rebuilt platforms pass three State Lab close/reopen checks. Eager startup sometimes left iOS without identity; lazy restoration now starts only the focused napplet and retains visited views. Failed startup/ADB-offline runs remain recorded. TypeScript, 25 shell tests and 50 native-driver tests pass; aislop 100/100, local React Doctor zero findings/no external numeric score. See docs/identity-storage.md and docs/workspace-storage.md. Pausing this budgeted continuation at the final checkpoint; latest weekly usage 43%, below the 45% stopping margin. No source push or remote change. Next: authenticated manual backup, older Android action compatibility, physical iPhone security proof, signing approvals and verified remote loading.
+
+Current continuation (2026-09-22): authenticated manual backup is in progress. User approved native iOS reveal with an explicit screenshot warning: public APIs cannot prevent screenshots; hide on recording/mirroring, inactivity/background and app-switcher snapshots. Fresh device authentication remains mandatory. Android uses a native FLAG_SECURE panel. No secret is returned to the shared backup UI. Native execution evidence is pending; no v1 completion claim.
+
+Backup checkpoint (2026-09-22): manual backup is implemented on both platforms.
+Android's isolated Release app passes all six real-system fingerprint/reveal/
+cancellation/background checks with matching installed APK and source seals; the
+protected-record probe passes 99 assertions with existing records unchanged. iOS
+passes 60 native tests and three source-linked UIKit panel tests, and its unsigned
+Simulator Release app includes the actual JavaScript bundle. Physical iPhone
+authentication/storage/capture, older Android and backup-specific PIN/timeout proof
+remain open. Shared regressions pass; aislop 100/100 and local React Doctor zero
+findings/no external numeric score. Next: individual signing approval authority,
+immutable event verification and revocable publication. Current weekly usage at
+this checkpoint: 14% consumed; continue only below the requested 25% pause point.
+No source push or remote change. See docs/identity-storage.md.

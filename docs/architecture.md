@@ -24,7 +24,8 @@ a physical iPhone. See the [identity checkpoint](identity-storage.md). The
 [workspace controller](workspace-storage.md) persists opening order, selection and
 explicit empty state per identity. Confirmed [identity changes](identity-switching.md)
 revoke the old authority and restart all loaded napplets. Authenticated identity
-backup, signing, relay publication and published loading remain incomplete. Inactive
+backup is being implemented with native-only reveal and explicit device authentication.
+Signing, relay publication and published loading remain incomplete. Inactive
 identity deletion now has a shared review and an Android system-PIN journey; iOS
 action acceptance still requires a physical device.
 The supplied logo is visible in the native header. Native journeys, boundary
@@ -70,7 +71,9 @@ it. Storage failures must never cause silent replacement. Explicit `nsec` import
 belongs in trusted settings after entry. Retain previous identities encrypted,
 provide a saved-identity selector and optional manual backup. Export and deletion
 require device authentication; keep them unavailable when authentication cannot
-be completed. Require another saved identity before deleting the last one.
+be completed. For iOS manual backup, warn that screenshots cannot reliably be
+prevented; hide during recording/mirroring and before app-switcher snapshots.
+This supported-API limitation was accepted on 22 September 2026. Require another saved identity before deleting the last one.
 A profile editor is only a UI example, not a required napplet.
 External signers are phase 2.
 

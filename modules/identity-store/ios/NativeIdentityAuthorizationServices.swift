@@ -13,14 +13,17 @@ final class NativeIdentityAuthorizationServices: Sendable {
   }
   private static let initialized: Result<NativeIdentityAuthorizationServices, StoreFailure> = {
     do {
-      let handle = Mutex<IdentityFileStore?>(nil)
+      let handle = IdentityStoreHandle()
       let authority = DeletionGrantAuthority(readInventory: {
-        guard let store = handle.withLock({ $0 }) else { throw StoreFailure.unavailable }
+        guard let store = handle.value.withLock({ $0 }) else { throw StoreFailure.unavailable }
         return try await store.validatedInventory()
-      }, authentication: SystemDeviceDeletionAuthentication())
+      }, authentication: SystemDeviceDeletionAuthentication(),
+      backupAuthentication: SystemDeviceBackupAuthentication(),
+      backupSecretReader: StoreBackupSecretReader(handle: handle),
+      backupPresenter: SystemNativeBackupPresenter())
       let store = IdentityFileStore(keychain: SystemKeychain(), files: try ExcludedAtomicFiles.applicationStore(),
         entropy: SystemEntropy(), authorization: NativeIdentityDeletionAuthority.shared, stateObserver: authority)
-      handle.withLock { $0 = store }
+      handle.value.withLock { $0 = store }
       try NativeIdentityDeletionAuthority.shared.install(authority)
       return .success(NativeIdentityAuthorizationServices(store: store, authority: authority))
     } catch { return .failure(.unavailable) }
@@ -33,6 +36,18 @@ final class NativeIdentityAuthorizationServices: Sendable {
   /// Attach this private lease to that runtime synchronously before exposing its binding.
   func createClaimedRuntimeLease() throws -> NativeIdentityRuntimeLease {
     try NativeIdentityRuntimeLease(authority: authority)
+  }
+}
+
+private final class IdentityStoreHandle: Sendable {
+  let value = Mutex<IdentityFileStore?>(nil)
+}
+private final class StoreBackupSecretReader: NativeBackupSecretReader, Sendable {
+  let handle: IdentityStoreHandle
+  init(handle: IdentityStoreHandle) { self.handle = handle }
+  func readBackupSecret(pubkey: String, inventory: NativeVaultInventory) async throws -> Data {
+    guard let store = handle.value.withLock({ $0 }) else { throw StoreFailure.unavailable }
+    return try await store.readBackupSecret(pubkey: pubkey, inventory: inventory)
   }
 }
 #endif

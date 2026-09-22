@@ -49,7 +49,7 @@ def harness_snapshot(source: Path) -> dict:
              'identity-encoding.mjs': HERE / 'identity-encoding.mjs',
              'source/tests/native/driver.py': source / 'tests/native/driver.py',
              'source/tests/native/receiver.py': source / 'tests/native/receiver.py'}
-    for name in ('workspace_restart.py', 'identity_switch.py', 'state_storage.py', 'state_close.py', 'identity_deletion.py', 'identity_biometric.py', 'public-test-identity.mjs'):
+    for name in ('workspace_restart.py', 'identity_switch.py', 'state_storage.py', 'state_close.py', 'identity_deletion.py', 'identity_biometric.py', 'identity_backup.py', 'public-test-identity.mjs'):
         additional = HERE / name
         if additional.is_file(): paths[name] = additional
     return {name: sha256(path) for name, path in paths.items()}

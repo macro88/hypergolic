@@ -33,6 +33,7 @@ final class NativeIdentityRuntimeLease: Sendable {
   func beginSettings() throws -> String { try requireBound(); return try authority.beginSettings(runtime: runtimeID) }
   func dismissSettings(_ settings: String) { authority.dismissSettings(runtime: runtimeID, settings: settings) }
   func cancelDeletion(_ settings: String) { authority.cancelDeletion(runtime: runtimeID, settings: settings) }
+  func cancelBackup(_ settings: String) { authority.cancelBackup(runtime: runtimeID, settings: settings) }
   func assertExpectedContext(settings: String, selected: String, revision: UInt64) throws {
     try requireBound()
     try authority.assertExpectedContext(runtime: runtimeID, settings: settings, selected: selected, revision: revision)
@@ -44,5 +45,9 @@ final class NativeIdentityRuntimeLease: Sendable {
   func authorizeDeletion(settings: String, target: String) async throws -> String {
     try requireBound()
     return try await authority.authorizeDeletion(runtime: runtimeID, settings: settings, target: target)
+  }
+  func showBackup(settings: String, target: String) async throws {
+    try requireBound()
+    try await authority.showBackup(runtime: runtimeID, settings: settings, target: target)
   }
 }

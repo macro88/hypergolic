@@ -115,6 +115,31 @@ final class SecureStoreIdentityRecords implements DeletionAuthority.InventoryRea
       return new DeletionAuthority.Inventory(vault, revision, selected, digest(encodedReceipt), digests);
     } catch (Exception ignored) { throw new DeletionAuthority.Denied(); }
   }
+  /** Native backup effect only. The authority supplies the exact encrypted-record digest. */
+  char[] backup(String pubkey, String expectedDigest) {
+    byte[] scalarBytes = null;
+    char[] result = null;
+    try {
+      require(DeletionAuthority.key(pubkey) && DeletionAuthority.key(expectedDigest));
+      String key = "secret." + pubkey, encoded = encrypted(key);
+      require(digest(encoded).equals(expectedDigest));
+      KeyStore keystore = KeyStore.getInstance("AndroidKeyStore"); keystore.load(null);
+      KeyStore.Entry entry = keystore.getEntry(ALIAS, null);
+      require(entry instanceof KeyStore.SecretKeyEntry);
+      JSONArray secret = plaintext(encoded, (KeyStore.SecretKeyEntry) entry);
+      require(secret.length() == 3 && "HGK1".equals(secret.get(0)) && pubkey.equals(secret.get(1)));
+      String scalar = text(secret.get(2));
+      require(DeletionAuthority.key(scalar));
+      scalarBytes = new byte[32];
+      for (int index = 0; index < 32; index++) scalarBytes[index] = (byte) Integer.parseInt(scalar.substring(index * 2, index * 2 + 2), 16);
+      result = BackupNsec.encode(scalarBytes);
+      require(encoded.equals(encrypted(key)) && !preferences.contains(slot("stage")) && !preferences.contains("stage"));
+      return result;
+    } catch (Exception ignored) {
+      if (result != null) Arrays.fill(result, '\0');
+      throw new DeletionAuthority.Denied();
+    } finally { if (scalarBytes != null) Arrays.fill(scalarBytes, (byte) 0); }
+  }
   /** Only pass this native effect to DeletionAuthority.erase; never expose a generic remove method. */
   void erase(String pubkey) {
     try {

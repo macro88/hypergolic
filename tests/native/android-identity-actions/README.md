@@ -1,4 +1,4 @@
-# Android deletion authority regressions
+# Android identity action regressions
 
 Run with the pinned JDK on PATH:
 
@@ -11,7 +11,7 @@ The output directory must be new. The runner compiles the owning production
 and after execution, and retains compiler output and a JSON receipt. No native
 authority implementation is copied into the test harness.
 
-The 126 assertions cover missing admission, exact target/session/context, immutable
+The deletion suite has 126 assertions covering missing admission, exact target/session/context, immutable
 inventory, busy requests, one-use consumption, authentication denial, stale and
 cross-owner callbacks, settings replacement, background/retirement, expiry at
 authentication and actual erase, changed inventory, entropy failure, uncertain
@@ -36,7 +36,8 @@ byte-identical before and after; disposable preferences are removed in `finally`
 No raw exception or secret is included in the result. OS-authentication completion
 is an explicit double: this is a record and erase proof, not a system prompt test.
 
-The probe passes 89 assertions on the API 36 emulator. The reader accepts only the
+The current probe passes 99 assertions on the API 36 emulator, including exact
+scalar-2 backup encoding, digest/target rejection, one-use reads and revoked leases. The reader accepts only the
 reviewed SecureStore 57.0.3 canonical AES-GCM envelope, fixed service and alias,
 128-bit tag, 12-byte IV, bounded HGI1/HGK1 payloads and valid nonzero scalars. Legacy
 formats, missing keys, unfinished staging and unknown formats fail without repair.
@@ -124,3 +125,33 @@ The runner checks installed bytes and source/harness snapshots before and after.
 System-protected screenshots remain blank; the native hierarchy and actual effect
 checks supply that evidence. Keep failed/disconnected runs alongside successful
 reruns; never relabel an interrupted run as passed.
+
+## Manual backup
+
+The owning JVM runner also compiles `BackupAuthorityProof.java` and
+`BackupNsecProof.java` against production sources. Their 88 authority assertions
+and 13 encoding assertions cover action confusion, selected identity/session
+binding, stale inventory, authentication/reveal expiry, repeated reads and wiping
+denied output. These use explicit authentication/storage doubles.
+
+The actual system-fingerprint backup journey uses the same isolated API 36 fixture
+with its public PIN and virtual fingerprint 1 already enrolled. It imports/selects
+only public scalar 2 and preserves existing identities. The protected native panel
+is excluded from screenshots and private-key accessibility. The runner requires
+its screenshot pixels to be redacted before retaining the capture; it never stores
+a revealed nsec.
+
+```sh
+python3 tests/native/identity_backup.py --source "$PWD" --serial emulator-5556 \
+  --package org.nostrocket.hypergolic.identityfixture \
+  --activity org.nostrocket.hypergolic.dev.MainActivity \
+  --expected-apk-sha256 APP_SHA256 --output /private/tmp/hypergolic-system-backup \
+  identity-backup
+```
+
+It exercises exact review/cancellation, OS cancellation, an unrecognised
+fingerprint, background revocation during authentication, successful native reveal
+and hide, screenshot redaction/accessibility exclusion, then background clearing
+and fresh authentication on return. It seals owning source, driver and installed
+APK bytes. Physical sensor, OEM capture and older-Android behavior remain separate
+acceptance gates.
