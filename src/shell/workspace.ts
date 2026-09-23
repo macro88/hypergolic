@@ -20,6 +20,17 @@ export function openNapplet(state: Workspace, descriptor: NappletDescriptor): Wo
   if (state.sessions.some(session => session.id === descriptor.id)) return focusNapplet(state, descriptor.id);
   return { sessions: [...state.sessions, Object.freeze({ ...descriptor })], focusedId: descriptor.id, overview: false };
 }
+/** An accepted published revision gets a new native session at its existing card position. */
+export function replacePublishedNapplet(state: Workspace, oldId: string, next: NappletDescriptor): Workspace {
+  const index = state.sessions.findIndex(session => session.id === oldId);
+  const old = state.sessions[index];
+  if (!old || old.source !== 'published' || next.source !== 'published' || next.id === oldId ||
+      state.sessions.some(session => session.id === next.id) || old.publisher !== next.publisher || old.appId !== next.appId ||
+      old.eventId === next.eventId) throw new Error('Invalid published update');
+  const sessions = [...state.sessions];
+  sessions[index] = Object.freeze({ ...next });
+  return { sessions, focusedId: next.id, overview: false };
+}
 export function focusNapplet(state: Workspace, id: string): Workspace {
   if (!state.sessions.some(session => session.id === id)) return state;
   return { ...state, focusedId: id, overview: false };

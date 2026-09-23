@@ -9,6 +9,7 @@ import { IdentityBackup } from './IdentityBackup';
 import { RelaySettings } from './RelaySettings';
 import { PublishedHostLab } from './PublishedHostLab';
 import { OpenPublishedNapplet } from './OpenPublishedNapplet';
+import { UpdatePublishedNapplet } from './UpdatePublishedNapplet';
 import { colors } from './theme';
 
 function Action({ title, testID, onPress, subdued = false }: { title: string; testID: string; onPress: () => void; subdued?: boolean }) {
@@ -95,7 +96,22 @@ function failureMessage(failure: ReturnType<IdentityTransition['getSnapshot']>['
   if (failure === 'DELETION_PENDING') return 'Deletion is paused. Authenticate again to finish removing the identity.';
   return 'The identity change was not accepted. Your current identity and open napplets are unchanged.';
 }
-export function IdentitySettings({ openBundledTest, openStateLab, openPublished }: SettingsActions) {
+function PublishedNappletSettings({ available, openPublished, publishedSessions, checkPublishedUpdate }: {
+  available: boolean;
+  openPublished: SettingsActions['openPublished'];
+  publishedSessions: SettingsActions['publishedSessions'];
+  checkPublishedUpdate: SettingsActions['checkPublishedUpdate'];
+}) {
+  if (!available) return null;
+  return <>
+    <OpenPublishedNapplet open={openPublished} />
+    {publishedSessions.length > 0 && <>
+      <Text accessibilityRole="header" style={styles.title}>Published napplet updates</Text>
+      {publishedSessions.map(session => <UpdatePublishedNapplet key={session.id} session={session} check={checkPublishedUpdate} />)}
+    </>}
+  </>;
+}
+export function IdentitySettings({ openBundledTest, openStateLab, openPublished, publishedSessions, checkPublishedUpdate }: SettingsActions) {
   const { transition, formatNpub, runtime, actions, relaySettings } = useIdentityOwner();
   const state = useSyncExternalStore(transition.subscribe, transition.getSnapshot);
   const [importing, setImporting] = useState(false);
@@ -151,7 +167,7 @@ export function IdentitySettings({ openBundledTest, openStateLab, openPublished 
       <Text selectable testID="settings-full-npub" style={styles.npub}>{formatNpub(state.session.vault.selectedPubkey)}</Text>
       {actions && <IdentityBackup actions={actions} session={state.session} npub={formatNpub(state.session.vault.selectedPubkey)} reviewing={false}
         onReview={() => setBackupReview(true)} onClose={() => setBackupReview(false)} Action={Action} />}
-      {runtime && <OpenPublishedNapplet open={openPublished} />}
+      <PublishedNappletSettings available={Boolean(runtime)} openPublished={openPublished} publishedSessions={publishedSessions} checkPublishedUpdate={checkPublishedUpdate} />
       <Text accessibilityRole="header" style={styles.title}>Saved identities</Text>
       {state.session.vault.identities.map(identity => <View key={identity.pubkey} style={styles.identity}><Pressable accessibilityRole="button"
         disabled={identity.pubkey === state.session.vault.selectedPubkey || identity.status !== 'active'}

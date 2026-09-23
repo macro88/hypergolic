@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { adjacentNapplet, closeNapplet, emptyWorkspace, focusNapplet, openNapplet, restoreWorkspace, showOverview, snapshotWorkspace } from './workspace.ts';
+import { adjacentNapplet, closeNapplet, emptyWorkspace, focusNapplet, openNapplet, replacePublishedNapplet, restoreWorkspace, showOverview, snapshotWorkspace } from './workspace.ts';
 import type { NappletDescriptor } from './workspace.ts';
 const descriptor = (id: string): NappletDescriptor => ({ id, title: id, publisher: 'bundled', appId: 'ux-lab', version: 'hash', source: 'bundled' });
 const three = () => ['a', 'b', 'c'].reduce((state, id) => openNapplet(state, descriptor(id)), emptyWorkspace());
@@ -24,6 +24,18 @@ test('closing active or inactive sessions leaves overview without selecting anot
   assert.equal(active.focusedId, null); assert.equal(active.overview, true);
   const inactive = closeNapplet(three(), 'a');
   assert.equal(inactive.focusedId, 'c'); assert.equal(inactive.overview, true);
+});
+test('accepted published revision replaces its card and native session without changing publisher storage identity', () => {
+  const old: NappletDescriptor = { id: 'old', title: 'Napplet', publisher: 'a'.repeat(64), appId: 'example',
+    version: 'b'.repeat(64), eventId: 'c'.repeat(64), source: 'published' };
+  const next: NappletDescriptor = { ...old, id: 'new', version: 'd'.repeat(64), eventId: 'e'.repeat(64) };
+  const original = openNapplet(openNapplet(openNapplet(emptyWorkspace(), descriptor('a')), old), descriptor('b'));
+  const updated = replacePublishedNapplet(original, old.id, next);
+  assert.deepEqual(updated.sessions.map(item => item.id), ['a', 'new', 'b']);
+  assert.equal(updated.focusedId, 'new');
+  assert.equal(updated.overview, false);
+  assert.throws(() => replacePublishedNapplet(original, old.id, { ...next, publisher: 'f'.repeat(64) }));
+  assert.throws(() => replacePublishedNapplet(original, old.id, { ...next, eventId: old.eventId }));
 });
 test('snapshot preserves opening order and last active but never ephemeral properties', () => {
   const state = showOverview(focusNapplet(three(), 'b'));

@@ -9,11 +9,12 @@ import { Header, type ShellIdentity } from './Header';
 import type { OverviewHandle } from './Overview';
 import { WorkspaceStage } from './WorkspaceStage';
 import { directionForHandle, type HandleSide } from './motion';
-import { adjacentNapplet, closeNapplet, focusNapplet, openNapplet, showOverview, type NappletDescriptor, type Workspace } from './workspace';
+import { adjacentNapplet, closeNapplet, focusNapplet, openNapplet, replacePublishedNapplet, showOverview, type NappletDescriptor, type Workspace } from './workspace';
 import { colors } from './theme';
 import { RuntimeContext } from '../runtime/RuntimeContext';
 import { ReviewFocus } from './ReviewFocus';
 import type { NappletConsentReview } from '../napplets/first-open-consent';
+import type { PublishedUpdateReview } from '../napplets/published-session';
 
 import { bundledDescriptor, initialTestWorkspace, type BundledVariant } from './fixtures';
 
@@ -23,6 +24,10 @@ export interface SettingsActions {
   openBundledTest: () => void;
   openStateLab: (variant: Exclude<BundledVariant, 'ux-lab'>) => void;
   openPublished: (link: string, signal: AbortSignal, review: (request: NappletConsentReview) => Promise<boolean>) => Promise<void>;
+  publishedSessions: readonly NappletDescriptor[];
+  checkPublishedUpdate: (session: NappletDescriptor, signal: AbortSignal,
+    reviewUpdate: (request: PublishedUpdateReview) => Promise<boolean>,
+    reviewConsent: (request: NappletConsentReview) => Promise<boolean>) => Promise<boolean>;
 }
 export interface ShellProps {
   blocked?: boolean;
@@ -189,6 +194,23 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
     change(next);
     setSettings(false);
   };
+  const checkPublishedUpdate: SettingsActions['checkPublishedUpdate'] = async (session, signal, reviewUpdate, reviewConsent) => {
+    if (!runtime || blocked || signal.aborted) throw new Error('Published update unavailable');
+    const descriptor = await runtime.preparePublishedUpdate(session, signal, reviewUpdate, reviewConsent);
+    if (!descriptor) return false;
+    if (signal.aborted || blocked) { runtime.discardPublished(descriptor.id); throw new Error('Published update cancelled'); }
+    let next: Workspace;
+    try { next = replacePublishedNapplet(current.current, session.id, descriptor); }
+    catch (error) { runtime.discardPublished(descriptor.id); throw error; }
+    try { onBeforeClose?.(session); }
+    catch (error) { runtime.discardPublished(descriptor.id); throw error; }
+    runtime.discardPublished(session.id);
+    position.set(next.sessions.findIndex(item => item.id === descriptor.id));
+    progress.set(0);
+    change(next);
+    setSettings(false);
+    return true;
+  };
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'right', 'bottom', 'left']}>
       <ReviewFocus sessionId={workspace.focusedId} overview={workspace.overview} busy={busy} dragging={handleDragging} blocked={blocked} settings={settings} closing={closingId !== null} />
@@ -208,7 +230,8 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
       }}>
         <SafeAreaProvider><SafeAreaView style={styles.settingsScreen}>
           <View style={styles.settingsHeader}><Text accessibilityRole="header" style={styles.settingsTitle}>Settings</Text><Pressable ref={settingsClose} disabled={blocked} accessibilityState={{ disabled: blocked }} accessibilityRole="button" testID="settings-done" onPress={() => setSettings(false)} style={styles.done}><Text style={styles.doneText}>Done</Text></Pressable></View>
-          {settings && (SettingsContent ? <SettingsContent closeSettings={() => setSettings(false)} openBundledTest={openBundledTest} openStateLab={openFixture} openPublished={openPublished} /> : <View style={styles.settingsBody}>
+          {settings && (SettingsContent ? <SettingsContent closeSettings={() => setSettings(false)} openBundledTest={openBundledTest} openStateLab={openFixture} openPublished={openPublished}
+            publishedSessions={workspace.sessions.filter(session => session.source === 'published')} checkPublishedUpdate={checkPublishedUpdate} /> : <View style={styles.settingsBody}>
             <Text selectable testID="settings-full-npub" style={styles.settingsText}>{identity ? identity.npub : 'Identity is not configured in this build.'}</Text>
             <Text accessibilityRole="header" style={styles.settingsSection}>Bundled test napplets</Text>
             <Pressable testID="settings-open-ux-lab" accessibilityRole="button" onPress={openBundledTest} style={styles.openTest}><Text style={styles.openTestText}>Open UX Lab</Text><Text style={styles.addMark} accessible={false}>+</Text></Pressable>

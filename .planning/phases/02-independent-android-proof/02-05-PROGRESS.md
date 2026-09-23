@@ -30,11 +30,14 @@ shows an unavailable state and denies new signing requests before key use.
 ## Remaining for 02-05 and v1
 
 The Settings entry, first-open publisher/access consent, connected native
-network retrieval route, trusted cache and pinned restart recovery are now
-implemented and have focused integration tests. The Settings-only local signed
-QA route remains a separate known-artifact proof. A live remote endpoint and
-ordinary Android/iOS native journey have not yet been verified. Explicit
-verified-update acceptance UI remains open.
+network retrieval route, trusted cache, pinned restart recovery and explicit
+verified-update review are now implemented with focused integration tests. An
+update revalidates the old pin, requires a newer signed event for the same
+publisher and app ID, then shows the exact event change and any changed access
+before a new one-use native session replaces the old card. Declining review
+keeps the old session. The Settings-only local signed QA route remains a separate
+known-artifact proof. A live remote endpoint and ordinary Android/iOS native
+journeys, including the update, have not yet been verified.
 The native handoff must transfer at most 2 MiB
 without putting HTML, paths or URLs in React view props, then check the original
 bytes again before host CSP and namespace injection. Android and iOS remote
@@ -110,5 +113,16 @@ Final Android ARM64 and iOS Simulator Release builds pass. The installed Android
 app visibly shows Open a napplet, its naddr field and Verify and open in trusted
 Settings. The production iOS app launches to its expected physical-iPhone
 identity requirement, so Simulator does not prove its Settings path.
-The normal Android/iOS remote UX, live public TLS/WSS behavior, explicit update
-flow, physical iPhone and older Android acceptance are not proved by these checks.
+The normal Android/iOS remote UX, live public TLS/WSS behavior, native update
+journey, physical iPhone and older Android acceptance are not proved by these checks.
+
+## Explicit update checkpoint — 23 September 2026
+
+The update check is available in Settings for each loaded published napplet. A
+coordinator rechecks its exact existing artifact from the verified cache or
+pinned network query, discovers and verifies a newer candidate, and requires a
+separate confirmation before staging it. A changed grant needs its own access
+review. The workspace swaps in the same position only after preparation succeeds;
+the old native session and pending signing approvals are then closed. Focused
+tests cover refusal, unchanged event, rollback rejection and accepted runtime
+handoff. TypeScript passes. Complete native update journeys remain open.

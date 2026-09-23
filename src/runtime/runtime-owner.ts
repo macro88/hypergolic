@@ -6,7 +6,7 @@ import { bundledDescriptor, resolveBundledSession, type BundledVariant } from '.
 import { createCapabilityBroker, type NativeCapabilityPort } from './capability-broker.ts';
 import type { ApprovalOrigin, ApprovalService } from '../security/approval-service.ts';
 import { identifier } from '../storage/codec.ts';
-import { createPublishedSessionCoordinator, type PreparedPublishedSession, type PublishedSessionDependencies } from '../napplets/published-session.ts';
+import { createPublishedSessionCoordinator, type PreparedPublishedSession, type PublishedSessionDependencies, type PublishedUpdateReview } from '../napplets/published-session.ts';
 import type { NappletConsentReview } from '../napplets/first-open-consent.ts';
 import type { NativeRegistration } from './capability-protocol.ts';
 
@@ -18,6 +18,9 @@ export interface RuntimeOwner {
   open(session: NappletDescriptor): RuntimeBinding;
   descriptor(variant: Exclude<BundledVariant, 'ux-lab'>, number: number): NappletDescriptor;
   openPublishedLink(link: string, signal: AbortSignal, review: (request: NappletConsentReview) => Promise<boolean>): Promise<NappletDescriptor>;
+  preparePublishedUpdate(session: NappletDescriptor, signal: AbortSignal,
+    reviewUpdate: (request: PublishedUpdateReview) => Promise<boolean>,
+    reviewConsent: (request: NappletConsentReview) => Promise<boolean>): Promise<NappletDescriptor | null>;
   openPublished(session: NappletDescriptor, signal: AbortSignal, review: (request: NappletConsentReview) => Promise<boolean>): Promise<PublishedRuntimeBinding>;
   discardPublished(sessionId: string): void;
   revokeAllPublished(): void;
@@ -105,6 +108,21 @@ export function createRuntimeOwner(database: ShellDatabase,
       if (prepared.has(id) || running.has(id)) { ready.revoke(); throw new ShellStorageError('CONFLICT'); }
       prepared.set(id, ready);
       return ready.descriptor;
+    },
+    async preparePublishedUpdate(session: NappletDescriptor, signal: AbortSignal,
+      reviewUpdate: (request: PublishedUpdateReview) => Promise<boolean>,
+      reviewConsent: (request: NappletConsentReview) => Promise<boolean>) {
+      if (!coordinator || session.source !== 'published') throw new ShellStorageError('INVALID_INPUT');
+      exactSession(session);
+      const ready = await coordinator.prepareUpdate(session, signal, reviewUpdate, reviewConsent);
+      if (!ready) { exactSession(session); return null; }
+      try {
+        exactSession(session);
+        ready.assertActive();
+        if (prepared.has(ready.descriptor.id) || running.has(ready.descriptor.id)) throw new ShellStorageError('CONFLICT');
+        prepared.set(ready.descriptor.id, ready);
+        return ready.descriptor;
+      } catch (error) { ready.revoke(); throw error; }
     },
     async openPublished(session: NappletDescriptor, signal: AbortSignal, review: (request: NappletConsentReview) => Promise<boolean>) {
       if (!coordinator || session.source !== 'published') throw new ShellStorageError('INVALID_INPUT');

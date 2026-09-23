@@ -195,3 +195,15 @@ the new naddr form while production iOS Simulator stops at its expected device
 identity requirement. Live remote Android/iOS journeys, explicit update UX,
 physical iPhone and older-device acceptance remain open. Source remote/push
 remains owner-only; user requested continuation until 70% weekly usage consumed.
+Explicit published-update checkpoint (2026-09-23): Settings now checks each
+loaded published napplet for a newer verified kind-35129 event. The old exact
+pin is reverified, rollback is rejected, and the event change needs explicit
+confirmation; changed access needs its own review. Acceptance replaces the
+workspace card in place with a fresh one-use native session and closes the old
+session and pending approvals. Denial preserves the current session. Focused
+tests and the shell/storage/capability/napplet suites pass, as do TypeScript and
+normal Android ARM64 and iOS Simulator Release builds. React Doctor scores
+100/100 and aislop scores 100/100; aislop reports two non-scoring function-length
+warnings and a timed-out dependency audit. The native update journey and live
+public relay/Blossom path still need phone evidence. The user handles the new
+source remote and push; no source push was made.

@@ -65,8 +65,14 @@ staged one-use artifact. Both native hosts bind the granted domains to the exact
 published session before claiming the artifact. A separate SQLite BLOB cache is
 scoped to user, publisher, napplet ID and exact event; every hit repeats event
 signature and HTML hash verification. A saved workspace row remains an untrusted
-claim until the pinned artifact and grant are verified. Explicit verified-update
-confirmation is still open.
+claim until the pinned artifact and grant are verified. Settings can explicitly
+check a loaded published napplet for an update. It rechecks the old pin, accepts
+only a newer verified event for the same publisher and stable napplet ID, and
+shows the old/new signed event IDs before replacing the workspace card. Changed
+access gets a separate review. Declining either review leaves the running pin
+untouched. Acceptance closes pending signing requests, revokes the old native
+session and stages the new bytes under a fresh one-use session ID. The update
+flow has focused coordinator/runtime tests, but no complete native phone journey.
 For a published napplet granted `relay`, the signing approval owner additionally
 requires the live verified workspace binding and exact native generation before
 showing a request; every event still needs the v1 approval sheet.

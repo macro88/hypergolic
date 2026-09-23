@@ -9,7 +9,7 @@ import { openPublishedArtifactCache } from './published-artifact-cache.ts';
 import { descriptorForPublishedArtifact, publishedHostInput } from './published-host-input.ts';
 import { stageAdmittedPublishedArtifact } from './admitted-transfer.ts';
 import type { NativePublishedTransferPort } from './native-transfer.ts';
-import type { VerifiedNappletArtifact } from './verified-artifact.ts';
+import { assertVerifiedArtifact, type VerifiedNappletArtifact } from './verified-artifact.ts';
 
 export class PublishedSessionError extends Error {
   readonly code = 'PUBLISHED_SESSION_FAILED';
@@ -26,6 +26,10 @@ export interface PreparedPublishedSession {
   assertActive(): void;
   revoke(): void;
 }
+export type PublishedUpdateReview = Readonly<{
+  publisher: string; appId: string; previousEventId: string; nextEventId: string;
+  previousVersion: string; nextVersion: string; domains: readonly string[];
+}>;
 
 export interface PublishedSessionDependencies {
   readonly identity: Pick<IdentityTransition, 'sessionAuthority' | 'getSnapshot'>;
@@ -43,7 +47,8 @@ function identifier(artifact: VerifiedNappletArtifact): string {
 
 /** This coordinator is process-owned; no reference to it is passed into guest content. */
 export function createPublishedSessionCoordinator(ports: PublishedSessionDependencies) {
-  const prepare = async (request: Readonly<{ link?: string; pinned?: NappletDescriptor }>,
+  const prepare = async (request: Readonly<{ link?: string; pinned?: NappletDescriptor;
+    candidate?: VerifiedNappletArtifact; updateOf?: NappletDescriptor }>,
     externalSignal: AbortSignal, review: (request: NappletConsentReview) => Promise<boolean>): Promise<PreparedPublishedSession> => {
     const authority = ports.identity.sessionAuthority();
     const controller = new AbortController();
@@ -60,11 +65,17 @@ export function createPublishedSessionCoordinator(ports: PublishedSessionDepende
     try {
       active();
       const selected = request.pinned;
-      if ((selected === undefined) === (request.link === undefined)) fail();
+      const updateOf = request.updateOf;
+      const opensLink = request.link !== undefined && selected === undefined && request.candidate === undefined && updateOf === undefined;
+      const reopensPin = request.link === undefined && selected !== undefined && request.candidate === undefined && updateOf === undefined;
+      const appliesUpdate = request.link === undefined && selected === undefined && request.candidate !== undefined && updateOf !== undefined;
+      if (!opensLink && !reopensPin && !appliesUpdate) fail();
       if (selected && (selected.source !== 'published' || !HEX64.test(selected.publisher) ||
           !HEX64.test(selected.version) || !HEX64.test(selected.eventId ?? '') || !selected.appId)) fail();
-      const link = request.link ?? naddrEncode({ kind: 35129, pubkey: selected!.publisher, identifier: selected!.appId });
-      let artifact: VerifiedNappletArtifact | null = null;
+      const coordinate = selected ?? updateOf;
+      const link = request.link ?? naddrEncode({ kind: 35129, pubkey: coordinate!.publisher, identifier: coordinate!.appId });
+      let artifact: VerifiedNappletArtifact | null = request.candidate ?? null;
+      if (artifact) assertVerifiedArtifact(artifact);
       if (selected) {
         const owner: TrustedApp = Object.freeze({ user: authority.user, publisher: selected.publisher,
           appId: selected.appId, assertActive: active });
@@ -85,6 +96,9 @@ export function createPublishedSessionCoordinator(ports: PublishedSessionDepende
       if (selected && (selected.publisher !== descriptor.publisher || selected.appId !== descriptor.appId ||
           selected.version !== descriptor.version || selected.eventId !== descriptor.eventId ||
           selected.title !== descriptor.title)) fail();
+      if (updateOf && (updateOf.source !== 'published' || !HEX64.test(updateOf.version) ||
+          !HEX64.test(updateOf.eventId ?? '') || updateOf.publisher !== descriptor.publisher ||
+          updateOf.appId !== descriptor.appId || updateOf.eventId === descriptor.eventId)) fail();
       const owner: TrustedApp = Object.freeze({ user: authority.user, publisher: descriptor.publisher,
         appId: identifier(artifact), assertActive: active });
       const grant = ports.database.bindApp(owner);
@@ -120,9 +134,49 @@ export function createPublishedSessionCoordinator(ports: PublishedSessionDepende
     }
   };
   return Object.freeze({
-    openLink: (link: string, signal: AbortSignal, review: (request: NappletConsentReview) => Promise<boolean>) =>
-      prepare({ link }, signal, review),
-    reopenPinned: (descriptor: NappletDescriptor, signal: AbortSignal, review: (request: NappletConsentReview) => Promise<boolean>) =>
-      prepare({ pinned: descriptor }, signal, review),
+    openLink: async (link: string, signal: AbortSignal, review: (request: NappletConsentReview) => Promise<boolean>) =>
+      (await prepare({ link }, signal, review)) ?? fail(),
+    reopenPinned: async (descriptor: NappletDescriptor, signal: AbortSignal, review: (request: NappletConsentReview) => Promise<boolean>) =>
+      (await prepare({ pinned: descriptor }, signal, review)) ?? fail(),
+    prepareUpdate: async (selected: NappletDescriptor, signal: AbortSignal,
+      reviewUpdate: (request: PublishedUpdateReview) => Promise<boolean>,
+      reviewConsent: (request: NappletConsentReview) => Promise<boolean>): Promise<PreparedPublishedSession | null> => {
+      if (selected.source !== 'published' || !HEX64.test(selected.publisher) ||
+          !HEX64.test(selected.version) || !HEX64.test(selected.eventId ?? '') || !selected.appId) fail();
+      const authority = ports.identity.sessionAuthority();
+      const active = () => { if (signal.aborted) fail(); authority.assertActive(); if (signal.aborted) fail(); };
+      active();
+      const link = naddrEncode({ kind: 35129, pubkey: selected.publisher, identifier: selected.appId });
+      const owner: TrustedApp = Object.freeze({ user: authority.user, publisher: selected.publisher,
+        appId: selected.appId, assertActive: active });
+      const cache = await openPublishedArtifactCache(ports.sqlite, {
+        owner, epoch: authority.epoch, currentEpoch: () => ports.identity.getSnapshot().session.epoch,
+      });
+      let previous: VerifiedNappletArtifact | null;
+      try { previous = await cache.get(selected.appId, selected.eventId!, { signal }); }
+      finally { await cache.close(); }
+      active();
+      if (!previous) previous = await loadPublishedArtifact(link, { source: ports.source,
+        lookupRelays: ports.lookupRelays(), signal, assertActive: active, pinnedEventId: selected.eventId! });
+      active();
+      const previousDescriptor = descriptorForPublishedArtifact(previous, selected.id);
+      if (previousDescriptor.publisher !== selected.publisher || previousDescriptor.appId !== selected.appId ||
+          previousDescriptor.eventId !== selected.eventId || previousDescriptor.version !== selected.version ||
+          previousDescriptor.title !== selected.title) fail();
+      const candidate = await loadPublishedArtifact(link, { source: ports.source,
+        lookupRelays: ports.lookupRelays(), signal, assertActive: active });
+      active();
+      if (candidate.manifest.eventId === selected.eventId) return null;
+      if (candidate.manifest.created_at <= previous.manifest.created_at ||
+          candidate.manifest.pubkey !== selected.publisher ||
+          candidate.manifest.tags.find(tag => tag[0] === 'd')?.[1] !== selected.appId) fail();
+      const request = Object.freeze({ publisher: selected.publisher, appId: selected.appId,
+        previousEventId: selected.eventId!, nextEventId: candidate.manifest.eventId,
+        previousVersion: selected.version, nextVersion: candidate.aggregateHash,
+        domains: Object.freeze([...candidate.manifest.requiredDomains].sort()) });
+      if (await reviewUpdate(request) !== true) fail();
+      active();
+      return prepare({ candidate, updateOf: selected }, signal, reviewConsent);
+    },
   });
 }

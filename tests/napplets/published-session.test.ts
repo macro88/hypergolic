@@ -9,7 +9,7 @@ import { createPublishedSessionCoordinator, type PublishedSessionDependencies } 
 import type { NativePublishedTransferPort } from '../../src/napplets/native-transfer.ts';
 import { setup } from '../storage/harness.ts';
 import { createRuntimeOwner } from '../../src/runtime/runtime-owner.ts';
-import { emptyWorkspace, openNapplet, closeNapplet } from '../../src/shell/workspace.ts';
+import { emptyWorkspace, openNapplet, closeNapplet, replacePublishedNapplet } from '../../src/shell/workspace.ts';
 import { NativeLeases } from '../runtime/native-leases.ts';
 import type { IdentityTransition } from '../../src/security/identity-transition.ts';
 import { createApprovalOwner } from '../../src/security/approval-owner.ts';
@@ -18,6 +18,14 @@ import type { ApprovalOrigin, ApprovalService } from '../../src/security/approva
 const USER = '31'.repeat(32);
 const SESSION = '58274370-ec8f-4058-a4cc-b63e7e75ca4b';
 const LINK = naddrEncode(EMBEDDED_TEST_COORDINATE);
+function signedFixture(createdAt: number, appId: string, html: Uint8Array, domains: readonly string[], secret: Uint8Array) {
+  const htmlHash = createHash('sha256').update(html).digest('hex');
+  const aggregate = createHash('sha256').update(`${htmlHash} /index.html\n`).digest('hex');
+  return finalizeEvent({ kind: 35129, created_at: createdAt, content: '', tags: [
+    ['d', appId], ['path', '/index.html', htmlHash], ['x', aggregate, 'aggregate'],
+    ...domains.map(domain => ['requires', domain]),
+  ] }, secret);
+}
 
 function native(calls: string[]): NativePublishedTransferPort {
   return {
@@ -122,13 +130,8 @@ test('workspace runtime consumes the reviewed artifact once and revokes it on cl
 test('published relay approval needs the live verified session and its native generation', async t => {
   const { database, sqlite } = await setup(t);
   const html = getEmbeddedTestHtmlBytes();
-  const htmlHash = createHash('sha256').update(html).digest('hex');
-  const aggregate = createHash('sha256').update(`${htmlHash} /index.html\n`).digest('hex');
   const appId = 'published-approval-test';
-  const event = finalizeEvent({ kind: 35129, created_at: 1_800_000_001, content: '', tags: [
-    ['d', appId], ['path', '/index.html', htmlHash], ['x', aggregate, 'aggregate'],
-    ['requires', 'relay'], ['requires', 'theme'],
-  ] }, new Uint8Array(32).fill(7));
+  const event = signedFixture(1_800_000_001, appId, html, ['relay', 'theme'], new Uint8Array(32).fill(7));
   const link = naddrEncode({ kind: 35129, pubkey: event.pubkey, identifier: appId });
   let workspace = emptyWorkspace();
   const identity = {
@@ -161,4 +164,87 @@ test('published relay approval needs the live verified session and its native ge
   assert.throws(() => approvalOwner.assertActive({ ...origin, appId: 'other-app' }));
   binding.revoke();
   assert.throws(() => approvalOwner.assertActive(origin));
+});
+
+test('verified update is inert until explicit review and cannot roll back to an older event', async t => {
+  const { database, sqlite } = await setup(t);
+  const appId = 'published-update-test';
+  const originalHtml = getEmbeddedTestHtmlBytes();
+  const updatedHtml = new TextEncoder().encode(new TextDecoder().decode(originalHtml).replace('fixture-loaded', 'fixture-updated'));
+  const key = new Uint8Array(32).fill(11);
+  const oldEvent = signedFixture(1_800_000_001, appId, originalHtml, ['theme'], key);
+  const newEvent = signedFixture(1_800_000_002, appId, updatedHtml, ['theme'], key);
+  const link = naddrEncode({ kind: 35129, pubkey: oldEvent.pubkey, identifier: appId });
+  const calls: string[] = [];
+  let epoch = 1, latest = oldEvent;
+  const service = createPublishedSessionCoordinator({ database, sqlite, native: native(calls),
+    newInstanceId: (() => { let next = 0; return () => `00000000-0000-4000-8000-${String(++next).padStart(12, '0')}`; })(),
+    lookupRelays: () => ['wss://relay.example.org'],
+    identity: { sessionAuthority: () => ({ user: USER, epoch, assertActive: () => { if (epoch !== 1) throw new Error('stale'); } }),
+      getSnapshot: () => ({ session: { epoch } }) } as PublishedSessionDependencies['identity'],
+    source: { query: async (_coordinate, _relays, pinned) => pinned === oldEvent.id ? [oldEvent] : [latest],
+      readHtml: async hash => new Uint8Array(hash === oldEvent.tags[1]![2] ? originalHtml : updatedHtml) },
+  });
+  const opened = await service.openLink(link, new AbortController().signal, async () => true);
+  const count = calls.length;
+  latest = newEvent;
+  await assert.rejects(service.prepareUpdate(opened.descriptor, new AbortController().signal,
+    async request => { assert.equal(request.nextEventId, newEvent.id); return false; }, async () => true));
+  assert.equal(calls.length, count);
+  const updated = await service.prepareUpdate(opened.descriptor, new AbortController().signal,
+    async request => { assert.equal(request.previousEventId, oldEvent.id); return true; }, async () => {
+      assert.fail('unchanged capability grant must not be reviewed again');
+    });
+  assert(updated);
+  assert.equal(updated.descriptor.eventId, newEvent.id);
+  assert.notEqual(updated.descriptor.id, opened.descriptor.id);
+  assert.notEqual(updated.descriptor.version, opened.descriptor.version);
+  opened.revoke();
+  assert.equal(await service.prepareUpdate(updated.descriptor, new AbortController().signal,
+    async () => { assert.fail('same event is not an update'); }, async () => true), null);
+  latest = oldEvent;
+  await assert.rejects(service.prepareUpdate(updated.descriptor, new AbortController().signal,
+    async () => { assert.fail('rollback cannot be reviewed'); }, async () => true));
+  updated.revoke();
+  epoch++;
+});
+
+test('accepted runtime update consumes a new native session at the old workspace position', async t => {
+  const { database, sqlite } = await setup(t);
+  const appId = 'workspace-update-test', key = new Uint8Array(32).fill(19);
+  const firstHtml = getEmbeddedTestHtmlBytes();
+  const secondHtml = new TextEncoder().encode(new TextDecoder().decode(firstHtml).replace('fixture-loaded', 'new-version-loaded'));
+  const firstEvent = signedFixture(1_800_000_010, appId, firstHtml, ['theme'], key);
+  const secondEvent = signedFixture(1_800_000_011, appId, secondHtml, ['theme'], key);
+  let latest = firstEvent, workspace = emptyWorkspace();
+  const identity = {
+    sessionAuthority: () => ({ user: USER, epoch: 1, assertActive: () => undefined }),
+    getSnapshot: () => ({ session: { epoch: 1, workspace: { getSnapshot: () => ({ workspace, error: null }) } } }),
+  } as unknown as Pick<IdentityTransition, 'sessionAuthority' | 'getSnapshot'>;
+  const calls: string[] = [];
+  const leases = Object.assign(new NativeLeases(), native(calls));
+  const owner = createRuntimeOwner(database, identity, leases, undefined, { sqlite, native: leases,
+    lookupRelays: () => ['wss://relay.example.org'],
+    source: { query: async () => [latest], readHtml: async hash =>
+      new Uint8Array(hash === firstEvent.tags[1]![2] ? firstHtml : secondHtml) },
+  });
+  const link = naddrEncode({ kind: 35129, pubkey: firstEvent.pubkey, identifier: appId });
+  const first = await owner.openPublishedLink(link, new AbortController().signal, async () => true);
+  workspace = openNapplet(workspace, first);
+  const firstBinding = await owner.openPublished(first, new AbortController().signal, async () => true);
+  latest = secondEvent;
+  const next = await owner.preparePublishedUpdate(first, new AbortController().signal,
+    async request => { assert.equal(request.nextEventId, secondEvent.id); return true; },
+    async () => { assert.fail('unchanged grant must not prompt'); });
+  assert(next);
+  workspace = replacePublishedNapplet(workspace, first.id, next);
+  owner.discardPublished(first.id);
+  const secondBinding = await owner.openPublished(next, new AbortController().signal, async () => {
+    assert.fail('prepared update must not reopen');
+  });
+  assert.equal(workspace.sessions[0]!.id, next.id);
+  assert.equal(workspace.focusedId, next.id);
+  assert.equal(JSON.parse(secondBinding.publishedArtifact).eventId, secondEvent.id);
+  assert(calls.includes(`revoke:${first.id}`));
+  firstBinding.revoke(); secondBinding.revoke();
 });
