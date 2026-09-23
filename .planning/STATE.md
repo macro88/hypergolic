@@ -127,10 +127,12 @@ No source push or remote change. Continue only after the user authorizes it.
 
 Published verification and relay-settings continuation (2026-09-23): kind-35129
 coordinate resolution, signed manifest/HTML verification, exact event pinning,
-bounded relay/Blossom transport ports and first-run/editable native relay settings
-are in integration review. A safe native HTTPS/relay port, first-open consent,
-native artifact registry, update flow, both-platform published execution and
-native relay-settings UI journeys remain open. Android and iOS JavaScript exports,
-40 focused tests, TypeScript, React Doctor 100 and aislop 100 pass at this
-uncommitted checkpoint. Usage at the latest check: 51% consumed / 49% remaining;
-the user-requested pause is at 70% consumed. No source push or remote change.
+bounded transport interfaces and first-run/editable native relay settings were
+saved locally as commit `73ac78c`. Android and iOS JavaScript exports, 40 focused
+tests, TypeScript, React Doctor 100 and aislop 100 pass. Standalone Android/iOS
+native artifact registries then passed 70/36 owning checks and compiled in normal
+Release builds, but are not wired to the app or hosts. Safe native HTTPS/relay
+ports, first-open consent, host byte handoff, update flow, both-platform
+published execution and native relay-settings UI journeys remain open. Latest
+usage check: 52% consumed / 48% remaining; the user-requested pause is at 70%
+consumed. No source push or remote change.

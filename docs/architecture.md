@@ -32,8 +32,9 @@ journey; iOS passes native review/rejection with a public-identity Simulator fix
 Physical iOS signing and the full acceptance audit remain open. Published napplet
 link, manifest and HTML verification exist as a pre-execution gate; app entry,
 safe HTTPS retrieval, native artifact handoff, consent and published execution
-remain open. Inactive
-identity deletion now has a shared review and an Android system-PIN journey; iOS
+remain open. Standalone native byte registries compile on both platforms but are
+not yet wired into either host. Inactive identity deletion now has a shared
+review and an Android system-PIN journey; iOS
 action acceptance still requires a physical device.
 The supplied logo is visible in the native header. Native journeys, boundary
 probes and their limits are recorded separately; full v1 acceptance remains open.

@@ -28,8 +28,8 @@ shows an unavailable state and denies new signing requests before key use.
 
 ## Remaining for 02-05 and v1
 
-There is no app-entry link flow, first-open publisher/access consent, native
-verified-byte registry, published WebView execution, trusted cache, pinned
+There is no app-entry link flow, first-open publisher/access consent, wired native
+verified-byte handoff, published WebView execution, trusted cache, pinned
 restart recovery, explicit update UI, or native settings journey yet. The
 transport still needs platform network ports with bounded relay frames and
 connection-time public-IP checks. The native handoff must transfer at most 2 MiB
@@ -37,3 +37,8 @@ without putting HTML, paths or URLs in React view props, then check the original
 bytes again before host CSP and namespace injection. Android and iOS published
 journeys and update/recovery drivers remain open. Do not mark LOAD-01 through
 LOAD-03 or RELAY-02 complete from these unit tests or bundle exports.
+
+The standalone Android/iOS native registry cores now check byte/hash/session
+claims and one-use replay. Their owning proofs pass 70 and 36 checks respectively;
+the normal Android and iOS Release builds compile the new source. This is native
+core and packaging evidence only: no module/view calls the registries yet.
