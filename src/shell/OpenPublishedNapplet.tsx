@@ -19,7 +19,7 @@ export function OpenPublishedNapplet({ open }: { open: SettingsActions['openPubl
     setReview(null);
   };
   const start = () => {
-    if (busy || !link.trim()) return;
+    if (busy || pending.current || !link.trim()) return;
     Keyboard.dismiss();
     const controller = new AbortController();
     pending.current = controller;
