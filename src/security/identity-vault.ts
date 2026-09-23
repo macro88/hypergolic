@@ -1,18 +1,10 @@
-/** Native-only vault state machine. No crypto/storage implementation or fallback. */
-export const MAX_IDENTITIES = 16;
-export type Identity = Readonly<{ pubkey: string; addedAt: number; origin: 'generated' | 'imported' }>;
-export type Inventory = Readonly<{
-  schema: 1; vaultId: string; revision: number; initialized: boolean;
-  selectedPubkey: string | null; identities: readonly Identity[];
-}>;
-export type Pending = Readonly<
-  | { kind: 'initialize'; operationId: string; addedAt: number }
-  | { kind: 'import'; operationId: string; addedAt: number; pubkey: string }
-  | { kind: 'select' | 'delete'; operationId: string; pubkey: string }
->;
-export type DatabaseRecord = Readonly<{ revision: number; inventory: Inventory; pending: Pending | null }>;
-export type SecretRecord = { schema: 1; pubkey: string; secretKey: Uint8Array };
-export type StagedSecret = SecretRecord & { vaultId: string; kind: 'initialize' | 'import'; addedAt: number };
+import { validateSignedEvent, type VerifiedSignedEvent } from './signed-event.ts';
+import type { EventSnapshot } from './event-snapshot.ts';
+import type { EffectAuthority } from './approval-service.ts';
+import { database, fields, freezeInventory, integer, inventory, MAX_IDENTITIES, nextInventory, opaqueId, pubkey, record, same, sameSecret, VaultError, wipeReturned, type DatabaseRecord, type Inventory, type Pending, type SecretRecord, type StagedSecret, type VaultSnapshot } from './identity-vault-model.ts';
+export { MAX_IDENTITIES, VaultError } from './identity-vault-model.ts';
+export type { DatabaseRecord, Identity, Inventory, Pending, SecretRecord, StagedSecret, VaultErrorCode, VaultSnapshot } from './identity-vault-model.ts';
+
 /** Every read rejects on an I/O/decryption error. null means a successful absent read only. */
 export interface EncryptedSecrets {
   readInventory(): Promise<unknown | null>;
@@ -41,80 +33,7 @@ export interface VaultDependencies {
   /** Native owner authenticates exact target/selection/revision and supplies a revocable one-shot grant. */
   authorizeDeletion(request: Readonly<{ pubkey: string; selectedPubkey: string; revision: number }>): Promise<DeletionGrant>;
 }
-export type VaultErrorCode = 'INVALID_NSEC' | 'INVALID_SECRET' | 'CORRUPT_METADATA' | 'STORAGE_FAILURE'
-  | 'READBACK_FAILED' | 'RECOVERY_REQUIRED' | 'NOT_READY' | 'NOT_FOUND' | 'LIMIT_REACHED'
-  | 'DELETE_SELECTED' | 'AUTHORIZATION_DENIED' | 'PENDING_DELETION';
-export class VaultError extends Error {
-  readonly code: VaultErrorCode;
-  constructor(code: VaultErrorCode, reason: string = code) { super(reason); this.name = 'VaultError'; this.code = code; }
-}
-export type VaultSnapshot = Readonly<{
-  vaultId: string; revision: number; selectedPubkey: string;
-  identities: readonly (Identity & { status: 'active' | 'deleting' })[];
-  pendingDeletion: string | null;
-}>;
-function sameSecret(left: Uint8Array, right: Uint8Array): boolean {
-  return left.length === right.length && left.every((byte, index) => byte === right[index]);
-}
-const HEX = /^[0-9a-f]{64}$/;
-const own = (v: object, k: string) => Object.prototype.hasOwnProperty.call(v, k);
-function record(v: unknown): Record<string, unknown> {
-  if (typeof v !== 'object' || v === null || Array.isArray(v) || Object.getPrototypeOf(v) !== Object.prototype) throw new VaultError('CORRUPT_METADATA');
-  if (Object.values(Object.getOwnPropertyDescriptors(v)).some(d => !own(d, 'value'))) throw new VaultError('CORRUPT_METADATA');
-  return v as Record<string, unknown>;
-}
-function fields(v: Record<string, unknown>, keys: string[]): void {
-  if (Object.keys(v).length !== keys.length || keys.some(k => !own(v, k))) throw new VaultError('CORRUPT_METADATA');
-}
-function integer(v: unknown): v is number { return typeof v === 'number' && Number.isSafeInteger(v) && v >= 0; }
-function pubkey(v: unknown): v is string { return typeof v === 'string' && HEX.test(v); }
-function opaqueId(v: unknown): v is string { return typeof v === 'string' && /^[A-Za-z0-9_-]{16,80}$/.test(v); }
-function wipeReturned(value: unknown): void {
-  if (typeof value === 'object' && value !== null) {
-    const descriptor = Object.getOwnPropertyDescriptor(value, 'secretKey');
-    if (descriptor?.value instanceof Uint8Array) descriptor.value.fill(0);
-  }
-}
-function same(a: unknown, b: unknown): boolean { return JSON.stringify(a) === JSON.stringify(b); }
-function freezeInventory(v: Inventory): Inventory {
-  return Object.freeze({ ...v, identities: Object.freeze(v.identities.map(i => Object.freeze({ ...i }))) });
-}
-function inventory(v: unknown): Inventory {
-  const x = record(v); fields(x, ['schema', 'vaultId', 'revision', 'initialized', 'selectedPubkey', 'identities']);
-  if (x.schema !== 1 || !opaqueId(x.vaultId) || !integer(x.revision) || typeof x.initialized !== 'boolean' || !Array.isArray(x.identities) || x.identities.length > MAX_IDENTITIES) throw new VaultError('CORRUPT_METADATA');
-  const identities: Identity[] = x.identities.map(item => {
-    const i = record(item); fields(i, ['pubkey', 'addedAt', 'origin']);
-    if (!pubkey(i.pubkey) || !integer(i.addedAt) || !['generated', 'imported'].includes(String(i.origin))) throw new VaultError('CORRUPT_METADATA');
-    return { pubkey: i.pubkey, addedAt: i.addedAt, origin: i.origin as Identity['origin'] };
-  });
-  if (new Set(identities.map(i => i.pubkey)).size !== identities.length) throw new VaultError('CORRUPT_METADATA');
-  if (x.initialized ? (!pubkey(x.selectedPubkey) || !identities.some(i => i.pubkey === x.selectedPubkey) || x.revision < 1) : (identities.length !== 0 || x.selectedPubkey !== null || x.revision !== 0)) throw new VaultError('CORRUPT_METADATA');
-  return freezeInventory({ schema: 1, vaultId: x.vaultId, revision: x.revision, initialized: x.initialized, selectedPubkey: x.selectedPubkey as string | null, identities });
-}
-function pending(v: unknown): Pending | null {
-  if (v === null) return null;
-  const x = record(v);
-  const keys = x.kind === 'initialize' ? ['kind', 'operationId', 'addedAt'] : x.kind === 'import' ? ['kind', 'operationId', 'addedAt', 'pubkey'] : ['kind', 'operationId', 'pubkey'];
-  fields(x, keys);
-  if (!['initialize', 'import', 'select', 'delete'].includes(String(x.kind)) || !opaqueId(x.operationId)) throw new VaultError('CORRUPT_METADATA');
-  if ((x.kind === 'initialize' || x.kind === 'import') && !integer(x.addedAt)) throw new VaultError('CORRUPT_METADATA');
-  if (x.kind !== 'initialize' && !pubkey(x.pubkey)) throw new VaultError('CORRUPT_METADATA');
-  return Object.freeze({ ...x }) as Pending;
-}
-function database(v: unknown): DatabaseRecord {
-  const x = record(v); fields(x, ['revision', 'inventory', 'pending']);
-  if (!integer(x.revision)) throw new VaultError('CORRUPT_METADATA');
-  const inv = inventory(x.inventory), p = pending(x.pending);
-  if (!inv.initialized && p?.kind !== 'initialize') throw new VaultError('CORRUPT_METADATA');
-  if (p?.kind === 'initialize' && inv.initialized) throw new VaultError('CORRUPT_METADATA');
-  if (p?.kind === 'import' && inv.identities.some(i => i.pubkey === p.pubkey)) throw new VaultError('CORRUPT_METADATA');
-  if (p && ['select', 'delete'].includes(p.kind) && (!inv.identities.some(i => i.pubkey === (p as { pubkey: string }).pubkey) || (p.kind === 'delete' && p.pubkey === inv.selectedPubkey))) throw new VaultError('CORRUPT_METADATA');
-  return Object.freeze({ revision: x.revision, inventory: inv, pending: p });
-}
-function nextInventory(base: Inventory, changes: Partial<Inventory>): Inventory {
-  if (base.revision >= Number.MAX_SAFE_INTEGER) throw new VaultError('CORRUPT_METADATA');
-  return inventory({ ...base, ...changes, revision: base.revision + 1 });
-}
+export type ApprovedEventSigner = (event: { kind: number; content: string; tags: string[][]; created_at: number }, secretKey: Uint8Array) => unknown;
 
 /** One native owner instance per process. Public operations are serialized. */
 export class IdentityVault {
@@ -122,6 +41,7 @@ export class IdentityVault {
   private tail: Promise<unknown> = Promise.resolve();
   private db: DatabaseRecord | null = null;
   private ready = false;
+  private readonly usedAuthorities = new WeakSet<object>();
   constructor(dependencies: VaultDependencies) { this.deps = dependencies; }
   private serial<T>(fn: () => Promise<T>): Promise<T> {
     const run = this.tail.then(fn);
@@ -184,6 +104,22 @@ export class IdentityVault {
     if (value === null) return null;
     try { fields(record(value), ['schema', 'pubkey', 'secretKey']); return this.secret(value, key); }
     finally { wipeReturned(value); }
+  }
+  private assertSigningAuthority(authority: { assertActive(): void }): void {
+    try { authority.assertActive(); } catch { throw new VaultError('AUTHORIZATION_DENIED'); }
+  }
+  private async verifySigningState(expected: VaultSnapshot, authority: { assertActive(): void }): Promise<void> {
+    this.assertSigningAuthority(authority);
+    const current = this.requireReady();
+    if (current.inventory.selectedPubkey !== expected.selectedPubkey || current.inventory.revision !== expected.revision || current.pending?.kind === 'delete') {
+      throw new VaultError('AUTHORIZATION_DENIED');
+    }
+    const [inventoryRead, databaseRead] = await Promise.all([this.deps.secrets.readInventory(), this.deps.database.read()]);
+    this.assertSigningAuthority(authority);
+    if (inventoryRead === null || databaseRead === null) throw new VaultError('RECOVERY_REQUIRED');
+    if (!same(inventory(inventoryRead), current.inventory) || !same(database(databaseRead), current)) {
+      throw new VaultError('CORRUPT_METADATA', 'Protected inventory and database disagree');
+    }
   }
   private async verifyKeys(inv: Inventory, except?: string): Promise<void> {
     const reads = inv.identities.map(async identity => {
@@ -390,6 +326,35 @@ export class IdentityVault {
     await this.writeDb(base, { kind: 'select', operationId: this.id(), pubkey: key });
     await this.commit(nextInventory(base, { selectedPubkey: key }));
     return this.snapshot();
+  }
+  /** Signs only an immutable, approved snapshot with the currently selected protected identity. */
+  async signApproved(snapshot: EventSnapshot, authority: EffectAuthority, signer: ApprovedEventSigner): Promise<VerifiedSignedEvent> {
+    const expected = this.snapshot();
+    return this.serial(() => this.guarded(async () => {
+      if (snapshot.event.kind === 22242 || snapshot.selectedPubkey !== expected.selectedPubkey || typeof signer !== 'function') throw new VaultError('AUTHORIZATION_DENIED');
+      this.assertSigningAuthority(authority);
+      if (this.usedAuthorities.has(authority)) throw new VaultError('AUTHORIZATION_DENIED');
+      this.usedAuthorities.add(authority);
+      let protectedSecret: SecretRecord | null = null;
+      try {
+        await this.verifySigningState(expected, authority);
+        protectedSecret = await this.readSecret(expected.selectedPubkey);
+        this.assertSigningAuthority(authority);
+        if (!protectedSecret) throw new VaultError('RECOVERY_REQUIRED', 'Selected identity secret is missing');
+        await this.verifySigningState(expected, authority);
+        const event = { kind: snapshot.event.kind, content: snapshot.event.content, tags: snapshot.event.tags.map(tag => [...tag]), created_at: snapshot.event.created_at };
+        this.assertSigningAuthority(authority);
+        const signingSecret = new Uint8Array(protectedSecret.secretKey);
+        let result: unknown;
+        try { result = signer(event, signingSecret); }
+        finally { signingSecret.fill(0); }
+        this.assertSigningAuthority(authority);
+        return validateSignedEvent(snapshot, result);
+      } catch (error) {
+        if (error instanceof VaultError) throw error;
+        throw new VaultError('STORAGE_FAILURE');
+      } finally { protectedSecret?.secretKey.fill(0); }
+    }));
   }
   /** Only inactive identities may be deleted; choose and validate a replacement first. */
   deleteIdentity(key: string, assertActive?: () => void): Promise<VaultSnapshot> { return this.serial(() => this.guarded(async () => {

@@ -43,10 +43,7 @@ public final class CapabilityLeaseRegistry {
   /** Snapshot is a complete JSON string constructed by the host from native registration and the original serialized request. */
   public synchronized String admit(String generation, long sequence, String snapshot) {
     prune();
-    Session session = sessions.get(generation);
-    if (session == null || sequence < 1 || sequence > MAX_SEQUENCE || sequence != session.sequence + 1) return null;
-    // Consume each observed transport sequence, including overloads, so a rejected request cannot be replayed later.
-    session.sequence = sequence;
+    if (!consumeSequence(generation, sequence)) return null;
     if (snapshot == null || snapshot.length() > MAX_BYTES || snapshot.getBytes(StandardCharsets.UTF_8).length > MAX_BYTES || requests.size() >= MAX_PENDING) return null;
     long ownPending = requests.values().stream().filter(request -> request.generation.equals(generation)).count();
     if (ownPending >= MAX_PER_SESSION) return null;
@@ -55,6 +52,13 @@ public final class CapabilityLeaseRegistry {
     String token = UUID.randomUUID().toString();
     requests.put(token, new Request(generation, snapshot, now + LIFETIME_MS));
     return token;
+  }
+  /** Shared counter for ordinary and approval lanes; rejection still consumes an observed sequence. */
+  public synchronized boolean consumeSequence(String generation, long sequence) {
+    Session session = sessions.get(generation);
+    if (session == null || sequence < 1 || sequence > MAX_SEQUENCE || sequence != session.sequence + 1) return false;
+    session.sequence = sequence;
+    return true;
   }
   public synchronized String take(String token) {
     prune();

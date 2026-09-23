@@ -60,6 +60,21 @@ test('delivery has two assets and the original fixture bytes plus original unsig
   }
 });
 
+test('Approval Lab fixture is byte-pinned and remains an unsigned catalog artifact', async () => {
+  const bytes = readFileSync('fixtures/approval-lab.html');
+  const sha256 = createHash('sha256').update(bytes).digest('hex');
+  const manifest = JSON.parse(readFileSync('fixtures/approval-lab-manifest.json', 'utf8'));
+  const aggregateHash = createHash('sha256').update(`${sha256} /index.html\n`).digest('hex');
+  expect(sha256).toBe('95c8360ae963c91f5c9a09e9f88eec06db46a810538394d6dc12ca587befaae1');
+  expect(aggregateHash).toBe('a3c2ec6e0cd8068d942866f80f622f21df53cc188f000bc2af6caf34126e6889');
+  expect(manifest.tags).toContainEqual(['path', '/index.html', sha256]);
+  expect(manifest.tags).toContainEqual(['x', aggregateHash, 'aggregate']);
+  expect(manifest.tags).toContainEqual(['requires', 'identity']);
+  expect(manifest.tags).toContainEqual(['requires', 'relay']);
+  expect(manifest).not.toHaveProperty('pubkey');
+  expect(manifest).not.toHaveProperty('sig');
+});
+
 test('real Kehto handshake and theme work with top-document DOM storage disabled', async ({ page }) => {
   const frame = await open(page);
   const result = await frame.evaluate(async () => {

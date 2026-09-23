@@ -12,5 +12,9 @@ export const BUNDLED_FIXTURES = Object.freeze({
     sha256: '2339e2ee738e73b089587c4a6a4ce88dc1d44a94d9b283e1f73ecf74442b8d98',
     aggregateHash: '6b77fa8c7a67cb6a1d7d44ba56944eccc6710f5ddf3c3c672b0a02b8f8b0158b',
     domains: Object.freeze(['identity', 'storage', 'theme']) }),
+  'approval-lab': Object.freeze({ title: 'Approval Lab', appId: 'approval-lab',
+    sha256: '95c8360ae963c91f5c9a09e9f88eec06db46a810538394d6dc12ca587befaae1',
+    aggregateHash: 'a3c2ec6e0cd8068d942866f80f622f21df53cc188f000bc2af6caf34126e6889',
+    domains: Object.freeze(['identity', 'relay', 'theme']), publishTimeoutMs: 660_000 }),
 });
 export type BundledFixture = keyof typeof BUNDLED_FIXTURES;

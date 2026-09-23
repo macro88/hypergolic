@@ -62,6 +62,7 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
   } });
   const supported = new Set(fixture!.domains);
   const storage = async ({ message, send }: HostOperationContext): Promise<void> => { send({ ...await native.request(message) }); };
+  const relayPublish = async ({ message, send }: HostOperationContext): Promise<void> => { send({ ...await native.request(message) }); };
   const identity = { descriptor: { name: 'identity', version: '1.0.0' },
     handleMessage(_windowId: string, message: NappletMessage, send: (message: NappletMessage) => void): void {
       const live = captureRecipient();
@@ -86,9 +87,11 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
     hotkeys: { executeHotkeyFromForward: unavailable },
     workerRelay: { getWorkerRelay: () => null },
     crypto: { verifyEvent: async () => false },
-    services: { theme: theme.handler, ...(supported.has('identity') ? { identity } : {}) },
-    ...(supported.has('storage') ? { operationOverrides: {
-      'storage.get': storage, 'storage.set': storage, 'storage.remove': storage, 'storage.keys': storage,
+    services: { theme: theme.handler, ...(supported.has('identity') ? { identity } : {}),
+      ...(supported.has('relay') ? { relay: { descriptor: { name: 'relay', version: '1.0.0' }, handleMessage: unavailable } } : {}) },
+    ...((supported.has('storage') || supported.has('relay')) ? { operationOverrides: {
+      ...(supported.has('storage') ? { 'storage.get': storage, 'storage.set': storage, 'storage.remove': storage, 'storage.keys': storage } : {}),
+      ...(supported.has('relay') ? { 'relay.publish': relayPublish } : {}),
     } } : {}),
     capabilities: {
       disabledDomains: ['relay', 'identity', 'storage', 'inc', 'keys', 'media', 'notify'].filter(domain => !supported.has(domain)),
@@ -110,13 +113,28 @@ function validEnvelope(value: unknown): boolean {
       && new TextEncoder().encode(JSON.stringify(value)).length <= 2 * 1024 * 1024; }
     catch { return false; }
   }
+  if (message.type === 'relay.publish') {
+    if (keys.length !== 3 || !keys.includes('id') || !keys.includes('event') ||
+        typeof message.id !== 'string' || message.id.length === 0 || message.id.length > 128) return false;
+    const event = message.event;
+    if (!event || typeof event !== 'object' || Array.isArray(event)) return false;
+    const eventKeys = Object.keys(event);
+    if (eventKeys.length !== 4 || !['kind', 'content', 'tags', 'created_at'].every(key => eventKeys.includes(key))) return false;
+    const template = event as Record<string, unknown>;
+    if (typeof template.kind !== 'number' || !Number.isSafeInteger(template.kind) || template.kind < 0 || template.kind > 65535 ||
+        typeof template.created_at !== 'number' || !Number.isSafeInteger(template.created_at) || template.created_at < 0 ||
+        typeof template.content !== 'string' || !Array.isArray(template.tags)) return false;
+    try { return new TextEncoder().encode(JSON.stringify(value)).length <= 2 * 1024 * 1024; }
+    catch { return false; }
+  }
   return message.type === 'theme.get' && keys.length === 2
     && typeof message.id === 'string' && message.id.length > 0 && message.id.length <= 128
     && keys.every(key => key === 'type' || key === 'id');
 }
 
 function mount(): void {
-  const native = createNativeClient(hostWindow.HypergolicHost!, sessionId);
+  const native = createNativeClient(hostWindow.HypergolicHost!, sessionId,
+    fixture?.publishTimeoutMs === undefined ? {} : { requestTimeoutsMs: { 'relay.publish': fixture.publishTimeoutMs } });
   const hooks = makeHooks(native, () => {
     const entry = bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId);
     return () => !stopped && entry !== undefined && bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId) === entry;
@@ -177,7 +195,10 @@ function mount(): void {
   window.addEventListener('message', receive);
   frame.addEventListener('load', loaded);
   window.addEventListener('pagehide', () => { stopped = true; cleanup?.(); }, { once: true });
-  frame.srcdoc = injectNappletNamespacePrelude(injectCsp(fixture!.html), environment.capabilities);
+  frame.srcdoc = injectNappletNamespacePrelude(injectCsp(fixture!.html), {
+    ...environment.capabilities,
+    ...(fixture!.publishTimeoutMs === undefined ? {} : { requestTimeoutsMs: { 'relay.publish': fixture!.publishTimeoutMs } }),
+  });
 }
 
 async function start(): Promise<void> {

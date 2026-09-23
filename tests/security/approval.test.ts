@@ -10,7 +10,7 @@ const origin = (sessionId: string, epoch = 1): ApprovalOrigin => Object.freeze({
 const deferred = <T>() => { let resolve!: (value: T) => void; const promise = new Promise<T>(done => { resolve = done; }); return { promise, resolve }; };
 type State = { live: boolean; approved: boolean };
 class Native implements NativeApprovalLeasePort {
-  states = new Map<NativeApprovalLease, State>(); tokens = new Map<string, NativeTakenApproval>(); cancelled = 0; finished = 0;
+  states = new Map<NativeApprovalLease, State>(); tokens = new Map<string, NativeTakenApproval>(); cancelled = 0; finished = 0; responses: (string | null)[] = [];
   issue(token: string, owner = origin(token), requestId = `wire-${token}`, request = event()) { const lease = {}; const taken = Object.freeze({ lease, origin: owner, requestId, event: request }); this.states.set(lease, { live: true, approved: false }); this.tokens.set(token, taken); return taken; }
   state(lease: NativeApprovalLease) { const value = this.states.get(lease); if (!value) throw new Error('unknown lease'); return value; }
   take(token: string) { const value = this.tokens.get(token) ?? null; this.tokens.delete(token); return value; }
@@ -19,7 +19,9 @@ class Native implements NativeApprovalLeasePort {
   approveOnce(lease: NativeApprovalLease) { const state = this.state(lease); if (!state.live || state.approved) return false; state.approved = true; return true; }
   isApproved(lease: NativeApprovalLease) { const state = this.state(lease); return state.live && state.approved; }
   cancel(lease: NativeApprovalLease) { this.cancelled++; this.state(lease).live = false; }
-  finish(_lease: NativeApprovalLease) { this.finished++; }
+  dismiss(lease: NativeApprovalLease) { this.cancel(lease); }
+  resume() {}
+  finish(lease: NativeApprovalLease, response: string | null = null) { this.finished++; this.responses.push(response); this.state(lease).live = false; }
 }
 function sign(snapshot: any) { return JSON.parse(JSON.stringify(finalizeEvent({ ...snapshot.event, tags: snapshot.event.tags.map((tag: string[]) => [...tag]) }, secret))); }
 function make(native: Native, effects: Partial<ApprovalEffects> = {}, owner = { assertActive: (_: ApprovalOrigin) => undefined }) {
@@ -101,4 +103,30 @@ test('subscriber, cleanup, and uncertain native approval failures fail closed', 
 test('native liveness errors prune presentation and token admission errors are denied', () => {
   const native = new Native(); native.issue('one'); const service = make(native); service.enqueue('one', [relay]); native.isLive = () => { throw new Error('native unavailable'); };
   service.refresh(); assert.equal(service.getSnapshot().pending, 0); native.take = () => { throw new Error('native unavailable'); }; assert.equal(service.enqueue('two', [relay]), false);
+});
+
+test('success finishes a still-approved lease with exact original correlation and never cancels first', async () => {
+  const native = new Native(); const taken = native.issue('one', origin('one'), 'guest-wire-id');
+  const original = native.finish.bind(native);
+  native.finish = (lease, response = null) => { assert.equal(native.isApproved(lease), true); original(lease, response); };
+  const service = make(native); await service.approve(current(service, 'one'));
+  const reply = JSON.parse(native.responses[0]!);
+  assert.equal(reply.type, 'relay.publish.result'); assert.equal(reply.id, taken.requestId);
+  assert.equal(reply.ok, true); assert.equal(reply.event.id, reply.eventId); assert.equal(native.cancelled, 0);
+});
+test('native capture must match the receiving trusted view before any review', () => {
+  const native = new Native(); native.issue('one'); const service = make(native);
+  assert.equal(service.enqueue('one', [relay], origin('different')), false);
+  assert.equal(native.cancelled, 1); assert.deepEqual(native.responses, [null]);
+});
+test('rejection continues to the next request, dismissal pauses, and terminal failure has no success body', async () => {
+  const native = new Native(); native.issue('first', origin('same')); native.issue('second', origin('same'));
+  const service = make(native); service.enqueue('first', [relay]); service.enqueue('second', [relay]); service.focus('same');
+  service.reject(service.getSnapshot().current!.id);
+  assert.equal(service.getSnapshot().reviewPaused, false); assert(service.getSnapshot().current);
+  assert.deepEqual(service.getSnapshot().pendingSessionIds, ['same']);
+  service.dismiss(service.getSnapshot().current!.id); assert.equal(service.getSnapshot().reviewPaused, true);
+  assert.deepEqual(native.responses, [null, null]);
+  native.issue('bad'); const failure = make(native, { sign: async () => { throw new Error('failure'); } });
+  await assert.rejects(failure.approve(current(failure, 'bad'))); assert.equal(native.responses.at(-1), null);
 });

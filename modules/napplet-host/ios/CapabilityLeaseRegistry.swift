@@ -34,21 +34,30 @@ final class CapabilityLeaseRegistry: @unchecked Sendable {
       requests = requests.filter { $0.value.generation != generation }
     }
   }
+  /// Consumes the next transport sequence without creating an ordinary 25-second lease.
+  /// Approval and ordinary capability requests share this exact replay boundary.
+  func consumeSequence(_ generation: String, sequence: UInt64) -> Bool {
+    lock.withLock { consumeSequenceLocked(generation, sequence: sequence) }
+  }
   /// Snapshot is complete JSON constructed by the host from native registration and the original serialized request.
   func admit(_ generation: String, sequence: UInt64, snapshot: String) -> String? {
     lock.withLock {
       prune()
-      guard var session = sessions[generation], sequence > 0,
-        sequence <= 9_007_199_254_740_991, sequence == session.sequence + 1 else { return nil }
-      // Overload consumes its transport sequence; a dropped request cannot become a later replay.
-      session.sequence = sequence
-      sessions[generation] = session
+      guard consumeSequenceLocked(generation, sequence: sequence) else { return nil }
       guard snapshot.utf8.count <= Self.maxBytes, requests.count < 8,
         requests.values.filter({ $0.generation == generation }).count < 4 else { return nil }
       let token = UUID().uuidString.lowercased()
       requests[token] = Request(generation: generation, snapshot: snapshot, expires: now().advanced(by: .seconds(25)))
       return token
     }
+  }
+  private func consumeSequenceLocked(_ generation: String, sequence: UInt64) -> Bool {
+    guard var session = sessions[generation], sequence > 0,
+      sequence <= 9_007_199_254_740_991, sequence == session.sequence + 1 else { return false }
+    // Overload consumes its transport sequence; a dropped request cannot become a later replay.
+    session.sequence = sequence
+    sessions[generation] = session
+    return true
   }
   func take(_ token: String) -> String? {
     lock.withLock {

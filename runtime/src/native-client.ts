@@ -6,8 +6,10 @@ export interface NativeHost {
   removeEventListener?(type: 'message', listener: (event: { data: unknown }) => void): void;
 }
 const maxBytes = 2 * 1024 * 1024;
+const ordinaryTimeoutMs = 27_000;
+type NativeClientOptions = Readonly<{ requestTimeoutsMs?: Readonly<Record<string, number>> }>;
 /** Trusted top document only. A response never selects its destination window. */
-export function createNativeClient(native: NativeHost, generation: string) {
+export function createNativeClient(native: NativeHost, generation: string, options: NativeClientOptions = {}) {
   let sequence = 0, disposed = false;
   const pending = new Map<number, { type: string; id: string; timer: number;
     resolve: (message: NappletMessage) => void; reject: () => void }>();
@@ -47,7 +49,8 @@ export function createNativeClient(native: NativeHost, generation: string) {
       sequence = counter;
       return new Promise((resolve, rejectPromise) => {
         const reject = (): void => rejectPromise(new Error('Native capability unavailable'));
-        const timer = window.setTimeout(() => { pending.delete(counter); reject(); }, 27_000);
+        const timeout = options.requestTimeoutsMs?.[message.type] ?? ordinaryTimeoutMs;
+        const timer = window.setTimeout(() => { pending.delete(counter); reject(); }, timeout);
         pending.set(counter, { type: message.type, id, timer, resolve, reject });
         try { native.postMessage(encoded); }
         catch { pending.delete(counter); window.clearTimeout(timer); reject(); }

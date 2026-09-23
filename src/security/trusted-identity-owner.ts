@@ -1,3 +1,9 @@
+import { finalizeEvent } from 'nostr-tools/pure';
+import { ApprovalService } from './approval-service';
+import { createApprovalOwner } from './approval-owner';
+import { loadNativeApprovalPort } from '../runtime/native-approval-port';
+import { publishEvent } from '../network/relay-service';
+import defaults from '../config/default-relays.json';
 import { Platform } from 'react-native';
 import { createRuntimeOwner, type RuntimeOwner } from '../runtime/runtime-owner';
 import { loadNativeCapabilityPort } from '../runtime/native-capability-port';
@@ -18,16 +24,26 @@ export interface TrustedIdentityOwner {
   readonly transition: IdentityTransition;
   readonly actions?: IdentityActions;
   readonly runtime?: RuntimeOwner;
+  readonly approvals?: ApprovalService;
   readonly formatNpub: typeof formatNpub;
 }
 export class WorkspaceStartupError extends Error {
   constructor() { super('Workspace could not be opened'); this.name = 'WorkspaceStartupError'; }
 }
-async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<{ transition: IdentityTransition; runtime: RuntimeOwner }> {
+async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<{ transition: IdentityTransition; runtime: RuntimeOwner; approvals: ApprovalService }> {
   const database = await openShellDatabase(SQLite, platform).catch(() => { throw new WorkspaceStartupError(); });
   try {
     const transition = await IdentityTransition.open({ vault, database, publicKeyFromNsec, seed: initialTestWorkspace, assertAvailable: assertBundledWorkspace });
-    return { transition, runtime: createRuntimeOwner(database, transition, loadNativeCapabilityPort()) };
+    const approvals = new ApprovalService(loadNativeApprovalPort(), createApprovalOwner(transition), {
+      sign: (snapshot, execution) => vault.signApproved(snapshot, execution, (event, secret) => {
+        const signed = finalizeEvent(event, secret);
+        return { id: signed.id, pubkey: signed.pubkey, created_at: signed.created_at, kind: signed.kind,
+          content: signed.content, tags: signed.tags, sig: signed.sig };
+      }),
+      publishEvent,
+    });
+    return { transition, approvals, runtime: createRuntimeOwner(database, transition, loadNativeCapabilityPort(),
+      { service: approvals, destinations: Object.freeze([...defaults.networkRelays]) }) };
   } catch {
     try { await database.close(); } catch { /* Preserve the workspace failure. */ }
     throw new WorkspaceStartupError();

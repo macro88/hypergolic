@@ -12,6 +12,7 @@ import { directionForHandle, type HandleSide } from './motion';
 import { adjacentNapplet, closeNapplet, focusNapplet, openNapplet, showOverview, type NappletDescriptor, type Workspace } from './workspace';
 import { colors } from './theme';
 import { RuntimeContext } from '../runtime/RuntimeContext';
+import { ReviewFocus } from './ReviewFocus';
 
 import { bundledDescriptor, initialTestWorkspace, type BundledVariant } from './fixtures';
 
@@ -173,6 +174,7 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
   const openBundledTest = () => openFixture('ux-lab');
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'right', 'bottom', 'left']}>
+      <ReviewFocus sessionId={workspace.focusedId} overview={workspace.overview} busy={busy} dragging={handleDragging} blocked={blocked} settings={settings} closing={closingId !== null} />
       <StatusBar barStyle="light-content" />
       <View accessibilityElementsHidden={settings || closingId !== null} importantForAccessibility={settings || closingId ? 'no-hide-descendants' : 'auto'} style={styles.screen}>
         <Header title={focused?.title ?? 'Hypergolic'} identity={identity} onSettings={openSettings} />

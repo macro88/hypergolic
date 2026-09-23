@@ -23,6 +23,10 @@ async function open(page: Page, fixture = 'state-lab') {
         state.requests.push({ envelope, request });
         const base = { type: request.type + '.result', id: request.id };
         if (request.type === 'identity.getPublicKey') { respond(envelope, {...base,pubkey:'1'.repeat(64)}); return; }
+        if (request.type === 'relay.publish') {
+          if (state.mode === 'hold') { state.held.push({ envelope, base }); return; }
+          respond(envelope, {...base,ok:true,event:{...request.event,id:'e'.repeat(64)},eventId:'e'.repeat(64)}); return;
+        }
         if (state.mode === 'hold') { state.held.push({ envelope, base }); return; }
         if (state.mode === 'deny') { respond(envelope, null); return; }
         if (state.mode === 'wrong-id') { respond(envelope, {...base,id:'forged',value:'must not arrive'}); return; }
@@ -108,4 +112,35 @@ test('the peer fixture uses its distinct verified app identity', async ({page}) 
   const result = await frame.evaluate(async () => ({supported:(window as any).napplet.shell.supports('storage'),title:document.title}));
   expect(result.supported).toBe(true);
   expect(result.title).toContain('Peer');
+});
+
+test('Approval Lab SDK artifact admits only the unsigned publish template and routes it through the native override', async ({page}) => {
+  const frame = await open(page, 'approval-lab');
+  const ui = page.frameLocator('#napplet');
+  await ui.locator('#content').fill('approved note');
+  await ui.locator('#send').click();
+  await expect(ui.locator('#status')).toHaveText('Request 1 published.');
+  const requests = await page.evaluate(() => (window as any).nativeTest.requests.filter((entry:any) => entry.request.type === 'relay.publish'));
+  expect(requests).toHaveLength(1);
+  expect(requests[0].request.event).toEqual({
+    kind: 1,
+    content: 'approved note',
+    tags: [['t', 'hypergolic-approval-lab'], ['test-sequence', '1']],
+    created_at: expect.any(Number),
+  });
+  expect(requests[0].request.event).not.toHaveProperty('pubkey');
+  expect(requests[0].request.event).not.toHaveProperty('id');
+  expect(requests[0].request.event).not.toHaveProperty('sig');
+});
+
+test('Approval Lab SDK publication remains pending past the ordinary native 27-second bridge deadline', async ({page}) => {
+  await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
+  const frame = await open(page, 'approval-lab');
+  await page.evaluate(() => { (window as any).nativeTest.mode = 'hold'; });
+  const ui = page.frameLocator('#napplet');
+  await ui.locator('#content').fill('delayed approval');
+  await ui.locator('#send').click();
+  await expect.poll(() => page.evaluate(() => (window as any).nativeTest.held.length)).toBe(1);
+  await page.clock.fastForward(28_000);
+  await expect(ui.locator('#status')).toHaveText('Request 1 captured and sent to the shell.');
 });

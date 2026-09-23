@@ -4,9 +4,10 @@ import { ShellStorageError } from '../storage/ports.ts';
 import type { NappletDescriptor } from '../shell/workspace.ts';
 import { bundledDescriptor, resolveBundledSession, type BundledVariant } from '../shell/fixtures.ts';
 import { createCapabilityBroker, type NativeCapabilityPort } from './capability-broker.ts';
+import type { ApprovalService } from '../security/approval-service.ts';
 import { identifier } from '../storage/codec.ts';
 
-export interface NativeCapabilityEvent { type: 'capability'; sessionId: string; generation: string; token: string }
+export interface NativeCapabilityEvent { type: 'capability'; sessionId: string; generation: string; token: string; lane?: 'approval' }
 export interface RuntimeBinding { readonly configuration: string; receive(event: NativeCapabilityEvent): void; revoke(): void }
 export interface RuntimeNativePort extends NativeCapabilityPort { newInstanceId(): string }
 export interface RuntimeOwner {
@@ -15,7 +16,8 @@ export interface RuntimeOwner {
 }
 /** The process-owned database and identity authority remain outside React/WebView props. */
 export function createRuntimeOwner(database: ShellDatabase,
-  identity: Pick<IdentityTransition, 'getSnapshot' | 'sessionAuthority'>, native: RuntimeNativePort): RuntimeOwner {
+  identity: Pick<IdentityTransition, 'getSnapshot' | 'sessionAuthority'>, native: RuntimeNativePort,
+  approvals?: Readonly<{ service: ApprovalService; destinations: readonly string[] }>): RuntimeOwner {
   return Object.freeze({
     descriptor(variant: Exclude<BundledVariant, 'ux-lab'>, number: number): NappletDescriptor {
       const instance = native.newInstanceId();
@@ -41,7 +43,7 @@ export function createRuntimeOwner(database: ShellDatabase,
     };
     assertActive();
     return Object.freeze({ configuration: JSON.stringify(configuration),
-      revoke(): void { revoked = true; broker?.revoke(); },
+      revoke(): void { revoked = true; broker?.revoke(); approvals?.service.close(descriptor.id); },
       receive(event: NativeCapabilityEvent): void {
         try {
           assertActive();
@@ -52,7 +54,10 @@ export function createRuntimeOwner(database: ShellDatabase,
             broker = createCapabilityBroker(database, native, { registration: { ...configuration, generation }, assertActive });
           }
           if (event.generation !== generation) return;
-          void broker!.dispatch(event.token);
+          if (event.lane === 'approval') {
+            if (!configuration.domains.includes('relay')) return;
+            approvals?.service.enqueue(event.token, approvals.destinations, { ...configuration, generation });
+          } else if (event.lane === undefined) void broker!.dispatch(event.token);
         } catch { /* Native expiry or teardown ends unclaimed requests; no new owner is chosen. */ }
       },
     });

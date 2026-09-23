@@ -10,6 +10,7 @@ internal class CapabilityConfiguration(raw: String, generation: String) {
   val snapshot: String
   val sessionId: String
   val fixture: String
+  val allowsRelay: Boolean
   init {
     require(raw.toByteArray(Charsets.UTF_8).size <= 8192)
     val value = JSONObject(raw)
@@ -28,9 +29,11 @@ internal class CapabilityConfiguration(raw: String, generation: String) {
     val expected = when (fixture) {
       "ux-lab" -> setOf("theme")
       "state-lab", "state-lab-peer" -> setOf("identity", "storage", "theme")
+      "approval-lab" -> setOf("identity", "relay", "theme")
       else -> error("Unknown bundled fixture")
     }
     require(granted.toSet() == expected)
+    allowsRelay = "relay" in granted
     sessionId = string("sessionId")
     value.put("generation", generation)
     snapshot = value.toString()

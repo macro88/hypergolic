@@ -237,10 +237,19 @@ class IdentityBackupPinTimeout(IdentityBackup):
                    and 'use pin' in (node.get('text', '') + ' ' + node.get('content-desc', '')).casefold()]
         if len(choices) != 1: raise RuntimeError('Expected one actual system PIN fallback control')
         self.tap(choices[0], 'system-use-pin')
-        _, pin_rows = self.driver.wait(lambda nodes: any(node.get('package') == 'com.android.systemui' and node.get('password') == 'true' for node in nodes),
-                                       'actual system PIN entry')
-        if not any(node.get('package') == 'com.android.systemui' and node.get('password') == 'true' for node in pin_rows):
-            raise RuntimeError('System PIN entry was not visible')
+        # The credential screen is owned entirely by System UI, so the base
+        # application's hierarchy guard intentionally cannot observe this step.
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            self.driver.adb_run('shell', 'uiautomator', 'dump', '/sdcard/hypergolic-backup-pin.xml')
+            xml = self.driver.adb_run('exec-out', 'cat', '/sdcard/hypergolic-backup-pin.xml', binary=True)
+            pin_rows = [node for node in parse_nodes(xml) if node.get('package') == 'com.android.systemui'
+                        and node.get('password') == 'true' and node.get('enabled') == 'true']
+            if len(pin_rows) == 1:
+                node_bounds(pin_rows[0])
+                return
+            time.sleep(0.2)
+        raise RuntimeError('Expected one actual System UI PIN field after the owned backup prompt')
 
     def run(self):
         if self.package != 'org.nostrocket.hypergolic.identityfixture': raise RuntimeError('Requires isolated identity fixture')

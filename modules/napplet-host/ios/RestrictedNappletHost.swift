@@ -51,6 +51,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
 
   func setActive(_ isActive: Bool) {
     active = isActive
+    if configuration != nil { ApprovalTransport.setFocused(generation, active: isActive) }
     // Dismiss only this retained view's editor. Do not reload, inject script,
     // or send a global resign-first-responder action affecting another napplet.
     if !isActive { webView?.endEditing(true) }
@@ -83,6 +84,12 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       if let configuration {
         components.queryItems?.append(URLQueryItem(name: "fixture", value: configuration.fixture))
         guard CapabilityTransport.leases.register(generation) else { fail("capability-unavailable"); return }
+        guard ApprovalTransport.register(generation) else {
+          CapabilityTransport.leases.revoke(generation)
+          fail("capability-unavailable"); return
+        }
+        // React props may set focus before configuration; replay the current native view state.
+        ApprovalTransport.setFocused(generation, active: active)
       }
       guard let url = components.url else { fail("invalid-session"); return }
       expectedURL = url
@@ -288,6 +295,15 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       guard let bytes = try? JSONSerialization.data(withJSONObject: result) else { reply(nil, "Capability rejected"); return }
       reply(String(decoding: bytes, as: UTF8.self), nil)
     }
+    let approval = configuration.approvalWireId(message)
+    if approval.recognized {
+      guard CapabilityTransport.leases.consumeSequence(generation, sequence: counter),
+        let token = ApprovalTransport.admit(generation, snapshot: snapshot,
+          wireId: approval.wireId, reply: respond) else { respond(nil); return }
+      onEvent?(["type": "capability", "sessionId": configuration.sessionId,
+        "generation": generation, "token": token, "lane": "approval"])
+      return
+    }
     guard let token = CapabilityTransport.admit(generation, sequence: counter, snapshot: snapshot, reply: respond) else {
       respond(nil); return
     }
@@ -303,6 +319,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   private func fail(_ code: String) {
     guard !disposed else { return }
     live = false
+    ApprovalTransport.revoke(generation)
     CapabilityTransport.leases.revoke(generation)
     emit("error", code: code)
     destroySession()
@@ -312,6 +329,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     guard !disposed else { return }
     disposed = true
     live = false
+    ApprovalTransport.revoke(generation)
     CapabilityTransport.revoke(generation)
     deadline?.cancel()
     deadline = nil

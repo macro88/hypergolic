@@ -6,6 +6,7 @@ struct CapabilityConfiguration {
   let snapshot: String
   let sessionId: String
   let fixture: String
+  let domains: Set<String>
   init(_ raw: String, generation: String) throws {
     enum Invalid: Error { case configuration }
     guard raw.utf8.count <= 8192, let bytes = raw.data(using: .utf8),
@@ -28,6 +29,7 @@ struct CapabilityConfiguration {
     switch fixture {
     case "ux-lab": expected = ["theme"]
     case "state-lab", "state-lab-peer": expected = ["identity", "storage", "theme"]
+    case "approval-lab": expected = ["identity", "relay", "theme"]
     default: throw Invalid.configuration
     }
     guard Set(domains) == expected else { throw Invalid.configuration }
@@ -35,10 +37,19 @@ struct CapabilityConfiguration {
     self.snapshot = String(decoding: try JSONSerialization.data(withJSONObject: value), as: UTF8.self)
     self.sessionId = sessionId
     self.fixture = fixture
+    self.domains = expected
   }
   func request(_ message: String) throws -> String {
     let value = ["registration": try JSONSerialization.jsonObject(with: Data(snapshot.utf8)), "request": message] as [String: Any]
     return String(decoding: try JSONSerialization.data(withJSONObject: value), as: UTF8.self)
+  }
+  /// Recognition is deliberately narrow. Event validation and signing remain outside this transport.
+  func approvalWireId(_ message: String) -> (recognized: Bool, wireId: String?) {
+    guard domains.contains("relay"), let data = message.data(using: .utf8),
+      let value = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+      value["type"] as? String == "relay.publish" else { return (false, nil) }
+    guard let id = value["id"] as? String, (1...128).contains(id.utf8.count) else { return (true, nil) }
+    return (true, id)
   }
 }
 

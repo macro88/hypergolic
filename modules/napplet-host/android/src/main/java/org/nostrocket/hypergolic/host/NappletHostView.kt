@@ -32,6 +32,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   private var loaded = false
   private var ready = false
   private var disposed = false
+  private var active = false
   private var expectedUrl: String? = null
   private val webView = WebView(context)
   private val assetLoader = WebViewAssetLoader.Builder()
@@ -135,6 +136,8 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
 
   fun setActive(active: Boolean) {
     if (disposed) return
+    this.active = active
+    ApprovalTransport.focus(generation, active)
     webView.importantForAccessibility = if (active) View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
       else View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
     if (active || !webView.hasFocus()) return
@@ -165,7 +168,18 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if ((number !is Int && number !is Long) || data.get("message") !is String) return
     val sequence = (number as Number).toLong()
     if (sequence !in 1..9_007_199_254_740_991L) return
-    val token = CapabilityTransport.admit(generation, sequence, config.request(data.getString("message")), reply)
+    val message = data.getString("message")
+    val request = runCatching { JSONObject(message) }.getOrNull()
+    if (request?.optString("type") == "relay.publish") {
+      if (!CapabilityTransport.leases.consumeSequence(generation, sequence)) { reply(null); return }
+      val id = request.opt("id") as? String
+      if (!config.allowsRelay || id == null || id.isEmpty() || id.toByteArray(Charsets.UTF_8).size > 128) { reply(null); return }
+      val approval = ApprovalTransport.admit(generation, config.request(message), id, reply)
+      if (approval == null) { reply(null); return }
+      onHostEvent(mapOf("type" to "capability", "lane" to "approval", "sessionId" to config.sessionId, "generation" to generation, "token" to approval))
+      return
+    }
+    val token = CapabilityTransport.admit(generation, sequence, config.request(message), reply)
     if (token == null) { reply(null); return }
     onHostEvent(mapOf("type" to "capability", "sessionId" to config.sessionId, "generation" to generation, "token" to token))
   }
@@ -180,6 +194,8 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
       fail("webview-update-required"); return
     }
     if (configuration != null && !CapabilityTransport.leases.register(generation)) { fail("capability-unavailable"); return }
+    if (configuration != null && !ApprovalTransport.register(generation)) { fail("approval-unavailable"); return }
+    ApprovalTransport.focus(generation, active)
     live = true
     expectedUrl = "$ORIGIN/assets/runtime/index.html?sessionId=$generation"
     configuration?.let { expectedUrl += "&fixture=" + it.fixture }
@@ -195,6 +211,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   private fun fail(code: String) {
     if (disposed) return
     live = false
+    ApprovalTransport.revoke(generation)
     CapabilityTransport.leases.revoke(generation)
     emit("error", code)
     destroySession()
@@ -203,6 +220,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (disposed) return
     disposed = true
     live = false
+    ApprovalTransport.revoke(generation)
     CapabilityTransport.revoke(generation)
     if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
       WebViewCompat.removeWebMessageListener(webView, "HypergolicHost")

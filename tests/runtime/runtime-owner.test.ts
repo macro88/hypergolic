@@ -6,6 +6,7 @@ import { setup, deferred } from '../storage/harness.ts';
 import { bundledDescriptor, assertBundledWorkspace, resolveBundledSession } from '../../src/shell/fixtures.ts';
 import { emptyWorkspace, openNapplet, closeNapplet, focusNapplet } from '../../src/shell/workspace.ts';
 import { createRuntimeOwner, type RuntimeBinding } from '../../src/runtime/runtime-owner.ts';
+import { createApprovalOwner } from '../../src/security/approval-owner.ts';
 import type { NativeRegistration } from '../../src/runtime/capability-protocol.ts';
 import { NativeLeases } from './native-leases.ts';
 
@@ -109,4 +110,23 @@ test('new openings get distinct native instance IDs even when display numbers ar
   workspace.change(closeNapplet(workspace.getSnapshot().workspace,first.id)); await workspace.flush();
   workspace.change(openNapplet(workspace.getSnapshot().workspace,second)); await workspace.flush();
   assert.equal((await h.invoke(reopenedOwner.open(second),{type:'storage.get',key:'sample',scope:'instance'}) as {value:unknown}).value,null);
+});
+
+
+test('approval owner accepts the resolved native catalogue tuple and revokes changed ownership', async t => {
+  const h = await start(t), approval = h.owner.descriptor('approval-lab', 5);
+  const workspace = h.transition.getSnapshot().session.workspace;
+  workspace.change(openNapplet(workspace.getSnapshot().workspace, approval)); await workspace.flush();
+  const origin = { ...JSON.parse(h.owner.open(approval).configuration), generation: 'native-approval-generation' };
+  const owner = createApprovalOwner(h.transition);
+  assert.notEqual(approval.publisher, origin.publisher);
+  assert.doesNotThrow(() => owner.assertActive(origin));
+  for (const patch of [{ publisher: approval.publisher }, { instanceId: 'different-instance' },
+    { sessionId: 'missing-session' }, { version: '00'.repeat(32) }, { user: pubkey(2) }, { epoch: origin.epoch + 1 }]) {
+    assert.throws(() => owner.assertActive({ ...origin, ...patch }));
+  }
+  const readOnly = { ...JSON.parse(h.owner.open(h.primary).configuration), generation: 'native-state-generation' };
+  assert.throws(() => owner.assertActive(readOnly));
+  workspace.change(closeNapplet(workspace.getSnapshot().workspace, approval.id));
+  assert.throws(() => owner.assertActive(origin)); await workspace.flush();
 });

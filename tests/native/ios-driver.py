@@ -31,6 +31,7 @@ SCENARIOS = {
     "trace-host": {"checks": EXPECTED_CHECKS, "kind": "hypergolic-ios-trace-v1", "test": "HostTraceTests/testHostTrace"},
     "switch-state": {"checks": {"seed-a", "seed-b-isolated", "edge-roundtrip-a", "two-column-overview", "overview-restore-b", "stop-at-last", "stop-at-first-and-restore-a"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testSwitchState"},
     "gestures": {"checks": {"vertical-content-scroll", "horizontal-content-scroll", "marker-selection", "scroll-and-selection-retained"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testGestures"},
+    "approval-review": {"checks": {"exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testApprovalReview"},
 }
 
 
@@ -141,7 +142,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--expected-title", default="UX Lab 1")
     parser.add_argument("--expected-session", default="ux-lab-1")
     parser.add_argument("--timeout", type=float, default=30)
-    parser.add_argument("scenario", choices=["identity-delete-unavailable", "state-close", "state-storage", "identity-switch", "workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "identity", "host-boundary", "renderer-loss"])
+    parser.add_argument("scenario", choices=["identity-delete-unavailable", "state-close", "state-storage", "identity-switch", "workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "approval-review", "identity", "host-boundary", "renderer-loss"])
     parser.add_argument("--output", type=Path, required=True, help="New private evidence directory, never overwritten")
     args = parser.parse_args(argv)
     if args.scenario not in SCENARIOS:

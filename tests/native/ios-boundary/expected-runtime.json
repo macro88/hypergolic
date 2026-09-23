@@ -1,16 +1,16 @@
 {
-  "coreSha256": "8ecc29253a31f886485d555d4ca70e6b83fb1a22ad4eedee79b0aadd37ce3b57",
+  "coreSha256": "5a7306f7c7212b71e927ae54363747154dc2583cab7fa023d7f28954535951ec",
   "assets": {
     "index.html": {
       "sha256": "f3cf66c64011a35dfede0b0e271f62ebe330c8962e51a730c08f86eda396765a",
       "bytes": 629
     },
     "host.js": {
-      "sha256": "0d0135f445ed5c595c34f3e42ee460b52f07f1165d5ab4fc9a39472f48041d23",
-      "bytes": 130051
+      "sha256": "3aa2d9c55fa8d7aa8807fbeea40868d3c6f1d30f8fff3530f3d7070b34937184",
+      "bytes": 142944
     }
   },
-  "manifestSha256": "a17d3d0e95c5d4dfb1c038c8c48b509c14e0b1d0f00dbac9f298641b647a38c3",
+  "manifestSha256": "ef4102347493fe155b10157f36c2a5217e6c210024d3286ce103c07488fcacfb",
   "fixture": {
     "dTag": "ux-lab",
     "sha256": "01ab63dbcdadab0b44fd6f3b9a6bcfbd98d8c1de1510f96c821d3efe1876909c",
@@ -18,8 +18,8 @@
     "provenance": "bundled-unsigned-fixture"
   },
   "wrapperSha256": "5189c4d39758970ca99fb8de5fd817862ec09b072b4fadb00e687edd5b114d71",
-  "leaseSha256": "ea576d463f83476c9077b8370ab6c70f15495faa1abc019e843e698b9ec2a34e",
-  "transportSha256": "0b49dfb203626a79e6a843629fd4937a69f57ef0736617a253c8bda8121d8347",
+  "leaseSha256": "3a00614a2144d0d6f0135c3b68c19830cb797e8b5f8cd64b741b7df82e284046",
+  "transportSha256": "8ccda07d692362380a1f643279ee5dddd56bfe403895b525c65462a989a5a89a",
   "fixtures": {
     "ux-lab": {
       "title": "UX Lab",
@@ -51,6 +51,20 @@
         "storage",
         "theme"
       ]
+    },
+    "approval-lab": {
+      "title": "Approval Lab",
+      "appId": "approval-lab",
+      "sha256": "95c8360ae963c91f5c9a09e9f88eec06db46a810538394d6dc12ca587befaae1",
+      "aggregateHash": "a3c2ec6e0cd8068d942866f80f622f21df53cc188f000bc2af6caf34126e6889",
+      "domains": [
+        "identity",
+        "relay",
+        "theme"
+      ],
+      "publishTimeoutMs": 660000
     }
-  }
+  },
+  "approvalAuthoritySha256": "fb7d946e3d7c1b27326084df090fbb4a64e120b34bbe73a2af46301cf3a6c7b0",
+  "approvalTransportSha256": "e3578aa5a7faf1e9fa4e28b8796ec5fe91737f66a9635d3c15347e463f2ad80e"
 }

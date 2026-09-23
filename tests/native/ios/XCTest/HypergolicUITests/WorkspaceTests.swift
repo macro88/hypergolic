@@ -22,6 +22,7 @@ final class WorkspaceTests: XCTestCase {
     "closing": ["seed-close-state", "gentle-overview-scroll", "rapid-swipe-warning", "keep-open-retains-state", "close-removes-only-target", "other-session-state-retained", "visible-close-controls", "quiet-empty-overview", "empty-settings-and-open"],
     "switch-state": ["seed-a", "seed-b-isolated", "edge-roundtrip-a", "two-column-overview", "overview-restore-b", "stop-at-last", "stop-at-first-and-restore-a"],
     "gestures": ["vertical-content-scroll", "horizontal-content-scroll", "marker-selection", "scroll-and-selection-retained"],
+    "approval-review": ["exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"],
   ]
 
   override func setUpWithError() throws {
@@ -212,6 +213,107 @@ final class WorkspaceTests: XCTestCase {
     record("state-identity-isolation", try selectedIdentity() == original, ["returnedValue": value, "npub": original])
     capture("state-identity-restored")
     complete = true
+  }
+
+  func testApprovalReview() throws {
+    let environment = ProcessInfo.processInfo.environment
+    guard environment["HG_TARGET_BUNDLE_ID"] == "org.nostrocket.hypergolic.approvalfixture" else {
+      throw Failure.invalid("Requires isolated public approval fixture")
+    }
+    guard let expectedTitle = environment["HG_EXPECTED_TITLE"], !expectedTitle.isEmpty else {
+      throw Failure.invalid("Missing expected Approval Lab title")
+    }
+    let fixture = try one(app.staticTexts.matching(identifier: "approval-fixture-label"), "public approval fixture label")
+    guard fixture.label == "Approval fixture · public scalar 2 · signing unavailable" else {
+      throw Failure.invalid("Fixture boundary label mismatch")
+    }
+    let selected = try selectedIdentity()
+    guard selected == "npub1ccz8l9zpa47k6vz9gphftsrumpw80rjt3nhnefat4symjhrsnmjs38mnyd" else {
+      throw Failure.invalid("Selected identity is not public scalar 2")
+    }
+    try identityPress("shell-settings")
+    let open = app.buttons.matching(identifier: "settings-open-approval-lab").firstMatch
+    try stateNativeReveal(open)
+    try identityPress("settings-open-approval-lab")
+    try until("Approval Lab native and SDK ready") {
+      guard self.currentTitle() == expectedTitle, let host = try? self.web() else { return false }
+      return host.staticTexts.matching(NSPredicate(format: "label == %@", "Identity connected")).count == 1
+        && host.staticTexts.matching(NSPredicate(format: "label == %@", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5")).count == 1
+    }
+
+    try approvalWebAction("Send note")
+    try approvalSheet()
+    let content = try one(app.staticTexts.matching(identifier: "approval-sheet-content"), "approval content")
+    let publisher = try one(app.staticTexts.matching(identifier: "approval-sheet-publisher"), "approval publisher")
+    let identity = try one(app.staticTexts.matching(identifier: "approval-sheet-identity"), "approval identity")
+    let relays = ["wss://relay.damus.io", "wss://nos.lol", "wss://bucket.coracle.social"]
+    let relayLabels = Set(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "wss://"))
+      .allElementsBoundByIndex.map(\.label))
+    let exactRelays = relayLabels == Set([relays.map { $0 + "/" }.joined(separator: "\n")])
+    record("exact-public-review", content.label == "Approval Lab test note"
+      && publisher.label == String(repeating: "f", count: 64) + "\nnpub1lllllllllllllllllllllllllllllllllllllllllllllllllllsq7lrjw"
+      && identity.label == selected && exactRelays
+      && app.buttons.matching(identifier: "approval-sheet-approve").firstMatch.exists,
+      ["content": content.label, "publisher": publisher.label, "identity": identity.label,
+       "destinations": relays, "renderedDestinations": Array(relayLabels), "approveTapped": false, "fixture": fixture.label])
+    capture("approval-exact-public-review")
+    try identityPress("approval-sheet-reject")
+    try until("SDK observes native rejection") { !self.approvalSheetVisible() && (try? self.approvalFailures()) == 1 }
+    record("reject-denies-sdk", true, ["failedRequests": 1, "publication": "not attempted"])
+
+    try approvalWebAction("Send 3 notes")
+    try approvalSheet()
+    try identityPress("approval-sheet-dismiss")
+    try until("Dismissal pauses the two remaining requests") {
+      !self.approvalSheetVisible() && self.app.buttons.matching(identifier: "approval-resume").firstMatch.isHittable
+        && (try? self.approvalFailures()) == 2
+    }
+    capture("approval-dismissed-paused-queue")
+    try identityPress("approval-resume")
+    for _ in 0..<2 {
+      try approvalSheet()
+      try identityPress("approval-sheet-reject")
+    }
+    try until("Approval queue drained") {
+      !self.approvalSheetVisible() && !self.app.buttons.matching(identifier: "approval-resume").firstMatch.exists
+        && (try? self.approvalFailures()) == 4
+    }
+    record("dismiss-pauses-queue", true, ["dismissedRequestDenied": true, "resumedRequestsRejected": 2, "failedRequests": 4])
+
+    try approvalWebAction("Send note")
+    try approvalSheet()
+    XCUIDevice.shared.press(.home)
+    try until("Approval fixture backgrounded") { self.app.state == .runningBackground || self.app.state == .runningBackgroundSuspended }
+    app.activate()
+    try until("Backgrounded approval waits for explicit resume") {
+      self.app.state == .runningForeground && !self.approvalSheetVisible()
+        && self.app.buttons.matching(identifier: "approval-resume").firstMatch.isHittable
+    }
+    capture("approval-background-paused")
+    record("background-preserves-pending", true, ["autoPrompt": false, "resumeRequired": true, "approveTapped": false])
+    try identityPress("approval-resume")
+    try approvalSheet()
+    try identityPress("approval-sheet-reject")
+    try until("Backgrounded request rejected after resume") { !self.approvalSheetVisible() && (try? self.approvalFailures()) == 5 }
+    complete = true
+  }
+
+  private func approvalWebAction(_ label: String) throws {
+    let host = try web()
+    let button = host.buttons.matching(NSPredicate(format: "label == %@", label)).firstMatch
+    try stateReveal(button, in: host)
+    try clearTap(button, within: host, name: "approval-" + label.lowercased().replacingOccurrences(of: " ", with: "-"))
+  }
+  private func approvalSheetVisible() -> Bool {
+    app.descendants(matching: .any).matching(identifier: "approval-sheet").firstMatch.exists
+  }
+  private func approvalSheet() throws {
+    try until("Native approval sheet") {
+      self.approvalSheetVisible() && self.app.buttons.matching(identifier: "approval-sheet-reject").firstMatch.isHittable
+    }
+  }
+  private func approvalFailures() throws -> Int {
+    try web().staticTexts.matching(NSPredicate(format: "label == %@", "Failed")).count
   }
   private func stateReady(_ id: String) throws {
     try until("State Lab native and SDK ready") {

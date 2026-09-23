@@ -127,14 +127,13 @@ function eventId(value: unknown): string {
   return typeof id === 'string' && /^[0-9a-f]{64}$/i.test(id) ? id : '';
 }
 
-async function issue(request: Request): Promise<void> {
+function issue(request: Request): void {
   timers.delete(request.sequence);
   if (disposed || request.epoch !== identityEpoch || !active(request)) return;
   request.state = 'sending';
   paint(request);
   updateControls();
-  try {
-    const result = await publishUnsigned(request.event);
+  void publishUnsigned(request.event).then((result) => {
     if (disposed || request.epoch !== identityEpoch || request.state !== 'sending') return;
     const id = eventId(result);
     if (!id) {
@@ -146,34 +145,34 @@ async function issue(request: Request): Promise<void> {
     request.state = 'published';
     paint(request, `Event ID ${id}`);
     element('status').textContent = `Request ${request.sequence} published.`;
-  } catch (error) {
+  }).catch((error) => {
     if (disposed || request.epoch !== identityEpoch || request.state !== 'sending') return;
     request.state = 'failed';
     const message = error instanceof Error ? error.message.slice(0, 240) : 'publication unavailable';
     paint(request, message);
     element('status').textContent = `Request ${request.sequence} failed. No automatic retry.`;
-  } finally {
+  }).finally(() => {
     updateControls();
-  }
+  });
 }
 
 function submitOne(): void {
   const request = createRequest('sending');
-  if (request) void issue(request);
+  if (request) issue(request);
 }
 
 function submitThree(): void {
   if (LIMIT - activeCount() < 3) return;
   for (let index = 0; index < 3; index++) {
     const request = createRequest('sending');
-    if (request) void issue(request);
+    if (request) issue(request);
   }
 }
 
 function submitDelayed(): void {
   const request = createRequest('scheduled');
   if (!request) return;
-  timers.set(request.sequence, window.setTimeout(() => { void issue(request); }, DELAY_MS));
+  timers.set(request.sequence, window.setTimeout(() => { issue(request); }, DELAY_MS));
 }
 
 function invalidateActive(reason: 'identity' | 'pagehide'): void {
@@ -201,7 +200,7 @@ function acceptIdentity(value: string): void {
   updateControls();
 }
 
-async function connectIdentity(): Promise<void> {
+function connectIdentity(): void {
   let changed = false;
   try {
     const subscription = identity.onChanged((value) => {
@@ -216,8 +215,14 @@ async function connectIdentity(): Promise<void> {
       subscription.close();
       updateControls();
     });
-    const initial = await identity.getPublicKey();
-    if (!changed && !disposed) acceptIdentity(initial);
+    void identity.getPublicKey().then((initial) => {
+      if (!changed && !disposed) acceptIdentity(initial);
+    }).catch(() => {
+      if (!changed && !disposed) {
+        controls.disabled = true;
+        element('identity-status').textContent = 'Open in a shell with identity and relay access';
+      }
+    });
   } catch {
     if (!changed && !disposed) {
       controls.disabled = true;

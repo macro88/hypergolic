@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "productionSources": {
+    "modules/napplet-host/ios/NativeApprovalAuthority.swift": "fb7d946e3d7c1b27326084df090fbb4a64e120b34bbe73a2af46301cf3a6c7b0",
+    "modules/napplet-host/ios/CapabilityLeaseRegistry.swift": "3a00614a2144d0d6f0135c3b68c19830cb797e8b5f8cd64b741b7df82e284046",
+    "modules/napplet-host/ios/CapabilityTransport.swift": "8ccda07d692362380a1f643279ee5dddd56bfe403895b525c65462a989a5a89a",
+    "modules/napplet-host/ios/ApprovalTransport.swift": "e3578aa5a7faf1e9fa4e28b8796ec5fe91737f66a9635d3c15347e463f2ad80e"
+  },
+  "testSources": {
+    "Tests/ApprovalTransportTests.swift": "4de550765ed7e3b94c635311929e3b9d589cc2d7cb722f1a0116565eeea1b7f6"
+  },
+  "harnessFiles": {
+    "README.md": "a21558102b3fa98c4fb5a2a8afafbb007426b91dad87af3422503e30787afc0e",
+    "Package.swift.template": "42d7afbda818f2ffce5022f535b068fb1a54772d2e1f380211f77e0f22a6d1f0",
+    "runner.py": "ef2c55fd4ce39eba14809e7ab4a112051b3810c5f9c478d87138da084aa9df62"
+  }
+}

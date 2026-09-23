@@ -16,13 +16,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-14)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Individual signing approval after the authenticated-backup checkpoint. Android system PIN and fingerprint deletion pass on the isolated API 36 emulator. Shared iOS review/denial/cancel UI passes; physical iPhone authentication remains open. Lazy restoration now loads only the selected napplet, with repeated iOS cold-launch and both-platform saved-state proof. Older Android, signing and remote loading remain open.
+**Current focus:** Individual signing is connected; Android local-relay publication and both-platform review/lifecycle checks pass. Complete the remaining signing/security acceptance and verified remote loading. Android system PIN and fingerprint deletion pass on the isolated API 36 emulator. Shared iOS review/denial/cancel UI passes; physical iPhone authentication remains open. Lazy restoration now loads only the selected napplet, with repeated iOS cold-launch and both-platform saved-state proof. Older Android, signing and remote loading remain open.
 
 ## Current Position
 
 Phase: 2 of 3 (Independent Android and iOS proof / seed phase 1)
 Plan: 02-04 individual signing approval; remaining 02-03 device security and 02-07 acceptance
-Status: Identity/workspace/import/switch and manual backup implemented; State Lab and lazy restoration work on both platforms. Signing foundations have unit/local-wire proof but remain unconnected. Native signing, remote loading and complete physical security acceptance remain open
+Status: Identity/workspace/import/switch and manual backup implemented; State Lab and lazy restoration work on both platforms. Signing is connected with Android protected-signing/local-wire proof and iOS public-fixture review proof. iOS protected signing, remote loading and complete physical security acceptance remain open
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
 Previous native action checkpoint: 2026-09-15 — Added the Android native deletion authority with 95 owning JVM assertions and the protected-record/erase reader with 89 actual Android assertions. Existing SDK records are unchanged; disposable data alone was erased. The actual Release app and separate instrumentation APK build and their installed bytes match. The production deletion path remains denied pending native context/lifecycle and system-prompt integration; authentication in the record probe is a double. See docs/identity-storage.md.
@@ -40,7 +40,7 @@ See `docs/architecture.md` for confirmed requirements and unresolved policy.
 ### Blockers/Concerns
 
 First theme-only native contract is selected. Validate privileged adapters and delivery contracts before their dependent work. Preserve Expo 57.0.20 despite the existing Doctor patch-version mismatch. Source remote/push remains owner-only.
-Resume budget (2026-09-22): check account usage after each small batch; pause at 25% weekly usage consumed / 75% remaining and ask before continuing. Delegate bounded audits/encoding to Luna, shared UI/test drivers to Terra, and iOS native actions to Sol; root owns Android authority, integration and review. This replaces the previous 45% stopping point.
+Resume budget (2026-09-23): user authorized continuation up to 50% weekly usage consumed / 50% remaining. Check account usage after each small batch and pause for approval at that threshold. Delegate bounded audits/encoding to Luna, shared UI/test drivers to Terra, and iOS native actions to Sol; root owns Android authority, integration and review. This replaces the previous 45% stopping point.
 Android emulator and iPhone Simulator scaffold checks are verified. Physical-iPhone signing and execution remain untested; native security acceptance is still open.
 See `docs/phase-zero.md` for actual checks and artifacts.
 
@@ -92,3 +92,34 @@ the native journey and temporary power settings were restored. Signing integrati
 remote loading and physical/older-platform acceptance remain open. Full aislop is
 100/100; local React Doctor has zero findings but no externally verified numeric
 score. No source push or remote change.
+
+Continuation (2026-09-23): native publication transport, shared approval UI, protected signing and SDK fixture integration are in progress on the existing branch. Latest usage check: 31% weekly consumed. New unit tests pass; full native signing journeys remain pending. Earlier budget pause is superseded by the user's explicit continuation.
+
+Signing integration checkpoint (2026-09-23): Android now passes visible rejection,
+approved exact publication, relay rejection/auth-required/unknown outcomes, queue
+pause/resume, and pending/approved background revocation against isolated native
+fixtures. iOS passes all four native review/queue/background checks using the
+explicit public-identity Simulator fixture, without signing. Native runs exposed
+and fixed the catalogue publisher mismatch; the real-workspace regression passes.
+344 security, 13 bootstrap and 31 capability tests pass; aislop 100/100, local React
+Doctor zero findings with numeric scoring still pending permission. No physical
+iPhone is currently connected. Full v1 acceptance remains open; source push and
+remote changes remain owner-only. Latest weekly usage check: 44% consumed.
+
+Additional acceptance (2026-09-23): the normal Android entry is restored and passes
+review/queue/background checks; its temporary loopback mapping/server are removed.
+The normal iOS Release entry builds with its actual JavaScript bundle. Android PIN
+backup now passes protected reveal, approximately 64-second expiry, and mandatory
+fresh authentication, with two saved identities retained. The only fix was the
+scoped System UI test observation; production backup code is unchanged. See
+`docs/identity-storage.md`. Latest weekly usage check: 46% consumed.
+
+
+Continuation checkpoint (2026-09-23): stopping at 47% weekly consumed, leaving
+headroom below the requested 50% limit instead of starting another implementation
+batch. Signing integration and the normal-entry/PIN acceptance above are complete
+within their stated fixture limits. Next independent build slice is verified
+remote napplet resolution and artifact validation (02-05); physical iPhone
+protected signing/capture and older Android acceptance remain open. External
+React Doctor scoring still awaits permission; its local scan has zero findings.
+No source push or remote change. Continue only after the user authorizes it.

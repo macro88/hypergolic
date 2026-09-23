@@ -347,12 +347,21 @@ fixture, exact installed APK hash and the fixed public scalar-2 selected identit
 It checks system PIN fallback, protected reveal, accessibility exclusion, automatic
 expiry and fresh authentication afterward, without extracting the private key.
 
-This new journey has **not passed**. Attempts stopped before authentication while
-the emulator was asleep and keyguard was showing; one retained attempt also caught
-a source change during the run and is invalid evidence. The final retry could not
-start after attempted wake/unlock. Temporary power settings were restored. Existing
-six-check fingerprint evidence remains valid; PIN/reveal-timeout acceptance stays
-open. The two PNG-helper tests and standalone CLI help check pass.
+The journey **passed on 23 September 2026** against the isolated API 36 Release
+app. Actual System UI PIN authentication opened the protected native panel; no
+secret was exposed through accessibility or the redacted screenshot. Automatic
+return to Settings was observed after 64.2 seconds, and a subsequent reveal
+required fresh system authentication. Both saved identities remained present.
+Installed APK, source and harness seals were unchanged throughout the run.
+
+The new run first exposed a test-harness error: the full-screen credential prompt
+belongs to System UI, so the generic application-only hierarchy guard rejected it.
+The driver now observes one enabled, password-marked System UI field only after
+the exact owned backup prompt and its observed PIN fallback action. The corrected
+run passes all three checks. Earlier sleep/keyguard and source-drift attempts are
+retained as failed evidence; they do not count as acceptance. The prior six-check
+fingerprint evidence remains valid. Physical-device and older-Android backup
+acceptance remain open.
 
 Example with an already awake/unlocked disposable fixture and its verified APK:
 

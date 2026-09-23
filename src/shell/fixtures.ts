@@ -2,7 +2,7 @@ import { emptyWorkspace, focusNapplet, openNapplet, type NappletDescriptor, type
 import { BUNDLED_FIXTURES, type BundledFixture } from '../runtime/bundled-catalog.ts';
 
 export type BundledVariant = BundledFixture | 'state-lab-other-publisher';
-const variants: readonly BundledVariant[] = ['state-lab-other-publisher', 'state-lab-peer', 'state-lab', 'ux-lab'];
+const variants: readonly BundledVariant[] = ['state-lab-other-publisher', 'approval-lab', 'state-lab-peer', 'state-lab', 'ux-lab'];
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 export function bundledDescriptor(variant: BundledVariant, number: number, instance = String(number)): NappletDescriptor {
   const fixture = variant === 'state-lab-other-publisher' ? 'state-lab' : variant;
