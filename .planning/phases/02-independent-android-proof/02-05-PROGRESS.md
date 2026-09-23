@@ -126,3 +126,16 @@ review. The workspace swaps in the same position only after preparation succeeds
 the old native session and pending signing approvals are then closed. Focused
 tests cover refusal, unchanged event, rollback rejection and accepted runtime
 handoff. TypeScript passes. Complete native update journeys remain open.
+
+The final Android ARM64 Release APK was signed with the repository's disposable
+debug key and installed over the existing API 36 emulator app without clearing
+data. Its normal shell and trusted Settings rendered. Entering `naddr1invalid`
+and pressing **Verify and open** showed the trusted verification error, with no
+guest opened. The final normal iOS Simulator Release app was installed and
+launched on iPhone 17 Pro; it reached the expected physical-iPhone requirement
+for protected identity storage. This checks production entry behavior on both
+builds, but cannot exercise the update with a real published session. The Android
+test used only its documented public test PIN. The installed debug-signed APK
+has SHA-256 `fe55acc33c85ee4daceb453c63dacebd595eb0b4c76ee98c1da6f4e808f395da`;
+the iOS app's bundled JavaScript has SHA-256
+`895d15d94118b8919f28e36afbb95228f078c8f1983063eb80623ff86c4218a6`.
