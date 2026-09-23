@@ -154,3 +154,21 @@ requirement; its installed JavaScript hash matches the build at
 `5926e2136073df42b90c7ca35234b4404c5b48a9ba060a88d3e0d08a71fa0142`.
 The invalid-naddr denial was observed on the preceding build, not repeated on
 this final artifact. No successful remote open or update was observed.
+
+## Next automated native update fixture
+
+The current Settings **Signed test napplet** stages one embedded artifact
+directly in `PublishedHostLab`; it does not traverse the production coordinator,
+grant store or workspace update action. An update test must use those owners.
+Prepare two immutable, independently verified kind-35129 artifacts signed by
+one disposable test publisher for the same `d` identifier. Keep the test secret
+out of the app and ship only signed public fixtures. Feed them through a
+test-only published source while keeping the normal Settings update review and
+one-use native handoff. Android and the isolated public-identity iOS QA entry
+should assert initial guest readiness, refusal keeping the old guest, acceptance
+replacing it, changed-access refusal, exact pinned restart, downgrade rejection
+and background revocation. Bind screenshots and driver results to source and
+installed-artifact hashes. This fixture will test native update UX and
+lifecycle; it cannot establish public WSS/HTTPS behavior or production iOS
+identity security. A known working public `naddr` and endpoints are still
+needed for the separate live transport journey.
