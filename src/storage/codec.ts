@@ -44,7 +44,12 @@ function object(value: unknown, fields: readonly string[]): Record<string, unkno
   return value as Record<string, unknown>;
 }
 function descriptor(value: unknown): NappletDescriptor {
-  const item = object(value, ['id', 'title', 'publisher', 'appId', 'version', 'source']);
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return fail('INVALID_INPUT');
+  const sourceField = Object.getOwnPropertyDescriptor(value, 'source');
+  const source = sourceField && Object.hasOwn(sourceField, 'value') ? sourceField.value : undefined;
+  const item = object(value, source === 'published'
+    ? ['id', 'title', 'publisher', 'appId', 'version', 'source', 'eventId']
+    : ['id', 'title', 'publisher', 'appId', 'version', 'source']);
   // Preserve the current workspace model, including the explicitly unsigned bundled fixture.
   const id = identifier(item.id);
   function field(value: unknown, characters: number): string {
@@ -55,7 +60,9 @@ function descriptor(value: unknown): NappletDescriptor {
   const title = field(item.title, 128), publisher = field(item.publisher, 128);
   const appId = field(item.appId, 256), selectedVersion = field(item.version, 128);
   if (item.source !== 'bundled' && item.source !== 'published') return fail('INVALID_INPUT');
-  return Object.freeze({ id, title, publisher, appId, version: selectedVersion, source: item.source });
+  if (item.source === 'published' && (typeof item.eventId !== 'string' || !/^[0-9a-f]{64}$/.test(item.eventId))) return fail('INVALID_INPUT');
+  return Object.freeze({ id, title, publisher, appId, version: selectedVersion, source: item.source,
+    ...(item.source === 'published' ? { eventId: item.eventId as string } : {}) });
 }
 export function snapshot(value: unknown): WorkspaceSnapshot {
   const item = object(value, ['schema', 'sessions', 'lastActiveId']);

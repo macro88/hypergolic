@@ -46,7 +46,15 @@ Already-saved numeric UX Lab descriptors remain compatible. Accepted-version cop
 transactions are prepared core operations; published update UX is still pending.
 
 Workspace persistence stores descriptors, not live WebView state or approval
-requests. Drafts still need a napplet's saved-data capability to survive termination.
+requests. A published descriptor includes its exact signed manifest event ID as
+well as its coordinate owner and content version. Restore and storage decoding
+reject a missing or malformed event pin, so recovery can only reverify the selected
+manifest or show an error. An accepted version change updates the content version
+and exact event ID atomically in the saved descriptor. Older published rows without
+an event ID now fail closed and require recovery or explicit removal.
+Schema migration preserves older accepted-update receipts with an unknown event pin;
+replaying one cannot report success because its selected manifest cannot be verified.
+Drafts still need a napplet's saved-data capability to survive termination.
 Identity import and rebinding are covered in the subsequent
 [identity-switching checkpoint](identity-switching.md). Published descriptors and
 full standalone application acceptance remain open.

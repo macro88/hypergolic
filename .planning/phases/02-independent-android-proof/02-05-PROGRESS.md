@@ -38,7 +38,14 @@ bytes again before host CSP and namespace injection. Android and iOS published
 journeys and update/recovery drivers remain open. Do not mark LOAD-01 through
 LOAD-03 or RELAY-02 complete from these unit tests or bundle exports.
 
-The standalone Android/iOS native registry cores now check byte/hash/session
-claims and one-use replay. Their owning proofs pass 70 and 36 checks respectively;
-the normal Android and iOS Release builds compile the new source. This is native
-core and packaging evidence only: no module/view calls the registries yet.
+The Android/iOS native registry cores check byte/hash/session claims and one-use
+replay. Both Expo modules now expose an app-only, bounded chunked staging bridge
+with no claim method; see `docs/published-artifact-registry.md`. The Android
+registry/transfer proof passes 175 assertions and its generated native module
+compiles in Release. The iOS transfer/registry proofs pass 88/36 checks and the
+normal unsigned Simulator Release app compiles after Pods refresh. The trusted
+shell has a verifier-branded staging adapter, but no app owner calls it, no host
+view claims the handle and no published code executes. A published workspace
+descriptor now stores the exact signed event pin. Schema v2 migration preserves
+older receipts with an unknown pin, so they cannot replay as accepted updates.
+Native journeys and full LOAD acceptance remain open.

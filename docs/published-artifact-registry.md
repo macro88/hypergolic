@@ -7,8 +7,9 @@ establish byte integrity and host ownership before those bytes can enter a
 WebView. Native registry checks do not establish Nostr signature validity or
 publisher trust.
 
-The standalone Android and iOS registries now implement the following core
-contract. No Expo module function or host view calls them yet.
+The Android and iOS registries implement the following core contract. The Expo
+modules now stage verified bytes through a bounded app-only transfer, but no
+host view claims a staged handle yet.
 
 The registry accepts an app-only staging call with original UTF-8 bytes and
 bounded claims: shell session ID, publisher public key, stable napplet `d`
@@ -34,18 +35,31 @@ the host's ownership; the host must clear its copy on view teardown. The native
 cores do not currently receive lifecycle callbacks because module/host wiring
 is still pending.
 
-The module bridge and WebView byte-transfer protocol are not yet selected.
-An implementation must bound transfer before allocating a 2 MiB artifact and
-retain the existing main-frame/sender/generation checks, strict document and
-subresource allowlists, and CSP/namespace injection after verification. Both
-platforms need real native host tests in addition to the standalone core proofs.
-The Android production-source JVM proof passes 70 assertions with
-`javac -Xlint:all -Werror`; the Swift proof passes 36 checks with
-`swiftc -warnings-as-errors`. Both cover exact-limit acceptance, over-limit
-denial, bad UTF-8/hash/aggregate, cross-session claims, one-use replay, expiry
-and revocation. The normal unsigned Android Release APK and iOS Simulator
-Release app compile with the new sources, including a nonempty iOS JavaScript
-bundle. Neither build or standalone registry test is a published-napplet journey.
+The Expo module transfer uses `registerPublishedSession`,
+`beginPublishedArtifact`, `appendPublishedArtifact`, `finishPublishedArtifact`,
+`cancelPublishedArtifact`, `revokePublishedSession`, and
+`revokeAllPublishedArtifacts` on both platforms. A begin call binds the exact
+claims and declared length (1 through 2 MiB) to a registered session. At most
+four uploads can exist, with one per session and a 60-second lifetime. Each
+zero-based sequential, canonical Base64 chunk decodes to 1 through 48 KiB.
+Malformed or repeated chunks consume the partial upload. Finish consumes it
+and independently checks exact length, strict UTF-8, original SHA-256 and the
+single-path aggregate before returning a one-use handle. Backgrounding revokes
+all pending bytes and registrations; the trusted owner must register again
+before a later transfer. No claim function is exposed to JavaScript. A
+verifier-branded JavaScript adapter chunks a private copy and rechecks live
+ownership around every native call.
+
+The host claim and WebView byte-transfer protocol remain unimplemented. They
+must retain the existing main-frame/sender/generation checks, strict document
+and subresource allowlists, and CSP/namespace injection after verification.
+Both platforms still need real native host tests and a consent-gated app route.
+The Android production-source JVM proof passes 175 assertions with
+`javac -Xlint:all -Werror`; the Swift transfer and registry proofs pass 88 and
+36 checks with `swiftc -warnings-as-errors`. The Android module's Release Kotlin
+and Java compilation and the unsigned iOS Simulator Release app compile with
+the transfer functions. Neither build or standalone proof is a published
+napplet journey.
 
 ```sh
 source .tools/use-local-tools.sh
@@ -54,4 +68,9 @@ xcrun swiftc -warnings-as-errors modules/napplet-host/ios/PublishedArtifactRegis
   tests/native/published-artifact-registry/PublishedArtifactRegistryProof.swift \
   -o /private/tmp/hypergolic-ios-registry-proof
 /private/tmp/hypergolic-ios-registry-proof
+xcrun swiftc -warnings-as-errors modules/napplet-host/ios/PublishedArtifactRegistry.swift \
+  modules/napplet-host/ios/PublishedArtifactTransfer.swift \
+  tests/native/published-artifact-transfer/PublishedArtifactTransferProof.swift \
+  -o /private/tmp/hypergolic-ios-transfer-proof
+/private/tmp/hypergolic-ios-transfer-proof
 ```

@@ -19,6 +19,7 @@ export function initialTestWorkspace(): Workspace {
   return focusNapplet(loaded, 'ux-lab-1');
 }
 export function resolveBundledSession(session: NappletDescriptor) {
+  if (session.eventId !== undefined) throw new Error('Unavailable saved napplet');
   const variant = variants.find(value => session.id.startsWith(value + '-'));
   const number = Number(session.title.match(/ ([1-9][0-9]*)$/)?.[1]);
   if (!variant || !Number.isSafeInteger(number)) throw new Error('Unavailable saved napplet');

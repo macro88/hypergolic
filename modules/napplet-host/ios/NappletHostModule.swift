@@ -2,6 +2,8 @@ import Foundation
 import ExpoModulesCore
 
 public final class NappletHostModule: Module {
+  deinit { PublishedArtifactTransfer.shared.revokeAll() }
+
   public func definition() -> ModuleDefinition {
     Name("HypergolicNappletHost")
     Function("newInstanceId") { UUID().uuidString.lowercased() }
@@ -17,6 +19,29 @@ public final class NappletHostModule: Module {
     Function("dismissApproval") { (token: String) in ApprovalTransport.dismiss(token) }
     Function("finishApproval") { (token: String, response: String?) in ApprovalTransport.finish(token, response: response) }
     Function("resumeApprovals") { ApprovalTransport.resume() }
+    Function("registerPublishedSession") { (sessionId: String) -> Bool in
+      PublishedArtifactTransfer.shared.registerPublishedSession(sessionId)
+    }
+    Function("beginPublishedArtifact") { (sessionId: String, publisher: String, identifier: String,
+                                          eventId: String, aggregateHash: String, htmlHash: String,
+                                          byteLength: Int) -> String? in
+      PublishedArtifactTransfer.shared.beginPublishedArtifact(
+        sessionId: sessionId, publisher: publisher, identifier: identifier, eventId: eventId,
+        aggregateHash: aggregateHash, htmlHash: htmlHash, byteLength: byteLength)
+    }
+    Function("appendPublishedArtifact") { (uploadId: String, sequence: Int, base64Chunk: String) -> Bool in
+      PublishedArtifactTransfer.shared.appendPublishedArtifact(uploadId, sequence: sequence, base64Chunk: base64Chunk)
+    }
+    Function("finishPublishedArtifact") { (uploadId: String) -> String? in
+      PublishedArtifactTransfer.shared.finishPublishedArtifact(uploadId)
+    }
+    Function("cancelPublishedArtifact") { (uploadId: String) in
+      PublishedArtifactTransfer.shared.cancelPublishedArtifact(uploadId)
+    }
+    Function("revokePublishedSession") { (sessionId: String) in
+      PublishedArtifactTransfer.shared.revokePublishedSession(sessionId)
+    }
+    Function("revokeAllPublishedArtifacts") { PublishedArtifactTransfer.shared.revokeAll() }
     View(NappletHostView.self) {
       Events("onHostEvent")
       Prop("active") { (view: NappletHostView, active: Bool) in

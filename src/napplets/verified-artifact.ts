@@ -36,7 +36,13 @@ export type VerifiedNappletArtifact = Readonly<{
 const HEX64 = /^[0-9a-f]{64}$/;
 const HEX128 = /^[0-9a-f]{128}$/;
 const verifiedManifests = new WeakSet<object>();
+const verifiedArtifacts = new WeakSet<object>();
 const fail = (): never => { throw new NappletVerificationError(); };
+
+/** Reject structural lookalikes before a trusted native staging caller reads bytes. */
+export function assertVerifiedArtifact(value: unknown): asserts value is VerifiedNappletArtifact {
+  if (typeof value !== 'object' || value === null || !verifiedArtifacts.has(value)) fail();
+}
 const hasOwn = (value: object, key: PropertyKey): boolean => Object.prototype.hasOwnProperty.call(value, key);
 
 function plainRecord(value: unknown, fields: readonly string[]): Record<string, unknown> {
@@ -236,12 +242,14 @@ export async function verifyArtifact(manifest: VerifiedNappletManifest, htmlByte
     const aggregateHash = await sha256(aggregateInput);
     if (aggregateHash !== manifest.aggregateHash) return fail();
     const verifiedBytes = new Uint8Array(copy);
-    return Object.freeze({
+    const artifact = Object.freeze({
       manifest,
       get htmlBytes(): Uint8Array { return new Uint8Array(verifiedBytes); },
       htmlHash,
       aggregateHash,
     });
+    verifiedArtifacts.add(artifact);
+    return artifact;
   } catch (error) {
     if (error instanceof NappletVerificationError) throw error;
     throw new NappletVerificationError();

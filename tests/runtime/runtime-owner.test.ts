@@ -41,7 +41,7 @@ test('trusted catalogue preserves existing UX descriptors and denies altered Sta
     const registration = resolveBundledSession(descriptor);
     assert.equal(registration.instanceId,descriptor.id);
     for (const patch of [{source:'published' as const},{publisher:'forged'},{version:'f'.repeat(64)},
-      {appId:'other'},{id:'state-lab-0'},{title:'Other'}]) assert.throws(() => resolveBundledSession({...descriptor,...patch}));
+      {appId:'other'},{id:'state-lab-0'},{title:'Other'},{eventId:'a'.repeat(64)}]) assert.throws(() => resolveBundledSession({...descriptor,...patch}));
   }
   const ux = bundledDescriptor('ux-lab',1);
   assert.equal(ux.version,'01ab63dbcdadab0b44fd6f3b9a6bcfbd98d8c1de1510f96c821d3efe1876909c');

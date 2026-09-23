@@ -5,7 +5,7 @@ import { snapshot, utf8Bytes } from '../../src/storage/codec.ts';
 import { emptyWorkspace, restoreWorkspace, snapshotWorkspace, type NappletDescriptor, type WorkspaceSnapshot } from '../../src/shell/workspace.ts';
 import { assertCode, deferred, hex, registration, setup } from './harness.ts';
 export function descriptor(id: string, patch: Partial<NappletDescriptor> = {}): NappletDescriptor {
-  return { id, title: id, publisher: hex(2), appId: 'test-app', version: hex(3), source: 'published', ...patch };
+  return { id, title: id, publisher: hex(2), appId: 'test-app', version: hex(3), source: 'published', eventId: hex(4), ...patch };
 }
 export const sample = (): WorkspaceSnapshot => ({ schema: 1, sessions: [descriptor('third'), descriptor('first'), descriptor('second')], lastActiveId: 'first' });
 
@@ -22,7 +22,7 @@ test('workspace row distinguishes absent from explicit empty across process-styl
 
 test('workspace restore preserves exact opening order, focused instance and unsigned fixture descriptors', async t => {
   const { sqlite, database } = await setup(t); const port = database.bindWorkspace(registration()).port;
-  const fixture = descriptor('fixture', { title: 'UX Lab', source: 'bundled', publisher: 'bundled-unsigned-fixture' });
+  const fixture: NappletDescriptor = { id: 'fixture', title: 'UX Lab', source: 'bundled', publisher: 'bundled-unsigned-fixture', appId: 'test-app', version: hex(3) };
   const value: WorkspaceSnapshot = { ...sample(), sessions: [...sample().sessions, fixture] };
   await port.save(value, null); await database.close();
   const next = await openShellDatabase(sqlite, 'android'); const record = await next.bindWorkspace(registration()).port.load(); assert(record);
@@ -30,6 +30,21 @@ test('workspace restore preserves exact opening order, focused instance and unsi
   const restored = restoreWorkspace(record.snapshot);
   assert.equal(restored.focusedId, 'first'); assert.equal(restored.overview, false); assert.deepEqual(restored.sessions.map(item => item.id), ['third', 'first', 'second', 'fixture']);
   assert(Object.isFrozen(record.snapshot)); assert(Object.isFrozen(record.snapshot.sessions)); assert(Object.isFrozen(record.snapshot.sessions[0]));
+});
+
+test('published workspace pins the exact signed event across durable restore and rejects absent or malformed pins', async t => {
+  const exactEventId = hex(5);
+  const pinned = descriptor('published', { eventId: exactEventId });
+  const restored = restoreWorkspace(snapshot({ schema: 1, sessions: [pinned], lastActiveId: 'published' }));
+  assert.equal(restored.sessions[0]!.eventId, exactEventId);
+  for (const invalid of [
+    (({ eventId: _eventId, ...rest }) => rest)(pinned),
+    { ...pinned, eventId: 'not-an-event-id' },
+    { ...pinned, eventId: 'AB'.repeat(32) },
+  ]) {
+    assert.throws(() => snapshot({ schema: 1, sessions: [invalid], lastActiveId: 'published' }), assertCode('INVALID_INPUT'));
+  }
+  assert.throws(() => restoreWorkspace({ schema: 1, sessions: [{ ...pinned, eventId: undefined }], lastActiveId: 'published' }));
 });
 
 test('saving snapshots clones inputs before they can mutate while queued', async t => {

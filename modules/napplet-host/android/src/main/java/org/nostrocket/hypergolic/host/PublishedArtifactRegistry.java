@@ -97,13 +97,25 @@ public final class PublishedArtifactRegistry {
     return true;
   }
 
+  /** Internal admission check; staging still rechecks membership and byte integrity. */
+  synchronized boolean hasSession(String sessionId) {
+    return now() >= 0 && activeSessions.contains(sessionId);
+  }
+
+  /** Shared bounded-claim validation for admission and final staging. */
+  static boolean validClaims(String publisherHex64, String identifier, String eventIdHex64,
+      String aggregateHashHex64, String htmlHashHex64) {
+    return isLowerHex64(publisherHex64) && validIdentifier(identifier) && isLowerHex64(eventIdHex64) &&
+        isLowerHex64(aggregateHashHex64) && isLowerHex64(htmlHashHex64);
+  }
+
   /** Stages an immutable copy and returns an unpredictable opaque handle, or null on any invalid input. */
   public synchronized String stage(byte[] originalUtf8Bytes, String sessionId, String publisherHex64,
       String identifier, String eventIdHex64, String aggregateHashHex64, String htmlHashHex64) {
     long now = now();
-    if (now < 0 || !activeSessions.contains(sessionId) || !isLowerHex64(publisherHex64) || !isLowerHex64(eventIdHex64) ||
-        !isLowerHex64(aggregateHashHex64) || !isLowerHex64(htmlHashHex64) ||
-        !validIdentifier(identifier) || originalUtf8Bytes == null || originalUtf8Bytes.length < 1 ||
+    if (now < 0 || !activeSessions.contains(sessionId) ||
+        !validClaims(publisherHex64, identifier, eventIdHex64, aggregateHashHex64, htmlHashHex64) ||
+        originalUtf8Bytes == null || originalUtf8Bytes.length < 1 ||
         originalUtf8Bytes.length > MAX_HTML_BYTES) return null;
     prune(now);
     if (pending.size() >= MAX_PENDING || now > Long.MAX_VALUE - MAX_LIFETIME_MS) return null;

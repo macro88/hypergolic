@@ -47,6 +47,10 @@ final class PublishedArtifactRegistry: @unchecked Sendable {
     }
   }
 
+  func isSessionRegistered(_ sessionId: String) -> Bool {
+    lock.withLock { activeSessions.contains(sessionId) }
+  }
+
   func stage(_ input: Data, claims: Claims) -> String? {
     guard Self.valid(claims), !input.isEmpty, input.count <= Self.maximumHTMLBytes,
       String(data: input, encoding: .utf8) != nil else { return nil }

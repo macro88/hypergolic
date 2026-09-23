@@ -136,3 +136,21 @@ ports, first-open consent, host byte handoff, update flow, both-platform
 published execution and native relay-settings UI journeys remain open. Latest
 usage check: 52% consumed / 48% remaining; the user-requested pause is at 70%
 consumed. No source push or remote change.
+
+Published staging checkpoint (2026-09-23): Android and iOS Expo modules now
+provide app-only, bounded 48 KiB chunk uploads into the one-use native artifact
+registries, with session/claim validation, 2 MiB limit, expiry and background
+revocation. A verifier-branded JavaScript adapter checks ownership throughout
+transfer. Published workspace rows now persist the exact signed event ID; schema
+v2 migrates older receipts with an unknown pin so changed-event replay cannot
+claim success. Android registry/transfer proofs pass 175 assertions and native
+module Release compilation; iOS transfer/registry proofs pass 88/36 checks and
+the normal unsigned Simulator Release build compiles with a JavaScript bundle.
+TypeScript, 31 napplet, 82 storage, 25 shell, 32 capability, 344 security and 13
+bootstrap tests pass; both exports pass. React Doctor scores 100/100 with the
+authorized anonymous score request; aislop scores 100/100 with zero diagnostics;
+all three dependency audits pass. Expo Doctor remains 20/21 because the project
+pins earlier SDK 57 patch versions. Native hosts still run bundled fixtures only:
+no app entry/consent, host claim/read path, safe network ports, published
+execution or native published journey exists yet. No source push or remote
+change.

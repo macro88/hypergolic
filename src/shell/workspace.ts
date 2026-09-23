@@ -6,6 +6,8 @@ export interface NappletDescriptor {
   readonly appId: string;
   readonly version: string;
   readonly source: 'bundled' | 'published';
+  /** Exact signed kind-35129 event selected for this published version. */
+  readonly eventId?: string;
 }
 export interface Workspace {
   readonly sessions: readonly NappletDescriptor[];
@@ -57,8 +59,11 @@ export function restoreWorkspace(value: unknown): Workspace {
     if (!bounded(item.id, 80) || !/^[A-Za-z0-9_-]+$/.test(item.id) || ids.has(item.id) ||
         !bounded(item.title, 128) || !bounded(item.publisher, 128) || !bounded(item.appId, 256) ||
         !bounded(item.version, 128) || (item.source !== 'bundled' && item.source !== 'published')) throw new Error('Invalid napplet');
+    if (item.source === 'published' && (typeof item.eventId !== 'string' || !/^[0-9a-f]{64}$/.test(item.eventId))) throw new Error('Invalid published event pin');
+    if (item.source === 'bundled' && item.eventId !== undefined) throw new Error('Invalid bundled event pin');
     ids.add(item.id);
-    return Object.freeze({ id: item.id, title: item.title, publisher: item.publisher, appId: item.appId, version: item.version, source: item.source });
+    return Object.freeze({ id: item.id, title: item.title, publisher: item.publisher, appId: item.appId, version: item.version, source: item.source,
+      ...(item.source === 'published' ? { eventId: item.eventId as string } : {}) });
   });
   if (snapshot.lastActiveId !== null && (typeof snapshot.lastActiveId !== 'string' || !ids.has(snapshot.lastActiveId))) throw new Error('Invalid focus');
   return { sessions, focusedId: snapshot.lastActiveId as string | null, overview: sessions.length === 0 || snapshot.lastActiveId === null };

@@ -172,12 +172,15 @@ for that generation, recheck the hash, inject the host CSP and namespace prelude
 then mount the isolated frame. Nostr signature and first-open consent checks stay
 with the trusted shell; native byte checks do not replace either one.
 
-Restart requires a fresh handle. Persist the coordinate and exact signed event
-ID, reverify cached bytes or fetch only that pinned event, and show recovery if
+Restart requires a fresh handle. Persist the coordinate, content version and
+exact signed event ID in each published workspace descriptor. Reverify cached
+bytes or fetch only that pinned event, and show recovery if
 the bytes are unavailable or differ. The current workspace descriptor stores a
-content version but no event ID, so published rehydration still needs a schema
-change. The native registry and bounded transfer protocol, including adversarial
-HTML/CSP tests, must be complete before a published artifact is executable.
+content version and exact event ID; older published descriptors without a valid
+pin fail closed as corrupt saved state. Accepted version changes update the
+descriptor's version and event pin together. The bounded Android/iOS staging
+transfer exists, but native host claiming, byte delivery and adversarial
+HTML/CSP tests must be complete before a published artifact is executable.
 
 ## Reproduction and evidence
 

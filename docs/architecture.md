@@ -30,10 +30,10 @@ connects native lifetime authorities, immutable event checks, protected signing,
 trusted review and the relay adapter. Android passes the isolated SDK-to-local-relay
 journey; iOS passes native review/rejection with a public-identity Simulator fixture.
 Physical iOS signing and the full acceptance audit remain open. Published napplet
-link, manifest and HTML verification exist as a pre-execution gate; app entry,
-safe HTTPS retrieval, native artifact handoff, consent and published execution
-remain open. Standalone native byte registries compile on both platforms but are
-not yet wired into either host. Inactive identity deletion now has a shared
+link, manifest and HTML verification exist as a pre-execution gate. Both native
+modules now stage the verified bytes through a bounded app-only transfer and
+one-use registry; no host view claims the handle yet. App entry, safe HTTPS
+retrieval, first-open consent and published execution remain open. Inactive identity deletion now has a shared
 review and an Android system-PIN journey; iOS
 action acceptance still requires a physical device.
 The supplied logo is visible in the native header. Native journeys, boundary

@@ -5,7 +5,7 @@ import { openShellDatabase } from '../../src/storage/database.ts';
 import { emptyWorkspace, focusNapplet, openNapplet, showOverview, snapshotWorkspace } from '../../src/shell/workspace.ts';
 import { assertCode, deferred, registration, setup } from './harness.ts';
 import type { NappletDescriptor } from '../../src/shell/workspace.ts';
-const descriptor = (id: string): NappletDescriptor => ({id, title:id, publisher:'02'.repeat(32), appId:'test-app', version:'03'.repeat(32), source:'published'});
+const descriptor = (id: string): NappletDescriptor => ({id, title:id, publisher:'02'.repeat(32), appId:'test-app', version:'03'.repeat(32), source:'published', eventId:'04'.repeat(32)});
 const seed = () => openNapplet(openNapplet(emptyWorkspace(), descriptor('one')), descriptor('two'));
 const accept = () => undefined;
 

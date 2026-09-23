@@ -42,7 +42,9 @@ test('explicitly empty workspace survives restart', () => {
 test('corrupt saved state fails instead of silently choosing or generating a session', () => {
   for (const value of [null, [], {}, { schema: 2, sessions: [], lastActiveId: null }, { schema: 1, sessions: [], lastActiveId: 'missing' },
     { schema: 1, sessions: [descriptor('a'), descriptor('a')], lastActiveId: 'a' },
-    { schema: 1, sessions: [{ ...descriptor('a'), id: '../../arbitrary' }], lastActiveId: null }]) {
+    { schema: 1, sessions: [{ ...descriptor('a'), id: '../../arbitrary' }], lastActiveId: null },
+    { schema: 1, sessions: [{ ...descriptor('a'), source: 'published' }], lastActiveId: 'a' },
+    { schema: 1, sessions: [{ ...descriptor('a'), source: 'published', eventId: 'bad-pin' }], lastActiveId: 'a' }]) {
     assert.throws(() => restoreWorkspace(value));
   }
 });

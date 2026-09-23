@@ -1,16 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { openShellDatabase, type ShellDatabase } from '../../src/storage/database.ts';
-import { assertCode, hex, registration, setup } from './harness.ts';
+import { TABLES } from '../../src/storage/schema.ts';
+import { assertCode, DiskSQLite, hex, registration, setup } from './harness.ts';
 
 const old = hex(3), next = hex(4);
-const update = () => ({ fromVersion: old, targetVersion: next, receiptId: 'accepted_update_1', assertFrozen: () => { assert(true); } });
+const update = () => ({ fromVersion: old, targetVersion: next, targetEventId: hex(8), receiptId: 'accepted_update_1', assertFrozen: () => { assert(true); } });
 async function seed(database: ShellDatabase) {
   const owner = registration(), control = database.bindApp(owner).port;
   await control.selectInitialVersion(old);
   const shared = database.bindStorage(owner).port, other = database.bindStorage(registration({ instanceId: 'instance_2' })).port;
   await shared.set('shared', 'saved💫'); await shared.set('instance', 'first', 'instance'); await other.set('instance', 'second', 'instance');
-  const sessions = ['instance_2', 'instance_1'].map(id => ({ id, title: id, publisher: owner.publisher, appId: owner.appId, version: old, source: 'published' as const }));
+  const sessions = ['instance_2', 'instance_1'].map(id => ({ id, title: id, publisher: owner.publisher, appId: owner.appId, version: old, source: 'published' as const, eventId: hex(7) }));
   await database.bindWorkspace(owner).port.save({ schema: 1, sessions, lastActiveId: 'instance_1' }, null);
   return control;
 }
@@ -18,7 +19,7 @@ async function seed(database: ShellDatabase) {
 test('accepted copy preserves exact shared/instance values, old data, order/focus; receipt and selection survive reopen', async t => {
   const { sqlite, database } = await setup(t); const control = await seed(database);
   const receipt = await control.acceptUpdate(update());
-  assert.deepEqual(receipt, { receiptId: 'accepted_update_1', fromVersion: old, targetVersion: next, rowCount: 3, byteCount: 42, workspaceRevision: 1 });
+  assert.deepEqual(receipt, { receiptId: 'accepted_update_1', fromVersion: old, targetVersion: next, rowCount: 3, byteCount: 42, workspaceRevision: 1, targetEventId: update().targetEventId });
   assert.equal(await control.selectedVersion(), next); assert.deepEqual(await control.receipt(receipt.receiptId), receipt);
   for (const aggregate of [old, next]) {
     assert.equal(await database.bindStorage(registration({ version: aggregate })).port.get('shared'), 'saved💫');
@@ -28,11 +29,42 @@ test('accepted copy preserves exact shared/instance values, old data, order/focu
   const workspace = await database.bindWorkspace(registration()).port.load(); assert(workspace);
   assert.deepEqual(workspace.snapshot.sessions.map(item => item.id), ['instance_2', 'instance_1']); assert.equal(workspace.snapshot.lastActiveId, 'instance_1');
   assert(workspace.snapshot.sessions.every(item => item.version === next));
+  assert(workspace.snapshot.sessions.every(item => item.eventId === update().targetEventId));
   await database.close(); const reopened = await openShellDatabase(sqlite, 'android');
   const reopenedControl = reopened.bindApp(registration()).port;
   assert.equal(await reopenedControl.selectedVersion(), next); assert.deepEqual(await reopenedControl.receipt(receipt.receiptId), receipt);
   assert.deepEqual(await reopenedControl.acceptUpdate(update()), receipt); // Idempotent observed result; never re-copy.
+  await assert.rejects(reopenedControl.acceptUpdate({ ...update(), targetEventId: hex(9) }), assertCode('CONFLICT'));
   assert.equal(sqlite.calls.filter(call => call.sql.startsWith('INSERT INTO saved_strings') && call.sql.includes(' SELECT ')).length, 1);
+});
+
+test('v1 update receipts migrate with an unknown event pin and refuse replay as unverifiable', async t => {
+  const sqlite = new DiskSQLite(); t.after(() => sqlite.cleanup());
+  const raw = sqlite.raw();
+  const legacyTables = Object.entries(TABLES).map(([name, sql]) => name === 'update_receipts' ? sql.replace(', target_event_id TEXT', '') : sql);
+  raw.exec(legacyTables.join(';'));
+  raw.exec('PRAGMA user_version = 1');
+  raw.prepare('INSERT INTO app_versions (user, publisher, app, version) VALUES (?, ?, ?, ?)').run(hex(1), hex(2), 'test-app', old);
+  raw.prepare('INSERT INTO app_versions (user, publisher, app, version) VALUES (?, ?, ?, ?)').run(hex(1), hex(2), 'test-app', next);
+  raw.prepare('INSERT INTO selected_versions (user, publisher, app, version) VALUES (?, ?, ?, ?)').run(hex(1), hex(2), 'test-app', next);
+  raw.prepare('INSERT INTO update_receipts (user, publisher, app, receipt, previous_version, version, row_count, byte_count, workspace_revision) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    .run(hex(1), hex(2), 'test-app', 'accepted_update_1', old, next, 0, 0, null);
+  raw.close(); sqlite.connections.delete(raw);
+
+  const database = await openShellDatabase(sqlite, 'android');
+  const control = database.bindApp(registration()).port;
+  const migrated = sqlite.raw();
+  assert.equal(migrated.prepare('PRAGMA user_version').get()!['user_version'], 2);
+  migrated.close(); sqlite.connections.delete(migrated);
+  assert.deepEqual(await control.receipt('accepted_update_1'), {
+    receiptId: 'accepted_update_1', fromVersion: old, targetVersion: next, rowCount: 0, byteCount: 0,
+    workspaceRevision: null, targetEventId: null,
+  });
+  await assert.rejects(control.acceptUpdate(update()), assertCode('CONFLICT'));
+  await database.close();
+  const reopened = await openShellDatabase(sqlite, 'ios');
+  assert.equal((await reopened.bindApp(registration()).port.receipt('accepted_update_1'))?.targetEventId, null);
+  await reopened.close();
 });
 
 test('copy cannot select another user, publisher or app; unrelated workspaces are unchanged', async t => {

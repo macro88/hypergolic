@@ -11,9 +11,10 @@ export interface WorkspaceStorage {
 export interface UpdateReceipt {
   readonly receiptId: string; readonly fromVersion: string; readonly targetVersion: string;
   readonly rowCount: number; readonly byteCount: number; readonly workspaceRevision: number | null;
+  readonly targetEventId: string | null;
 }
 export interface AcceptedUpdate {
-  readonly fromVersion: string; readonly targetVersion: string; readonly receiptId: string;
+  readonly fromVersion: string; readonly targetVersion: string; readonly targetEventId: string; readonly receiptId: string;
   /** Registry proves explicit acceptance, verified target, and all old generations frozen/revoked. */
   readonly assertFrozen: () => void;
 }
@@ -88,7 +89,7 @@ async function selection(io: Access, owner: Params): Promise<string | null> {
   try { return version(rows[0]!.version); } catch { return fail('CORRUPT_STORAGE'); }
 }
 async function receipt(io: Access, owner: Params, id: string): Promise<UpdateReceipt | null> {
-  const rows = await io.all<{ receipt: string; previous_version: string; version: string; row_count: number; byte_count: number; workspace_revision: number | null }>(`SELECT receipt, previous_version, version, row_count, byte_count, workspace_revision FROM update_receipts WHERE ${OWNER} AND receipt = ?`, ...owner, id);
+  const rows = await io.all<{ receipt: string; previous_version: string; version: string; row_count: number; byte_count: number; workspace_revision: number | null; target_event_id: string | null }>(`SELECT receipt, previous_version, version, row_count, byte_count, workspace_revision, target_event_id FROM update_receipts WHERE ${OWNER} AND receipt = ?`, ...owner, id);
   if (rows.length === 0) return null;
   if (rows.length !== 1) return fail('CORRUPT_STORAGE');
   const row = rows[0]!;
@@ -96,8 +97,9 @@ async function receipt(io: Access, owner: Params, id: string): Promise<UpdateRec
     identifier(row.receipt); version(row.previous_version); version(row.version);
     if (row.receipt !== id || row.previous_version === row.version || !safeCount(row.row_count) || !safeCount(row.byte_count)) fail('CORRUPT_STORAGE');
     if (row.workspace_revision !== null) revision(row.workspace_revision);
+    if (row.target_event_id !== null) publicKey(row.target_event_id);
   } catch { return fail('CORRUPT_STORAGE'); }
-  return Object.freeze({ receiptId: row.receipt, fromVersion: row.previous_version, targetVersion: row.version, rowCount: row.row_count, byteCount: row.byte_count, workspaceRevision: row.workspace_revision });
+  return Object.freeze({ receiptId: row.receipt, fromVersion: row.previous_version, targetVersion: row.version, rowCount: row.row_count, byteCount: row.byte_count, workspaceRevision: row.workspace_revision, targetEventId: row.target_event_id });
 }
 function bindWorkspace(connection: StorageConnection, owner: TrustedUser): Binding<WorkspaceStorage> {
   const { lease, access, transaction } = connection;
@@ -166,12 +168,12 @@ async function copyVersion(io: Access, owner: Params, from: string, target: stri
   if (difference.length !== 0) fail('STORAGE_FAILURE');
   return { rowCount, byteCount };
 }
-type UpdateTarget = { owner: Owner; from: string; target: string; id: string };
+type UpdateTarget = { owner: Owner; from: string; target: string; targetEventId: string; id: string };
 async function applyUpdate(io: Access, plan: UpdateTarget): Promise<UpdateReceipt> {
-  const { owner, from, target, id } = plan;
+  const { owner, from, target, targetEventId, id } = plan;
   const [user, publisher, appId] = owner;
   const existing = await receipt(io, owner, id);
-  if (existing && (existing.fromVersion !== from || existing.targetVersion !== target)) fail('CONFLICT');
+  if (existing && (existing.fromVersion !== from || existing.targetVersion !== target || existing.targetEventId !== targetEventId)) fail('CONFLICT');
   const selected = await selection(io, owner);
   if (existing !== null) {
     if (selected !== target) fail('CONFLICT');
@@ -186,15 +188,15 @@ async function applyUpdate(io: Access, plan: UpdateTarget): Promise<UpdateReceip
     const sessions = workspace.snapshot.sessions.map(item => {
       if (item.publisher !== publisher || item.appId !== appId || item.source !== 'published') return item;
       if (item.version !== from) return fail('CONFLICT');
-      changed = true; return { ...item, version: target };
+      changed = true; return { ...item, version: target, eventId: targetEventId };
     });
     if (changed) workspaceRevision = (await writeWorkspace(io, user, encodeSnapshot({ ...workspace.snapshot, sessions }), workspace.revision)).revision;
   }
   await retained(io, owner, target);
   const counts = await copyVersion(io, owner, from, target);
   if (await io.run(`UPDATE selected_versions SET version = ? WHERE ${OWNER} AND version = ?`, target, ...owner, from) !== 1) fail('STORAGE_FAILURE');
-  if (await io.run('INSERT INTO update_receipts (user, publisher, app, receipt, previous_version, version, row_count, byte_count, workspace_revision) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', ...owner, id, from, target, counts.rowCount, counts.byteCount, workspaceRevision) !== 1) fail('STORAGE_FAILURE');
-  return Object.freeze({ receiptId: id, fromVersion: from, targetVersion: target, ...counts, workspaceRevision });
+  if (await io.run('INSERT INTO update_receipts (user, publisher, app, receipt, previous_version, version, row_count, byte_count, workspace_revision, target_event_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', ...owner, id, from, target, counts.rowCount, counts.byteCount, workspaceRevision, targetEventId) !== 1) fail('STORAGE_FAILURE');
+  return Object.freeze({ receiptId: id, fromVersion: from, targetVersion: target, ...counts, workspaceRevision, targetEventId });
 }
 async function recoverUpdate(io: Access, plan: UpdateTarget): Promise<UpdateReceipt> {
   const { owner, id, from, target } = plan;
@@ -206,7 +208,7 @@ async function recoverUpdate(io: Access, plan: UpdateTarget): Promise<UpdateRece
     if (error instanceof ShellStorageError && ['REVOKED', 'CANCELLED'].includes(error.code)) throw error;
     return fail('STORAGE_INDETERMINATE');
   }
-  if (actual?.fromVersion === from && actual.targetVersion === target && selected === target) return actual;
+  if (actual?.fromVersion === from && actual.targetVersion === target && actual.targetEventId === plan.targetEventId && selected === target) return actual;
   if (actual === null && selected === from) return fail('STORAGE_FAILURE');
   return fail('STORAGE_INDETERMINATE');
 }
@@ -230,11 +232,11 @@ function bindApp(connection: StorageConnection, context: TrustedApp): Binding<Ap
       }));
     },
     acceptUpdate: (update: AcceptedUpdate, options?: RequestOptions) => {
-      const from = version(update.fromVersion), target = version(update.targetVersion), id = identifier(update.receiptId), assertFrozen = liveFunction(update.assertFrozen);
+      const from = version(update.fromVersion), target = version(update.targetVersion), targetEventId = publicKey(update.targetEventId), id = identifier(update.receiptId), assertFrozen = liveFunction(update.assertFrozen);
       if (from === target) fail('INVALID_INPUT');
       return binding.submit(options, async check => {
         function authorized(): void { check(); try { assertFrozen(); } catch { fail('REVOKED'); } }
-        const plan = { owner, from, target, id };
+        const plan = { owner, from, target, targetEventId, id };
         try { return await transaction(authorized, io => applyUpdate(io, plan)); }
         catch (error) {
           if (!(error instanceof ShellStorageError) || error.code !== 'STORAGE_INDETERMINATE') throw error;
