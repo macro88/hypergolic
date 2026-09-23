@@ -29,7 +29,7 @@ export function UpdatePublishedNapplet({ session, check }: {
     setReview(next);
   });
   const start = () => {
-    if (busy) return;
+    if (busy || pending.current) return;
     const controller = new AbortController();
     pending.current = controller;
     setBusy(true);
