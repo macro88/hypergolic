@@ -28,14 +28,15 @@ shows an unavailable state and denies new signing requests before key use.
 
 ## Remaining for 02-05 and v1
 
-There is no app-entry link flow, first-open publisher/access consent, wired native
-verified-byte handoff, published WebView execution, trusted cache, pinned
-restart recovery, explicit update UI, or native settings journey yet. The
+There is no app-entry link flow, first-open publisher/access consent, safe native
+network retrieval port, trusted cache, pinned restart recovery or explicit
+update UI yet. The Settings-only local signed QA route exercises the verified
+native handoff, but does not grant ordinary published app entry. The
 transport still needs platform network ports with bounded relay frames and
 connection-time public-IP checks. The native handoff must transfer at most 2 MiB
 without putting HTML, paths or URLs in React view props, then check the original
-bytes again before host CSP and namespace injection. Android and iOS published
-journeys and update/recovery drivers remain open. Do not mark LOAD-01 through
+bytes again before host CSP and namespace injection. Android and iOS remote
+published journeys and update/recovery drivers remain open. Do not mark LOAD-01 through
 LOAD-03 or RELAY-02 complete from these unit tests or bundle exports.
 
 The Android/iOS native registry cores check byte/hash/session claims and one-use
@@ -44,8 +45,13 @@ with no claim method; see `docs/published-artifact-registry.md`. The Android
 registry/transfer proof passes 175 assertions and its generated native module
 compiles in Release. The iOS transfer/registry proofs pass 88/36 checks and the
 normal unsigned Simulator Release app compiles after Pods refresh. The trusted
-shell has a verifier-branded staging adapter, but no app owner calls it, no host
-view claims the handle and no published code executes. A published workspace
+shell has a verifier-branded staging adapter and both hosts claim one-use
+handles. A Settings-only Android QA route and direct public-only iOS Simulator
+fixture both pass signed-review, native host, visible guest-marker and close
+checks against the same embedded signed artifact. The Android driver binds the
+installed APK hash and source; iOS XCTest binds the isolated bundle and source.
+These prove the native delivery path, not remote loading or production iOS
+identity. A published workspace
 descriptor now stores the exact signed event pin. Schema v2 migration preserves
 older receipts with an unknown pin, so they cannot replay as accepted updates.
-Native journeys and full LOAD acceptance remain open.
+Remote native journeys and full LOAD acceptance remain open.

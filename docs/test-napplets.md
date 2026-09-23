@@ -11,6 +11,7 @@ example, not a required product napplet.
 | [UX Lab](../napplets/ux-lab/README.md) | Standalone artifact and browser checks implemented | Temporary input/counter, horizontal and vertical content, instance lifecycle, optional colors |
 | [State Lab](../napplets/state-lab/README.md) | Embedded; native storage/identity journeys recorded on Android and iOS | Unsaved/saved state, close/reopen and user + publisher + stable napplet isolation |
 | [Approval Lab](../napplets/approval-lab/README.md) | Standalone unsigned artifact; native integration remains open | Explicit approve/deny, background deferral, cancellation and independently verified results |
+| Signed host QA fixture | Fixed signed event and HTML embedded locally; Android Settings and isolated iOS native QA journeys pass | Published-artifact verification, explicit review, one-use native transfer and host rendering without relay or publisher deployment |
 
 Use disposable identities for automated runs and retain the same identity across
 the restart being tested. Keep the fixture publisher separate. A resettable local
@@ -24,7 +25,11 @@ under the designated publisher. The publisher npub, trusted signer and destinati
 remain unidentified. The shell's public startup relay lists are now selected from
 RocketShell; see [relay configuration](relays.md). Fixture publication destinations
 remain a separate release configuration. UX Lab and State Lab are embedded;
-Approval Lab is standalone. No fixture has been signed or published.
+Approval Lab is standalone. UX Lab, State Lab and Approval Lab have not been
+signed or published. The separate signed host QA fixture uses a disposable
+test publisher whose secret was discarded; it is not a release napplet and has
+not been published. Its signed manifest has no server hint, so its Settings
+test route reads only the embedded bytes.
 UX Lab has no network/signing/storage requirement, so its standalone tests do not
 need the relay or a test identity.
 

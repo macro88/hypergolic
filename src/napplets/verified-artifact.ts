@@ -102,7 +102,7 @@ async function sha256(bytes: Uint8Array): Promise<string> {
     digest = await subtle.digest('SHA-256', stableBuffer);
   } else {
     const { digest: expoDigest, CryptoDigestAlgorithm } = await import('expo-crypto');
-    digest = await expoDigest(CryptoDigestAlgorithm.SHA256, stableBuffer);
+    digest = await expoDigest(CryptoDigestAlgorithm.SHA256, new Uint8Array(stableBuffer));
   }
   return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
 }

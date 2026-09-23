@@ -32,6 +32,7 @@ SCENARIOS = {
     "switch-state": {"checks": {"seed-a", "seed-b-isolated", "edge-roundtrip-a", "two-column-overview", "overview-restore-b", "stop-at-last", "stop-at-first-and-restore-a"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testSwitchState"},
     "gestures": {"checks": {"vertical-content-scroll", "horizontal-content-scroll", "marker-selection", "scroll-and-selection-retained"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testGestures"},
     "approval-review": {"checks": {"exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testApprovalReview"},
+    "published-host": {"checks": {"review-exact-signed-fixture", "native-host-connected", "close-returns-to-fixture"}, "kind": "hypergolic-ios-published-host-v1", "test": "WorkspaceTests/testPublishedHost"},
 }
 
 
@@ -70,7 +71,7 @@ def source_manifest(repo: Path) -> dict:
             if path.is_file() and not {"build", ".gradle", "node_modules", ".expo"}.intersection(relative.parts):
                 paths.add(path)
     for name in ("package.json", "pnpm-lock.yaml", "app.json", "app.config.ts", "app.config.js", "babel.config.js",
-                 "babel.config.cjs", "metro.config.js", "metro.config.cjs", "index.ts", "index.fixture.tsx", "runtime/package.json", "runtime/pnpm-lock.yaml"):
+                 "babel.config.cjs", "metro.config.js", "metro.config.cjs", "index.ts", "index.fixture.tsx", "index.published.fixture.tsx", "runtime/package.json", "runtime/pnpm-lock.yaml"):
         path = repo / name
         if path.is_file():
             paths.add(path)
@@ -142,11 +143,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--expected-title", default="UX Lab 1")
     parser.add_argument("--expected-session", default="ux-lab-1")
     parser.add_argument("--timeout", type=float, default=30)
-    parser.add_argument("scenario", choices=["identity-delete-unavailable", "state-close", "state-storage", "identity-switch", "workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "approval-review", "identity", "host-boundary", "renderer-loss"])
+    parser.add_argument("scenario", choices=["identity-delete-unavailable", "state-close", "state-storage", "identity-switch", "workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "approval-review", "published-host", "identity", "host-boundary", "renderer-loss"])
     parser.add_argument("--output", type=Path, required=True, help="New private evidence directory, never overwritten")
     args = parser.parse_args(argv)
     if args.scenario not in SCENARIOS:
         parser.error(f"{args.scenario} is not implemented for iOS; no build or device action was attempted")
+    if args.scenario == "published-host" and args.bundle_id != "org.nostrocket.hypergolic.publishedhostfixture":
+        parser.error("published-host requires the isolated direct published-host fixture bundle")
     if not re.fullmatch(r"[A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12}", args.udid):
         parser.error("--udid must be an explicit Simulator UUID")
     if not re.fullmatch(r"[A-Za-z0-9]+(?:[.-][A-Za-z0-9]+)+", args.bundle_id):
@@ -227,8 +230,10 @@ def main(argv: list[str] | None = None) -> int:
         if runner_id != "org.nostrocket.hypergolic.uitests.xctrunner" or not (runner / "PlugIns/HypergolicUITests.xctest").is_dir():
             raise RuntimeError("Refusing to install an unexpected UI runner artifact")
         result["runner"] = {"bundleIdentifier": runner_id, "executableSha256": sha256(runner / "HypergolicUITests-Runner")}
+        expected_title = "Signed host QA fixture" if args.scenario == "published-host" else args.expected_title
+        expected_session = "published-host-qa-fixture" if args.scenario == "published-host" else args.expected_session
         document = simulator_run(plistlib.loads(manifests[0].read_bytes()), runner_id, args.bundle_id, nonce,
-                                   args.expected_title, args.expected_session, args.timeout, args.scenario)
+                                   expected_title, expected_session, args.timeout, args.scenario)
         if args.scenario == "identity-switch":
             if args.bundle_id != "org.nostrocket.hypergolic.identityuifixture":
                 raise RuntimeError("Identity UI scenario requires the isolated public-key fixture")

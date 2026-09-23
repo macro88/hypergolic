@@ -154,3 +154,20 @@ pins earlier SDK 57 patch versions. Native hosts still run bundled fixtures only
 no app entry/consent, host claim/read path, safe network ports, published
 execution or native published journey exists yet. No source push or remote
 change.
+
+Published host QA checkpoint (2026-09-23): both native hosts now claim the
+one-use staged handle internally and serve exact verified chunks only to their
+packaged top document. The trusted runtime rechecks original bytes and aggregate,
+inserts CSP before publisher markup and mounts an opaque theme-only guest. A
+fixed signed, locally embedded QA napplet uses a discarded disposable key and
+has no relay hint. The normal Android Release app reaches its review in Settings;
+an isolated public-only iOS Simulator entry tests the same host without weakening
+the production identity store. Source/APK-bound Android and source/bundle-bound
+iOS XCTest journeys pass exact review, native connection, visible guest marker
+and close. Backgrounding the Android lab also removes its session. Android
+native registry/read proofs pass 189 assertions; normal Android and iOS Release
+builds compile. TypeScript, 33 napplet tests, 14 driver unit tests, React Doctor
+100 and aislop 100 with zero diagnostics pass. Remote network ports, first-open
+consent, trusted cache, persisted published restart/update flow and normal
+workspace entry remain open. Latest usage check: 58% consumed / 42% remaining;
+the requested pause remains 70% consumed. No source push or remote change.

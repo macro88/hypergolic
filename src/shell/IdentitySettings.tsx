@@ -7,6 +7,7 @@ import { VaultError } from '../security/identity-vault';
 import { useIdentityOwner } from './IdentityShell';
 import { IdentityBackup } from './IdentityBackup';
 import { RelaySettings } from './RelaySettings';
+import { PublishedHostLab } from './PublishedHostLab';
 import { colors } from './theme';
 
 function Action({ title, testID, onPress, subdued = false }: { title: string; testID: string; onPress: () => void; subdued?: boolean }) {
@@ -99,6 +100,7 @@ export function IdentitySettings({ openBundledTest, openStateLab }: SettingsActi
   const [importing, setImporting] = useState(false);
   const [deletion, setDeletion] = useState<DeletionReview | null>(null);
   const [backupReview, setBackupReview] = useState(false);
+  const [signedLab, setSignedLab] = useState(false);
   const closeDeletion = useCallback(() => setDeletion(null), []);
   const closeImport = useCallback(() => setImporting(false), []);
   useEffect(() => {
@@ -109,6 +111,7 @@ export function IdentitySettings({ openBundledTest, openStateLab }: SettingsActi
       try { actions?.endSettings(); } catch { /* Local session is already invalidated. */ }
       closeDeletion();
       setBackupReview(false);
+      setSignedLab(false);
     });
     return () => {
       subscription.remove();
@@ -128,6 +131,9 @@ export function IdentitySettings({ openBundledTest, openStateLab }: SettingsActi
   if (backupReview && actions) return <ScrollView contentContainerStyle={styles.body}>
     <IdentityBackup actions={actions} session={state.session} npub={formatNpub(state.session.vault.selectedPubkey)} reviewing
       onReview={() => setBackupReview(true)} onClose={() => setBackupReview(false)} Action={Action} />
+  </ScrollView>;
+  if (signedLab) return <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+    <PublishedHostLab onClose={() => setSignedLab(false)} sessionAuthority={() => transition.sessionAuthority()} />
   </ScrollView>;
   if (state.phase === 'deleting') return <View style={styles.body}>
     <ActivityIndicator color={colors.accent} /><Text style={styles.title}>Finishing identity action…</Text>
@@ -158,6 +164,10 @@ export function IdentitySettings({ openBundledTest, openStateLab }: SettingsActi
       </View>)}
       <Action title="Import identity" testID="settings-import-identity" onPress={() => setImporting(true)} />
       <RelaySettings service={relaySettings} />
+      {runtime && <>
+        <Text accessibilityRole="header" style={styles.title}>Signed host test</Text>
+        <Action title="Inspect signed test napplet" testID="settings-inspect-signed-test" onPress={() => setSignedLab(true)} subdued />
+      </>}
       <Text accessibilityRole="header" style={styles.title}>Bundled test napplets</Text>
       <Action title="Open UX Lab" testID="settings-open-ux-lab" onPress={openBundledTest} subdued />
       {runtime && <>

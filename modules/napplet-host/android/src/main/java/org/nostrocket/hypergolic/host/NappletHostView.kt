@@ -30,6 +30,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   private var sessionId: String? = null
   private var configuration: CapabilityConfiguration? = null
   private var published: PublishedClaims? = null
+  private var publishedSource: String? = null
   private var publishedReader: PublishedArtifactReadOwner? = null
   private val generation = UUID.randomUUID().toString()
   private var live = false
@@ -199,7 +200,10 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
 
   fun startPublishedArtifact(raw: String) {
     if (disposed) return
-    if (sessionId != null) { fail("session-reuse-blocked"); return }
+    if (sessionId != null) {
+      if (raw != publishedSource) fail("session-reuse-blocked")
+      return
+    }
     val claims = parsePublishedClaims(raw) ?: run { fail("invalid-session"); return }
     sessionId = claims.sessionId
     if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
@@ -211,6 +215,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     val bytes = claimed?.takeHtmlBytes()
     if (bytes == null) { fail("artifact-claim-failed"); return }
     published = claims
+    publishedSource = raw
     publishedReader = PublishedArtifactReadOwner(bytes)
     live = true
     expectedUrl = "$ORIGIN/assets/runtime/index.html?sessionId=$generation&source=published"

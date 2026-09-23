@@ -25,8 +25,9 @@ artifact claims, then binds the bytes to its newly minted view generation.
 Replay, changed claims, expiry, backgrounding or session revocation fail closed.
 Claiming returns a private byte copy to the host only; React props and events
 carry the token and bounded claims, never HTML, a path or an arbitrary URL.
-The published host route remains separate from bundled fixtures and is not yet
-reachable from the application UI.
+The published host route remains separate from bundled fixtures. A Settings-only
+QA entry can verify and review one fixed, locally embedded signed artifact before
+an explicit Open tap. The ordinary workspace still cannot open published releases.
 
 The trusted owner must explicitly register a live shell session before staging and
 revoke pending bytes on closure, identity change or backgrounding. A saved
@@ -59,9 +60,21 @@ through this tracer. The Android production-source JVM proof passes 189
 assertions with `javac -Xlint:all -Werror`; the Swift host proof passes 273
 checks with `swiftc -warnings-as-errors`. Chromium and WebKit pass the full 90
 runtime cases, including the published positive and adversarial bridge cases.
-Android Release module compilation and unsigned iOS Simulator Release app
-compilation pass. A consent-gated app route and actual native published journey
-remain untested and incomplete.
+Android Release and normal unsigned iOS Simulator Release app compilation pass.
+The isolated Android Release QA app verifies the fixed signature and original
+HTML, shows the exact public publisher, app identifier, event ID and theme-only
+access, then renders `fixture-loaded` through the native published host after
+Open. Closing removes the host; backgrounding removes the QA session. The
+isolated public-only iOS Simulator app built from `index.published.fixture.tsx`
+passes the same signed review, WKWebView render and close journey through XCTest.
+Both final screenshots show the styled guest marker with clear contrast. The
+Android source/APK-bound result is in the private
+`hypergolic-android-published-host-final` evidence directory; the iOS
+source/bundle-bound XCTest result is in `hypergolic-ios-published-host-final`.
+The fixture was signed with a disposable key that was discarded; it has no
+server hint and is never fetched or published. These are native host-path
+tests, not remote resolution, first-open consent, production identity on iOS,
+or normal workspace published loading.
 
 ```sh
 source .tools/use-local-tools.sh

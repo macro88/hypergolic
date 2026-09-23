@@ -155,8 +155,10 @@ content-addressed Blossom path through an injected HTTPS port. That port must
 enforce public-IP policy at connection time; ordinary React Native `fetch` does
 not provide that guarantee. The adapter is not connected to app entry. Both
 native hosts now have a separate published-artifact route with a one-use claim
-and trusted-document byte stream, but no published napplet is opened by the
-application yet. Full LOAD-01 through LOAD-03 proof remains open until a safe
+and trusted-document byte stream. Android Settings and an isolated iOS Simulator
+entry exercise a fixed locally signed QA artifact; the ordinary workspace
+cannot open remote published releases yet. Full LOAD-01 through LOAD-03 proof
+remains open until a safe
 native HTTPS port, trusted cache, first-open consent, update flow, and Android
 and iOS device journeys are complete.
 
@@ -181,7 +183,8 @@ pin fail closed as corrupt saved state. Accepted version changes update the
 descriptor's version and event pin together. Bounded staging, native host
 claiming, generation-bound byte delivery, and browser HTML/CSP tests are now
 implemented. A published artifact remains unreachable from the app until the
-consent-gated owner route is connected and tested natively on both platforms.
+consent-gated ordinary workspace route is connected and tested natively on both
+platforms.
 
 ## Reproduction and evidence
 

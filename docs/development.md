@@ -367,6 +367,46 @@ Android requires Node from the pinned local tools for canonical npub decoding.
 Read the scenario receipt and inspect screenshots; a compiled fixture or successful
 command alone does not establish the [native acceptance scope](native-capabilities.md).
 
+For the separate signed published-host QA route, install a freshly built Android
+Release app on an isolated emulator, record the exact installed APK SHA-256, then
+run the source- and artifact-bound driver. It reviews the fixed signed event and
+theme-only access before tapping Open, checks native host readiness, captures the
+rendered guest for visual review, and closes the host. The fixture has no relay
+server hint and is not a published release.
+
+```sh
+python3 -B tests/native/published_host_driver.py --source "$PWD" \
+  --serial EXPLICIT_SERIAL --package org.nostrocket.hypergolic.dev \
+  --expected-apk-sha256 VERIFIED_INSTALLED_APK_SHA256 \
+  --output /tmp/hypergolic-published-host-UNIQUE --launch
+```
+
+For iOS, build the test-only entry under a separate bundle ID. The normal iOS
+app deliberately rejects Simulator identity storage; this fixture has no
+identity or signing key and tests only the published host path. On an already
+booted Simulator, use the current fixture source and a fresh output directory:
+
+```sh
+source .tools/use-local-tools.sh
+source .tools/use-ios-tools.sh
+xcodebuild -workspace ios/Hypergolic.xcworkspace -scheme Hypergolic \
+  -configuration Release -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,id=EXPLICIT_SIMULATOR_UUID' \
+  -derivedDataPath /tmp/hypergolic-published-fixture-build \
+  CODE_SIGNING_ALLOWED=NO \
+  PRODUCT_BUNDLE_IDENTIFIER=org.nostrocket.hypergolic.publishedhostfixture \
+  ENTRY_FILE=index.published.fixture.tsx build
+xcrun simctl install EXPLICIT_SIMULATOR_UUID \
+  /tmp/hypergolic-published-fixture-build/Build/Products/Release-iphonesimulator/Hypergolic.app
+python3 -B tests/native/ios-driver.py --udid EXPLICIT_SIMULATOR_UUID \
+  --bundle-id org.nostrocket.hypergolic.publishedhostfixture --repo "$PWD" \
+  --output /tmp/hypergolic-ios-published-host-UNIQUE published-host
+```
+
+The iOS scenario checks the exact signed review, native connected state,
+accessible guest marker and close. Its result does not establish production
+identity, network retrieval, first-open grants or physical-device security.
+
 ## Tester APK command
 
 `pnpm run build:tester` packages the current checkout as a signed standalone ARM64

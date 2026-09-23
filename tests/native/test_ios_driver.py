@@ -17,7 +17,7 @@ class LauncherTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             repo = Path(temporary)
             names = ("src/App.tsx", "src/shell/motion.ts", "src/deeper/state.ts", "package.json", "pnpm-lock.yaml",
-                     "modules/napplet-host/ios/Host.swift", "modules/napplet-host/ios/Resources/assets-manifest.json")
+                     "modules/napplet-host/ios/Host.swift", "modules/napplet-host/ios/Resources/assets-manifest.json", "index.published.fixture.tsx")
             for name in (*names, "modules/napplet-host/android/build/generated/cache"):
                 path = repo / name
                 path.parent.mkdir(parents=True, exist_ok=True)
@@ -107,6 +107,25 @@ class LauncherTests(unittest.TestCase):
             self.assertEqual(error.exception.code, 2)
             command.assert_not_called()
             self.assertFalse(output.exists())
+
+    def test_published_host_is_bound_to_direct_isolated_fixture_before_device_work(self):
+        with tempfile.TemporaryDirectory() as temporary, patch.object(driver.subprocess, "run") as command:
+            output = Path(temporary) / "evidence"
+            with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+                driver.main(["--udid", "00000000-0000-4000-8000-000000000001", "published-host",
+                             "--bundle-id", "org.nostrocket.hypergolic.dev", "--output", str(output)])
+            self.assertEqual(error.exception.code, 2)
+            command.assert_not_called()
+            self.assertFalse(output.exists())
+        bundle = "org.nostrocket.hypergolic.publishedhostfixture"
+        report = {"kind": "hypergolic-ios-published-host-v1", "scenario": "published-host", "completed": True,
+                  "allChecksPassed": True, "checks": [{"name": name, "passed": True}
+                                                        for name in driver.SCENARIOS["published-host"]["checks"]],
+                  "observations": {"nonce": "abcdef012345", "bundleIdentifier": bundle}}
+        driver.validate_report(report, "abcdef012345", bundle, "published-host")
+        report["checks"].pop()
+        with self.assertRaises(RuntimeError):
+            driver.validate_report(report, "abcdef012345", "org.nostrocket.hypergolic.identityuifixture", "published-host")
 
     def test_implicit_booted_selector_rejected_before_any_command(self):
         with tempfile.TemporaryDirectory() as temporary, patch.object(driver.subprocess, "run") as command:

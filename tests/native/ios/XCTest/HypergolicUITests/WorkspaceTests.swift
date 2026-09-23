@@ -23,6 +23,7 @@ final class WorkspaceTests: XCTestCase {
     "switch-state": ["seed-a", "seed-b-isolated", "edge-roundtrip-a", "two-column-overview", "overview-restore-b", "stop-at-last", "stop-at-first-and-restore-a"],
     "gestures": ["vertical-content-scroll", "horizontal-content-scroll", "marker-selection", "scroll-and-selection-retained"],
     "approval-review": ["exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"],
+    "published-host": ["review-exact-signed-fixture", "native-host-connected", "close-returns-to-fixture"],
   ]
 
   override func setUpWithError() throws {
@@ -42,7 +43,7 @@ final class WorkspaceTests: XCTestCase {
     let names = Set(checks.compactMap { $0["name"] as? String })
     let allPassed = complete && names == expected[scenario] && checks.count == expected[scenario]?.count && checks.allSatisfy { $0["passed"] as? Bool == true }
     attach([
-      "kind": "hypergolic-ios-workspace-v1", "scenario": scenario, "completed": complete,
+      "kind": scenario == "published-host" ? "hypergolic-ios-published-host-v1" : "hypergolic-ios-workspace-v1", "scenario": scenario, "completed": complete,
       "allChecksPassed": allPassed, "checks": checks, "observations": observations, "gestures": gestures,
       "proofScope": "Public native XCTest gestures and accessibility. Temporary fixture values/scroll positions only; native generation identity and transition frame pacing are not directly observed."
     ], "workspace-report")
@@ -295,6 +296,68 @@ final class WorkspaceTests: XCTestCase {
     try approvalSheet()
     try identityPress("approval-sheet-reject")
     try until("Backgrounded request rejected after resume") { !self.approvalSheetVisible() && (try? self.approvalFailures()) == 5 }
+    complete = true
+  }
+
+  func testPublishedHost() throws {
+    guard ProcessInfo.processInfo.environment["HG_TARGET_BUNDLE_ID"] == "org.nostrocket.hypergolic.publishedhostfixture" else {
+      throw Failure.invalid("Requires the isolated direct published-host fixture")
+    }
+    let title = app.staticTexts.matching(NSPredicate(format: "label == %@", "Signed host QA fixture")).firstMatch
+    try until("Direct published-host fixture title") { title.exists }
+    capture("published-host-fixture-start")
+
+    let publisher = try one(app.staticTexts.matching(identifier: "published-lab-publisher"), "signed fixture publisher")
+    let identifier = app.staticTexts.matching(NSPredicate(format: "label == %@", "hypergolic-qa-embedded")).firstMatch
+    let event = app.staticTexts.matching(NSPredicate(format: "label == %@", "abc35c0b0d09e6934d94321f66fd309b62a2d92031d5501cbbdf175bddf049f6")).firstMatch
+    let access = app.staticTexts.matching(NSPredicate(format: "label == %@", "Theme only")).firstMatch
+    try until("Exact signed fixture review fields") { identifier.exists && event.exists && access.exists }
+    guard publisher.label == "cb9e62b0a9bdb390be102d17ecd9f1c652824723229577066d938d5cbee4a6e3" else {
+      throw Failure.invalid("Signed fixture publisher does not match the reviewed public key")
+    }
+    record("review-exact-signed-fixture", identifier.label == "hypergolic-qa-embedded"
+      && event.label == "abc35c0b0d09e6934d94321f66fd309b62a2d92031d5501cbbdf175bddf049f6"
+      && access.label == "Theme only"
+      && app.buttons.matching(identifier: "published-lab-open").firstMatch.exists,
+      ["publisher": publisher.label, "identifier": identifier.label, "eventId": event.label,
+       "access": access.label, "openAvailable": true,
+       "scope": "Direct test-only fixture entry; no selected identity or production shell settings assumed"])
+    capture("published-host-review")
+
+    let open = try one(app.buttons.matching(identifier: "published-lab-open"), "Open signed test", visible: false)
+    try stateNativeReveal(open)
+    try nativeTap(open, name: "published-lab-open")
+    let status = app.staticTexts.matching(identifier: "published-lab-status").firstMatch
+    try until("Signed test napplet connected through native host") {
+      status.exists && status.label == "Signed test napplet connected"
+    }
+
+    // WebKit accessibility exposure varies by Simulator version. Record whether
+    // the guest's rendered marker is queryable; shell.ready remains required.
+    var marker: XCUIElement?
+    let markerDeadline = Date().addingTimeInterval(3)
+    repeat {
+      marker = app.webViews.allElementsBoundByIndex
+        .filter { $0.exists && $0.isHittable && $0.descendants(matching: .webView).count == 0 }
+        .flatMap { $0.staticTexts.matching(NSPredicate(format: "label == %@", "fixture-loaded")).allElementsBoundByIndex }
+        .first(where: { $0.exists })
+      if marker != nil { break }
+      RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+    } while Date() < markerDeadline
+
+    record("native-host-connected", true, ["status": status.label, "guestMarkerAccessible": marker != nil,
+      "guestMarker": marker?.label ?? "",
+      "scope": "Direct test-only fixture; host flow only, no production identity claim"])
+    capture("published-host-connected")
+    let close = try one(app.buttons.matching(identifier: "published-lab-close"), "Close signed test", visible: false)
+    try stateNativeReveal(close)
+    try nativeTap(close, name: "published-lab-close")
+    try until("Signed test lab closed to direct fixture screen") {
+      self.app.staticTexts.matching(NSPredicate(format: "label == %@", "Signed host QA fixture")).firstMatch.exists
+        && !self.app.buttons.matching(identifier: "published-lab-open").firstMatch.exists
+    }
+    record("close-returns-to-fixture", true, ["title": "Signed host QA fixture", "selectedIdentityAssumed": false])
+    capture("published-host-fixture-returned")
     complete = true
   }
 
