@@ -124,8 +124,9 @@ pinned network query, discovers and verifies a newer candidate, and requires a
 separate confirmation before staging it. A changed grant needs its own access
 review. The workspace swaps in the same position only after preparation succeeds;
 the old native session and pending signing approvals are then closed. Focused
-tests cover refusal, unchanged event, rollback rejection and accepted runtime
-handoff. TypeScript passes. Complete native update journeys remain open.
+tests cover refusal, unchanged event, rollback rejection, changed-access denial
+without staging, and accepted runtime handoff. TypeScript passes. Complete
+native update journeys remain open.
 
 The final Android ARM64 Release APK was signed with the repository's disposable
 debug key and installed over the existing API 36 emulator app without clearing

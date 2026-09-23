@@ -248,3 +248,35 @@ test('accepted runtime update consumes a new native session at the old workspace
   assert(calls.includes(`revoke:${first.id}`));
   firstBinding.revoke(); secondBinding.revoke();
 });
+
+test('changed update access needs a second review before any new native session', async t => {
+  const { database, sqlite } = await setup(t);
+  const appId = 'published-access-update-test', key = new Uint8Array(32).fill(23);
+  const html = getEmbeddedTestHtmlBytes();
+  const original = signedFixture(1_800_000_020, appId, html, ['theme'], key);
+  const changed = signedFixture(1_800_000_021, appId, html, ['relay', 'theme'], key);
+  const calls: string[] = [];
+  let latest = original, nextId = 0;
+  const service = createPublishedSessionCoordinator({ database, sqlite, native: native(calls),
+    newInstanceId: () => `00000000-0000-4000-8000-${String(++nextId).padStart(12, '0')}`,
+    lookupRelays: () => ['wss://relay.example.org'],
+    identity: { sessionAuthority: () => ({ user: USER, epoch: 1, assertActive: () => undefined }),
+      getSnapshot: () => ({ session: { epoch: 1 } }) } as PublishedSessionDependencies['identity'],
+    source: { query: async (_coordinate, _relays, pinned) => pinned === original.id ? [original] : [latest],
+      readHtml: async () => new Uint8Array(html) },
+  });
+  const link = naddrEncode({ kind: 35129, pubkey: original.pubkey, identifier: appId });
+  const opened = await service.openLink(link, new AbortController().signal, async () => true);
+  const before = calls.length;
+  latest = changed;
+  await assert.rejects(service.prepareUpdate(opened.descriptor, new AbortController().signal,
+    async request => { assert.deepEqual(request.domains, ['relay', 'theme']); return true; },
+    async request => { assert.deepEqual(request.domains, ['relay', 'theme']); return false; }));
+  assert.equal(calls.length, before);
+  const accepted = await service.prepareUpdate(opened.descriptor, new AbortController().signal,
+    async () => true, async request => { assert.deepEqual(request.domains, ['relay', 'theme']); return true; });
+  assert(accepted);
+  assert.equal(accepted.descriptor.eventId, changed.id);
+  assert.equal(calls.filter(call => call.startsWith('register:')).length, 2);
+  opened.revoke(); accepted.revoke();
+});
