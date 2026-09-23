@@ -3,6 +3,7 @@ import type { GroupRequestOptions, RelayPool } from 'applesauce-relay';
 import type { Filter } from 'applesauce-core/helpers/filter';
 import { MAX_RELAYS_PER_ROLE, normalizeRelayUrl } from '../network/relay-settings.ts';
 import type { NappletLookupCoordinate, PublishedArtifactSource } from './loader.ts';
+import type { NativePublishedRelayLookup } from './native-published-relay.ts';
 import { MAX_HTML_BYTES, MAX_MANIFEST_BYTES } from './verified-artifact.ts';
 
 export const MAX_MANIFESTS_PER_QUERY = 32;
@@ -38,6 +39,13 @@ export type PublishedSourceOptions = Readonly<{
   /** Required: caps raw frames before JSON parsing and pins each relay's public IP at connection time. */
   createRelayPool: BoundedRelayPoolFactory;
   relayTimeoutMs?: number;
+  blossomTimeoutMs?: number;
+}>;
+export type NativePublishedSourceOptions = Readonly<{
+  /** App-only native WSS lookup port. It receives only the selected lookup relays. */
+  relayLookup: NativePublishedRelayLookup;
+  /** Required: platform transport enforces public-IP pinning for Blossom HTTPS. */
+  fetchPublicHttps: PublishedHttpsFetch;
   blossomTimeoutMs?: number;
 }>;
 
@@ -289,6 +297,18 @@ export function createPublishedArtifactSource(options: PublishedSourceOptions): 
   return Object.freeze({
     query: (coordinate: NappletLookupCoordinate, lookupRelays: readonly string[], pinnedEventId: string | null, signal: AbortSignal) =>
       queryManifests(poolFactory, relayTimeoutMs, coordinate, lookupRelays, pinnedEventId, signal),
+    readHtml: (expectedHash: string, serverHints: readonly string[], maxBytes: number, signal: AbortSignal) =>
+      readBlossom(expectedHash, serverHints, maxBytes, blossomTimeoutMs, signal, options.fetchPublicHttps),
+  });
+}
+
+/** Uses the native WSS lookup path while sharing the existing bounded Blossom/hash reader. */
+export function createNativePublishedArtifactSource(options: NativePublishedSourceOptions): PublishedArtifactSource {
+  const blossomTimeoutMs = boundedTimeout(options.blossomTimeoutMs, DEFAULT_BLOSSOM_TIMEOUT_MS, MAX_BLOSSOM_TIMEOUT_MS);
+  if (typeof options.fetchPublicHttps !== 'function' || typeof options.relayLookup?.query !== 'function') return fail();
+  return Object.freeze({
+    query: (coordinate: NappletLookupCoordinate, lookupRelays: readonly string[], pinnedEventId: string | null, signal: AbortSignal) =>
+      options.relayLookup.query(coordinate, lookupRelays, pinnedEventId, signal),
     readHtml: (expectedHash: string, serverHints: readonly string[], maxBytes: number, signal: AbortSignal) =>
       readBlossom(expectedHash, serverHints, maxBytes, blossomTimeoutMs, signal, options.fetchPublicHttps),
   });

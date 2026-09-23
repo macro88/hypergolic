@@ -42,16 +42,29 @@ Both Expo modules expose an app-only `fetchPublishedHttps(operationId, url)`
 method that returns Base64 of the bounded original body, plus operation cancel
 and revoke methods. The trusted JavaScript adapter checks canonical Base64 and
 reconstructs a bounded `Response` for the existing published source. This port
-is not yet injected into the normal app loader. Native WebSocket *frame parsers*
-exist on both platforms, but no relay socket transport feeds them yet. They
-limit each raw frame, including its header, to 66,560 bytes and each read to
-8 KiB. A parser alone does not provide public-address pinning, TLS, query
-selection or lifecycle ownership for a relay connection.
+is not yet injected into the normal app loader. Android and iOS now also have
+single-relay native WSS query cores. Each checks every resolved address before
+numeric-address connection, retains the original hostname for TLS, validates a
+strict WebSocket upgrade, masks its outbound `REQ` and bounds inbound frames,
+reads, messages, events, bytes, cancellation and deadline. Both query cores are
+exposed only through app-owned Expo methods with cancel and lifecycle revocation.
+A trusted request builder and relay adapter select only configured Lookup relays,
+limit fan-out to four native queries, parse responses through matching `EOSE`,
+and prepare still-unverified events for the signed-artifact loader. This source
+is not yet wired to ordinary entry and is not a live phone-tested loading path.
 
 SQLite schema v3 can persist a revisioned first-open capability grant by user,
-publisher and stable napplet ID. The consent review and authorization gate are
-not wired to it. The trusted cache, update confirmation and normal `naddr`
-workspace entry are still open.
+publisher and stable napplet ID. A trusted coordinator now binds a verifier-
+branded artifact to an exact publisher, signed `d` identifier and capability set.
+It requires explicit review for a new or changed grant and denies stale decisions.
+The production staging wrapper rechecks that branded admission through every
+native upload step. The review UI and normal `naddr` entry do not call these
+pieces yet. The trusted cache and update confirmation are also open.
+If Settings later revokes an already-admitted grant while an identity remains
+active, it must also revoke that admission's live session before another stage;
+the current coordinator checks the identity/session epoch, not a new database
+read for every upload chunk.
+
 The existing Settings signed-host QA route uses a locally embedded signed
 fixture and does not test remote network behavior. Native compile and isolated
 parsing/address tests do not establish live TLS behavior on a phone or a
@@ -64,5 +77,40 @@ The Android Expo owner proof is
 The iOS response and request proof is `python3 tests/native/published-https/run.py`;
 it compiles the actual native sources with `swiftc -warnings-as-errors`. The
 iOS Simulator Release build checks the actual Expo module target. The shared
-frame proof is `python3 tests/native/websocket-frames/run.py`. Exact current
-counts and build evidence are recorded in the phase progress note.
+frame proof is `python3 tests/native/websocket-frames/run.py`. WSS handshake,
+client-frame and native query proofs are in `tests/native/websocket-handshake`,
+`tests/native/websocket-client-frames`, `tests/native/android-published-wss`
+and `tests/native/ios-published-wss`. Exact current counts and build evidence
+are recorded in the phase progress note.
+
+## Relay integration contract
+
+A published lookup must use only the trusted Lookup relay list, never relay
+hints in an `naddr` link. Each `wss` destination needs the same all-address
+public classification and numeric-address pinning as HTTPS, while preserving
+the original hostname for SNI and certificate validation. The opening
+handshake must check the selected WebSocket accept value and refuse redirects,
+extensions and compression. The native frame parser then runs before any JSON
+decode or JavaScript delivery. This follows [RFC 6455](https://www.rfc-editor.org/info/rfc6455/).
+
+The prepared trusted request builder creates one bounded `REQ` for the exact
+publisher, kind-35129 and `d` coordinate, with an optional exact event ID on
+restart. The native query bridge must use this request and only the trusted
+Lookup relay list; the app must structurally classify native response envelopes
+before accepting an `EOSE` completion.
+Collect only the initial `EVENT` messages up to `EOSE`; `CLOSED`, malformed
+messages, size overflow, timeout, cancellation or lifecycle revocation must
+end the affected connection. A `NOTICE` does not grant permission or alter
+the lookup. The shared parser checks these NIP-01 reply envelopes and the
+active subscription ID, but does not treat an event as verified.
+[NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md) defines the
+wire envelopes. Event signatures and original artifact hashes must still be
+checked in the trusted loader. No relay publishes or signer requests belong to
+this lookup transport.
+
+Before enabling ordinary published entry, exercise the native Android and iOS
+paths against controlled TLS endpoints: a valid relay and Blossom server,
+mixed private/public DNS answers, hostname or certificate mismatch, redirects,
+bad upgrade responses, oversized frames, cancellation, background revocation,
+and restart with the exact pinned event. The successful path must reach the
+normal workspace and show a verified guest on both platforms.

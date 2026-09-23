@@ -17,25 +17,36 @@ class NappletHostModule : Module() {
       val foreground = appContext.runtime.reactContext?.lifecycleState == LifecycleState.RESUMED
       ApprovalTransport.foreground(foreground)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(foreground)
+      PublishedRelayWssRequestOwner.INSTANCE.setForeground(foreground)
     }
     OnActivityEntersForeground {
       ApprovalTransport.foreground(true)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(true)
+      PublishedRelayWssRequestOwner.INSTANCE.setForeground(true)
     }
     OnActivityEntersBackground {
       ApprovalTransport.foreground(false)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(false)
+      PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
       PublishedArtifactTransfer.INSTANCE.revokeAllPublishedArtifacts()
       NappletHostView.revokePublishedOnBackground()
     }
     OnActivityDestroys {
       ApprovalTransport.foreground(false)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(false)
+      PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
       PublishedArtifactTransfer.INSTANCE.revokeAllPublishedArtifacts()
       NappletHostView.revokePublishedOnBackground()
     }
-    OnUserLeavesActivity { PublishedHttpsRequestOwner.INSTANCE.setForeground(false) }
-    OnDestroy { PublishedHttpsRequestOwner.INSTANCE.revokeAll() }
+    OnUserLeavesActivity {
+      PublishedHttpsRequestOwner.INSTANCE.setForeground(false)
+      PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
+    }
+    OnDestroy {
+      PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
+      PublishedHttpsRequestOwner.INSTANCE.revokeAll()
+      PublishedRelayWssRequestOwner.INSTANCE.revokeAll()
+    }
     AsyncFunction("fetchPublishedHttps") Coroutine { operationId: String, url: String ->
       val job = currentCoroutineContext()[Job]
       withContext(Dispatchers.IO) {
@@ -47,6 +58,19 @@ class NappletHostModule : Module() {
       PublishedHttpsRequestOwner.INSTANCE.cancel(operationId)
     }
     Function("revokeAllPublishedHttps") { PublishedHttpsRequestOwner.INSTANCE.revokeAll() }
+    AsyncFunction("queryPublishedRelay") Coroutine { operationId: String, url: String, requestText: String,
+      subscriptionId: String ->
+      val job = currentCoroutineContext()[Job]
+      withContext(Dispatchers.IO) {
+        PublishedRelayWssRequestOwner.INSTANCE.query(operationId, url, requestText, subscriptionId) {
+          job?.isActive == true
+        }
+      }
+    }
+    Function("cancelPublishedRelay") { operationId: String ->
+      PublishedRelayWssRequestOwner.INSTANCE.cancel(operationId)
+    }
+    Function("revokeAllPublishedRelay") { PublishedRelayWssRequestOwner.INSTANCE.revokeAll() }
     Function("registerPublishedSession") { sessionId: String ->
       PublishedArtifactTransfer.INSTANCE.registerPublishedSession(sessionId)
     }

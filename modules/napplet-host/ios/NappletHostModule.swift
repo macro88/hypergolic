@@ -3,13 +3,16 @@ import ExpoModulesCore
 
 public final class NappletHostModule: Module {
   private let publishedHTTPS = PublishedHTTPSBridgeOwner()
+  private let publishedRelay = PublishedRelayBridgeOwner()
   deinit {
     publishedHTTPS.revokeAll()
+    publishedRelay.revokeAll()
     PublishedArtifactTransfer.shared.revokeAll()
   }
 
   public func definition() -> ModuleDefinition {
     let publishedHTTPS = self.publishedHTTPS
+    let publishedRelay = self.publishedRelay
     Name("HypergolicNappletHost")
     AsyncFunction("fetchPublishedHttps") { (operationId: String, url: String) async throws -> String in
       try await publishedHTTPS.fetch(operationId: operationId, url: url)
@@ -18,6 +21,15 @@ public final class NappletHostModule: Module {
       publishedHTTPS.cancel(operationId: operationId)
     }
     Function("revokeAllPublishedHttps") { publishedHTTPS.revokeAll() }
+    AsyncFunction("queryPublishedRelay") { (operationId: String, url: String, requestText: String,
+                                              subscriptionId: String) async throws -> [String] in
+      try await publishedRelay.query(operationId: operationId, url: url, requestText: requestText,
+                                      subscriptionId: subscriptionId)
+    }
+    Function("cancelPublishedRelay") { (operationId: String) in
+      publishedRelay.cancel(operationId: operationId)
+    }
+    Function("revokeAllPublishedRelay") { publishedRelay.revokeAll() }
     Function("newInstanceId") { UUID().uuidString.lowercased() }
     Function("takeCapability") { (token: String) -> String? in CapabilityTransport.leases.take(token) }
     Function("isCapabilityActive") { (token: String) -> Bool in CapabilityTransport.leases.isActive(token) }

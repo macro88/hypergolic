@@ -150,13 +150,20 @@ version; an unavailable or mismatched pinned artifact must not fall back to a
 different version. First-open publisher and access consent remains distinct
 from cryptographic validity.
 
+Schema v3 stores an exact first-open capability grant under user, verified
+publisher and stable napplet ID. A trusted coordinator can ask for explicit
+review and reject a stale identity or grant revision. A prepared production
+staging wrapper rechecks its branded admission, but the review UI and normal
+`naddr` entry do not call it yet.
+
 The transport adapter can query selected lookup relays and fetch a signed
 content-addressed Blossom path through an injected HTTPS port. That port must
 enforce public-IP policy at connection time; ordinary React Native `fetch` does
 not provide that guarantee. [Native HTTPS and address-policy cores](published-network.md)
 now exist for both platforms, with an app-only Expo HTTPS bridge and trusted
-JavaScript adapter; the adapter is not injected into app entry. Native bounded
-WebSocket frame parsers exist, but relay connection and delivery remain open. Both
+JavaScript adapter; the adapter is not injected into app entry. Bounded native
+relay queries and app-only Expo methods now exist on both platforms, with a
+trusted request/response adapter; these are not yet used by ordinary entry. Both
 native hosts now have a separate published-artifact route with a one-use claim
 and trusted-document byte stream. Android Settings and an isolated iOS Simulator
 entry exercise a fixed locally signed QA artifact; the ordinary workspace
