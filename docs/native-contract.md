@@ -153,13 +153,16 @@ from cryptographic validity.
 The transport adapter can query selected lookup relays and fetch a signed
 content-addressed Blossom path through an injected HTTPS port. That port must
 enforce public-IP policy at connection time; ordinary React Native `fetch` does
-not provide that guarantee. The adapter is not connected to app entry. Both
+not provide that guarantee. [Native HTTPS and address-policy cores](published-network.md)
+now exist for both platforms, with an app-only Expo HTTPS bridge and trusted
+JavaScript adapter; the adapter is not injected into app entry. Native bounded
+WebSocket frame parsers exist, but relay connection and delivery remain open. Both
 native hosts now have a separate published-artifact route with a one-use claim
 and trusted-document byte stream. Android Settings and an isolated iOS Simulator
 entry exercise a fixed locally signed QA artifact; the ordinary workspace
 cannot open remote published releases yet. Full LOAD-01 through LOAD-03 proof
-remains open until a safe
-native HTTPS port, trusted cache, first-open consent, update flow, and Android
+remains open until the native HTTPS and relay ports are integrated and live-tested,
+trusted cache, first-open consent, update flow, and Android
 and iOS device journeys are complete.
 
 ### Required native handoff

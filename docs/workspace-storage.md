@@ -109,3 +109,15 @@ Raw receipts: `/private/tmp/hypergolic-ios-delete-unavailable-06` through `-08`,
 `/private/tmp/hypergolic-lazy-ios-close-01` and
 `/private/tmp/hypergolic-lazy-android-close-01`. TypeScript and 25 shell tests pass;
 full aislop remains 100/100 and local React Doctor has zero findings/no numeric score.
+
+## First-open grant storage checkpoint
+
+Schema v3 adds one revisioned capability grant per selected user, verified
+publisher and stable napplet ID. The trusted shell binding can read, replace or
+revoke the exact reviewed capability set with revision compare-and-swap. It
+canonicalizes NAP capability identifiers (for example `theme` and `storage`),
+snapshots caller input before asynchronous work, and rejects malformed persisted
+sets. Existing v1/v2 databases migrate without replacing workspace or app data.
+The 89-test storage suite covers isolation, conflicts, migration and corruption.
+The first-open review UI and decision gate remain to be connected; a stored grant
+alone does not authorize a napplet.

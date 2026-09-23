@@ -171,3 +171,14 @@ builds compile. TypeScript, 33 napplet tests, 14 driver unit tests, React Doctor
 consent, trusted cache, persisted published restart/update flow and normal
 workspace entry remain open. Latest usage check: 58% consumed / 42% remaining;
 the requested pause remains 70% consumed. No source push or remote change.
+
+Native network checkpoint (2026-09-23): Android/iOS now have shared public-IP
+classification, pinned-address HTTPS cores, app-only fetch/cancel/revoke bridges,
+and bounded WebSocket frame parsers. A trusted JavaScript adapter decodes bounded
+HTTPS bytes, but ordinary published entry does not call it. SQLite schema v3
+stores revisioned access grants by user/publisher/napplet; first-open UI and the
+authority gate are still open. Native address, HTTPS, bridge and frame proofs,
+89 storage tests and 37 napplet tests pass. Normal Android ARM64 and iOS Simulator
+Release apps compile with the new code. React Doctor and aislop both score
+100/100. Safe native relay connection, remote live journeys, trusted cache,
+update/restart and both-platform v1 acceptance remain open. No source push.

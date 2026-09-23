@@ -2,10 +2,22 @@ import Foundation
 import ExpoModulesCore
 
 public final class NappletHostModule: Module {
-  deinit { PublishedArtifactTransfer.shared.revokeAll() }
+  private let publishedHTTPS = PublishedHTTPSBridgeOwner()
+  deinit {
+    publishedHTTPS.revokeAll()
+    PublishedArtifactTransfer.shared.revokeAll()
+  }
 
   public func definition() -> ModuleDefinition {
+    let publishedHTTPS = self.publishedHTTPS
     Name("HypergolicNappletHost")
+    AsyncFunction("fetchPublishedHttps") { (operationId: String, url: String) async throws -> String in
+      try await publishedHTTPS.fetch(operationId: operationId, url: url)
+    }
+    Function("cancelPublishedHttps") { (operationId: String) in
+      publishedHTTPS.cancel(operationId: operationId)
+    }
+    Function("revokeAllPublishedHttps") { publishedHTTPS.revokeAll() }
     Function("newInstanceId") { UUID().uuidString.lowercased() }
     Function("takeCapability") { (token: String) -> String? in CapabilityTransport.leases.take(token) }
     Function("isCapabilityActive") { (token: String) -> Bool in CapabilityTransport.leases.isActive(token) }

@@ -41,7 +41,7 @@ test('accepted copy preserves exact shared/instance values, old data, order/focu
 test('v1 update receipts migrate with an unknown event pin and refuse replay as unverifiable', async t => {
   const sqlite = new DiskSQLite(); t.after(() => sqlite.cleanup());
   const raw = sqlite.raw();
-  const legacyTables = Object.entries(TABLES).map(([name, sql]) => name === 'update_receipts' ? sql.replace(', target_event_id TEXT', '') : sql);
+  const legacyTables = Object.entries(TABLES).filter(([name]) => name !== 'access_grants').map(([name, sql]) => name === 'update_receipts' ? sql.replace(', target_event_id TEXT', '') : sql);
   raw.exec(legacyTables.join(';'));
   raw.exec('PRAGMA user_version = 1');
   raw.prepare('INSERT INTO app_versions (user, publisher, app, version) VALUES (?, ?, ?, ?)').run(hex(1), hex(2), 'test-app', old);
@@ -54,7 +54,7 @@ test('v1 update receipts migrate with an unknown event pin and refuse replay as 
   const database = await openShellDatabase(sqlite, 'android');
   const control = database.bindApp(registration()).port;
   const migrated = sqlite.raw();
-  assert.equal(migrated.prepare('PRAGMA user_version').get()!['user_version'], 2);
+  assert.equal(migrated.prepare('PRAGMA user_version').get()!['user_version'], 3);
   migrated.close(); sqlite.connections.delete(migrated);
   assert.deepEqual(await control.receipt('accepted_update_1'), {
     receiptId: 'accepted_update_1', fromVersion: old, targetVersion: next, rowCount: 0, byteCount: 0,

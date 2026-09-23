@@ -1,6 +1,6 @@
 import { configure, schema, SHELL_DATABASE } from './schema.ts';
 import { decodeSnapshot, encodeSnapshot, identifier, publicKey, revision, text, utf8Bytes, version } from './codec.ts';
-import { fail, LIMITS, sanitize, ShellStorageError, type Binding, type RequestOptions, type Scope, type SQLiteConnection, type SQLiteModule, type StringStorage, type TrustedApp, type TrustedRegistration, type TrustedUser } from './ports.ts';
+import { fail, LIMITS, sanitize, ShellStorageError, type AccessGrant, type Binding, type RequestOptions, type Scope, type SQLiteConnection, type SQLiteModule, type StringStorage, type TrustedApp, type TrustedRegistration, type TrustedUser } from './ports.ts';
 import type { WorkspaceSnapshot } from '../shell/workspace.ts';
 export { SHELL_DATABASE } from './schema.ts';
 export interface WorkspaceRecord { readonly revision: number; readonly snapshot: WorkspaceSnapshot }
@@ -23,6 +23,9 @@ export interface AppStorageControl {
   selectInitialVersion(version: string, options?: RequestOptions): Promise<void>;
   acceptUpdate(update: AcceptedUpdate, options?: RequestOptions): Promise<UpdateReceipt>;
   receipt(receiptId: string, options?: RequestOptions): Promise<UpdateReceipt | null>;
+  readAccessGrant(options?: RequestOptions): Promise<AccessGrant | null>;
+  replaceAccessGrant(domains: readonly string[], expectedRevision: number | null, options?: RequestOptions): Promise<AccessGrant>;
+  revokeAccessGrant(expectedRevision: number, options?: RequestOptions): Promise<void>;
 }
 /** Trusted-shell factory. Never expose this object, binding/revoke controls or SQL to a napplet. */
 export interface ShellDatabase {
@@ -100,6 +103,48 @@ async function receipt(io: Access, owner: Params, id: string): Promise<UpdateRec
     if (row.target_event_id !== null) publicKey(row.target_event_id);
   } catch { return fail('CORRUPT_STORAGE'); }
   return Object.freeze({ receiptId: row.receipt, fromVersion: row.previous_version, targetVersion: row.version, rowCount: row.row_count, byteCount: row.byte_count, workspaceRevision: row.workspace_revision, targetEventId: row.target_event_id });
+}
+function canonicalDomains(value: unknown): readonly string[] {
+  if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype || Reflect.ownKeys(value).length !== value.length + 1 || value.length > 64) return fail('INVALID_INPUT');
+  const result: string[] = [];
+  for (let index = 0; index < value.length; index++) {
+    const field = Object.getOwnPropertyDescriptor(value, String(index));
+    if (!field || !Object.hasOwn(field, 'value')) return fail('INVALID_INPUT');
+    const domain = text(field.value, 64);
+    if (!/^[a-z][a-z0-9-]{0,63}$/.test(domain)) return fail('INVALID_INPUT');
+    result.push(domain);
+  }
+  result.sort();
+  if (new Set(result).size !== result.length) return fail('INVALID_INPUT');
+  return Object.freeze(result);
+}
+function decodeAccessGrant(row: { revision: number; domains: string }): AccessGrant {
+  try {
+    const rowRevision = revision(row.revision), parsed: unknown = JSON.parse(row.domains), domains = canonicalDomains(parsed);
+    if (JSON.stringify(domains) !== row.domains) fail('CORRUPT_STORAGE');
+    return Object.freeze({ revision: rowRevision, domains });
+  } catch { return fail('CORRUPT_STORAGE'); }
+}
+async function readAccessGrant(io: Access, owner: Params): Promise<AccessGrant | null> {
+  const rows = await io.all<{ revision: number; domains: string }>(`SELECT revision, domains FROM access_grants WHERE ${OWNER}`, ...owner);
+  if (rows.length === 0) return null;
+  if (rows.length !== 1) return fail('CORRUPT_STORAGE');
+  return decodeAccessGrant(rows[0]!);
+}
+async function replaceAccessGrant(io: Access, owner: Params, domains: readonly string[], expected: number | null): Promise<AccessGrant> {
+  const current = await readAccessGrant(io, owner);
+  if ((current?.revision ?? null) !== expected) return fail('CONFLICT');
+  const nextRevision = revision(expected === null ? 0 : expected + 1), payload = JSON.stringify(domains);
+  const changed = expected === null
+    ? await io.run('INSERT INTO access_grants (user, publisher, app, revision, domains) VALUES (?, ?, ?, ?, ?)', ...owner, nextRevision, payload)
+    : await io.run(`UPDATE access_grants SET revision = ?, domains = ? WHERE ${OWNER} AND revision = ?`, nextRevision, payload, ...owner, expected);
+  if (changed !== 1) fail('STORAGE_FAILURE');
+  return Object.freeze({ revision: nextRevision, domains });
+}
+async function revokeAccessGrant(io: Access, owner: Params, expected: number): Promise<void> {
+  const current = await readAccessGrant(io, owner);
+  if (current === null || current.revision !== expected) return fail('CONFLICT');
+  if (await io.run(`DELETE FROM access_grants WHERE ${OWNER} AND revision = ?`, ...owner, expected) !== 1) fail('STORAGE_FAILURE');
 }
 function bindWorkspace(connection: StorageConnection, owner: TrustedUser): Binding<WorkspaceStorage> {
   const { lease, access, transaction } = connection;
@@ -216,12 +261,24 @@ function bindApp(connection: StorageConnection, context: TrustedApp): Binding<Ap
   const { lease, transaction, access } = connection;
   const owner = appParams(context);
   const binding = lease(liveFunction(context.assertActive));
+  function grantRead(options?: RequestOptions) { return binding.submit(options, check => readAccessGrant(access(check), owner)); }
+  function grantReplace(domains: readonly string[], expected: number | null, options?: RequestOptions) {
+    // Snapshot the trusted UI's reviewed capability set before queuing any SQLite work.
+    const canonical = canonicalDomains(domains), selectedExpected = expected === null ? null : revision(expected);
+    return binding.submit(options, check => transaction(check, io => replaceAccessGrant(io, owner, canonical, selectedExpected)));
+  }
+  function grantRevoke(expected: number, options?: RequestOptions) {
+    return binding.submit(options, check => transaction(check, io => revokeAccessGrant(io, owner, revision(expected))));
+  }
   return Object.freeze({ revoke: binding.revoke, port: Object.freeze({
     selectedVersion: (options?: RequestOptions) => binding.submit(options, check => selection(access(check), owner)),
     receipt: (id: string, options?: RequestOptions) => {
       const selectedId = identifier(id);
       return binding.submit(options, check => receipt(access(check), owner, selectedId));
     },
+    readAccessGrant: grantRead,
+    replaceAccessGrant: grantReplace,
+    revokeAccessGrant: grantRevoke,
     selectInitialVersion: (value: string, options?: RequestOptions) => {
       const aggregate = version(value);
       return binding.submit(options, check => transaction(check, async io => {

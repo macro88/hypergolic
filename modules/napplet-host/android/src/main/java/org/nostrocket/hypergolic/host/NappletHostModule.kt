@@ -3,22 +3,50 @@ package org.nostrocket.hypergolic.host
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import com.facebook.react.common.LifecycleState
+import android.util.Base64
+import expo.modules.kotlin.functions.Coroutine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.withContext
 
 class NappletHostModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("HypergolicNappletHost")
-    OnCreate { ApprovalTransport.foreground(appContext.runtime.reactContext?.lifecycleState == LifecycleState.RESUMED) }
-    OnActivityEntersForeground { ApprovalTransport.foreground(true) }
+    OnCreate {
+      val foreground = appContext.runtime.reactContext?.lifecycleState == LifecycleState.RESUMED
+      ApprovalTransport.foreground(foreground)
+      PublishedHttpsRequestOwner.INSTANCE.setForeground(foreground)
+    }
+    OnActivityEntersForeground {
+      ApprovalTransport.foreground(true)
+      PublishedHttpsRequestOwner.INSTANCE.setForeground(true)
+    }
     OnActivityEntersBackground {
       ApprovalTransport.foreground(false)
+      PublishedHttpsRequestOwner.INSTANCE.setForeground(false)
       PublishedArtifactTransfer.INSTANCE.revokeAllPublishedArtifacts()
       NappletHostView.revokePublishedOnBackground()
     }
     OnActivityDestroys {
       ApprovalTransport.foreground(false)
+      PublishedHttpsRequestOwner.INSTANCE.setForeground(false)
       PublishedArtifactTransfer.INSTANCE.revokeAllPublishedArtifacts()
       NappletHostView.revokePublishedOnBackground()
     }
+    OnUserLeavesActivity { PublishedHttpsRequestOwner.INSTANCE.setForeground(false) }
+    OnDestroy { PublishedHttpsRequestOwner.INSTANCE.revokeAll() }
+    AsyncFunction("fetchPublishedHttps") Coroutine { operationId: String, url: String ->
+      val job = currentCoroutineContext()[Job]
+      withContext(Dispatchers.IO) {
+        val bytes = PublishedHttpsRequestOwner.INSTANCE.fetch(operationId, url) { job?.isActive == true }
+        Base64.encodeToString(bytes, Base64.NO_WRAP)
+      }
+    }
+    Function("cancelPublishedHttps") { operationId: String ->
+      PublishedHttpsRequestOwner.INSTANCE.cancel(operationId)
+    }
+    Function("revokeAllPublishedHttps") { PublishedHttpsRequestOwner.INSTANCE.revokeAll() }
     Function("registerPublishedSession") { sessionId: String ->
       PublishedArtifactTransfer.INSTANCE.registerPublishedSession(sessionId)
     }

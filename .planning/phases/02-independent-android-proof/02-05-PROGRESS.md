@@ -9,8 +9,9 @@ revocation and no fallback after a chosen version's blob fails. The pinned
 protocol revisions and local size/profile limits are in
 [`docs/native-contract.md`](../../../docs/native-contract.md). A transport
 adapter queries only configured lookup relays and retrieves content-addressed
-Blossom paths from signed HTTPS hints. Its HTTPS connection port must enforce
-public-IP pinning; it is not yet provided by the app.
+Blossom paths from signed HTTPS hints. App-only native HTTPS bridge methods and a
+trusted JavaScript adapter now exist with public-IP pinning, but normal app entry
+does not inject or call them.
 
 The trusted Network and Lookup relay lists seed the selected RocketShell defaults
 once, persist edits in a dedicated SQLite database and expose add/remove/restore
@@ -28,12 +29,13 @@ shows an unavailable state and denies new signing requests before key use.
 
 ## Remaining for 02-05 and v1
 
-There is no app-entry link flow, first-open publisher/access consent, safe native
-network retrieval port, trusted cache, pinned restart recovery or explicit
+There is no app-entry link flow, first-open publisher/access consent, connected
+safe native network retrieval route, trusted cache, pinned restart recovery or explicit
 update UI yet. The Settings-only local signed QA route exercises the verified
 native handoff, but does not grant ordinary published app entry. The
-transport still needs platform network ports with bounded relay frames and
-connection-time public-IP checks. The native handoff must transfer at most 2 MiB
+transport still needs a bounded, pinned relay WebSocket connection on each
+platform. Native HTTPS ports and WebSocket frame parsers now exist separately.
+The native handoff must transfer at most 2 MiB
 without putting HTML, paths or URLs in React view props, then check the original
 bytes again before host CSP and namespace injection. Android and iOS remote
 published journeys and update/recovery drivers remain open. Do not mark LOAD-01 through
@@ -55,3 +57,25 @@ identity. A published workspace
 descriptor now stores the exact signed event pin. Schema v2 migration preserves
 older receipts with an unknown pin, so they cannot replay as accepted updates.
 Remote native journeys and full LOAD acceptance remain open.
+
+## Native network and grant-storage checkpoint — 23 September 2026
+
+Both platforms now reject mixed or non-public DNS answers before an HTTPS
+connection, bind the selected numeric address to the original TLS hostname,
+refuse redirects and bound responses to 2 MiB. Expo exposes app-only HTTPS
+fetch/cancel/revoke operations; the trusted JavaScript adapter checks canonical
+Base64 before offering the bytes to the published-source contract. These pieces
+are not yet wired to the ordinary `naddr` open path or live-tested against a
+remote server. Bounded RFC 6455 frame parsers also exist on both platforms, but
+there is no native relay socket owner or published relay query adapter yet.
+
+The SQLite schema is v3. It stores revisioned, exact capability grants under
+user/publisher/napplet identity and migrates v1/v2 data. First-open review and
+the authorization gate remain open. The isolated native proofs pass 71 shared
+address vectors on each platform, 59 Android HTTPS transport assertions, 28
+Android bridge assertions, 31 iOS HTTPS response/request assertions and 25 shared
+WebSocket frame vectors on each platform. The 89-test storage and 37-test
+napplet suites pass. Normal Android ARM64 and iOS Simulator Release builds pass
+with the new Expo modules and parsers; neither build is a live HTTPS or WSS
+journey. React Doctor scores 100/100 and aislop scores 100/100. The native
+bridge still requires on-device network, cancellation and background evidence.

@@ -34,8 +34,12 @@ link, manifest and HTML verification exist as a pre-execution gate. Both native
 modules now stage the verified bytes through a bounded app-only transfer and
 one-use registry. Both native host views can claim the handle and stream bytes
 to the trusted packaged runtime; browser and standalone native proofs pass.
-The app does not yet open a published view. App entry, safe HTTPS retrieval,
-first-open consent and native published execution remain open. Inactive identity deletion now has a shared
+The Settings QA path opens one locally embedded signed published view on both
+native hosts. Ordinary workspace entry, live safe HTTPS retrieval, first-open
+consent and remote published execution remain open. Native public-address and
+HTTPS transport cores, an app-only HTTPS bridge, and bounded relay frame parsers
+are implemented but not connected to normal entry (see [network boundary](published-network.md)).
+Inactive identity deletion now has a shared
 review and an Android system-PIN journey; iOS
 action acceptance still requires a physical device.
 The supplied logo is visible in the native header. Native journeys, boundary
