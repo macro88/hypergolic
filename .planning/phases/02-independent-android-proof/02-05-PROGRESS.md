@@ -154,6 +154,9 @@ requirement; its installed JavaScript hash matches the build at
 `5926e2136073df42b90c7ca35234b4404c5b48a9ba060a88d3e0d08a71fa0142`.
 The invalid-naddr denial was observed on the preceding build, not repeated on
 this final artifact. No successful remote open or update was observed.
+Standalone dependency audits for the app, runtime and quality-tool lockfiles
+all completed with no known vulnerabilities. Aislop's embedded audit timeout
+does not change its 100/100 score.
 
 ## Next automated native update fixture
 

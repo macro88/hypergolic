@@ -205,5 +205,7 @@ tests and the shell/storage/capability/napplet suites pass, as do TypeScript and
 normal Android ARM64 and iOS Simulator Release builds. React Doctor scores
 100/100 and aislop scores 100/100; aislop reports two non-scoring function-length
 warnings and a timed-out dependency audit. The native update journey and live
-public relay/Blossom path still need phone evidence. The user handles the new
+public relay/Blossom path still need phone evidence. The separate app, runtime
+and quality-tool dependency audits completed with no known vulnerabilities.
+The user handles the new
 source remote and push; no source push was made.
