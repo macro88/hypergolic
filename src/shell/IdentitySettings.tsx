@@ -6,6 +6,7 @@ import type { IdentityActions } from '../security/identity-actions';
 import { VaultError } from '../security/identity-vault';
 import { useIdentityOwner } from './IdentityShell';
 import { IdentityBackup } from './IdentityBackup';
+import { RelaySettings } from './RelaySettings';
 import { colors } from './theme';
 
 function Action({ title, testID, onPress, subdued = false }: { title: string; testID: string; onPress: () => void; subdued?: boolean }) {
@@ -93,7 +94,7 @@ function failureMessage(failure: ReturnType<IdentityTransition['getSnapshot']>['
   return 'The identity change was not accepted. Your current identity and open napplets are unchanged.';
 }
 export function IdentitySettings({ openBundledTest, openStateLab }: SettingsActions) {
-  const { transition, formatNpub, runtime, actions } = useIdentityOwner();
+  const { transition, formatNpub, runtime, actions, relaySettings } = useIdentityOwner();
   const state = useSyncExternalStore(transition.subscribe, transition.getSnapshot);
   const [importing, setImporting] = useState(false);
   const [deletion, setDeletion] = useState<DeletionReview | null>(null);
@@ -156,6 +157,7 @@ export function IdentitySettings({ openBundledTest, openStateLab }: SettingsActi
           onPress={() => setDeletion(Object.freeze({ pubkey: identity.pubkey, session: state.session }))} subdued />}
       </View>)}
       <Action title="Import identity" testID="settings-import-identity" onPress={() => setImporting(true)} />
+      <RelaySettings service={relaySettings} />
       <Text accessibilityRole="header" style={styles.title}>Bundled test napplets</Text>
       <Action title="Open UX Lab" testID="settings-open-ux-lab" onPress={openBundledTest} subdued />
       {runtime && <>

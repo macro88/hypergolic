@@ -17,7 +17,7 @@ export interface RuntimeOwner {
 /** The process-owned database and identity authority remain outside React/WebView props. */
 export function createRuntimeOwner(database: ShellDatabase,
   identity: Pick<IdentityTransition, 'getSnapshot' | 'sessionAuthority'>, native: RuntimeNativePort,
-  approvals?: Readonly<{ service: ApprovalService; destinations: readonly string[] }>): RuntimeOwner {
+  approvals?: Readonly<{ service: ApprovalService; destinations: () => readonly string[] }>): RuntimeOwner {
   return Object.freeze({
     descriptor(variant: Exclude<BundledVariant, 'ux-lab'>, number: number): NappletDescriptor {
       const instance = native.newInstanceId();
@@ -56,7 +56,7 @@ export function createRuntimeOwner(database: ShellDatabase,
           if (event.generation !== generation) return;
           if (event.lane === 'approval') {
             if (!configuration.domains.includes('relay')) return;
-            approvals?.service.enqueue(event.token, approvals.destinations, { ...configuration, generation });
+            approvals?.service.enqueue(event.token, approvals.destinations(), { ...configuration, generation });
           } else if (event.lane === undefined) void broker!.dispatch(event.token);
         } catch { /* Native expiry or teardown ends unclaimed requests; no new owner is chosen. */ }
       },

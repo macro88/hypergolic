@@ -3,7 +3,7 @@ import { ApprovalService } from './approval-service';
 import { createApprovalOwner } from './approval-owner';
 import { loadNativeApprovalPort } from '../runtime/native-approval-port';
 import { publishEvent } from '../network/relay-service';
-import defaults from '../config/default-relays.json';
+import { openNativeRelaySettings, type NativeRelaySettings } from '../network/relay-settings-native';
 import { Platform } from 'react-native';
 import { createRuntimeOwner, type RuntimeOwner } from '../runtime/runtime-owner';
 import { loadNativeCapabilityPort } from '../runtime/native-capability-port';
@@ -25,14 +25,17 @@ export interface TrustedIdentityOwner {
   readonly actions?: IdentityActions;
   readonly runtime?: RuntimeOwner;
   readonly approvals?: ApprovalService;
+  readonly relaySettings: NativeRelaySettings | null;
   readonly formatNpub: typeof formatNpub;
 }
 export class WorkspaceStartupError extends Error {
   constructor() { super('Workspace could not be opened'); this.name = 'WorkspaceStartupError'; }
 }
-async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<{ transition: IdentityTransition; runtime: RuntimeOwner; approvals: ApprovalService }> {
+async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<{ transition: IdentityTransition; runtime: RuntimeOwner; approvals: ApprovalService; relaySettings: NativeRelaySettings | null }> {
   const database = await openShellDatabase(SQLite, platform).catch(() => { throw new WorkspaceStartupError(); });
+  let relaySettings: NativeRelaySettings | null = null;
   try {
+    try { relaySettings = await openNativeRelaySettings(SQLite, platform); } catch { relaySettings = null; }
     const transition = await IdentityTransition.open({ vault, database, publicKeyFromNsec, seed: initialTestWorkspace, assertAvailable: assertBundledWorkspace });
     const approvals = new ApprovalService(loadNativeApprovalPort(), createApprovalOwner(transition), {
       sign: (snapshot, execution) => vault.signApproved(snapshot, execution, (event, secret) => {
@@ -42,9 +45,10 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
       }),
       publishEvent,
     });
-    return { transition, approvals, runtime: createRuntimeOwner(database, transition, loadNativeCapabilityPort(),
-      { service: approvals, destinations: Object.freeze([...defaults.networkRelays]) }) };
+    return { transition, approvals, relaySettings, runtime: createRuntimeOwner(database, transition, loadNativeCapabilityPort(),
+      { service: approvals, destinations: () => relaySettings?.getSettings().networkRelays ?? [] }) };
   } catch {
+    try { await relaySettings?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await database.close(); } catch { /* Preserve the workspace failure. */ }
     throw new WorkspaceStartupError();
   }

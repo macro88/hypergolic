@@ -30,7 +30,9 @@ connects native lifetime authorities, immutable event checks, protected signing,
 trusted review and the relay adapter. Android passes the isolated SDK-to-local-relay
 journey; iOS passes native review/rejection with a public-identity Simulator fixture.
 Physical iOS signing and the full acceptance audit remain open. Published napplet
-loading is not implemented. Inactive
+link, manifest and HTML verification exist as a pre-execution gate; app entry,
+safe HTTPS retrieval, native artifact handoff, consent and published execution
+remain open. Inactive
 identity deletion now has a shared review and an Android system-PIN journey; iOS
 action acceptance still requires a physical device.
 The supplied logo is visible in the native header. Native journeys, boundary
@@ -144,7 +146,9 @@ identity. Cancelling preserves them.
 Saved data is scoped to user + verified publisher + stable napplet identity.
 
 Use the [RocketShell relay defaults](relays.md) as editable local startup lists,
-keeping network reads/writes separate from lookup/manifest discovery. Automatic
+keeping network reads/writes separate from lookup/manifest discovery. The settings
+service persists edits and selected Network relays reach signing approval; native
+settings journeys and Lookup routing into app entry remain to be proved. Automatic
 NIP-65 relay-list discovery and routing are deferred beyond v1.
 
 Purpose-built test napplets are approved, with embedding first and publication

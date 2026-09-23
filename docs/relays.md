@@ -27,11 +27,22 @@ napplet manifest does not itself enable automatic account relay-list discovery.
 
 ## Integration status
 
-The JSON is the selected startup data for the forthcoming native relay/settings
-implementation. The current static scaffold does not yet consume it or open relay
-connections. Endpoint availability, authentication requirements and read/write
-acceptance have not been tested by adopting these values. Every v1 event update
-still requires explicit shell confirmation before signing/publication.
+The native settings service seeds the JSON values on first open in a dedicated
+SQLite database, then preserves edits and explicit empty lists across restarts.
+Trusted settings provide separate Network and Lookup controls to add or remove
+secure WebSocket URLs and restore either role's defaults. A storage failure keeps
+identity entry available, makes relay settings visibly unavailable and rejects
+new publication requests before signing. The signing approval path snapshots the
+current Network list when a request is admitted; it no longer holds the startup
+defaults for the process lifetime.
+
+Lookup selections feed the published-napplet transport adapter, but that adapter
+is not yet connected to app entry or native execution. Network reads and profile
+discovery remain unimplemented. Editing/persistence have unit and SQLite
+close/reopen evidence, not Android/iOS settings-UI journey proof. The public
+endpoint availability, authentication requirements and write acceptance have not
+been established by adopting these values. Every v1 event update still requires
+explicit shell confirmation before signing/publication.
 
 The controlled test relay remains separate from these public defaults. Fixture
 publisher/signing details and concrete release relay/Blossom targets still need

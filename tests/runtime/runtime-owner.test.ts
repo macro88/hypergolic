@@ -9,6 +9,7 @@ import { createRuntimeOwner, type RuntimeBinding } from '../../src/runtime/runti
 import { createApprovalOwner } from '../../src/security/approval-owner.ts';
 import type { NativeRegistration } from '../../src/runtime/capability-protocol.ts';
 import { NativeLeases } from './native-leases.ts';
+import type { ApprovalService } from '../../src/security/approval-service.ts';
 
 async function start(t: TestContext) {
   const protectedStore = new Integrated(); t.after(() => protectedStore.sqlite.cleanup());
@@ -129,4 +130,21 @@ test('approval owner accepts the resolved native catalogue tuple and revokes cha
   assert.throws(() => owner.assertActive(readOnly));
   workspace.change(closeNapplet(workspace.getSnapshot().workspace, approval.id));
   assert.throws(() => owner.assertActive(origin)); await workspace.flush();
+});
+
+test('each admitted signing request snapshots the current trusted network relay list', async t => {
+  const h = await start(t), descriptor = h.owner.descriptor('approval-lab', 9);
+  const workspace = h.transition.getSnapshot().session.workspace;
+  workspace.change(openNapplet(workspace.getSnapshot().workspace, descriptor)); await workspace.flush();
+  let relays: readonly string[] = Object.freeze(['wss://first.example.org']);
+  const captured: string[][] = [];
+  const approval = { enqueue: (_token: string, destinations: readonly string[]) => { captured.push([...destinations]); return true; }, close: () => undefined } as unknown as ApprovalService;
+  const owner = createRuntimeOwner(h.database, h.transition, h.native, { service: approval, destinations: () => relays });
+  const binding = owner.open(descriptor), config = { ...JSON.parse(binding.configuration), generation: 'relay-settings-generation' } as NativeRegistration;
+  for (const [index, next] of [[1, relays], [2, Object.freeze(['wss://changed.example.org'])]] as const) {
+    if (index === 2) relays = next;
+    const token = h.native.add(config, { type: 'relay.publish', id: `relay-${index}`, event: {} });
+    binding.receive({ type: 'capability', sessionId: config.sessionId, generation: config.generation, token, lane: 'approval' });
+  }
+  assert.deepEqual(captured, [['wss://first.example.org'], ['wss://changed.example.org']]);
 });

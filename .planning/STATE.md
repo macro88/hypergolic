@@ -40,7 +40,7 @@ See `docs/architecture.md` for confirmed requirements and unresolved policy.
 ### Blockers/Concerns
 
 First theme-only native contract is selected. Validate privileged adapters and delivery contracts before their dependent work. Preserve Expo 57.0.20 despite the existing Doctor patch-version mismatch. Source remote/push remains owner-only.
-Resume budget (2026-09-23): user authorized continuation up to 50% weekly usage consumed / 50% remaining. Check account usage after each small batch and pause for approval at that threshold. Delegate bounded audits/encoding to Luna, shared UI/test drivers to Terra, and iOS native actions to Sol; root owns Android authority, integration and review. This replaces the previous 45% stopping point.
+Resume budget (2026-09-23): the user superseded the earlier 50% limit and authorized continuation until 70% weekly usage consumed / 30% remaining. Check account usage after each small batch and pause for approval at that threshold. Use smaller agents for bounded independent work while root owns integration and review.
 Android emulator and iPhone Simulator scaffold checks are verified. Physical-iPhone signing and execution remain untested; native security acceptance is still open.
 See `docs/phase-zero.md` for actual checks and artifacts.
 
@@ -123,3 +123,14 @@ remote napplet resolution and artifact validation (02-05); physical iPhone
 protected signing/capture and older Android acceptance remain open. External
 React Doctor scoring still awaits permission; its local scan has zero findings.
 No source push or remote change. Continue only after the user authorizes it.
+
+
+Published verification and relay-settings continuation (2026-09-23): kind-35129
+coordinate resolution, signed manifest/HTML verification, exact event pinning,
+bounded relay/Blossom transport ports and first-run/editable native relay settings
+are in integration review. A safe native HTTPS/relay port, first-open consent,
+native artifact registry, update flow, both-platform published execution and
+native relay-settings UI journeys remain open. Android and iOS JavaScript exports,
+40 focused tests, TypeScript, React Doctor 100 and aislop 100 pass at this
+uncommitted checkpoint. Usage at the latest check: 51% consumed / 49% remaining;
+the user-requested pause is at 70% consumed. No source push or remote change.

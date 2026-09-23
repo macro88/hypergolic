@@ -130,6 +130,55 @@ Delivery research remains pinned to [NIP-5A](https://github.com/nostr-protocol/n
 and the [NIP-5D draft](https://github.com/dskvr/nips/blob/24711d9c47bbdd07908bf1d52bf677d9cbc530f0/5D.md).
 The named napplet draft uses kind 35129; nsite kind 35128 is not interchangeable.
 
+## Published napplet verification gate (in progress)
+
+The selected v1 link profile accepts a canonical lowercase `naddr1…` or
+`nostr:naddr1…` for named kind 35129. Kind 35128 is an nsite, not a napplet.
+The coordinate binds the publisher public key and `d` identifier. Encoded relay
+hints are validated but do not select the lookup relays; the trusted shell uses
+its separate configured lookup list. Ordinary web URLs and `nevent` are not
+napplet entry points in this profile.
+
+The trusted loader checks a fresh NIP-01 event ID and Schnorr signature, exact
+kind/publisher/`d` match, one `/index.html` SHA-256 `path` tag, and the original
+UTF-8 artifact bytes before returning a candidate. It computes the NIP-5A
+aggregate from the path hash. The `x` aggregate tag is optional under the pinned
+NIP-5A/5D revisions; when present it must match. This profile accepts a single
+self-contained HTML document up to 2 MiB and a signed manifest up to 64 KiB.
+HTTPS Blossom server tags are retrieval hints only. An event ID pins a selected
+version; an unavailable or mismatched pinned artifact must not fall back to a
+different version. First-open publisher and access consent remains distinct
+from cryptographic validity.
+
+The transport adapter can query selected lookup relays and fetch a signed
+content-addressed Blossom path through an injected HTTPS port. That port must
+enforce public-IP policy at connection time; ordinary React Native `fetch` does
+not provide that guarantee. The adapter is not connected to app entry or native
+execution. It does not yet register immutable native artifact bytes or execute a
+published napplet on Android or iOS. The native hosts still admit only bundled
+fixtures. Full LOAD-01 through LOAD-03 proof remains open until a safe native
+HTTPS port, trusted cache, both native handoffs, consent and update flows, and
+platform journeys are complete.
+
+### Required native handoff
+
+After first-open consent, the trusted loader must register the original verified
+HTML bytes with an app-only native registry. The Android and iOS registries must
+independently check size, UTF-8, SHA-256, the NIP-5A aggregate and the exact
+session/publisher/app/version claims. A host view may consume an opaque handle
+once, bound to its native generation; React props must not carry the HTML, a
+file path or an arbitrary URL. The trusted runtime must retrieve bounded bytes
+for that generation, recheck the hash, inject the host CSP and namespace prelude,
+then mount the isolated frame. Nostr signature and first-open consent checks stay
+with the trusted shell; native byte checks do not replace either one.
+
+Restart requires a fresh handle. Persist the coordinate and exact signed event
+ID, reverify cached bytes or fetch only that pinned event, and show recovery if
+the bytes are unavailable or differ. The current workspace descriptor stores a
+content version but no event ID, so published rehydration still needs a schema
+change. The native registry and bounded transfer protocol, including adversarial
+HTML/CSP tests, must be complete before a published artifact is executable.
+
 ## Reproduction and evidence
 
 From the source root with its pinned tools enabled:
