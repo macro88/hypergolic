@@ -191,6 +191,14 @@ test('verified update is inert until explicit review and cannot roll back to an 
   await assert.rejects(service.prepareUpdate(opened.descriptor, new AbortController().signal,
     async request => { assert.equal(request.nextEventId, newEvent.id); return false; }, async () => true));
   assert.equal(calls.length, count);
+  const cancelled = new AbortController();
+  await assert.rejects(service.prepareUpdate(opened.descriptor, cancelled.signal,
+    async () => { cancelled.abort(); return true; }, async () => true));
+  assert.equal(calls.length, count);
+  await assert.rejects(service.prepareUpdate(opened.descriptor, new AbortController().signal,
+    async () => { epoch = 2; return true; }, async () => true));
+  assert.equal(calls.length, count);
+  epoch = 1;
   const updated = await service.prepareUpdate(opened.descriptor, new AbortController().signal,
     async request => { assert.equal(request.previousEventId, oldEvent.id); return true; }, async () => {
       assert.fail('unchanged capability grant must not be reviewed again');
