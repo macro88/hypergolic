@@ -15,6 +15,9 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   private let bridgeName = "HypergolicDiagnostic"
   private var configuration: CapabilityConfiguration?
   private var configurationSource: String?
+  private var publishedSource: String?
+  private var publishedReader: PublishedArtifactReadOwner?
+  private var backgroundObserver: NSObjectProtocol?
   private var sessionId: String?
   private var expectedURL: URL?
   private var webView: WKWebView?
@@ -32,6 +35,10 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     super.init(frame: .zero)
     clipsToBounds = true
     backgroundColor = UIColor(red: 18/255, green: 14/255, blue: 10/255, alpha: 1)
+  }
+
+  isolated deinit {
+    if let backgroundObserver { NotificationCenter.default.removeObserver(backgroundObserver) }
   }
 
   @available(*, unavailable)
@@ -69,6 +76,29 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     startSession(configuration!.sessionId)
   }
 
+  func startPublishedArtifact(_ raw: String) {
+    guard !disposed else { return }
+    if sessionId != nil {
+      guard raw == publishedSource else { fail("session-reuse-blocked"); return }
+      return
+    }
+    guard let input = PublishedArtifactHostInput(raw) else { fail("invalid-published-artifact"); return }
+    guard let claimed = PublishedArtifactTransfer.shared.registry.claim(
+      input.handle, claims: input.claims, viewGeneration: generation) else {
+      sessionId = input.claims.sessionId
+      fail("artifact-claim-denied")
+      return
+    }
+    publishedReader = PublishedArtifactReadOwner(claimed: claimed)
+    publishedSource = raw
+    backgroundObserver = NotificationCenter.default.addObserver(
+      forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main
+    ) { [weak self] _ in
+      MainActor.assumeIsolated { self?.fail("backgrounded") }
+    }
+    startSession(input.claims.sessionId)
+  }
+
   func startSession(_ id: String) {
     guard !disposed else { return }
     if sessionId == id { return }
@@ -81,6 +111,9 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       let assets = try verifiedAssets()
       var components = URLComponents(url: assets.index, resolvingAgainstBaseURL: false)!
       components.queryItems = [URLQueryItem(name: "sessionId", value: generation)]
+      if publishedReader != nil {
+        components.queryItems?.append(URLQueryItem(name: "source", value: "published"))
+      }
       if let configuration {
         components.queryItems?.append(URLQueryItem(name: "fixture", value: configuration.fixture))
         guard CapabilityTransport.leases.register(generation) else { fail("capability-unavailable"); return }
@@ -253,7 +286,14 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       let text = message.body as? String, text.utf8.count <= CapabilityLeaseRegistry.maxBytes,
       let data = text.data(using: .utf8),
       let value = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-      value["sessionId"] as? String == generation else { reply(nil, "Diagnostic rejected"); return }
+      value["sessionId"] as? String == generation else {
+        if publishedSource != nil { fail("artifact-read-rejected") }
+        reply(nil, "Diagnostic rejected"); return
+      }
+    if publishedSource != nil && value["type"] as? String == "artifact.read" {
+      receiveArtifactRead(value, textLength: text.utf8.count, reply: reply)
+      return
+    }
     if value["type"] as? String == "capability" {
       receiveCapability(value, reply: reply)
       return
@@ -275,6 +315,21 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     default:
       reply(nil, "Diagnostic rejected")
     }
+  }
+
+  private func receiveArtifactRead(_ value: [String: Any], textLength: Int,
+      reply: @escaping @MainActor @Sendable (Any?, String?) -> Void) {
+    guard textLength <= 2048, Set(value.keys) == Set(["type", "sessionId", "sequence"]),
+      let number = value["sequence"] as? NSNumber, CFGetTypeID(number) != CFBooleanGetTypeID(),
+      number.doubleValue.isFinite, number.doubleValue >= 0,
+      number.doubleValue <= 9_007_199_254_740_991,
+      number.doubleValue.rounded(.towardZero) == number.doubleValue,
+      let response = publishedReader?.read(sequence: number.intValue) else {
+        reply(nil, "Artifact read rejected")
+        fail("artifact-read-rejected")
+        return
+      }
+    reply(response, nil)
   }
 
   private func receiveCapability(_ value: [String: Any],
@@ -329,6 +384,10 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     guard !disposed else { return }
     disposed = true
     live = false
+    publishedReader?.clear()
+    publishedReader = nil
+    if let backgroundObserver { NotificationCenter.default.removeObserver(backgroundObserver) }
+    backgroundObserver = nil
     ApprovalTransport.revoke(generation)
     CapabilityTransport.revoke(generation)
     deadline?.cancel()

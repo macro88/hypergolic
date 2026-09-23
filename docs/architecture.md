@@ -32,8 +32,10 @@ journey; iOS passes native review/rejection with a public-identity Simulator fix
 Physical iOS signing and the full acceptance audit remain open. Published napplet
 link, manifest and HTML verification exist as a pre-execution gate. Both native
 modules now stage the verified bytes through a bounded app-only transfer and
-one-use registry; no host view claims the handle yet. App entry, safe HTTPS
-retrieval, first-open consent and published execution remain open. Inactive identity deletion now has a shared
+one-use registry. Both native host views can claim the handle and stream bytes
+to the trusted packaged runtime; browser and standalone native proofs pass.
+The app does not yet open a published view. App entry, safe HTTPS retrieval,
+first-open consent and native published execution remain open. Inactive identity deletion now has a shared
 review and an Android system-PIN journey; iOS
 action acceptance still requires a physical device.
 The supplied logo is visible in the native header. Native journeys, boundary

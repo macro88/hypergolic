@@ -8,8 +8,8 @@ WebView. Native registry checks do not establish Nostr signature validity or
 publisher trust.
 
 The Android and iOS registries implement the following core contract. The Expo
-modules now stage verified bytes through a bounded app-only transfer, but no
-host view claims a staged handle yet.
+modules stage verified bytes through a bounded app-only transfer. Each native
+host view can claim a staged handle once and own the bytes for that generation.
 
 The registry accepts an app-only staging call with original UTF-8 bytes and
 bounded claims: shell session ID, publisher public key, stable napplet `d`
@@ -25,15 +25,14 @@ artifact claims, then binds the bytes to its newly minted view generation.
 Replay, changed claims, expiry, backgrounding or session revocation fail closed.
 Claiming returns a private byte copy to the host only; React props and events
 carry the token and bounded claims, never HTML, a path or an arbitrary URL.
-The current generated host still accepts only packaged fixtures; merely adding
-the registry cannot enable published execution.
+The published host route remains separate from bundled fixtures and is not yet
+reachable from the application UI.
 
 The trusted owner must explicitly register a live shell session before staging and
 revoke pending bytes on closure, identity change or backgrounding. A saved
 session may be registered again after revocation. Claimed bytes have moved to
 the host's ownership; the host must clear its copy on view teardown. The native
-cores do not currently receive lifecycle callbacks because module/host wiring
-is still pending.
+modules and host views revoke their bytes on backgrounding or teardown.
 
 The Expo module transfer uses `registerPublishedSession`,
 `beginPublishedArtifact`, `appendPublishedArtifact`, `finishPublishedArtifact`,
@@ -50,16 +49,19 @@ before a later transfer. No claim function is exposed to JavaScript. A
 verifier-branded JavaScript adapter chunks a private copy and rechecks live
 ownership around every native call.
 
-The host claim and WebView byte-transfer protocol remain unimplemented. They
-must retain the existing main-frame/sender/generation checks, strict document
-and subresource allowlists, and CSP/namespace injection after verification.
-Both platforms still need real native host tests and a consent-gated app route.
-The Android production-source JVM proof passes 175 assertions with
-`javac -Xlint:all -Werror`; the Swift transfer and registry proofs pass 88 and
-36 checks with `swiftc -warnings-as-errors`. The Android module's Release Kotlin
-and Java compilation and the unsigned iOS Simulator Release app compile with
-the transfer functions. Neither build or standalone proof is a published
-napplet journey.
+The host claims the handle internally and exposes ordered 48 KiB chunks only to
+its exact top-level packaged document and native generation. The trusted runtime
+rechecks the original bytes and aggregate, inserts CSP before publisher markup,
+then mounts an opaque sandboxed guest with theme access only. The verifier
+requires the document to begin with doctype, html and head so no publisher
+content precedes CSP. Neither platform grants published capability authority
+through this tracer. The Android production-source JVM proof passes 189
+assertions with `javac -Xlint:all -Werror`; the Swift host proof passes 273
+checks with `swiftc -warnings-as-errors`. Chromium and WebKit pass the full 90
+runtime cases, including the published positive and adversarial bridge cases.
+Android Release module compilation and unsigned iOS Simulator Release app
+compilation pass. A consent-gated app route and actual native published journey
+remain untested and incomplete.
 
 ```sh
 source .tools/use-local-tools.sh

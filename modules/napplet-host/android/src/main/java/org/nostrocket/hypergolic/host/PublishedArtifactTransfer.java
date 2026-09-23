@@ -130,6 +130,14 @@ public final class PublishedArtifactTransfer {
     registry.revokeAll();
   }
 
+  /** Native-view-only claim; never bind this method as an Expo module function. */
+  public synchronized PublishedArtifactRegistry.ClaimedArtifact claimForHost(String handle, String sessionId,
+      String publisher, String identifier, String eventId, String aggregateHash, String htmlHash,
+      String viewGeneration) {
+    return registry.claim(handle, sessionId, publisher, identifier, eventId, aggregateHash, htmlHash,
+        viewGeneration);
+  }
+
   private boolean reject(String uploadId) {
     cancelPublishedArtifact(uploadId);
     return false;

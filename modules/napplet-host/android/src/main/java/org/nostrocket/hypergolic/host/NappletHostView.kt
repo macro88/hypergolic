@@ -19,6 +19,8 @@ import expo.modules.kotlin.viewevent.EventDispatcher
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.util.UUID
+import java.util.Collections
+import java.util.WeakHashMap
 
 /** Owns one trusted document. No arbitrary URL, HTML or privileged operation prop. */
 @SuppressLint("SetJavaScriptEnabled")
@@ -27,6 +29,8 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   override val shouldUseAndroidLayout = true
   private var sessionId: String? = null
   private var configuration: CapabilityConfiguration? = null
+  private var published: PublishedClaims? = null
+  private var publishedReader: PublishedArtifactReadOwner? = null
   private val generation = UUID.randomUUID().toString()
   private var live = false
   private var loaded = false
@@ -39,6 +43,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context)).build()
 
   init {
+    synchronized(publishedViews) { publishedViews.add(this) }
     webView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     webView.setBackgroundColor(0xff120e0a.toInt())
     webView.settings.apply {
@@ -107,11 +112,35 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
       WebViewCompat.addWebMessageListener(webView, "HypergolicHost", setOf(ORIGIN)) { view, message, origin, mainFrame, reply ->
         if (!live || view !== webView || !mainFrame || origin.toString() != ORIGIN || view.url != expectedUrl) return@addWebMessageListener
-        if (message.type != WebMessageCompat.TYPE_STRING) return@addWebMessageListener
-        val text = message.data ?: return@addWebMessageListener
-        if (text.toByteArray(Charsets.UTF_8).size > CapabilityLeaseRegistry.MAX_BYTES) return@addWebMessageListener
+        if (message.type != WebMessageCompat.TYPE_STRING) {
+          if (published != null) fail("artifact-message-invalid")
+          return@addWebMessageListener
+        }
+        val text = message.data ?: run {
+          if (published != null) fail("artifact-message-invalid")
+          return@addWebMessageListener
+        }
+        if (text.toByteArray(Charsets.UTF_8).size > CapabilityLeaseRegistry.MAX_BYTES) {
+          if (published != null) fail("artifact-message-invalid")
+          return@addWebMessageListener
+        }
         try {
           val data = JSONObject(text)
+          if (data.optString("type") == "artifact.read" && published != null) {
+            if (data.optString("sessionId") != generation) { fail("artifact-read-invalid"); return@addWebMessageListener }
+            val chunk = receivePublishedRead(data) ?: run {
+              fail("artifact-read-invalid"); return@addWebMessageListener
+            }
+            val claims = published ?: return@addWebMessageListener
+            val result = JSONObject().put("type", "artifact.chunk").put("sessionId", generation)
+              .put("sequence", chunk.sequence).put("base64", chunk.base64)
+              .put("byteLength", chunk.byteLength).put("totalBytes", chunk.totalBytes)
+              .put("publisher", claims.publisher).put("appId", claims.appId)
+              .put("eventId", claims.eventId).put("version", claims.version)
+              .put("htmlHash", claims.htmlHash).put("done", chunk.done)
+            reply.postMessage(result.toString())
+            return@addWebMessageListener
+          }
           if (data.optString("sessionId") != generation) return@addWebMessageListener
           if (data.optString("type") == "capability") {
             receiveCapability(data) { response ->
@@ -128,7 +157,9 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
             "ready" -> if (data.length() == 2 && !ready) { ready = true; emit("ready") }
             "error" -> if (data.length() == 3 && data.optString("code").matches(Regex("[a-z-]{1,80}"))) fail(data.getString("code"))
           }
-        } catch (_: Exception) { /* Malformed diagnostics confer no authority. */ }
+        } catch (_: Exception) {
+          if (published != null) fail("artifact-message-invalid")
+        }
       }
     }
     addView(webView)
@@ -159,6 +190,57 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     try { configuration = CapabilityConfiguration(raw, generation) }
     catch (_: Exception) { fail("invalid-session"); return }
     startSession(configuration!!.sessionId)
+  }
+
+  private data class PublishedClaims(
+    val sessionId: String, val publisher: String, val appId: String, val eventId: String,
+    val version: String, val htmlHash: String, val handle: String
+  )
+
+  fun startPublishedArtifact(raw: String) {
+    if (disposed) return
+    if (sessionId != null) { fail("session-reuse-blocked"); return }
+    val claims = parsePublishedClaims(raw) ?: run { fail("invalid-session"); return }
+    sessionId = claims.sessionId
+    if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+      fail("webview-update-required"); return
+    }
+    val claimed = PublishedArtifactTransfer.INSTANCE.claimForHost(
+      claims.handle, claims.sessionId, claims.publisher, claims.appId, claims.eventId,
+      claims.version, claims.htmlHash, generation)
+    val bytes = claimed?.takeHtmlBytes()
+    if (bytes == null) { fail("artifact-claim-failed"); return }
+    published = claims
+    publishedReader = PublishedArtifactReadOwner(bytes)
+    live = true
+    expectedUrl = "$ORIGIN/assets/runtime/index.html?sessionId=$generation&source=published"
+    webView.loadUrl(expectedUrl!!)
+    webView.postDelayed({ if (live && !ready) fail("readiness-timeout") }, 15000)
+  }
+
+  private fun parsePublishedClaims(raw: String): PublishedClaims? {
+    if (raw.toByteArray(Charsets.UTF_8).size > 2048) return null
+    return try {
+      val data = JSONObject(raw)
+      if (data.keys().asSequence().toSet() != setOf(
+          "sessionId", "publisher", "appId", "eventId", "version", "htmlHash", "handle")) return null
+      val values = listOf("sessionId", "publisher", "appId", "eventId", "version", "htmlHash", "handle")
+        .map { data.get(it) as? String ?: return null }
+      val session = values[0]
+      if (!session.matches(Regex("[A-Za-z0-9_-]{1,80}")) ||
+          !PublishedArtifactRegistry.validClaims(values[1], values[2], values[3], values[4], values[5]) ||
+          !values[6].matches(Regex("[0-9a-f]{64}"))) return null
+      PublishedClaims(session, values[1], values[2], values[3], values[4], values[5], values[6])
+    } catch (_: Exception) { null }
+  }
+
+  private fun receivePublishedRead(data: JSONObject): PublishedArtifactReadOwner.Chunk? {
+    if (data.keys().asSequence().toSet() != setOf("type", "sessionId", "sequence")) return null
+    val number = data.get("sequence")
+    if (number !is Int && number !is Long) return null
+    val sequence = (number as Number).toLong()
+    if (sequence < 0 || sequence > Int.MAX_VALUE) return null
+    return publishedReader?.read(sequence.toInt())
   }
 
   private fun receiveCapability(data: JSONObject, reply: (String?) -> Unit) {
@@ -211,6 +293,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   private fun fail(code: String) {
     if (disposed) return
     live = false
+    publishedReader?.clear()
     ApprovalTransport.revoke(generation)
     CapabilityTransport.leases.revoke(generation)
     emit("error", code)
@@ -220,6 +303,9 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (disposed) return
     disposed = true
     live = false
+    publishedReader?.clear()
+    publishedReader = null
+    synchronized(publishedViews) { publishedViews.remove(this) }
     ApprovalTransport.revoke(generation)
     CapabilityTransport.revoke(generation)
     if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
@@ -233,5 +319,10 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   companion object {
     const val HOST = "appassets.androidplatform.net"
     const val ORIGIN = "https://appassets.androidplatform.net"
+    private val publishedViews = Collections.newSetFromMap(WeakHashMap<NappletHostView, Boolean>())
+    fun revokePublishedOnBackground() {
+      val views = synchronized(publishedViews) { publishedViews.toList() }
+      views.forEach { if (it.published != null) it.fail("backgrounded") }
+    }
   }
 }

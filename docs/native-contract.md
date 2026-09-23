@@ -153,12 +153,12 @@ from cryptographic validity.
 The transport adapter can query selected lookup relays and fetch a signed
 content-addressed Blossom path through an injected HTTPS port. That port must
 enforce public-IP policy at connection time; ordinary React Native `fetch` does
-not provide that guarantee. The adapter is not connected to app entry or native
-execution. It does not yet register immutable native artifact bytes or execute a
-published napplet on Android or iOS. The native hosts still admit only bundled
-fixtures. Full LOAD-01 through LOAD-03 proof remains open until a safe native
-HTTPS port, trusted cache, both native handoffs, consent and update flows, and
-platform journeys are complete.
+not provide that guarantee. The adapter is not connected to app entry. Both
+native hosts now have a separate published-artifact route with a one-use claim
+and trusted-document byte stream, but no published napplet is opened by the
+application yet. Full LOAD-01 through LOAD-03 proof remains open until a safe
+native HTTPS port, trusted cache, first-open consent, update flow, and Android
+and iOS device journeys are complete.
 
 ### Required native handoff
 
@@ -178,9 +178,10 @@ bytes or fetch only that pinned event, and show recovery if
 the bytes are unavailable or differ. The current workspace descriptor stores a
 content version and exact event ID; older published descriptors without a valid
 pin fail closed as corrupt saved state. Accepted version changes update the
-descriptor's version and event pin together. The bounded Android/iOS staging
-transfer exists, but native host claiming, byte delivery and adversarial
-HTML/CSP tests must be complete before a published artifact is executable.
+descriptor's version and event pin together. Bounded staging, native host
+claiming, generation-bound byte delivery, and browser HTML/CSP tests are now
+implemented. A published artifact remains unreachable from the app until the
+consent-gated owner route is connected and tested natively on both platforms.
 
 ## Reproduction and evidence
 

@@ -9,8 +9,10 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[3]
 SOURCE = 'modules/napplet-host/android/src/main/java/org/nostrocket/hypergolic/host/PublishedArtifactRegistry.java'
 TRANSFER = 'modules/napplet-host/android/src/main/java/org/nostrocket/hypergolic/host/PublishedArtifactTransfer.java'
+READ_OWNER = 'modules/napplet-host/android/src/main/java/org/nostrocket/hypergolic/host/PublishedArtifactReadOwner.java'
 PROOF = 'tests/native/android-published-artifact-registry/PublishedArtifactRegistryProof.java'
 TRANSFER_PROOF = 'tests/native/android-published-artifact-registry/PublishedArtifactTransferProof.java'
+READ_OWNER_PROOF = 'tests/native/android-published-artifact-registry/PublishedArtifactReadOwnerProof.java'
 RUNNER = 'tests/native/android-published-artifact-registry/runner.py'
 
 
@@ -26,21 +28,23 @@ def main():
     if output.is_relative_to(ROOT) and not output.is_relative_to(ROOT / '.tools'):
         raise RuntimeError('Evidence must be outside source or under ignored .tools')
     output.mkdir(parents=True, exist_ok=False)
-    sources = [SOURCE, TRANSFER, PROOF, TRANSFER_PROOF, RUNNER]
+    sources = [SOURCE, TRANSFER, READ_OWNER, PROOF, TRANSFER_PROOF, READ_OWNER_PROOF, RUNNER]
     before = {path: digest(ROOT / path) for path in sources}
     receipt = {'status': 'failed', 'sourceSha256': before,
-               'scope': 'Owning Android JVM registry and transfer proofs; no WebView, shell-verifier or device proof.'}
+               'scope': 'Owning Android JVM registry, transfer and read-owner proofs; native view compile only, no device proof.'}
     try:
         result = subprocess.run(
             ['javac', '-Xlint:all', '-Werror', '-d', str(output / 'classes'),
-             str(ROOT / SOURCE), str(ROOT / TRANSFER), str(ROOT / PROOF), str(ROOT / TRANSFER_PROOF)],
+             str(ROOT / SOURCE), str(ROOT / TRANSFER), str(ROOT / READ_OWNER),
+             str(ROOT / PROOF), str(ROOT / TRANSFER_PROOF), str(ROOT / READ_OWNER_PROOF)],
             text=True, capture_output=True, timeout=60)
         (output / 'compile.log').write_text(result.stdout + result.stderr)
         if result.returncode:
             raise RuntimeError('javac failed; inspect retained compile log')
         proofs = []
         logs = []
-        for proof_class in ('PublishedArtifactRegistryProof', 'PublishedArtifactTransferProof'):
+        for proof_class in ('PublishedArtifactRegistryProof', 'PublishedArtifactTransferProof',
+                            'PublishedArtifactReadOwnerProof'):
             result = subprocess.run(
                 ['java', '-cp', str(output / 'classes'), 'org.nostrocket.hypergolic.host.' + proof_class],
                 text=True, capture_output=True, timeout=60)

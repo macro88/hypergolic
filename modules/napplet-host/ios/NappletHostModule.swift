@@ -50,6 +50,9 @@ public final class NappletHostModule: Module {
       Prop("configuration") { (view: NappletHostView, raw: String) in
         view.startConfiguredSession(raw)
       }
+      Prop("publishedArtifact") { (view: NappletHostView, raw: String) in
+        view.startPublishedArtifact(raw)
+      }
       Prop("sessionId") { (view: NappletHostView, id: String) in
         view.startSession(id)
       }

@@ -148,6 +148,9 @@ test('accepts a balanced document containing raw-text script source and rejects 
   const malformed = new TextEncoder().encode('<!doctype html><html><head></head><body><main></body></main></html>');
   const badManifest = await verifyManifest(coordinate(), signed(await fixtureTags({ html: malformed })));
   await rejects(() => verifyArtifact(badManifest, malformed));
+  const beforeHead = new TextEncoder().encode('<!doctype html><html><script>window.executed = true</script><head></head><body>unsafe order</body></html>');
+  const beforeHeadManifest = await verifyManifest(coordinate(), signed(await fixtureTags({ html: beforeHead })));
+  await rejects(() => verifyArtifact(beforeHeadManifest, beforeHead));
 });
 
 test('rejects a duplicate optional x tag and requires any included x to match', async () => {

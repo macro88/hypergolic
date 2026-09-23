@@ -32,5 +32,6 @@ final class NappletHostView: ExpoView {
 
   func setActive(_ active: Bool) { host.setActive(active) }
   func startConfiguredSession(_ raw: String) { host.startConfiguredSession(raw) }
+  func startPublishedArtifact(_ raw: String) { host.startPublishedArtifact(raw) }
   func startSession(_ id: String) { host.startSession(id) }
 }

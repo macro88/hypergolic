@@ -6,18 +6,25 @@ import { createThemeService } from '@kehto/services';
 import type { HostOperationContext, NappletMessage } from '@kehto/runtime';
 import { identityResult, parseCapabilityRequest } from '../../src/runtime/capability-protocol';
 import { createNativeClient, type NativeHost } from './native-client';
+import { injectPublishedCsp, readPublishedArtifact } from './published-artifact';
 
 type FailureCode = 'invalid-session' | 'bridge-unavailable' | 'fixture-integrity'
-  | 'runtime-bootstrap' | 'runtime-timeout' | 'frame-navigation';
+  | 'artifact-integrity' | 'runtime-bootstrap' | 'runtime-timeout' | 'frame-navigation';
 type HostDiagnostic = { type: 'ready'; sessionId: string }
   | { type: 'error'; sessionId: string; code: FailureCode };
 const hostWindow = window as Window & { HypergolicHost?: NativeHost };
 const parameters = new URL(window.location.href).searchParams;
 const sessionId = parameters.get('sessionId') ?? '';
+const source = parameters.get('source');
 const fixtureName = parameters.get('fixture') ?? 'ux-lab';
-const fixture = Object.hasOwn(__BUNDLED_FIXTURES__, fixtureName) ? __BUNDLED_FIXTURES__[fixtureName] : undefined;
+const fixture = source === null && Object.hasOwn(__BUNDLED_FIXTURES__, fixtureName) ? __BUNDLED_FIXTURES__[fixtureName] : undefined;
+type RuntimeArtifact = Readonly<{
+  html: string; sha256: string; aggregateHash: string; appId: string; title: string;
+  domains: readonly string[]; publishTimeoutMs?: number; published: boolean;
+}>;
 let stopped = false;
 let cleanup: (() => void) | undefined;
+window.addEventListener('pagehide', () => { stopped = true; cleanup?.(); }, { once: true });
 
 function diagnostic(value: HostDiagnostic): void {
   const encoded = JSON.stringify(value);
@@ -55,12 +62,13 @@ async function digest(value: string): Promise<string> {
   return [...new Uint8Array(hash)].map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipient: () => () => boolean): ShellAdapter {
+function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipient: () => () => boolean,
+  artifact: RuntimeArtifact): ShellAdapter {
   const unavailable = (): never => { throw new Error('Capability unavailable'); };
   const theme = createThemeService({ initialTheme: {
     colors: { background: '#140f0b', text: '#f3efeb', primary: '#e8805d' },
   } });
-  const supported = new Set(fixture!.domains);
+  const supported = new Set(artifact.domains);
   const storage = async ({ message, send }: HostOperationContext): Promise<void> => { send({ ...await native.request(message) }); };
   const relayPublish = async ({ message, send }: HostOperationContext): Promise<void> => { send({ ...await native.request(message) }); };
   const identity = { descriptor: { name: 'identity', version: '1.0.0' },
@@ -132,19 +140,19 @@ function validEnvelope(value: unknown): boolean {
     && keys.every(key => key === 'type' || key === 'id');
 }
 
-function mount(): void {
+function mount(artifact: RuntimeArtifact): void {
   const native = createNativeClient(hostWindow.HypergolicHost!, sessionId,
-    fixture?.publishTimeoutMs === undefined ? {} : { requestTimeoutsMs: { 'relay.publish': fixture.publishTimeoutMs } });
+    artifact.publishTimeoutMs === undefined ? {} : { requestTimeoutsMs: { 'relay.publish': artifact.publishTimeoutMs } });
   const hooks = makeHooks(native, () => {
     const entry = bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId);
     return () => !stopped && entry !== undefined && bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId) === entry;
-  });
+  }, artifact);
   const bridge = createShellBridge(hooks);
-  const identity = Object.freeze({ dTag: fixture!.appId, aggregateHash: fixture!.aggregateHash });
+  const identity = Object.freeze({ dTag: artifact.appId, aggregateHash: artifact.aggregateHash });
   const environment = resolveShellEnvironment(hooks, identity);
   const frame = document.createElement('iframe');
   frame.id = 'napplet';
-  frame.title = fixture!.title;
+  frame.title = artifact.title;
   frame.setAttribute('sandbox', 'allow-scripts');
   frame.setAttribute('referrerpolicy', 'no-referrer');
   frame.setAttribute('allow', "camera 'none'; microphone 'none'; geolocation 'none'; payment 'none'; clipboard-read 'none'; clipboard-write 'none'");
@@ -194,10 +202,10 @@ function mount(): void {
   };
   window.addEventListener('message', receive);
   frame.addEventListener('load', loaded);
-  window.addEventListener('pagehide', () => { stopped = true; cleanup?.(); }, { once: true });
-  frame.srcdoc = injectNappletNamespacePrelude(injectCsp(fixture!.html), {
+  frame.srcdoc = injectNappletNamespacePrelude(artifact.published
+    ? injectPublishedCsp(artifact.html, csp) : injectCsp(artifact.html), {
     ...environment.capabilities,
-    ...(fixture!.publishTimeoutMs === undefined ? {} : { requestTimeoutsMs: { 'relay.publish': fixture!.publishTimeoutMs } }),
+    ...(artifact.publishTimeoutMs === undefined ? {} : { requestTimeoutsMs: { 'relay.publish': artifact.publishTimeoutMs } }),
   });
 }
 
@@ -207,13 +215,23 @@ async function start(): Promise<void> {
     fail('bridge-unavailable'); return;
   }
   try {
-    if (!fixture) { fail('fixture-integrity'); return; }
-    const actual = await digest(fixture.html);
-    if (actual !== fixture.sha256 || await digest(`${actual} /index.html\n`) !== fixture.aggregateHash) {
-      fail('fixture-integrity'); return;
+    let artifact: RuntimeArtifact;
+    if (source === 'published') {
+      if (parameters.size !== 2 || parameters.get('fixture') !== null) { fail('artifact-integrity'); return; }
+      const document = await readPublishedArtifact(hostWindow.HypergolicHost!, sessionId);
+      artifact = Object.freeze({ html: document.html, sha256: document.metadata.htmlHash,
+        aggregateHash: document.metadata.version, appId: document.metadata.appId,
+        title: document.metadata.appId, domains: Object.freeze(['theme']), published: true });
+    } else {
+      if (source !== null || !fixture) { fail('fixture-integrity'); return; }
+      const actual = await digest(fixture.html);
+      if (actual !== fixture.sha256 || await digest(`${actual} /index.html\n`) !== fixture.aggregateHash) {
+        fail('fixture-integrity'); return;
+      }
+      artifact = Object.freeze({ ...fixture, published: false });
     }
     if (stopped) return;
-    mount();
-  } catch { fail('runtime-bootstrap'); }
+    mount(artifact);
+  } catch { fail(source === 'published' ? 'artifact-integrity' : 'runtime-bootstrap'); }
 }
 void start();

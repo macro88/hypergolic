@@ -12,10 +12,12 @@ class NappletHostModule : Module() {
     OnActivityEntersBackground {
       ApprovalTransport.foreground(false)
       PublishedArtifactTransfer.INSTANCE.revokeAllPublishedArtifacts()
+      NappletHostView.revokePublishedOnBackground()
     }
     OnActivityDestroys {
       ApprovalTransport.foreground(false)
       PublishedArtifactTransfer.INSTANCE.revokeAllPublishedArtifacts()
+      NappletHostView.revokePublishedOnBackground()
     }
     Function("registerPublishedSession") { sessionId: String ->
       PublishedArtifactTransfer.INSTANCE.registerPublishedSession(sessionId)
@@ -56,6 +58,7 @@ class NappletHostModule : Module() {
     View(NappletHostView::class) {
       Events("onHostEvent")
       Prop("configuration") { view: NappletHostView, raw: String -> view.startConfiguredSession(raw) }
+      Prop("publishedArtifact") { view: NappletHostView, raw: String -> view.startPublishedArtifact(raw) }
       Prop("sessionId") { view: NappletHostView, id: String -> view.startSession(id) }
       Prop("active") { view: NappletHostView, active: Boolean -> view.setActive(active) }
       OnViewDestroys { view: NappletHostView -> view.destroySession() }

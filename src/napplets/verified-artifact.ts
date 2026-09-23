@@ -176,6 +176,9 @@ const RAW_TEXT_ELEMENTS = new Set(['script', 'style', 'textarea', 'title']);
 /** Accepts a conservative, explicitly balanced HTML document envelope. */
 function validateHtmlEnvelope(html: string): void {
   if (!/^\uFEFF?\s*<!doctype\s+html\s*>/i.test(html)) return fail();
+  // The trusted host inserts CSP as the first head child before mounting any
+  // publisher markup. Reject documents that could execute before that point.
+  if (!/^\uFEFF?\s*<!doctype\s+html\s*>\s*<html(?:\s+[a-z][a-z0-9:-]*\s*=\s*(?:"[^"<>]*"|'[^'<>]*'))*\s*>\s*<head(?:\s+[a-z][a-z0-9:-]*\s*=\s*(?:"[^"<>]*"|'[^'<>]*'))*\s*>/i.test(html)) return fail();
   const doctype = /^\uFEFF?\s*<!doctype\s+html\s*>/i.exec(html)!;
   const stack: string[] = [];
   let cursor = doctype[0].length;
