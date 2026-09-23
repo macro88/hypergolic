@@ -7,6 +7,9 @@ struct CapabilityConfiguration {
   let sessionId: String
   let fixture: String
   let domains: Set<String>
+  let publisher: String
+  let appId: String
+  let version: String
   init(_ raw: String, generation: String) throws {
     enum Invalid: Error { case configuration }
     guard raw.utf8.count <= 8192, let bytes = raw.data(using: .utf8),
@@ -19,7 +22,9 @@ struct CapabilityConfiguration {
     for name in ["user", "publisher", "version"] {
       guard let text = value[name] as? String, text.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil else { throw Invalid.configuration }
     }
-    guard let appId = value["appId"] as? String, (1...1024).contains(appId.utf8.count),
+    guard let publisher = value["publisher"] as? String,
+      let version = value["version"] as? String,
+      let appId = value["appId"] as? String, (1...1024).contains(appId.utf8.count),
       let epoch = value["epoch"] as? NSNumber, CFGetTypeID(epoch) != CFBooleanGetTypeID(),
       epoch.doubleValue.isFinite, epoch.doubleValue >= 0, epoch.doubleValue <= 9_007_199_254_740_991,
       epoch.doubleValue.rounded(.towardZero) == epoch.doubleValue,
@@ -30,14 +35,29 @@ struct CapabilityConfiguration {
     case "ux-lab": expected = ["theme"]
     case "state-lab", "state-lab-peer": expected = ["identity", "storage", "theme"]
     case "approval-lab": expected = ["identity", "relay", "theme"]
+    case "published":
+      expected = Set(domains)
+      guard domains.count <= 4,
+        expected.isSubset(of: ["identity", "storage", "theme", "relay"]) else {
+        throw Invalid.configuration
+      }
     default: throw Invalid.configuration
     }
-    guard Set(domains) == expected else { throw Invalid.configuration }
+    if fixture != "published" && Set(domains) != expected { throw Invalid.configuration }
     value["generation"] = generation
     self.snapshot = String(decoding: try JSONSerialization.data(withJSONObject: value), as: UTF8.self)
     self.sessionId = sessionId
     self.fixture = fixture
     self.domains = expected
+    self.publisher = publisher
+    self.appId = appId
+    self.version = version
+  }
+
+  func matchesPublishedClaims(sessionId claimSession: String, publisher claimPublisher: String,
+                              appId claimAppId: String, version claimVersion: String) -> Bool {
+    fixture == "published" && sessionId == claimSession && publisher == claimPublisher
+      && appId == claimAppId && version == claimVersion
   }
   func request(_ message: String) throws -> String {
     let value = ["registration": try JSONSerialization.jsonObject(with: Data(snapshot.utf8)), "request": message] as [String: Any]

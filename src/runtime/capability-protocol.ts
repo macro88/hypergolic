@@ -36,7 +36,7 @@ function fields(value: Record<string, unknown>, required: readonly string[], opt
 export function decodeNativeRegistration(value: unknown): NativeRegistration {
   const data = record(value);
   fields(data, ['sessionId', 'generation', 'epoch', 'user', 'publisher', 'appId', 'version', 'instanceId', 'fixture', 'domains']);
-  if (!Array.isArray(data.domains) || data.domains.length > 3 ||
+  if (!Array.isArray(data.domains) || data.domains.length > 4 ||
       data.domains.some(domain => !['identity', 'storage', 'theme', 'relay'].includes(domain)) || new Set(data.domains).size !== data.domains.length) return invalid();
   return Object.freeze({ sessionId: identifier(data.sessionId), generation: identifier(data.generation),
     epoch: revision(data.epoch), user: publicKey(data.user), publisher: publicKey(data.publisher),

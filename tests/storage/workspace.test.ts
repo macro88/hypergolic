@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { openShellDatabase } from '../../src/storage/database.ts';
 import { snapshot, utf8Bytes } from '../../src/storage/codec.ts';
 import { emptyWorkspace, restoreWorkspace, snapshotWorkspace, type NappletDescriptor, type WorkspaceSnapshot } from '../../src/shell/workspace.ts';
+import { assertWorkspaceAvailability } from '../../src/shell/fixtures.ts';
 import { assertCode, deferred, hex, registration, setup } from './harness.ts';
 export function descriptor(id: string, patch: Partial<NappletDescriptor> = {}): NappletDescriptor {
   return { id, title: id, publisher: hex(2), appId: 'test-app', version: hex(3), source: 'published', eventId: hex(4), ...patch };
@@ -45,6 +46,22 @@ test('published workspace pins the exact signed event across durable restore and
     assert.throws(() => snapshot({ schema: 1, sessions: [invalid], lastActiveId: 'published' }), assertCode('INVALID_INPUT'));
   }
   assert.throws(() => restoreWorkspace({ schema: 1, sessions: [{ ...pinned, eventId: undefined }], lastActiveId: 'published' }));
+});
+
+test('a structurally valid published pin remains available after a process-style workspace reopen', async t => {
+  const { sqlite, database } = await setup(t);
+  const id = '58274370-ec8f-4058-a4cc-b63e7e75ca4b';
+  const pin = descriptor(id, { title: 'Restored Napplet', publisher: hex(6), appId: 'restored-napplet',
+    version: hex(7), eventId: hex(8) });
+  const port = database.bindWorkspace(registration()).port;
+  await port.save({ schema: 1, sessions: [pin], lastActiveId: id }, null);
+  await database.close();
+  const reopened = await openShellDatabase(sqlite, 'android');
+  const record = await reopened.bindWorkspace(registration()).port.load();
+  assert(record);
+  const restored = restoreWorkspace(record.snapshot);
+  assert.doesNotThrow(() => assertWorkspaceAvailability(restored));
+  assert.deepEqual(restored.sessions, [pin]);
 });
 
 test('saving snapshots clones inputs before they can mutate while queued', async t => {

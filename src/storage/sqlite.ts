@@ -1,8 +1,9 @@
 /** Only this adapter owns this connection. No connection or arbitrary SQL escapes its closure. */
+export type SQLiteValue = string | number | null | Uint8Array;
 export interface SQLiteConnection {
   execAsync(sql: string): Promise<void>;
-  runAsync(sql: string, ...params: (string | number | null)[]): Promise<{ changes: number }>;
-  getAllAsync<T>(sql: string, ...params: (string | number | null)[]): Promise<T[]>;
+  runAsync(sql: string, ...params: SQLiteValue[]): Promise<{ changes: number }>;
+  getAllAsync<T>(sql: string, ...params: SQLiteValue[]): Promise<T[]>;
   isInTransactionAsync(): Promise<boolean>;
   closeAsync(): Promise<void>;
 }

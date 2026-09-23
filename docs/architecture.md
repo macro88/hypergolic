@@ -154,8 +154,9 @@ Saved data is scoped to user + verified publisher + stable napplet identity.
 
 Use the [RocketShell relay defaults](relays.md) as editable local startup lists,
 keeping network reads/writes separate from lookup/manifest discovery. The settings
-service persists edits and selected Network relays reach signing approval; native
-settings journeys and Lookup routing into app entry remain to be proved. Automatic
+service persists edits; selected Network relays reach signing approval and selected
+Lookup relays feed trusted published entry. Live routing on both platforms and
+the Settings journey remain to be proved. Automatic
 NIP-65 relay-list discovery and routing are deferred beyond v1.
 
 Purpose-built test napplets are approved, with embedding first and publication

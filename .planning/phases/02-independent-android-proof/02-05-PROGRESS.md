@@ -10,8 +10,8 @@ protocol revisions and local size/profile limits are in
 [`docs/native-contract.md`](../../../docs/native-contract.md). A transport
 adapter queries only configured lookup relays and retrieves content-addressed
 Blossom paths from signed HTTPS hints. App-only native HTTPS bridge methods and a
-trusted JavaScript adapter now exist with public-IP pinning, but normal app entry
-does not inject or call them.
+trusted JavaScript adapter now exist with public-IP pinning. Normal Settings
+entry now calls these ports through the process-owned session coordinator.
 
 The trusted Network and Lookup relay lists seed the selected RocketShell defaults
 once, persist edits in a dedicated SQLite database and expose add/remove/restore
@@ -29,12 +29,12 @@ shows an unavailable state and denies new signing requests before key use.
 
 ## Remaining for 02-05 and v1
 
-There is no app-entry link flow, first-open publisher/access consent, connected
-safe native network retrieval route, trusted cache, pinned restart recovery or explicit
-update UI yet. The Settings-only local signed QA route exercises the verified
-native handoff, but does not grant ordinary published app entry. The
-transport still needs a bounded, pinned relay WebSocket connection on each
-platform. Native HTTPS ports and WebSocket frame parsers now exist separately.
+The Settings entry, first-open publisher/access consent, connected native
+network retrieval route, trusted cache and pinned restart recovery are now
+implemented and have focused integration tests. The Settings-only local signed
+QA route remains a separate known-artifact proof. A live remote endpoint and
+ordinary Android/iOS native journey have not yet been verified. Explicit
+verified-update acceptance UI remains open.
 The native handoff must transfer at most 2 MiB
 without putting HTML, paths or URLs in React view props, then check the original
 bytes again before host CSP and namespace injection. Android and iOS remote
@@ -79,3 +79,36 @@ napplet suites pass. Normal Android ARM64 and iOS Simulator Release builds pass
 with the new Expo modules and parsers; neither build is a live HTTPS or WSS
 journey. React Doctor scores 100/100 and aislop scores 100/100. The native
 bridge still requires on-device network, cancellation and background evidence.
+
+## Ordinary workspace integration checkpoint — 23 September 2026
+
+The app-owned coordinator selects a signed kind-35129 event from configured
+Lookup relays, checks its exact HTML bytes, shows first-open publisher/app/domain
+review, caches the verified artifact in a separate bounded SQLite BLOB database,
+stages only verifier-branded bytes into a one-use native session and persists
+the exact event pin in the normal workspace. A cold reopen can use the cache;
+every hit is reverified before staging. Source-aware startup admits only strict
+published descriptor shape and reopens its pinned event. Closing, identity
+epoch change and native failure revoke the session. Android and iOS host parsers
+compare session/publisher/app/version claims before claiming the staged artifact,
+then bind precisely the granted domains to the capability transport. The guest
+runtime validates these domains from native artifact chunks rather than applying
+the former theme-only default. A published relay request reaches the signing
+queue only while its verified runtime binding, workspace claims and native
+generation remain exact; signing still requires the v1 review sheet.
+
+Focused napplet/runtime/storage tests pass, including first open, denied review,
+cache restart and normal runtime close. The Android published binding parser
+passes 13 assertions; the source-linked iOS Swift host proof compiles with
+warnings as errors and passes its 285 checks. The browser runtime suite passed
+94 Chromium/WebKit tests after the domain change. TypeScript passes, and React
+Doctor and aislop both score 100/100. The first sandboxed scoring request could
+not reach the API; the authorized follow-up scoring request succeeded.
+The iOS WK boundary source hashes were explicitly reviewed and rebaselined;
+asset preparation passes, while a fresh boundary Xcode execution remains open.
+Final Android ARM64 and iOS Simulator Release builds pass. The installed Android
+app visibly shows Open a napplet, its naddr field and Verify and open in trusted
+Settings. The production iOS app launches to its expected physical-iPhone
+identity requirement, so Simulator does not prove its Settings path.
+The normal Android/iOS remote UX, live public TLS/WSS behavior, explicit update
+flow, physical iPhone and older Android acceptance are not proved by these checks.

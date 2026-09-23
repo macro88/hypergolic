@@ -1,5 +1,5 @@
-import { fail, LIMITS, sanitize, ShellStorageError, type RequestOptions, type SQLiteConnection } from './ports.ts';
-export type Params = (string | number | null)[];
+import { fail, LIMITS, sanitize, ShellStorageError, type RequestOptions, type SQLiteConnection, type SQLiteValue } from './ports.ts';
+export type Params = SQLiteValue[];
 export type Check = () => void;
 export interface Access {
   all<T>(sql: string, ...params: Params): Promise<T[]>;

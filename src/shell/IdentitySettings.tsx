@@ -8,6 +8,7 @@ import { useIdentityOwner } from './IdentityShell';
 import { IdentityBackup } from './IdentityBackup';
 import { RelaySettings } from './RelaySettings';
 import { PublishedHostLab } from './PublishedHostLab';
+import { OpenPublishedNapplet } from './OpenPublishedNapplet';
 import { colors } from './theme';
 
 function Action({ title, testID, onPress, subdued = false }: { title: string; testID: string; onPress: () => void; subdued?: boolean }) {
@@ -94,7 +95,7 @@ function failureMessage(failure: ReturnType<IdentityTransition['getSnapshot']>['
   if (failure === 'DELETION_PENDING') return 'Deletion is paused. Authenticate again to finish removing the identity.';
   return 'The identity change was not accepted. Your current identity and open napplets are unchanged.';
 }
-export function IdentitySettings({ openBundledTest, openStateLab }: SettingsActions) {
+export function IdentitySettings({ openBundledTest, openStateLab, openPublished }: SettingsActions) {
   const { transition, formatNpub, runtime, actions, relaySettings } = useIdentityOwner();
   const state = useSyncExternalStore(transition.subscribe, transition.getSnapshot);
   const [importing, setImporting] = useState(false);
@@ -150,6 +151,7 @@ export function IdentitySettings({ openBundledTest, openStateLab }: SettingsActi
       <Text selectable testID="settings-full-npub" style={styles.npub}>{formatNpub(state.session.vault.selectedPubkey)}</Text>
       {actions && <IdentityBackup actions={actions} session={state.session} npub={formatNpub(state.session.vault.selectedPubkey)} reviewing={false}
         onReview={() => setBackupReview(true)} onClose={() => setBackupReview(false)} Action={Action} />}
+      {runtime && <OpenPublishedNapplet open={openPublished} />}
       <Text accessibilityRole="header" style={styles.title}>Saved identities</Text>
       {state.session.vault.identities.map(identity => <View key={identity.pubkey} style={styles.identity}><Pressable accessibilityRole="button"
         disabled={identity.pubkey === state.session.vault.selectedPubkey || identity.status !== 'active'}

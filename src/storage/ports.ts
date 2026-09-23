@@ -1,4 +1,4 @@
-export type { SQLiteConnection, SQLiteModule } from './sqlite.ts';
+export type { SQLiteConnection, SQLiteModule, SQLiteValue } from './sqlite.ts';
 export type StorageCode = 'INVALID_INPUT' | 'CORRUPT_STORAGE' | 'STORAGE_FAILURE' | 'STORAGE_INDETERMINATE'
   | 'REVOKED' | 'CANCELLED' | 'BUSY' | 'QUOTA_EXCEEDED' | 'CONFLICT' | 'TARGET_RETAINED' | 'SELECTION_MISMATCH';
 export class ShellStorageError extends Error {

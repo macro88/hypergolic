@@ -221,7 +221,7 @@ async function start(): Promise<void> {
       const document = await readPublishedArtifact(hostWindow.HypergolicHost!, sessionId);
       artifact = Object.freeze({ html: document.html, sha256: document.metadata.htmlHash,
         aggregateHash: document.metadata.version, appId: document.metadata.appId,
-        title: document.metadata.appId, domains: Object.freeze(['theme']), published: true });
+        title: document.metadata.appId, domains: document.metadata.domains, published: true });
     } else {
       if (source !== null || !fixture) { fail('fixture-integrity'); return; }
       const actual = await digest(fixture.html);

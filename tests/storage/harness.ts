@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import assert from 'node:assert/strict';
 import { SHELL_DATABASE, openShellDatabase, type ShellDatabase } from '../../src/storage/database.ts';
-import type { SQLiteConnection, SQLiteModule, TrustedRegistration } from '../../src/storage/ports.ts';
+import type { SQLiteConnection, SQLiteModule, SQLiteValue, TrustedRegistration } from '../../src/storage/ports.ts';
 export const hex = (n: number) => n.toString(16).padStart(2, '0').repeat(32);
 export function registration(patch: Partial<TrustedRegistration> = {}): TrustedRegistration {
   return { user: hex(1), publisher: hex(2), appId: 'test-app', version: hex(3), instanceId: 'instance_1', assertActive: () => { assert(true); }, ...patch };
@@ -16,10 +16,10 @@ export class DiskSQLite implements SQLiteModule {
   constructor(directory?: string) { this.directory = directory ?? mkdtempSync(join(tmpdir(), 'shell-storage-')); }
   readonly connections = new Set<DatabaseSync>();
   readonly openOptions: unknown[] = [];
-  readonly calls: { sql: string; params: (string | number | null)[] }[] = [];
+  readonly calls: { sql: string; params: SQLiteValue[] }[] = [];
   faults: Fault[] = [];
   onStep: ((sql: string) => void | Promise<void>) | undefined;
-  async step<T>(sql: string, params: (string | number | null)[], action: () => T, omitted?: T): Promise<T> {
+  async step<T>(sql: string, params: SQLiteValue[], action: () => T, omitted?: T): Promise<T> {
     this.calls.push({ sql, params });
     const fault = this.faults.find(item => sql.startsWith(item.prefix) && (item.nth = (item.nth ?? 1) - 1) <= 0);
     if (fault) this.faults.splice(this.faults.indexOf(fault), 1);
@@ -30,18 +30,18 @@ export class DiskSQLite implements SQLiteModule {
     return result;
   }
   async openDatabaseAsync(name: string, options: { useNewConnection: true; enableChangeListener: false }): Promise<SQLiteConnection> {
-    assert.equal(name, SHELL_DATABASE); this.openOptions.push(options);
+    assert.ok(name === SHELL_DATABASE || name === 'hypergolic-published-artifacts-v1.db'); this.openOptions.push(options);
     const db = await this.step('OPEN', [], () => new DatabaseSync(join(this.directory, name)));
     this.connections.add(db);
     return {
       execAsync: sql => this.step(sql, [], () => { db.exec(sql); }),
       runAsync: (sql, ...params) => this.step(sql, params, () => ({ changes: Number(db.prepare(sql).run(...params).changes) }), { changes: 0 }),
-      getAllAsync: <T>(sql: string, ...params: (string | number | null)[]) => this.step(sql, params, () => db.prepare(sql).all(...params) as T[], []),
+      getAllAsync: <T>(sql: string, ...params: SQLiteValue[]) => this.step(sql, params, () => db.prepare(sql).all(...params) as T[], []),
       isInTransactionAsync: () => this.step('IS_TRANSACTION', [], () => db.isTransaction),
       closeAsync: () => this.step('CLOSE', [], () => { db.close(); this.connections.delete(db); }),
     };
   }
-  raw(): DatabaseSync { const db = new DatabaseSync(join(this.directory, SHELL_DATABASE)); this.connections.add(db); return db; }
+  raw(name = SHELL_DATABASE): DatabaseSync { const db = new DatabaseSync(join(this.directory, name)); this.connections.add(db); return db; }
   cleanup(): void { for (const db of this.connections) db.close(); this.connections.clear(); rmSync(this.directory, { recursive: true }); }
 }
 export async function setup(t: { after(fn: () => void): void }, platform: 'android' | 'ios' = 'ios'): Promise<{ sqlite: DiskSQLite; database: ShellDatabase }> {

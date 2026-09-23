@@ -42,7 +42,7 @@ Both Expo modules expose an app-only `fetchPublishedHttps(operationId, url)`
 method that returns Base64 of the bounded original body, plus operation cancel
 and revoke methods. The trusted JavaScript adapter checks canonical Base64 and
 reconstructs a bounded `Response` for the existing published source. This port
-is not yet injected into the normal app loader. Android and iOS now also have
+is injected into the normal Settings loader. Android and iOS now also have
 single-relay native WSS query cores. Each checks every resolved address before
 numeric-address connection, retains the original hostname for TLS, validates a
 strict WebSocket upgrade, masks its outbound `REQ` and bounds inbound frames,
@@ -51,15 +51,25 @@ exposed only through app-owned Expo methods with cancel and lifecycle revocation
 A trusted request builder and relay adapter select only configured Lookup relays,
 limit fan-out to four native queries, parse responses through matching `EOSE`,
 and prepare still-unverified events for the signed-artifact loader. This source
-is not yet wired to ordinary entry and is not a live phone-tested loading path.
+feeds ordinary `naddr` entry and pinned reopening, but a live phone-tested
+remote path remains open.
 
 SQLite schema v3 can persist a revisioned first-open capability grant by user,
 publisher and stable napplet ID. A trusted coordinator now binds a verifier-
 branded artifact to an exact publisher, signed `d` identifier and capability set.
 It requires explicit review for a new or changed grant and denies stale decisions.
 The production staging wrapper rechecks that branded admission through every
-native upload step. The review UI and normal `naddr` entry do not call these
-pieces yet. The trusted cache and update confirmation are also open.
+native upload step. Settings now shows the verified publisher, signed event and
+requested domains before first open, and a normal workspace card claims the
+staged one-use artifact. Both native hosts bind the granted domains to the exact
+published session before claiming the artifact. A separate SQLite BLOB cache is
+scoped to user, publisher, napplet ID and exact event; every hit repeats event
+signature and HTML hash verification. A saved workspace row remains an untrusted
+claim until the pinned artifact and grant are verified. Explicit verified-update
+confirmation is still open.
+For a published napplet granted `relay`, the signing approval owner additionally
+requires the live verified workspace binding and exact native generation before
+showing a request; every event still needs the v1 approval sheet.
 If Settings later revokes an already-admitted grant while an identity remains
 active, it must also revoke that admission's live session before another stage;
 the current coordinator checks the identity/session epoch, not a new database
@@ -68,7 +78,7 @@ read for every upload chunk.
 The existing Settings signed-host QA route uses a locally embedded signed
 fixture and does not test remote network behavior. Native compile and isolated
 parsing/address tests do not establish live TLS behavior on a phone or a
-complete Android/iOS published loading journey.
+complete Android/iOS published loading journey through ordinary entry.
 
 Run the address proof with `python3 tests/native/public-ip-classifier/run.py`.
 The Android HTTPS proof is `python3 tests/native/android-published-https/runner.py`.
@@ -108,7 +118,7 @@ wire envelopes. Event signatures and original artifact hashes must still be
 checked in the trusted loader. No relay publishes or signer requests belong to
 this lookup transport.
 
-Before enabling ordinary published entry, exercise the native Android and iOS
+Before accepting ordinary published entry for v1, exercise the native Android and iOS
 paths against controlled TLS endpoints: a valid relay and Blossom server,
 mixed private/public DNS answers, hostname or certificate mismatch, redirects,
 bad upgrade responses, oversized frames, cancellation, background revocation,

@@ -23,6 +23,7 @@ export function IdentityShell({ owner }: { owner: TrustedIdentityOwner }) {
     });
     return () => subscription.remove();
   }, [transition]);
+  useEffect(() => () => owner.runtime?.revokeAllPublished(), [owner.runtime, state.session.epoch]);
   if (state.phase === 'recovery') return <SafeAreaView style={styles.problem}>
     <Text accessibilityRole="header" style={styles.heading}>Your identity needs attention</Text>
     <Text style={styles.detail}>The identity change could not be confirmed. Restart Hypergolic to reopen your saved identity and workspace.</Text>

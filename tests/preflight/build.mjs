@@ -28,6 +28,9 @@ const mocks = {
  'native-identity-owner': `import {fixture} from 'test:fixture'; export function claimIdentityOwner(){fixture.calls.push('claim');return fixture.claim;}`,
  'crypto-bootstrap': `import {fixture} from 'test:fixture'; export function initializeNativeRandom(){fixture.calls.push('initialize-random');}`,
  'identity-crypto': `import {forbidden} from 'test:fixture'; export const identityCrypto={generateSecretKey:()=>forbidden('generate-key'),derivePublicKey:()=>forbidden('derive-key'),parseNsec:()=>forbidden('parse-nsec'),newId:()=>forbidden('random-id'),now:()=>forbidden('clock')}; export const formatNpub=()=>forbidden('format-npub'); export const publicKeyFromNsec=()=>forbidden('import-key');`,
+ 'published-session': `import {forbidden} from 'test:fixture'; export const createPublishedSessionCoordinator=()=>forbidden('published-session');`,
+ 'native-published-source-port': `import {forbidden} from 'test:fixture'; export const loadNativePublishedArtifactSource=()=>forbidden('published-source');`,
+ 'native-transfer-port': `import {forbidden} from 'test:fixture'; export const loadNativePublishedTransferPort=()=>forbidden('published-transfer');`,
  'Shell': `export const Shell='TEST_ONLY_SHELL';`,
  'IdentityShell': `export const IdentityShell='TEST_ONLY_IDENTITY_SHELL';`,
 };

@@ -7,6 +7,7 @@ const BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
 
 export type PublishedMetadata = Readonly<{
   publisher: string; appId: string; eventId: string; version: string; htmlHash: string;
+  domains: readonly string[];
 }>;
 export type PublishedDocument = Readonly<{ metadata: PublishedMetadata; html: string }>;
 
@@ -22,14 +23,17 @@ function decodeBase64(value: unknown): Uint8Array {
   return Uint8Array.from(binary, character => character.charCodeAt(0));
 }
 function metadata(value: Record<string, unknown>): PublishedMetadata {
-  const { publisher, appId, eventId, version, htmlHash } = value;
+  const { publisher, appId, eventId, version, htmlHash, domains } = value;
   if (typeof publisher !== 'string' || !HEX64.test(publisher) ||
       typeof eventId !== 'string' || !HEX64.test(eventId) ||
       typeof version !== 'string' || !HEX64.test(version) ||
       typeof htmlHash !== 'string' || !HEX64.test(htmlHash) ||
       typeof appId !== 'string' || !appId || appId !== appId.trim() ||
-      new TextEncoder().encode(appId).length > 255 || /[\u0000-\u001f\u007f]/.test(appId)) throw new Error('Invalid artifact metadata');
-  return Object.freeze({ publisher, appId, eventId, version, htmlHash });
+      new TextEncoder().encode(appId).length > 255 || /[\u0000-\u001f\u007f]/.test(appId) ||
+      !Array.isArray(domains) || domains.length > 4 ||
+      domains.some(domain => typeof domain !== 'string' || !['identity', 'storage', 'theme', 'relay'].includes(domain)) ||
+      domains.some((domain, index) => index > 0 && domains[index - 1] >= domain)) throw new Error('Invalid artifact metadata');
+  return Object.freeze({ publisher, appId, eventId, version, htmlHash, domains: Object.freeze([...domains]) });
 }
 async function sha256(bytes: Uint8Array): Promise<string> {
   const copy = new Uint8Array(bytes);
@@ -80,7 +84,7 @@ export async function readPublishedArtifact(native: NativeHost, generation: stri
       const remainingTime = 15_000 - (performance.now() - started);
       if (remainingTime <= 0) throw new Error('Artifact read timed out');
       const value = await receiveChunk(native, generation, sequence, Math.min(2500, remainingTime));
-      if (Object.keys(value).length !== 12 || typeof value.totalBytes !== 'number' || !Number.isSafeInteger(value.totalBytes) ||
+      if (Object.keys(value).length !== 13 || typeof value.totalBytes !== 'number' || !Number.isSafeInteger(value.totalBytes) ||
           value.totalBytes < 1 || value.totalBytes > MAX_HTML_BYTES ||
           typeof value.byteLength !== 'number' || typeof value.done !== 'boolean') throw new Error('Invalid artifact reply');
       const nextClaims = metadata(value);

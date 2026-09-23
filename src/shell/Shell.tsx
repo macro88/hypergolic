@@ -13,11 +13,17 @@ import { adjacentNapplet, closeNapplet, focusNapplet, openNapplet, showOverview,
 import { colors } from './theme';
 import { RuntimeContext } from '../runtime/RuntimeContext';
 import { ReviewFocus } from './ReviewFocus';
+import type { NappletConsentReview } from '../napplets/first-open-consent';
 
 import { bundledDescriptor, initialTestWorkspace, type BundledVariant } from './fixtures';
 
 const noPending = new Set<string>();
-export interface SettingsActions { closeSettings: () => void; openBundledTest: () => void; openStateLab: (variant: Exclude<BundledVariant, 'ux-lab'>) => void }
+export interface SettingsActions {
+  closeSettings: () => void;
+  openBundledTest: () => void;
+  openStateLab: (variant: Exclude<BundledVariant, 'ux-lab'>) => void;
+  openPublished: (link: string, signal: AbortSignal, review: (request: NappletConsentReview) => Promise<boolean>) => Promise<void>;
+}
 export interface ShellProps {
   blocked?: boolean;
   initialWorkspace?: Workspace;
@@ -154,6 +160,7 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
     const session = current.current.sessions.find(item => item.id === closingId);
     if (!session) return;
     onBeforeClose?.(session);
+    if (session.source === 'published') runtime?.discardPublished(session.id);
     change(closeNapplet(current.current, session.id));
     setClosingId(null);
     lastCloseId.current = null;
@@ -172,6 +179,16 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
     setSettings(false);
   };
   const openBundledTest = () => openFixture('ux-lab');
+  const openPublished = async (link: string, signal: AbortSignal, review: (request: NappletConsentReview) => Promise<boolean>) => {
+    if (!runtime || blocked || signal.aborted || current.current.sessions.length >= 64) throw new Error('Published napplet unavailable');
+    const descriptor = await runtime.openPublishedLink(link, signal, review);
+    if (signal.aborted || blocked) { runtime.discardPublished(descriptor.id); throw new Error('Published napplet cancelled'); }
+    const next = openNapplet(current.current, descriptor);
+    position.set(next.sessions.length - 1);
+    progress.set(0);
+    change(next);
+    setSettings(false);
+  };
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'right', 'bottom', 'left']}>
       <ReviewFocus sessionId={workspace.focusedId} overview={workspace.overview} busy={busy} dragging={handleDragging} blocked={blocked} settings={settings} closing={closingId !== null} />
@@ -191,7 +208,7 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
       }}>
         <SafeAreaProvider><SafeAreaView style={styles.settingsScreen}>
           <View style={styles.settingsHeader}><Text accessibilityRole="header" style={styles.settingsTitle}>Settings</Text><Pressable ref={settingsClose} disabled={blocked} accessibilityState={{ disabled: blocked }} accessibilityRole="button" testID="settings-done" onPress={() => setSettings(false)} style={styles.done}><Text style={styles.doneText}>Done</Text></Pressable></View>
-          {settings && (SettingsContent ? <SettingsContent closeSettings={() => setSettings(false)} openBundledTest={openBundledTest} openStateLab={openFixture} /> : <View style={styles.settingsBody}>
+          {settings && (SettingsContent ? <SettingsContent closeSettings={() => setSettings(false)} openBundledTest={openBundledTest} openStateLab={openFixture} openPublished={openPublished} /> : <View style={styles.settingsBody}>
             <Text selectable testID="settings-full-npub" style={styles.settingsText}>{identity ? identity.npub : 'Identity is not configured in this build.'}</Text>
             <Text accessibilityRole="header" style={styles.settingsSection}>Bundled test napplets</Text>
             <Pressable testID="settings-open-ux-lab" accessibilityRole="button" onPress={openBundledTest} style={styles.openTest}><Text style={styles.openTestText}>Open UX Lab</Text><Text style={styles.addMark} accessible={false}>+</Text></Pressable>

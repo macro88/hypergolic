@@ -182,3 +182,16 @@ authority gate are still open. Native address, HTTPS, bridge and frame proofs,
 Release apps compile with the new code. React Doctor and aislop both score
 100/100. Safe native relay connection, remote live journeys, trusted cache,
 update/restart and both-platform v1 acceptance remain open. No source push.
+
+Ordinary published workspace continuation (2026-09-23): the app now wires
+configured Lookup relays and native HTTPS to a trusted `naddr` coordinator,
+explicit first-open publisher/access review, a reverified bounded cache and an
+exact pinned workspace session on both Android and iOS. Native hosts bind
+capability domains to the one-use staged artifact. Focused integration tests,
+the Android parser proof and the source-linked iOS Swift host proof pass;
+TypeScript passes, and React Doctor and aislop both score 100/100. Final
+Android and iOS Simulator Release builds pass; Android Settings visibly shows
+the new naddr form while production iOS Simulator stops at its expected device
+identity requirement. Live remote Android/iOS journeys, explicit update UX,
+physical iPhone and older-device acceptance remain open. Source remote/push
+remains owner-only; user requested continuation until 70% weekly usage consumed.

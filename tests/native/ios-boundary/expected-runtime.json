@@ -1,25 +1,25 @@
 {
-  "coreSha256": "5a7306f7c7212b71e927ae54363747154dc2583cab7fa023d7f28954535951ec",
+  "coreSha256": "573cf84c97fd9bb67b7b9e2aae641ab7a7672e9e2e9dd6b3c423e25beb5b9614",
   "assets": {
     "index.html": {
       "sha256": "f3cf66c64011a35dfede0b0e271f62ebe330c8962e51a730c08f86eda396765a",
       "bytes": 629
     },
     "host.js": {
-      "sha256": "3aa2d9c55fa8d7aa8807fbeea40868d3c6f1d30f8fff3530f3d7070b34937184",
-      "bytes": 142944
+      "sha256": "9a1110b871f3485887f1560c3a63cff79a7c3ab435ba2930326e465780c8696e",
+      "bytes": 147233
     }
   },
-  "manifestSha256": "ef4102347493fe155b10157f36c2a5217e6c210024d3286ce103c07488fcacfb",
+  "manifestSha256": "8e8ea647e467147a338a31d20a16bf036b3532f617e06ba0df3606b648154efe",
   "fixture": {
     "dTag": "ux-lab",
     "sha256": "01ab63dbcdadab0b44fd6f3b9a6bcfbd98d8c1de1510f96c821d3efe1876909c",
     "aggregateHash": "3e96b737ec8fd25b170ff64a7f0f1c4a95f8badb943ee190cc79d629459988a6",
     "provenance": "bundled-unsigned-fixture"
   },
-  "wrapperSha256": "5189c4d39758970ca99fb8de5fd817862ec09b072b4fadb00e687edd5b114d71",
+  "wrapperSha256": "0b9f1ebe7a18bfe1261db0ced38035bdd89b67469605a27f968339c646549ebb",
   "leaseSha256": "3a00614a2144d0d6f0135c3b68c19830cb797e8b5f8cd64b741b7df82e284046",
-  "transportSha256": "8ccda07d692362380a1f643279ee5dddd56bfe403895b525c65462a989a5a89a",
+  "transportSha256": "0345653fc952a528162bc04f1ab41668b3b31306486b9e8c4dce039458120e25",
   "fixtures": {
     "ux-lab": {
       "title": "UX Lab",

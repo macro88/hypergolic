@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { IdentityVault, type VaultDependencies, type EncryptedSecrets } from '../../src/security/identity-vault.ts';
 import { createProtectedSecrets, secretStorageKey, VAULT_SERVICE, type NativePlatform, type ProtectedOptions, type SecureStoreModule } from '../../src/security/android-encrypted-secrets.ts';
 import { IDENTITY_DATABASE, openIdentityMetadata, type SQLiteConnection, type SQLiteModule } from '../../src/security/identity-metadata.ts';
+import type { SQLiteValue } from '../../src/storage/sqlite.ts';
 
 export const pubkey = (n: number) => n.toString(16).padStart(2, '0').repeat(32);
 export const TEST_ID = 'test_vault_000001';
@@ -57,7 +58,7 @@ export class SqliteFake extends Faults implements SQLiteModule {
   readonly connections: DatabaseSync[] = [];
   closed = new Set<DatabaseSync>();
   openOptions: unknown[] = [];
-  statements: { sql: string; params: (string | number | null)[] }[] = [];
+  statements: { sql: string; params: SQLiteValue[] }[] = [];
   async openDatabaseAsync(name: string, options: { useNewConnection: true; enableChangeListener: false }): Promise<SQLiteConnection> {
     assert.equal(name, IDENTITY_DATABASE); this.openOptions.push(options);
     const db = await this.run('open', () => new DatabaseSync(join(this.directory, name)));
@@ -68,7 +69,7 @@ export class SqliteFake extends Faults implements SQLiteModule {
         this.statements.push({ sql, params });
         return { changes: Number(db.prepare(sql).run(...params).changes) };
       }, { changes: 0 }),
-      getAllAsync: <T>(sql: string, ...params: (string | number | null)[]) => this.run(`all:${sql}`, () => {
+      getAllAsync: <T>(sql: string, ...params: SQLiteValue[]) => this.run(`all:${sql}`, () => {
         this.statements.push({ sql, params }); return db.prepare(sql).all(...params) as T[];
       }, []),
       isInTransactionAsync: () => this.run('inTransaction', () => db.isTransaction),

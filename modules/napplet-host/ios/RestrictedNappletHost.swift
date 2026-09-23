@@ -83,13 +83,28 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       return
     }
     guard let input = PublishedArtifactHostInput(raw) else { fail("invalid-published-artifact"); return }
+    let publishedConfiguration: CapabilityConfiguration?
+    if let rawConfiguration = input.configuration {
+      guard let parsed = try? CapabilityConfiguration(rawConfiguration, generation: generation),
+        parsed.matchesPublishedClaims(sessionId: input.claims.sessionId,
+          publisher: input.claims.publisher, appId: input.claims.identifier,
+          version: input.claims.aggregateHash) else {
+        fail("invalid-published-configuration"); return
+      }
+      publishedConfiguration = parsed
+    } else {
+      publishedConfiguration = nil
+    }
     guard let claimed = PublishedArtifactTransfer.shared.registry.claim(
       input.handle, claims: input.claims, viewGeneration: generation) else {
       sessionId = input.claims.sessionId
       fail("artifact-claim-denied")
       return
     }
-    publishedReader = PublishedArtifactReadOwner(claimed: claimed)
+    configuration = publishedConfiguration
+    configurationSource = input.configuration
+    publishedReader = PublishedArtifactReadOwner(claimed: claimed,
+      domains: publishedConfiguration?.domains ?? ["theme"])
     publishedSource = raw
     backgroundObserver = NotificationCenter.default.addObserver(
       forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main
@@ -115,7 +130,9 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
         components.queryItems?.append(URLQueryItem(name: "source", value: "published"))
       }
       if let configuration {
-        components.queryItems?.append(URLQueryItem(name: "fixture", value: configuration.fixture))
+        if publishedReader == nil {
+          components.queryItems?.append(URLQueryItem(name: "fixture", value: configuration.fixture))
+        }
         guard CapabilityTransport.leases.register(generation) else { fail("capability-unavailable"); return }
         guard ApprovalTransport.register(generation) else {
           CapabilityTransport.leases.revoke(generation)

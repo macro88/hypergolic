@@ -17,6 +17,7 @@ import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.views.ExpoView
 import expo.modules.kotlin.viewevent.EventDispatcher
 import org.json.JSONObject
+import org.json.JSONArray
 import java.io.ByteArrayInputStream
 import java.util.UUID
 import java.util.Collections
@@ -138,7 +139,8 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
               .put("byteLength", chunk.byteLength).put("totalBytes", chunk.totalBytes)
               .put("publisher", claims.publisher).put("appId", claims.appId)
               .put("eventId", claims.eventId).put("version", claims.version)
-              .put("htmlHash", claims.htmlHash).put("done", chunk.done)
+              .put("htmlHash", claims.htmlHash).put("domains", JSONArray(configuration?.grantedDomains ?: listOf("theme")))
+              .put("done", chunk.done)
             reply.postMessage(result.toString())
             return@addWebMessageListener
           }
@@ -195,7 +197,8 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
 
   private data class PublishedClaims(
     val sessionId: String, val publisher: String, val appId: String, val eventId: String,
-    val version: String, val htmlHash: String, val handle: String
+    val version: String, val htmlHash: String, val handle: String,
+    val configuration: CapabilityConfiguration?
   )
 
   fun startPublishedArtifact(raw: String) {
@@ -214,6 +217,13 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
       claims.version, claims.htmlHash, generation)
     val bytes = claimed?.takeHtmlBytes()
     if (bytes == null) { fail("artifact-claim-failed"); return }
+    val config = claims.configuration
+    if (config != null) {
+      if (!CapabilityTransport.leases.register(generation)) { fail("capability-unavailable"); return }
+      if (!ApprovalTransport.register(generation)) { fail("approval-unavailable"); return }
+      configuration = config
+      ApprovalTransport.focus(generation, active)
+    }
     published = claims
     publishedSource = raw
     publishedReader = PublishedArtifactReadOwner(bytes)
@@ -227,15 +237,23 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (raw.toByteArray(Charsets.UTF_8).size > 2048) return null
     return try {
       val data = JSONObject(raw)
-      if (data.keys().asSequence().toSet() != setOf(
-          "sessionId", "publisher", "appId", "eventId", "version", "htmlHash", "handle")) return null
+      val required = setOf("sessionId", "publisher", "appId", "eventId", "version", "htmlHash", "handle")
+      val names = data.keys().asSequence().toSet()
+      if (names != required && names != required + "configuration") return null
       val values = listOf("sessionId", "publisher", "appId", "eventId", "version", "htmlHash", "handle")
         .map { data.get(it) as? String ?: return null }
       val session = values[0]
       if (!session.matches(Regex("[A-Za-z0-9_-]{1,80}")) ||
           !PublishedArtifactRegistry.validClaims(values[1], values[2], values[3], values[4], values[5]) ||
           !values[6].matches(Regex("[0-9a-f]{64}"))) return null
-      PublishedClaims(session, values[1], values[2], values[3], values[4], values[5], values[6])
+      val config = if (names.contains("configuration")) {
+        val rawConfig = data.get("configuration") as? String ?: return null
+        val parsed = CapabilityConfiguration(rawConfig, generation, allowPublished = true)
+        if (!PublishedCapabilityBinding.matches(parsed.fixture, parsed.sessionId,
+            parsed.publisher, parsed.appId, parsed.version, session, values[1], values[2], values[4])) return null
+        parsed
+      } else null
+      PublishedClaims(session, values[1], values[2], values[3], values[4], values[5], values[6], config)
     } catch (_: Exception) { null }
   }
 

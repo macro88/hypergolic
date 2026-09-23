@@ -11,7 +11,7 @@ const identity = {
   publisher: '1'.repeat(64), appId: 'published-test', eventId: '2'.repeat(64), version, htmlHash,
 };
 
-type Mode = 'normal' | 'bad-hash' | 'malformed-base64' | 'replayed-sequence';
+type Mode = 'normal' | 'bad-hash' | 'malformed-base64' | 'replayed-sequence' | 'unknown-domain' | 'relay-domain';
 
 async function openPublished(page: Page, mode: Mode = 'normal') {
   await page.addInitScript(({ generation, htmlBase64, htmlLength, identity, badHashVersion, mode }) => {
@@ -33,7 +33,8 @@ async function openPublished(page: Page, mode: Mode = 'normal') {
         type: 'artifact.chunk', sessionId: generation,
         sequence: mode === 'replayed-sequence' ? sequence + 1 : sequence,
         base64, byteLength: payload.length, totalBytes: htmlLength,
-        ...claims, done: (sequence + 1) * 48 * 1024 >= htmlLength,
+        ...claims, domains: mode === 'unknown-domain' ? ['future-domain'] : mode === 'relay-domain' ? ['relay', 'theme'] : ['theme'],
+        done: (sequence + 1) * 48 * 1024 >= htmlLength,
       };
       for (const listener of listenerSet) listener({ data: JSON.stringify(envelope) });
     };
@@ -87,7 +88,16 @@ test('published napplet streams verified bytes, gets theme only, and runs in an 
   expect(reads.map((item: any) => item.sequence)).toEqual(reads.map((_item: any, index: number) => index));
 });
 
-for (const mode of ['bad-hash', 'malformed-base64', 'replayed-sequence'] as const) {
+test('published runtime exposes only the bounded native-declared domains', async ({ page }) => {
+  await openPublished(page, 'relay-domain');
+  await expect(page.locator('#napplet')).toHaveCount(1);
+  const guest = page.frames().find(frame => frame.parentFrame() === page.mainFrame());
+  if (!guest) throw new Error('Missing published napplet frame');
+  await expect.poll(() => guest.evaluate(() => (window as any).napplet.shell.supports('relay'))).toBe(true);
+  expect(await guest.evaluate(() => (window as any).napplet.shell.supports('storage'))).toBe(false);
+});
+
+for (const mode of ['bad-hash', 'malformed-base64', 'replayed-sequence', 'unknown-domain'] as const) {
   test(`published ${mode} fails closed before creating the napplet frame`, async ({ page }) => {
     await openPublished(page, mode);
     await expect(page.getByRole('alert')).toHaveText('The napplet could not be loaded.');

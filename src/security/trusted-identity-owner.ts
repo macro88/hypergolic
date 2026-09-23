@@ -7,6 +7,8 @@ import { openNativeRelaySettings, type NativeRelaySettings } from '../network/re
 import { Platform } from 'react-native';
 import { createRuntimeOwner, type RuntimeOwner } from '../runtime/runtime-owner';
 import { loadNativeCapabilityPort } from '../runtime/native-capability-port';
+import { loadNativePublishedArtifactSource } from '../napplets/native-published-source-port';
+import { loadNativePublishedTransferPort } from '../napplets/native-transfer-port';
 import * as SQLite from 'expo-sqlite';
 import * as SecureStore from 'expo-secure-store';
 import type { IdentityActions } from './identity-actions';
@@ -18,7 +20,7 @@ import { loadIOSIdentitySecrets } from './identity-store-native';
 import { identityCrypto, formatNpub, publicKeyFromNsec } from './identity-crypto';
 import { openShellDatabase } from '../storage/database';
 import { IdentityTransition } from './identity-transition';
-import { assertBundledWorkspace, initialTestWorkspace } from '../shell/fixtures';
+import { assertWorkspaceAvailability, initialTestWorkspace } from '../shell/fixtures';
 
 export interface TrustedIdentityOwner {
   readonly transition: IdentityTransition;
@@ -36,8 +38,12 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
   let relaySettings: NativeRelaySettings | null = null;
   try {
     try { relaySettings = await openNativeRelaySettings(SQLite, platform); } catch { relaySettings = null; }
-    const transition = await IdentityTransition.open({ vault, database, publicKeyFromNsec, seed: initialTestWorkspace, assertAvailable: assertBundledWorkspace });
-    const approvals = new ApprovalService(loadNativeApprovalPort(), createApprovalOwner(transition), {
+    const transition = await IdentityTransition.open({ vault, database, publicKeyFromNsec, seed: initialTestWorkspace, assertAvailable: assertWorkspaceAvailability });
+    let runtime: RuntimeOwner | null = null;
+    const approvals = new ApprovalService(loadNativeApprovalPort(), createApprovalOwner(transition, origin => {
+      if (!runtime) throw new Error('APPROVAL_DENIED');
+      runtime.assertPublishedApproval(origin);
+    }), {
       sign: (snapshot, execution) => vault.signApproved(snapshot, execution, (event, secret) => {
         const signed = finalizeEvent(event, secret);
         return { id: signed.id, pubkey: signed.pubkey, created_at: signed.created_at, kind: signed.kind,
@@ -45,8 +51,11 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
       }),
       publishEvent,
     });
-    return { transition, approvals, relaySettings, runtime: createRuntimeOwner(database, transition, loadNativeCapabilityPort(),
-      { service: approvals, destinations: () => relaySettings?.getSettings().networkRelays ?? [] }) };
+    runtime = createRuntimeOwner(database, transition, loadNativeCapabilityPort(),
+      { service: approvals, destinations: () => relaySettings?.getSettings().networkRelays ?? [] },
+      { sqlite: SQLite, source: loadNativePublishedArtifactSource(), native: loadNativePublishedTransferPort(),
+        lookupRelays: () => relaySettings?.getSettings().lookupRelays ?? [] });
+    return { transition, approvals, relaySettings, runtime };
   } catch {
     try { await relaySettings?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await database.close(); } catch { /* Preserve the workspace failure. */ }

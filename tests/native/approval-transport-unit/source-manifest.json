@@ -3,7 +3,7 @@
   "productionSources": {
     "modules/napplet-host/ios/NativeApprovalAuthority.swift": "fb7d946e3d7c1b27326084df090fbb4a64e120b34bbe73a2af46301cf3a6c7b0",
     "modules/napplet-host/ios/CapabilityLeaseRegistry.swift": "3a00614a2144d0d6f0135c3b68c19830cb797e8b5f8cd64b741b7df82e284046",
-    "modules/napplet-host/ios/CapabilityTransport.swift": "8ccda07d692362380a1f643279ee5dddd56bfe403895b525c65462a989a5a89a",
+    "modules/napplet-host/ios/CapabilityTransport.swift": "0345653fc952a528162bc04f1ab41668b3b31306486b9e8c4dce039458120e25",
     "modules/napplet-host/ios/ApprovalTransport.swift": "e3578aa5a7faf1e9fa4e28b8796ec5fe91737f66a9635d3c15347e463f2ad80e"
   },
   "testSources": {
