@@ -277,3 +277,13 @@ napplet 125/125, React Doctor 100/100 and aislop 100/100 pass. Live published
 updates, protected remote path, physical iPhone and API 26 guest compatibility
 remain open. Source remote/push remains owner-only; requested usage pause is 90%
 weekly consumed.
+
+
+Normal remote-open checkpoint (2026-09-25): the final normal Android API 29
+Release APK opened the external public `file-browser` naddr under its
+process-owned identity after exact publisher/event/`theme` consent. The native
+guest showed Runtime connected. Force-stop and cold launch retained the same
+selected npub and remote guest, still connected. This emulator journey does not
+exercise secret readback or signing and does not prove physical-device identity
+security. Live published updates, iPhone protected path, and API 26 modern
+WebView support remain open. No source push or remote change.

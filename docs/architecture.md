@@ -52,7 +52,9 @@ A public-only live relay/Blossom first-open journey passes on Android API 36,
 Android API 29 with WebView 91, and iOS 26.5 Simulator, including exact review
 and connected guest rendering. API 26 with bundled WebView 58 safely refuses
 guest execution because native message-listener support is unavailable.
-Live published updates, protected production identity and physical-device
+The normal Android API 29 Release app also passes public remote first-open
+consent and restores the connected guest with the same npub after cold restart.
+Live published updates, protected identity security and physical-device
 acceptance remain open.
 Inactive identity deletion now has a shared
 review and an Android system-PIN journey; iOS

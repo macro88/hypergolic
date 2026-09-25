@@ -71,6 +71,18 @@ WebView or a supported native bridge remains necessary for API 26. These runs
 do not prove live published updates, protected identity on iPhone, or physical
 device security.
 
+## Normal Android remote opening — 25 September 2026
+
+The final normal Release APK on Android API 29 also opened the external
+`file-browser` naddr under its process-owned identity. Settings displayed the
+exact publisher, signed event and `theme` request; after explicit **Allow and
+open**, the guest showed **Runtime connected**. A force-stop and relaunch kept
+the same selected npub, selected `file-browser`, and connected guest. Its
+filesystem remains unavailable because the signed artifact requests only
+`theme`. This emulator evidence exercises the normal app path, but it does not
+prove secret readback, signing, physical iPhone security or a live update. The
+receipt and screenshots are in the private Notes checkpoint.
+
 ## Selected fixture tooling and checked references
 
 UX Lab pins SDK **0.27.2**, Vite plugin **0.14.1**, conformance CLI **0.2.18**,
