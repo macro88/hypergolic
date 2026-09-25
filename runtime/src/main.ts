@@ -7,6 +7,8 @@ import type { HostOperationContext, NappletMessage } from '@kehto/runtime';
 import { identityResult, parseCapabilityRequest } from '../../src/runtime/capability-protocol';
 import { createNativeClient, type NativeHost } from './native-client';
 import { injectPublishedCsp, readPublishedArtifact } from './published-artifact';
+import { ensureSecureRandomUuid } from './secure-random-compat';
+import { ensureObjectHasOwn } from './legacy-webview';
 
 type FailureCode = 'invalid-session' | 'bridge-unavailable' | 'fixture-integrity'
   | 'artifact-integrity' | 'runtime-bootstrap' | 'runtime-timeout' | 'frame-navigation';
@@ -17,7 +19,7 @@ const parameters = new URL(window.location.href).searchParams;
 const sessionId = parameters.get('sessionId') ?? '';
 const source = parameters.get('source');
 const fixtureName = parameters.get('fixture') ?? 'ux-lab';
-const fixture = source === null && Object.hasOwn(__BUNDLED_FIXTURES__, fixtureName) ? __BUNDLED_FIXTURES__[fixtureName] : undefined;
+const fixture = source === null && Object.prototype.hasOwnProperty.call(__BUNDLED_FIXTURES__, fixtureName) ? __BUNDLED_FIXTURES__[fixtureName] : undefined;
 type RuntimeArtifact = Readonly<{
   html: string; sha256: string; aggregateHash: string; appId: string; title: string;
   domains: readonly string[]; publishTimeoutMs?: number; published: boolean;
@@ -215,9 +217,11 @@ async function start(): Promise<void> {
     fail('bridge-unavailable'); return;
   }
   try {
+    ensureObjectHasOwn();
+    ensureSecureRandomUuid();
     let artifact: RuntimeArtifact;
     if (source === 'published') {
-      if (parameters.size !== 2 || parameters.get('fixture') !== null) { fail('artifact-integrity'); return; }
+      if (Array.from(parameters).length !== 2 || parameters.get('fixture') !== null) { fail('artifact-integrity'); return; }
       const document = await readPublishedArtifact(hostWindow.HypergolicHost!, sessionId);
       artifact = Object.freeze({ html: document.html, sha256: document.metadata.htmlHash,
         aggregateHash: document.metadata.version, appId: document.metadata.appId,

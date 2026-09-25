@@ -26,12 +26,12 @@ function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value) || Object.getPrototypeOf(value) !== Object.prototype) return invalid();
   const descriptors = Object.getOwnPropertyDescriptors(value);
   if (Reflect.ownKeys(value).length !== Object.keys(descriptors).length ||
-      Object.values(descriptors).some(field => !Object.hasOwn(field, 'value'))) return invalid();
+      Object.values(descriptors).some(field => !Object.prototype.hasOwnProperty.call(field, 'value'))) return invalid();
   return value as Record<string, unknown>;
 }
 function fields(value: Record<string, unknown>, required: readonly string[], optional: readonly string[] = []): void {
   const allowed = new Set([...required, ...optional]);
-  if (required.some(key => !Object.hasOwn(value, key)) || Object.keys(value).some(key => !allowed.has(key))) invalid();
+  if (required.some(key => !Object.prototype.hasOwnProperty.call(value, key)) || Object.keys(value).some(key => !allowed.has(key))) invalid();
 }
 export function decodeNativeRegistration(value: unknown): NativeRegistration {
   const data = record(value);
@@ -55,7 +55,7 @@ export function parseCapabilityRequest(value: unknown): CapabilityRequest {
   if (!STORAGE_OPERATIONS.includes(type as StorageOperation)) return invalid();
   const required = type === 'storage.keys' ? ['type', 'id'] : type === 'storage.set' ? ['type', 'id', 'key', 'value'] : ['type', 'id', 'key'];
   fields(data, required, ['scope']);
-  if (Object.hasOwn(data, 'scope') && data.scope !== 'shared' && data.scope !== 'instance') return invalid();
+  if (Object.prototype.hasOwnProperty.call(data, 'scope') && data.scope !== 'shared' && data.scope !== 'instance') return invalid();
   return Object.freeze({ type: type as StorageOperation, id, scope: data.scope === 'instance' ? 'instance' : 'shared',
     ...(type === 'storage.keys' ? {} : { key: text(data.key, LIMITS.keyBytes, true) }),
     ...(type === 'storage.set' ? { value: text(data.value, LIMITS.valueBytes, true) } : {}) });

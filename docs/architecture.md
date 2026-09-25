@@ -48,8 +48,10 @@ and background-revocation/retry journeys on Android API 36 and iOS Simulator.
 A second embedded signed coordinate adds `relay` access in v2; both platforms
 pass a separate changed-access review, denial retaining v1, and acceptance
 replacing it with v2.
-A public-only live relay/Blossom first-open journey now passes on Android API 36
-and iOS 26.5 Simulator, including exact review and connected guest rendering.
+A public-only live relay/Blossom first-open journey passes on Android API 36,
+Android API 29 with WebView 91, and iOS 26.5 Simulator, including exact review
+and connected guest rendering. API 26 with bundled WebView 58 safely refuses
+guest execution because native message-listener support is unavailable.
 Live published updates, protected production identity and physical-device
 acceptance remain open.
 Inactive identity deletion now has a shared

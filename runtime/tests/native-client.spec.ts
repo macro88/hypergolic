@@ -46,6 +46,18 @@ async function open(page: Page, fixture = 'state-lab') {
   return page.frames().find(frame => frame.parentFrame() === page.mainFrame())!;
 }
 
+test('native State Lab operations work when WebView lacks Object.hasOwn', async ({ page }) => {
+  await page.addInitScript(() => {
+    if (window === window.top) Object.defineProperty(Object, 'hasOwn', { configurable: true, value: undefined });
+  });
+  await open(page);
+  const ui = page.frameLocator('#napplet');
+  await ui.locator('#key').fill('legacy');
+  await ui.locator('#value').fill('safe');
+  await ui.locator('#write').click();
+  await expect(ui.locator('#status')).toHaveText('Write confirmed.');
+});
+
 test('shipped State Lab uses genuine SDK identity and every storage operation through the native adapter', async ({ page }) => {
   const frame = await open(page);
   const ui = page.frameLocator('#napplet');

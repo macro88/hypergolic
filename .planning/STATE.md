@@ -260,3 +260,20 @@ branch. TypeScript, 92 napplet tests, React Doctor 100/100 and aislop 100/100 pa
 This does not prove protected production identity, functional filesystem, live
 update retrieval, physical iPhone security or older Android. Source remote/push
 remains owner-only.
+
+
+Older-WebView checkpoint (2026-09-25): Android API 29/WebView 91 now passes the
+public-only live relay/Blossom first-open path (three source/APK-bound driver
+checks) and the normal Release app retains the same public npub and connected
+bundled UX Lab across restart. The trusted runtime uses secure compatibility
+shims for missing `crypto.randomUUID`/`Object.hasOwn` and a strict legacy query
+count. The final iOS 26.5 Simulator fixture again passes native source probe
+and 3/3 first-open checks with the same trusted host asset. API 26/WebView 58
+verifies the public source and shows consent, but safely refuses guest execution
+with `webview-update-required` because the native message-listener feature is
+missing. The normal API 26 app retains its public npub across restart but cannot
+connect UX Lab with that bundled WebView. Browser runtime 104/104, capability/
+napplet 125/125, React Doctor 100/100 and aislop 100/100 pass. Live published
+updates, protected remote path, physical iPhone and API 26 guest compatibility
+remain open. Source remote/push remains owner-only; requested usage pause is 90%
+weekly consumed.

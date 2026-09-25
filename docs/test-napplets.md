@@ -54,6 +54,23 @@ startup before generating relay subscription IDs; and React Native's constructed
 native HTTPS adapter now privately marks only already-capped native bytes so the
 reader can copy and recheck them without accepting unbounded network responses.
 
+## Older Android WebView checkpoint — 25 September 2026
+
+The final trusted runtime supports an Android API 29 emulator with its bundled
+WebView 91. It uses equivalent strict query counting on older WebViews, a secure
+`getRandomValues`-based UUID fallback when `crypto.randomUUID` is absent, and an
+`Object.hasOwn` compatibility shim required by Kehto. The public-only live
+fixture passed native relay/HTTPS verification, exact first-open review and a
+connected guest. The normal Release app separately retained its public npub and
+connected bundled UX Lab across a cold restart. The final runtime also passed
+the iOS 26.5 Simulator live first-open rerun.
+
+Android API 26 with bundled WebView 58 lacks the native message-listener feature.
+The app shows `webview-update-required` and does not execute the guest. A modern
+WebView or a supported native bridge remains necessary for API 26. These runs
+do not prove live published updates, protected identity on iPhone, or physical
+device security.
+
 ## Selected fixture tooling and checked references
 
 UX Lab pins SDK **0.27.2**, Vite plugin **0.14.1**, conformance CLI **0.2.18**,

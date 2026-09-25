@@ -177,6 +177,18 @@ test('correlation history is bounded without silently forgetting used IDs', asyn
   assert.equal(sqlite.calls.length, before);
 });
 
+test('capability requests retain strict field checks without Object.hasOwn', () => {
+  const descriptor = Object.getOwnPropertyDescriptor(Object, 'hasOwn');
+  assert.ok(descriptor);
+  Object.defineProperty(Object, 'hasOwn', { configurable: true, value: undefined });
+  try {
+    assert.deepEqual(parseCapabilityRequest({ type: 'storage.get', id: 'legacy', key: 'draft' }),
+      { type: 'storage.get', id: 'legacy', scope: 'shared', key: 'draft' });
+    assert.equal(decodeNativeRegistration(registration()).appId, 'state-lab');
+    assert.throws(() => parseCapabilityRequest({ type: 'storage.get', id: 'legacy', key: 'draft', extra: true }));
+  } finally { Object.defineProperty(Object, 'hasOwn', descriptor); }
+});
+
 test('request parser rejects getters, forged result types, extra fields and non-round-tripping strings', () => {
   for (const request of [[], null, { type: 'storage.get.result', id: 'x', value: 'y' },
     { type: 'storage.set', id: 'x', key: '', value: '\ud800' },

@@ -75,6 +75,32 @@ test('Approval Lab fixture is byte-pinned and remains an unsigned catalog artifa
   expect(manifest).not.toHaveProperty('sig');
 });
 
+test('top host derives v4 UUIDs from secure bytes when WebView lacks crypto.randomUUID', async ({ page }) => {
+  await page.addInitScript(() => {
+    if (window !== window.top) return;
+    const original = crypto.getRandomValues.bind(crypto);
+    let calls = 0;
+    Object.defineProperty(crypto, 'randomUUID', { configurable: true, value: undefined });
+    Object.defineProperty(crypto, 'getRandomValues', { configurable: true, value: (bytes: Uint8Array) => {
+      calls++;
+      return original(bytes);
+    } });
+    (window as any).__secureUuidCalls = () => calls;
+  });
+  await open(page, 'legacy-uuid');
+  const result = await page.evaluate(() => ({ uuid: crypto.randomUUID(), calls: (window as any).__secureUuidCalls() }));
+  expect(result.uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+  expect(result.calls).toBeGreaterThan(0);
+});
+
+test('bundled guest starts when an older WebView lacks Object.hasOwn', async ({ page }) => {
+  await page.addInitScript(() => {
+    if (window === window.top) Object.defineProperty(Object, 'hasOwn', { configurable: true, value: undefined });
+  });
+  const frame = await open(page, 'legacy-webview');
+  await expect(frame.getByTestId('theme-status')).toHaveText('Host colors');
+});
+
 test('real Kehto handshake and theme work with top-document DOM storage disabled', async ({ page }) => {
   const frame = await open(page);
   const result = await frame.evaluate(async () => {

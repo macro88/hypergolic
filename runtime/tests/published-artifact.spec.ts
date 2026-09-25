@@ -13,7 +13,7 @@ const identity = {
 
 type Mode = 'normal' | 'bad-hash' | 'malformed-base64' | 'replayed-sequence' | 'unknown-domain' | 'relay-domain';
 
-async function openPublished(page: Page, mode: Mode = 'normal') {
+async function openPublished(page: Page, mode: Mode = 'normal', extraQuery = '') {
   await page.addInitScript(({ generation, htmlBase64, htmlLength, identity, badHashVersion, mode }) => {
     if (window !== window.top) return;
     const state = { requests: [] as unknown[], diagnostics: [] as unknown[] };
@@ -52,11 +52,36 @@ async function openPublished(page: Page, mode: Mode = 'normal') {
     Object.defineProperty(window, 'sessionStorage', { get() { throw new DOMException('Storage disabled', 'SecurityError'); } });
   }, { generation, htmlBase64: html.toString('base64'), htmlLength: html.length, identity,
     badHashVersion: awaitHashVersionPlaceholder, mode });
-  await page.goto(`/assets/runtime/index.html?sessionId=${generation}&source=published`);
+  await page.goto(`/assets/runtime/index.html?sessionId=${generation}&source=published${extraQuery}`);
 }
 
 // Calculated in Node to keep browser fixture setup simple and deterministic.
 const awaitHashVersionPlaceholder = digest(`${'f'.repeat(64)} /index.html\n`);
+
+test('published host works when an older WebView lacks URLSearchParams.size', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(URLSearchParams.prototype, 'size', { configurable: true, get: () => undefined });
+  });
+  await openPublished(page);
+  await expect(page.locator('#napplet')).toHaveCount(1);
+  await expect(page.frameLocator('#napplet').getByTestId('lab')).toHaveAttribute('data-ready', 'true');
+  await expect.poll(() => page.evaluate(() => (window as any).__publishedTest.diagnostics)).toEqual([
+    { type: 'ready', sessionId: generation },
+  ]);
+});
+
+test('older WebView query counting still rejects unexpected published parameters', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(URLSearchParams.prototype, 'size', { configurable: true, get: () => undefined });
+  });
+  await openPublished(page, 'normal', '&unexpected=1');
+  await expect(page.getByRole('alert')).toHaveText('The napplet could not be loaded.');
+  await expect(page.locator('iframe')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => (window as any).__publishedTest.diagnostics)).toEqual([
+    { type: 'error', sessionId: generation, code: 'artifact-integrity' },
+  ]);
+  expect(await page.evaluate(() => (window as any).__publishedTest.requests.filter((request: any) => request.type === 'artifact.read'))).toEqual([]);
+});
 
 test('published napplet streams verified bytes, gets theme only, and runs in an isolated frame', async ({ page }) => {
   await openPublished(page);

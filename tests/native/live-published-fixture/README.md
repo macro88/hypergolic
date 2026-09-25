@@ -37,3 +37,31 @@ Simulator both passed native relay/HTTPS artifact verification, exact first-open
 review, consent, and visible connected guest. These public-only fixtures do not
 prove protected production identity, guest signing, functional filesystem,
 physical iPhone security, older Android, or a live published update.
+
+### Older Android and final-runtime rerun — 25 September 2026
+
+The same public-only journey passed on Android API 29 with bundled WebView
+91.0.4472.114. Run the reusable source-bound driver with an explicit fixture APK
+and serial, for example:
+
+```sh
+python3 tests/native/live_published_driver.py \
+  --serial emulator-5564 \
+  --package org.nostrocket.hypergolic.livepublishedfixture \
+  --apk /path/to/live-published-fixture.apk \
+  --output /path/to/private-receipt --reset-fixture
+```
+
+`--reset-fixture` clears only that disposable fixture package. The run checks the
+installed APK hash, exact native probe, consent fields, and connected guest; its
+receipt and screenshots belong in the private Notes checkpoint. The normal
+Release app also retained its public npub and connected bundled UX Lab over a
+cold restart on API 29. These are different journeys.
+
+On an API 26 emulator, the bundled WebView 58 lacks the required native
+`WEB_MESSAGE_LISTENER`. The public source probe and first-open review worked,
+but the host refused guest execution with `webview-update-required`. The normal
+Release app likewise retained its public npub across restart and refused the
+bundled guest. This is a safe compatibility limit, not an API 26 guest pass.
+The final trusted host was rebuilt on iOS 26.5 Simulator and again passed the
+source probe and three first-open checks.
