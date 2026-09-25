@@ -225,3 +225,23 @@ These embedded runs do not prove public relay/Blossom transport,
 changed-access review, fixture guest-signing denial, physical iPhone key
 protection, or older Android.
 No source remote or push change.
+
+Changed-access native checkpoint (2026-09-25): a second public-only signed
+kind-35129 coordinate requests `theme` in v1 and `theme, relay` in v2. Its
+independent release control runs through the ordinary process-owned coordinator,
+exact event update review, and separate changed-access consent. Android API 36
+passes nine APK/source-bound checks: first-open v1, exact update/access reviews,
+access denial retaining the connected v1 guest, then both approvals replacing
+it with v2. iPhone 17 Pro iOS 26.5 Simulator passes five bundle/source-bound
+XCTest checks for the same path. Both final screenshots show a legible v2 guest;
+the source, signed bytes, and native app remain public-only test fixtures. The
+combined fixture's original unchanged-access update journey also passes
+12 Android checks and seven iOS checks against the final artifacts, including
+rollback and background recovery. TypeScript, 91 napplet tests, 18 Android
+driver tests and 14 iOS driver tests pass. React Doctor and aislop score 100/100;
+the three-workspace dependency audit reports no known vulnerabilities. The full
+`pnpm run check` is temporarily stopped by Expo Doctor: six SDK 57 patch
+releases are newer than this repository's seven-day `minimumReleaseAge`, and
+pnpm correctly refuses an early install. No version checks were suppressed or
+dependencies changed. Live relay/Blossom loading, physical iPhone identity
+security and older Android remain open. No source remote or push change.

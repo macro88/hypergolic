@@ -146,6 +146,33 @@ class LauncherTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             driver.validate_report(report, "abcdef012345", bundle, "published-update")
 
+    def test_changed_access_is_bound_to_public_fixture_and_exact_receipt(self):
+        with tempfile.TemporaryDirectory() as temporary, patch.object(driver.subprocess, "run") as command:
+            output = Path(temporary) / "evidence"
+            with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+                driver.main(["--udid", "00000000-0000-4000-8000-000000000001", "changed-access",
+                             "--bundle-id", "org.nostrocket.hypergolic.dev", "--output", str(output)])
+            self.assertEqual(error.exception.code, 2)
+            command.assert_not_called()
+            self.assertFalse(output.exists())
+        bundle = "org.nostrocket.hypergolic.publishedupdatefixture"
+        report = {"kind": "hypergolic-ios-changed-access-v1", "scenario": "changed-access", "completed": True,
+                  "allChecksPassed": True, "checks": [{"name": name, "passed": True}
+                                                        for name in driver.SCENARIOS["changed-access"]["checks"]],
+                  "observations": {"nonce": "abcdef012345", "bundleIdentifier": bundle}}
+        driver.validate_report(report, "abcdef012345", bundle, "changed-access")
+        report["checks"].pop()
+        with self.assertRaises(RuntimeError):
+            driver.validate_report(report, "abcdef012345", bundle, "changed-access")
+
+    def test_source_manifest_includes_changed_access_signed_fixture(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary)
+            fixture = repo / "tests/napplets/fixtures/changed-access-fixture.ts"
+            fixture.parent.mkdir(parents=True)
+            fixture.write_text("public signed fixture")
+            self.assertIn("tests/napplets/fixtures/changed-access-fixture.ts", driver.source_manifest(repo))
+
     def test_source_manifest_includes_published_update_fixture_entry(self):
         with tempfile.TemporaryDirectory() as temporary:
             repo = Path(temporary)

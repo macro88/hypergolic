@@ -34,6 +34,7 @@ SCENARIOS = {
     "approval-review": {"checks": {"exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testApprovalReview"},
     "published-host": {"checks": {"review-exact-signed-fixture", "native-host-connected", "close-returns-to-fixture"}, "kind": "hypergolic-ios-published-host-v1", "test": "WorkspaceTests/testPublishedHost"},
     "published-update": {"checks": {"public-fixture-and-runtime", "first-open-exact-review", "update-cancel-retains-old", "update-accept-replaces-host", "cold-restart-retains-v2", "rollback-rejected-after-restart", "background-revokes-and-retry-v2"}, "kind": "hypergolic-ios-published-update-v1", "test": "WorkspaceTests/testPublishedUpdate"},
+    "changed-access": {"checks": {"public-fixture-and-runtime", "first-open-exact-review", "update-review-exact-candidate", "changed-access-decline-retains-v1", "changed-access-accept-replaces-host"}, "kind": "hypergolic-ios-changed-access-v1", "test": "WorkspaceTests/testChangedAccess"},
 }
 
 
@@ -66,7 +67,7 @@ def bundle_manifest(bundle: Path) -> dict:
 
 def source_manifest(repo: Path) -> dict:
     paths = set()
-    for directory in ("src", "runtime/src", "runtime/fixtures", "runtime/dist", "modules/napplet-host", "assets", "scripts", "tests/native/published-update-fixtures"):
+    for directory in ("src", "runtime/src", "runtime/fixtures", "runtime/dist", "modules/napplet-host", "assets", "scripts", "tests/native/published-update-fixtures", "tests/napplets/fixtures"):
         for path in (repo / directory).rglob("*"):
             relative = path.relative_to(repo)
             if path.is_file() and not {"build", ".gradle", "node_modules", ".expo"}.intersection(relative.parts):
@@ -144,7 +145,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--expected-title", default="UX Lab 1")
     parser.add_argument("--expected-session", default="ux-lab-1")
     parser.add_argument("--timeout", type=float, default=30)
-    parser.add_argument("scenario", choices=["identity-delete-unavailable", "state-close", "state-storage", "identity-switch", "workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "approval-review", "published-host", "published-update", "identity", "host-boundary", "renderer-loss"])
+    parser.add_argument("scenario", choices=["identity-delete-unavailable", "state-close", "state-storage", "identity-switch", "workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "approval-review", "published-host", "published-update", "changed-access", "identity", "host-boundary", "renderer-loss"])
     parser.add_argument("--output", type=Path, required=True, help="New private evidence directory, never overwritten")
     args = parser.parse_args(argv)
     if args.scenario not in SCENARIOS:
@@ -153,6 +154,8 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("published-host requires the isolated direct published-host fixture bundle")
     if args.scenario == "published-update" and args.bundle_id != "org.nostrocket.hypergolic.publishedupdatefixture":
         parser.error("published-update requires the isolated public-only published-update fixture bundle")
+    if args.scenario == "changed-access" and args.bundle_id != "org.nostrocket.hypergolic.publishedupdatefixture":
+        parser.error("changed-access requires the isolated public-only changed-access fixture bundle")
     if not re.fullmatch(r"[A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12}", args.udid):
         parser.error("--udid must be an explicit Simulator UUID")
     if not re.fullmatch(r"[A-Za-z0-9]+(?:[.-][A-Za-z0-9]+)+", args.bundle_id):

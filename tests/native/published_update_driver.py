@@ -23,7 +23,9 @@ FIXTURE = {
 }
 SOURCE_PATHS = (
     'tests/native/published-update-fixtures/index.tsx',
+    'tests/native/published-update-fixtures/source.ts',
     'src/napplets/embedded-update-fixture.ts',
+    'tests/napplets/fixtures/changed-access-fixture.ts',
     'src/napplets/embedded-update-source.ts',
     'src/napplets/published-session.ts',
     'src/napplets/first-open-consent.ts',

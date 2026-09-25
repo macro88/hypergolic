@@ -408,12 +408,14 @@ accessible guest marker and close. Its result does not establish production
 identity, network retrieval, first-open grants or physical-device security.
 
 The separate [published update fixture](../tests/native/published-update-fixtures/README.md)
-uses two signed public revisions and the ordinary first-open and update flows.
-Its Android and iOS drivers capture the explicit review, rejection retaining
-the old native guest, acceptance replacing it with the new guest, cold
-restart retaining that accepted guest, rejection of an older available
-revision, and background revocation with explicit retry. Keep
-these results separate from live network and physical-device acceptance.
+uses two signed public revisions per coordinate and the ordinary first-open
+and update flows. Its Android and iOS drivers capture explicit review, rejection
+retaining the old native guest, acceptance replacing it with the new guest,
+cold restart retaining that guest, rejection of an older available revision,
+and background revocation with explicit retry. A second coordinate adds
+`relay` access in v2; its drivers verify a separate consent review, denial
+retaining v1, and acceptance replacing v1. Keep these results separate from
+live network and physical-device acceptance.
 
 ## Tester APK command
 

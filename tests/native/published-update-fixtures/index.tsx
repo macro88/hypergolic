@@ -20,12 +20,12 @@ import { IdentityShell } from '../../../src/shell/IdentityShell';
 import { emptyWorkspace } from '../../../src/shell/workspace';
 import { colors } from '../../../src/shell/theme';
 import { openShellDatabase } from '../../../src/storage/database';
-import { createEmbeddedUpdateSource, EMBEDDED_UPDATE_ADDRESS } from '../../../src/napplets/embedded-update-source';
+import { CHANGED_ACCESS_NADDR, ORIGINAL_PUBLISHED_UPDATE_ADDRESS, createPublishedUpdateFixtureSource } from './source';
 
 // Public fixture identity only. This entry cannot import, store, reveal, or sign with an nsec.
 // Generated once from a random disposable secret that was not stored or printed.
 const PUBLIC_IDENTITY = '0349e311d2f7f8e2750e169025728a5bd5ac804c285882928bf098cf8b1e98be';
-const source = createEmbeddedUpdateSource(defaults.lookupRelays);
+const source = createPublishedUpdateFixtureSource(defaults.lookupRelays);
 const identity: VaultSnapshot = Object.freeze({ vaultId: 'public_published_update_fixture', revision: 1,
   selectedPubkey: PUBLIC_IDENTITY, identities: Object.freeze([Object.freeze({ pubkey: PUBLIC_IDENTITY,
     addedAt: 1, origin: 'generated' as const, status: 'active' as const })]), pendingDeletion: null });
@@ -74,14 +74,22 @@ function start() {
 function PublishedUpdateFixture() {
   const current = useSyncExternalStore(subscribe, snapshot);
   const [released, setReleased] = useState(false);
+  const [changedAccessReleased, setChangedAccessReleased] = useState(false);
   useEffect(start, []);
   return <GestureHandlerRootView style={styles.root}><SafeAreaProvider><View style={styles.root}>
     <SafeAreaView edges={['top']} style={styles.notice}>
       <Text testID="update-fixture-label" style={styles.label}>Published update QA · public identity · signing unavailable</Text>
-      <Text selectable testID="update-fixture-address" style={styles.address}>{EMBEDDED_UPDATE_ADDRESS}</Text>
+      <Text selectable testID="update-fixture-address" style={styles.address}>{ORIGINAL_PUBLISHED_UPDATE_ADDRESS}</Text>
       <Pressable accessibilityRole="button" testID="update-fixture-release" disabled={released}
-        accessibilityState={{ disabled: released }} onPress={() => { source.release(); setReleased(true); }} style={styles.release}>
+        accessibilityState={{ disabled: released }} onPress={() => { source.releaseUpdate(); setReleased(true); }} style={styles.release}>
         <Text style={styles.releaseText}>{released ? 'New revision available' : 'Make new revision available'}</Text>
+      </Pressable>
+      <Text testID="changed-access-fixture-label" style={styles.label}>Changed access QA · theme to theme + relay</Text>
+      <Text selectable testID="changed-access-fixture-address" style={styles.address}>{CHANGED_ACCESS_NADDR}</Text>
+      <Pressable accessibilityRole="button" testID="changed-access-fixture-release" disabled={changedAccessReleased}
+        accessibilityState={{ disabled: changedAccessReleased }}
+        onPress={() => { source.releaseChangedAccess(); setChangedAccessReleased(true); }} style={styles.release}>
+        <Text style={styles.releaseText}>{changedAccessReleased ? 'Changed-access revision available' : 'Release changed-access revision'}</Text>
       </Pressable>
     </SafeAreaView>
     {current.owner ? <IdentityShell owner={current.owner} />

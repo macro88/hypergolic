@@ -25,6 +25,7 @@ final class WorkspaceTests: XCTestCase {
     "approval-review": ["exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"],
     "published-host": ["review-exact-signed-fixture", "native-host-connected", "close-returns-to-fixture"],
     "published-update": ["public-fixture-and-runtime", "first-open-exact-review", "update-cancel-retains-old", "update-accept-replaces-host", "cold-restart-retains-v2", "rollback-rejected-after-restart", "background-revokes-and-retry-v2"],
+    "changed-access": ["public-fixture-and-runtime", "first-open-exact-review", "update-review-exact-candidate", "changed-access-decline-retains-v1", "changed-access-accept-replaces-host"],
   ]
 
   override func setUpWithError() throws {
@@ -44,7 +45,7 @@ final class WorkspaceTests: XCTestCase {
     let names = Set(checks.compactMap { $0["name"] as? String })
     let allPassed = complete && names == expected[scenario] && checks.count == expected[scenario]?.count && checks.allSatisfy { $0["passed"] as? Bool == true }
     attach([
-      "kind": scenario == "published-host" ? "hypergolic-ios-published-host-v1" : scenario == "published-update" ? "hypergolic-ios-published-update-v1" : "hypergolic-ios-workspace-v1", "scenario": scenario, "completed": complete,
+      "kind": scenario == "published-host" ? "hypergolic-ios-published-host-v1" : scenario == "published-update" ? "hypergolic-ios-published-update-v1" : scenario == "changed-access" ? "hypergolic-ios-changed-access-v1" : "hypergolic-ios-workspace-v1", "scenario": scenario, "completed": complete,
       "allChecksPassed": allPassed, "checks": checks, "observations": observations, "gestures": gestures,
       "proofScope": "Public native XCTest gestures and accessibility. Temporary fixture values/scroll positions only; native generation identity and transition frame pacing are not directly observed."
     ], "workspace-report")
@@ -556,6 +557,162 @@ final class WorkspaceTests: XCTestCase {
     record("background-revokes-and-retry-v2", guestWasRevoked,
       ["revokedGuest": true, "retryOpenedPinnedEvent": newEvent])
     capture("published-update-retried-v2")
+    complete = true
+  }
+
+  func testChangedAccess() throws {
+    let bundle = "org.nostrocket.hypergolic.publishedupdatefixture"
+    guard ProcessInfo.processInfo.environment["HG_TARGET_BUNDLE_ID"] == bundle else {
+      throw Failure.invalid("Requires the isolated public-only changed-access fixture")
+    }
+    let fixture = try one(app.staticTexts.matching(identifier: "changed-access-fixture-label"), "changed-access fixture label", visible: false)
+    let address = try one(app.staticTexts.matching(identifier: "changed-access-fixture-address"), "changed-access fixture naddr", visible: false)
+    guard fixture.label.localizedCaseInsensitiveContains("changed access"), address.label.hasPrefix("naddr1") else {
+      throw Failure.invalid("Changed-access fixture boundary or naddr mismatch")
+    }
+    let addressText = address.label
+    try until("Empty shell settings control") { self.app.buttons.matching(identifier: "shell-settings").firstMatch.isHittable }
+    guard currentTitle() == "Hypergolic",
+          app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).count == 0 else {
+      throw Failure.invalid("Changed-access fixture did not start with an empty shell workspace")
+    }
+    record("public-fixture-and-runtime", true, ["fixture": fixture.label, "naddr": addressText,
+      "initialFocusedTitle": currentTitle(), "runtimeSessions": 0, "signing": "unavailable"])
+    capture("changed-access-fixture-empty-shell")
+
+    let publisher = "803d57d794cf576cbef909cd854a040bddd4a04fc6ea7a36f85a1daf0bc43799"
+    let appId = "hypergolic-changed-access-qa"
+    let v1Event = "2bd6f1bfcfbbd1053735e98e9306664577334ecde33f8420f8cbaa638fb2a0ac"
+    let v2Event = "1f7adba5c649f9ab5f5933d658e4aea76c23347d982bbdfe3fa9202155c17beb"
+    let v2Domains = "relay, theme"
+
+    try identityPress("shell-settings")
+    let input = try one(app.textFields.matching(identifier: "settings-napplet-address"), "changed-access naddr input", visible: false)
+    input.tap()
+    for character in addressText { input.typeText(String(character)) }
+    guard (input.value as? String) == addressText else { throw Failure.invalid("Could not enter changed-access fixture naddr") }
+    try stateNativeReveal(app.buttons.matching(identifier: "settings-open-napplet").firstMatch)
+    try identityPress("settings-open-napplet")
+    try until("Exact first-open changed-access consent review") {
+      self.app.descendants(matching: .any).matching(identifier: "settings-napplet-review").firstMatch.exists
+        && self.app.buttons.matching(identifier: "settings-napplet-approve").firstMatch.isHittable
+    }
+    let firstReview = app.descendants(matching: .any).matching(identifier: "settings-napplet-review").firstMatch
+    let initialClaims = Set(app.staticTexts.allElementsBoundByIndex.filter { $0.exists }.map(\.label))
+    let exactFirstOpen = initialClaims.contains(publisher) && initialClaims.contains(appId)
+      && initialClaims.contains(v1Event) && initialClaims.contains("Requested access: theme")
+    record("first-open-exact-review", exactFirstOpen, ["publisher": publisher, "appId": appId,
+      "eventId": v1Event, "domains": ["theme"], "reviewVisible": firstReview.exists])
+    capture("changed-access-first-open-review")
+    try identityPress("settings-napplet-approve")
+    try until("Changed-access v1 host connected") {
+      self.currentTitle() == appId
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+        && self.publishedMarker("changed-access-v1")
+    }
+    try nativeTap(try one(app.buttons.matching(identifier: "changed-access-fixture-release"), "release v2 control", visible: false),
+      name: "release-changed-access-v2")
+    try until("Changed-access v2 released") {
+      self.app.buttons.matching(identifier: "changed-access-fixture-release").firstMatch.label == "Changed-access revision available"
+    }
+
+    try identityPress("shell-settings")
+    let check = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "published-update-check-")).firstMatch
+    try stateNativeReveal(check)
+    let sessionId = String(check.identifier.dropFirst("published-update-check-".count))
+    guard sessionId.range(of: "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", options: .regularExpression) != nil else {
+      throw Failure.invalid("Changed-access session control did not include a UUID")
+    }
+    try until("v1 event pin and update check") {
+      self.app.staticTexts.matching(NSPredicate(format: "label == %@", "Pinned event " + v1Event)).firstMatch.exists && check.isHittable
+    }
+    try identityPress(check.identifier)
+    let candidateId = "published-update-review-" + sessionId
+    try until("Changed-access signed update review") { self.app.descendants(matching: .any).matching(identifier: candidateId).firstMatch.exists }
+    let candidate = app.descendants(matching: .any).matching(identifier: candidateId).firstMatch
+    let oldClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", v1Event)).firstMatch
+    let newClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", v2Event)).firstMatch
+    let publisherClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", publisher)).firstMatch
+    let appClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", appId)).firstMatch
+    let domainsClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", "Requested access: " + v2Domains)).firstMatch
+    try until("Candidate review names exact publisher, app, signed events and changed domains") {
+      oldClaim.exists && newClaim.exists && publisherClaim.exists && appClaim.exists && domainsClaim.exists
+    }
+    let exactCandidate = candidate.exists && oldClaim.label == v1Event && newClaim.label == v2Event
+      && publisherClaim.label == publisher && appClaim.label == appId && domainsClaim.label == "Requested access: " + v2Domains
+    record("update-review-exact-candidate", exactCandidate, ["publisher": publisher, "appId": appId,
+      "previousEvent": v1Event, "candidateEvent": v2Event, "domains": v2Domains])
+    capture("changed-access-update-review")
+    let acceptCandidate = try one(app.buttons.matching(identifier: "published-update-accept-" + sessionId), "accept signed update", visible: false)
+    try stateNativeReveal(acceptCandidate)
+    try nativeTap(acceptCandidate, name: "accept-changed-access-candidate")
+
+    let accessReviewId = "published-update-access-" + sessionId
+    try until("Separate changed-access review appears before v2 host") {
+      self.app.descendants(matching: .any).matching(identifier: accessReviewId).firstMatch.exists
+        && self.app.buttons.matching(identifier: "published-update-access-cancel-" + sessionId).firstMatch.exists
+    }
+    let accessReview = app.descendants(matching: .any).matching(identifier: accessReviewId).firstMatch
+    let accessLabels = Set(app.staticTexts.allElementsBoundByIndex.filter { $0.exists }.map(\.label))
+    let exactAccessReview = accessReview.exists && accessLabels.contains(publisher) && accessLabels.contains(appId)
+      && accessLabels.contains("The update requests: " + v2Domains)
+    capture("changed-access-review-decline")
+    let cancelAccess = try one(app.buttons.matching(identifier: "published-update-access-cancel-" + sessionId), "decline changed access", visible: false)
+    try stateNativeReveal(cancelAccess)
+    try nativeTap(cancelAccess, name: "decline-changed-access")
+    try until("Declined access leaves v1 pinned and update check available") {
+      !self.app.descendants(matching: .any).matching(identifier: accessReviewId).firstMatch.exists
+        && self.app.staticTexts.matching(NSPredicate(format: "label == %@", "Pinned event " + v1Event)).firstMatch.exists
+        && self.app.buttons.matching(identifier: "published-update-check-" + sessionId).firstMatch.exists
+    }
+    try identityPress("settings-done")
+    try until("Declined changed access retains connected v1 guest") {
+      self.currentTitle() == appId && self.publishedMarker("changed-access-v1")
+        && !self.publishedMarker("changed-access-v2")
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+    }
+    record("changed-access-decline-retains-v1", exactAccessReview, ["v1Event": v1Event,
+      "candidateEvent": v2Event, "host": "changed-access-v1", "runtimeConnected": true,
+      "separateAccessReview": true])
+    capture("changed-access-declined-v1-retained")
+
+    try identityPress("shell-settings")
+    let secondCheck = app.buttons.matching(identifier: "published-update-check-" + sessionId).firstMatch
+    try stateNativeReveal(secondCheck)
+    try identityPress(secondCheck.identifier)
+    try until("Repeated changed-access update review") { self.app.descendants(matching: .any).matching(identifier: candidateId).firstMatch.exists }
+    let secondAccept = try one(app.buttons.matching(identifier: "published-update-accept-" + sessionId), "accept repeated signed update", visible: false)
+    try stateNativeReveal(secondAccept)
+    try nativeTap(secondAccept, name: "accept-repeated-changed-access-candidate")
+    try until("Repeated changed-access consent review") {
+      self.app.descendants(matching: .any).matching(identifier: accessReviewId).firstMatch.exists
+        && self.app.buttons.matching(identifier: "published-update-access-accept-" + sessionId).firstMatch.exists
+    }
+    let repeatedAccessLabels = Set(app.staticTexts.allElementsBoundByIndex.filter { $0.exists }.map(\.label))
+    let exactRepeatedAccess = repeatedAccessLabels.contains(publisher) && repeatedAccessLabels.contains(appId)
+      && repeatedAccessLabels.contains("The update requests: " + v2Domains)
+    let acceptAccess = try one(app.buttons.matching(identifier: "published-update-access-accept-" + sessionId), "allow changed access", visible: false)
+    try stateNativeReveal(acceptAccess)
+    try nativeTap(acceptAccess, name: "accept-changed-access")
+    try until("Accepted changed-access update returns to focused shell") {
+      self.app.buttons.matching(identifier: "shell-settings").firstMatch.isHittable
+    }
+    try identityPress("shell-settings")
+    let pinnedV2 = app.staticTexts.matching(NSPredicate(format: "label == %@", "Pinned event " + v2Event)).firstMatch
+    try stateNativeReveal(pinnedV2)
+    try until("v2 event is the only pinned revision") {
+      pinnedV2.exists && self.app.staticTexts.matching(NSPredicate(format: "label == %@", "Pinned event " + v1Event)).count == 0
+    }
+    try identityPress("settings-done")
+    try until("Accepted changed-access v2 host connected") {
+      self.currentTitle() == appId && self.publishedMarker("changed-access-v2")
+        && !self.publishedMarker("changed-access-v1")
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+    }
+    record("changed-access-accept-replaces-host", exactCandidate && exactRepeatedAccess,
+      ["v2Event": v2Event, "domains": v2Domains, "host": "changed-access-v2", "v1Visible": false,
+       "runtimeConnected": true])
+    capture("changed-access-accepted-v2")
     complete = true
   }
 

@@ -200,3 +200,41 @@ timeout advisory. Live public relay/Blossom loading, changed-access review,
 guest-signing denial in this fixture, physical iPhone
 security, and older Android compatibility remain open. No source remote was
 changed or pushed.
+
+## Changed-access native update proof — 25 September 2026
+
+A second independent embedded coordinate has two immutable, signed kind-35129
+revisions. V1 requests `theme`; v2 requests `theme` and `relay`. The test-only
+source reveals v2 only after its own release action. The signed HTML uses a
+high-contrast guest marker and the native readiness handshake; neither signing
+key is present in the app. The production entry and remote transport are
+unchanged.
+
+On the unlocked Android API 36 emulator, the separate Release fixture passed
+nine APK/source-bound changed-access checks: exact first-open review and v1
+native guest, exact update review, a second access review, denial retaining v1,
+then acceptance of both reviews replacing the guest with v2. Final APK SHA-256:
+`011471a9ada8b0021f53840cfb0021d0049afbba73e84b012fcb235429ed064b`.
+The changed-access source digest is
+`cee9dfe6bbf5880be2aaa043d3a33545ca03c0080f925dc80ff593156906397e`.
+The same final app passed the original unchanged-access update driver (12/12).
+The Android driver paces insertion of the 124-character naddr because a single
+IME injection failed before consent; that first attempt was not counted as
+application behavior.
+
+On the iPhone 17 Pro iOS 26.5 Simulator, the final fixture passed five
+changed-access XCTest checks and the original seven-check update regression.
+The first iOS changed-access attempt stopped when the test queried an offscreen
+button; revealing the control before tapping fixed the test. Both final
+screenshots visibly show the accepted guest and native connected status.
+These embedded journeys still do not establish live relay/Blossom retrieval,
+physical-iPhone identity security, older Android compatibility, or denial of
+an actual guest signing request.
+
+TypeScript, 91 napplet tests, 18 Android driver tests and 14 iOS driver tests
+pass. React Doctor and aislop both score 100/100, and the three-workspace
+dependency audit finds no known vulnerabilities. Full `pnpm run check` stops at
+Expo Doctor because six newly published SDK 57 patches are younger than this
+repository's seven-day `minimumReleaseAge`; pnpm refused Expo's suggested
+installation. No dependency checks were suppressed and no package versions
+changed. No source remote or push changed.

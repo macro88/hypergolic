@@ -1,13 +1,15 @@
 # Published update native fixture
 
 This test entry uses a randomly generated public identity whose disposable
-secret was discarded and two separately signed, embedded
-kind-35129 revisions for one napplet coordinate. The signing key was discarded;
-the app cannot sign or publish. The second revision becomes discoverable only
-after the fixture's **Make new revision available** action. Both native drivers
-use the ordinary first-open consent, process-owned update coordinator, Settings
-review, workspace replacement, and native host. No public relay or Blossom
-server participates.
+secret was discarded. It serves two independent napplet coordinates, each with
+two separately signed, embedded kind-35129 revisions. The update QA napplet
+keeps its `theme` access in v2. The changed-access QA napplet adds `relay` to
+`theme` in v2, requiring a separate access review after the event update review.
+The signing keys were discarded; the app cannot sign or publish. Each newer
+revision becomes discoverable only after its own release action. The native
+drivers use the ordinary first-open consent, process-owned update coordinator,
+Settings reviews, workspace replacement, and native host. No public relay or
+Blossom server participates.
 
 Build a separate Android Release package in an isolated test checkout or
 generated Android tree. In the generated `android/app/build.gradle`, change only:
@@ -56,6 +58,20 @@ python3 -B tests/native/published_update_driver.py --source "$PWD" \
   --output /private/tmp/hypergolic-android-update-UNIQUE --launch
 ```
 
+For changed access, use the same built fixture package after a clean disposable
+fixture install. Compute the source hash and run the dedicated driver:
+
+```sh
+PYTHONPATH=tests/native python3 -B -c \
+  'from pathlib import Path; import changed_access_driver as d; print(d.source_digest(d.source_hashes(Path.cwd())))'
+python3 -B tests/native/changed_access_driver.py --source "$PWD" \
+  --serial EXPLICIT_SERIAL \
+  --package org.nostrocket.hypergolic.publishedupdatefixture \
+  --expected-apk-sha256 VERIFIED_APK_SHA256 \
+  --expected-source-sha256 VERIFIED_CHANGED_ACCESS_SOURCE_SHA256 \
+  --output /private/tmp/hypergolic-android-changed-access-UNIQUE --launch
+```
+
 For iOS, use the same public-only entry and a separate Simulator bundle ID.
 The normal app requires physical-device identity storage, so the Simulator
 fixture does not prove production iOS key protection.
@@ -78,12 +94,24 @@ python3 -B tests/native/ios-driver.py --udid EXPLICIT_SIMULATOR_UUID \
   published-update
 ```
 
+After a clean disposable fixture install, run the separate `changed-access`
+scenario with the same bundle ID and a new output directory:
+
+```sh
+python3 -B tests/native/ios-driver.py --udid EXPLICIT_SIMULATOR_UUID \
+  --bundle-id org.nostrocket.hypergolic.publishedupdatefixture \
+  --repo "$PWD" --output /private/tmp/hypergolic-ios-changed-access-UNIQUE \
+  changed-access
+```
+
 Inspect the result JSON and screenshots. These journeys establish explicit
 first-open review, v1 native guest readiness, rejection retaining v1,
 acceptance replacing it with v2, v2 restoration after a cold app restart,
 rejection of an older available revision, and background revocation followed
-by an explicit retry of v2 on the named Simulator/emulator builds. The fixture
+by an explicit retry of v2 on the named Simulator/emulator builds. The
+changed-access journey separately checks that declining expanded access leaves
+v1 connected and that accepting both reviews replaces it with v2. The fixture
 does not issue a guest signing request; its injected signing and publication
 effects throw, so these journeys make no native-signing claim. They do not
-establish live relay/Blossom transport, changed-access review, physical
-iPhone identity security, or older Android compatibility.
+establish live relay/Blossom transport, physical iPhone identity security, or
+older Android compatibility.
