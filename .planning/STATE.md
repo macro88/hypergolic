@@ -16,7 +16,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-14)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Individual signing is connected; Android local-relay publication and both-platform review/lifecycle checks pass. Complete the remaining signing/security acceptance and verified remote loading. Android system PIN and fingerprint deletion pass on the isolated API 36 emulator. Shared iOS review/denial/cancel UI passes; physical iPhone authentication remains open. Lazy restoration now loads only the selected napplet, with repeated iOS cold-launch and both-platform saved-state proof. Older Android, signing and remote loading remain open.
+**Current focus:** Individual signing is connected; Android local-relay publication and both-platform review/lifecycle checks pass. The explicit published-update flow now passes an embedded signed public-only native journey on Android API 36 and iOS Simulator: first-open review, decline retaining v1, acceptance replacing the host with v2. Complete the remaining signing/security acceptance and live remote loading. Android system PIN and fingerprint deletion pass on the isolated API 36 emulator. Shared iOS review/denial/cancel UI passes; physical iPhone authentication remains open. Lazy restoration loads only the selected napplet, with repeated iOS cold-launch and both-platform saved-state proof. Older Android, live network loading and physical iPhone security remain open.
 
 ## Current Position
 
@@ -209,3 +209,17 @@ public relay/Blossom path still need phone evidence. The separate app, runtime
 and quality-tool dependency audits completed with no known vulnerabilities.
 The user handles the new
 source remote and push; no source push was made.
+
+Embedded signed-update native checkpoint (2026-09-25): separate public-only
+Release fixtures now exercise the real first-open consent and process-owned
+published update path. Android API 36 and iPhone 17 Pro iOS 26.5 Simulator
+drivers both pass exact signed review, decline retaining the v1 native guest,
+approval replacing it with v2, and cold restart retaining v2. The Android run is bound to its installed
+APK and frozen source digest; the iOS XCTest report and final screenshots show
+the accepted guest. The first Android attempt was blocked by the auth emulator's
+PIN keyguard, so the passing run used the separate unlocked test emulator.
+Focused fixture tests, TypeScript, React Doctor 100/100 and aislop 100/100 pass.
+These embedded runs do not prove public relay/Blossom transport, changed-access
+review, rollback and background revocation journeys, physical iPhone key
+protection, or older Android.
+No source remote or push change.

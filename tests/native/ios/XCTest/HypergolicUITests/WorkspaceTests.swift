@@ -24,6 +24,7 @@ final class WorkspaceTests: XCTestCase {
     "gestures": ["vertical-content-scroll", "horizontal-content-scroll", "marker-selection", "scroll-and-selection-retained"],
     "approval-review": ["exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"],
     "published-host": ["review-exact-signed-fixture", "native-host-connected", "close-returns-to-fixture"],
+    "published-update": ["public-fixture-and-runtime", "first-open-exact-review", "update-cancel-retains-old", "update-accept-replaces-host", "cold-restart-retains-v2"],
   ]
 
   override func setUpWithError() throws {
@@ -43,7 +44,7 @@ final class WorkspaceTests: XCTestCase {
     let names = Set(checks.compactMap { $0["name"] as? String })
     let allPassed = complete && names == expected[scenario] && checks.count == expected[scenario]?.count && checks.allSatisfy { $0["passed"] as? Bool == true }
     attach([
-      "kind": scenario == "published-host" ? "hypergolic-ios-published-host-v1" : "hypergolic-ios-workspace-v1", "scenario": scenario, "completed": complete,
+      "kind": scenario == "published-host" ? "hypergolic-ios-published-host-v1" : scenario == "published-update" ? "hypergolic-ios-published-update-v1" : "hypergolic-ios-workspace-v1", "scenario": scenario, "completed": complete,
       "allChecksPassed": allPassed, "checks": checks, "observations": observations, "gestures": gestures,
       "proofScope": "Public native XCTest gestures and accessibility. Temporary fixture values/scroll positions only; native generation identity and transition frame pacing are not directly observed."
     ], "workspace-report")
@@ -358,6 +359,148 @@ final class WorkspaceTests: XCTestCase {
     }
     record("close-returns-to-fixture", true, ["title": "Signed host QA fixture", "selectedIdentityAssumed": false])
     capture("published-host-fixture-returned")
+    complete = true
+  }
+
+  func testPublishedUpdate() throws {
+    let environment = ProcessInfo.processInfo.environment
+    guard environment["HG_TARGET_BUNDLE_ID"] == "org.nostrocket.hypergolic.publishedupdatefixture" else {
+      throw Failure.invalid("Requires the isolated public-only published-update fixture")
+    }
+    let fixture = try one(app.staticTexts.matching(identifier: "update-fixture-label"), "public update fixture label", visible: false)
+    let address = try one(app.staticTexts.matching(identifier: "update-fixture-address"), "fixture naddr", visible: false)
+    guard fixture.label == "Published update QA · public identity · signing unavailable",
+          address.label.hasPrefix("naddr1") else { throw Failure.invalid("Published update fixture boundary or naddr mismatch") }
+    let addressText = address.label
+    try until("Empty shell settings control") { self.app.buttons.matching(identifier: "shell-settings").firstMatch.isHittable }
+    guard currentTitle() == "Hypergolic",
+          app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).count == 0 else {
+      throw Failure.invalid("Published update fixture did not start with an empty shell workspace")
+    }
+    record("public-fixture-and-runtime", true, ["fixture": fixture.label, "naddr": addressText,
+      "selectedIdentity": try selectedIdentity(), "initialFocusedTitle": currentTitle(), "runtimeSessions": 0, "signing": "unavailable"])
+    capture("published-update-fixture-empty-shell")
+
+    try identityPress("shell-settings")
+    let input = try one(app.textFields.matching(identifier: "settings-napplet-address"), "published naddr input", visible: false)
+    input.tap()
+    // One long XCTest text action outruns React Native's controlled input on Simulator.
+    for character in addressText { input.typeText(String(character)) }
+    guard (input.value as? String) == addressText else { throw Failure.invalid("Could not enter fixture naddr") }
+    let open = app.buttons.matching(identifier: "settings-open-napplet").firstMatch
+    try stateNativeReveal(open)
+    try identityPress("settings-open-napplet")
+    try until("Exact first-open published consent review") {
+      self.app.descendants(matching: .any).matching(identifier: "settings-napplet-review").firstMatch.exists
+        && self.app.buttons.matching(identifier: "settings-napplet-approve").firstMatch.isHittable
+    }
+    let review = app.descendants(matching: .any).matching(identifier: "settings-napplet-review").firstMatch
+    let claims = Set(app.staticTexts.allElementsBoundByIndex.filter { $0.exists }.map(\.label))
+    let publisher = "638cd26c28fb52d057f424d11a14e24526ac4b5e08cbad5d6c36f8f57cacce2f"
+    let appId = "hypergolic-update-qa"
+    let oldEvent = "dc078ef5973560de09933f39f19dddc28c51b2b30c7ec505157442db665a48b1"
+    let newEvent = "df50ad4aa2bcbc0514f75a63ca72c0dfb12da1b1e9e199f551bd6d2d98a71640"
+    let exactReview = claims.contains(publisher) && claims.contains(appId) && claims.contains(oldEvent)
+      && claims.contains("Requested access: theme")
+      && app.buttons.matching(identifier: "settings-napplet-approve").firstMatch.exists
+    record("first-open-exact-review", exactReview, ["publisher": publisher, "identifier": appId, "eventId": oldEvent,
+      "reviewVisible": review.exists, "signing": "unavailable", "requestedAccess": "theme"])
+    capture("published-update-first-open-review")
+    try identityPress("settings-napplet-approve")
+    try until("Published update v1 host connected") {
+      self.currentTitle() == appId
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+    }
+    try until("Published v1 rendered marker") { self.publishedMarker("update-v1") }
+    let release = try one(app.buttons.matching(identifier: "update-fixture-release"), "fixture release control", visible: false)
+    try nativeTap(release, name: "release-published-update")
+    try until("Fixture exposes its newer revision") { self.app.buttons.matching(identifier: "update-fixture-release").firstMatch.label.contains("New revision available") }
+    try identityPress("shell-settings")
+    let check = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "published-update-check-")).firstMatch
+    try stateNativeReveal(check)
+    let sessionId = String(check.identifier.dropFirst("published-update-check-".count))
+    guard sessionId.range(of: "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", options: .regularExpression) != nil else {
+      throw Failure.invalid("Published session control did not include a UUID")
+    }
+    let pinned = app.staticTexts.matching(NSPredicate(format: "label == %@", "Pinned event " + oldEvent)).firstMatch
+    try until("Pinned v1 event and update check") { pinned.exists && check.isHittable }
+    try identityPress(check.identifier)
+    let updateReviewId = "published-update-review-" + sessionId
+    try until("Update candidate review") { self.app.descendants(matching: .any).matching(identifier: updateReviewId).firstMatch.exists }
+    let updateReview = app.descendants(matching: .any).matching(identifier: updateReviewId).firstMatch
+    let reviewWasVisible = updateReview.exists
+    let oldClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", oldEvent)).firstMatch
+    let newClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", newEvent)).firstMatch
+    try until("Review names exact old and new signed events") { oldClaim.exists && newClaim.exists }
+    let exactCancelledCandidate = oldClaim.label == oldEvent && newClaim.label == newEvent
+    capture("published-update-review-cancel")
+    let cancel = app.buttons.matching(identifier: "published-update-cancel-" + sessionId).firstMatch
+    try stateNativeReveal(cancel)
+    try nativeTap(cancel, name: "published-update-cancel")
+    try until("Cancelled update keeps v1 pinned and connected") {
+      !self.app.descendants(matching: .any).matching(identifier: updateReviewId).firstMatch.exists
+        && self.app.staticTexts.matching(NSPredicate(format: "label == %@", "Pinned event " + oldEvent)).firstMatch.exists
+        && self.app.buttons.matching(identifier: "published-update-check-" + sessionId).firstMatch.exists
+    }
+    try identityPress("settings-done")
+    try until("Cancelled update leaves old host connected") {
+      self.currentTitle() == appId && self.publishedMarker("update-v1")
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+    }
+    record("update-cancel-retains-old", reviewWasVisible && exactCancelledCandidate,
+      ["sessionId": sessionId, "oldEvent": oldEvent, "candidateEvent": newEvent, "pinnedAfterCancel": oldEvent,
+       "hostAfterCancel": "update-v1", "runtimeConnected": true])
+    capture("published-update-cancel-retained-v1")
+
+    try identityPress("shell-settings")
+    let secondCheck = app.buttons.matching(identifier: "published-update-check-" + sessionId).firstMatch
+    try stateNativeReveal(secondCheck)
+    try identityPress(secondCheck.identifier)
+    try until("Second update candidate review") { self.app.descendants(matching: .any).matching(identifier: updateReviewId).firstMatch.exists }
+    let secondOldClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", oldEvent)).firstMatch
+    let secondNewClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", newEvent)).firstMatch
+    try until("Second review names exact old and new events") { secondOldClaim.exists && secondNewClaim.exists }
+    let exactAcceptedCandidate = secondOldClaim.label == oldEvent && secondNewClaim.label == newEvent
+    capture("published-update-review-accept")
+    let accept = app.buttons.matching(identifier: "published-update-accept-" + sessionId).firstMatch
+    try stateNativeReveal(accept)
+    try nativeTap(accept, name: "published-update-accept")
+    try until("Accepted update returns to focused shell") { self.app.buttons.matching(identifier: "shell-settings").firstMatch.isHittable }
+    try identityPress("shell-settings")
+    let updatedPinned = app.staticTexts.matching(NSPredicate(format: "label == %@", "Pinned event " + newEvent)).firstMatch
+    try stateNativeReveal(updatedPinned)
+    try until("New event is the only visible pin") {
+      updatedPinned.exists && self.app.staticTexts.matching(NSPredicate(format: "label == %@", "Pinned event " + oldEvent)).count == 0
+    }
+    let newPinWasVisible = updatedPinned.exists
+    try identityPress("settings-done")
+    try until("Accepted update replaces v1 runtime") {
+      self.currentTitle() == appId && self.publishedMarker("update-v2")
+        && !self.publishedMarker("update-v1")
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+    }
+    record("update-accept-replaces-host", exactAcceptedCandidate
+      && newPinWasVisible, ["sessionId": sessionId, "pinnedEvent": newEvent, "host": "update-v2",
+        "oldHostVisible": false, "runtimeConnected": true,
+        "scope": "Process-owned coordinator, grant and workspace path; no signing, key material or release-signing claim"])
+    capture("published-update-accepted-v2")
+
+    app.terminate()
+    app.activate()
+    try until("Accepted update restored after cold restart") {
+      self.currentTitle() == appId && self.publishedMarker("update-v2")
+        && !self.publishedMarker("update-v1")
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+    }
+    try identityPress("shell-settings")
+    let restartedPin = app.staticTexts.matching(NSPredicate(format: "label == %@", "Pinned event " + newEvent)).firstMatch
+    try stateNativeReveal(restartedPin)
+    let newPinAfterRestart = restartedPin.exists
+      && app.staticTexts.matching(NSPredicate(format: "label == %@", "Pinned event " + oldEvent)).count == 0
+    try identityPress("settings-done")
+    record("cold-restart-retains-v2", newPinAfterRestart,
+      ["pinnedEvent": newEvent, "host": "update-v2", "oldHostVisible": false, "runtimeConnected": true])
+    capture("published-update-restarted-v2")
     complete = true
   }
 
@@ -979,6 +1122,10 @@ final class WorkspaceTests: XCTestCase {
     }
     guard found.count == 1 else { throw Failure.invalid("Expected one active leaf WebView, got \(found.count)") }
     return found[0]
+  }
+  private func publishedMarker(_ marker: String) -> Bool {
+    app.webViews.allElementsBoundByIndex.filter { $0.exists && $0.isHittable }
+      .contains { $0.descendants(matching: .any).matching(NSPredicate(format: "label == %@", marker)).firstMatch.exists }
   }
   private func handle(_ side: String) throws -> XCUIElement { try one(app.buttons.matching(identifier: "handle-" + side), side + " handle") }
   private func switchHandle(_ side: String, to number: Int) throws {

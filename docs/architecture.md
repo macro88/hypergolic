@@ -35,10 +35,17 @@ modules now stage the verified bytes through a bounded app-only transfer and
 one-use registry. Both native host views can claim the handle and stream bytes
 to the trusted packaged runtime; browser and standalone native proofs pass.
 The Settings QA path opens one locally embedded signed published view on both
-native hosts. Ordinary workspace entry, live safe HTTPS retrieval, first-open
-consent and remote published execution remain open. Native public-address and
-HTTPS transport cores, an app-only HTTPS bridge, and bounded relay frame parsers
-are implemented but not connected to normal entry (see [network boundary](published-network.md)).
+native hosts. Ordinary workspace entry now resolves a pasted `naddr` through the
+configured Lookup relays and native HTTPS transport, verifies the signed event
+and HTML, requests first-open consent, pins the exact event and saves its grant.
+Settings can check for a newer signed event; a separate explicit update review
+keeps the old session until acceptance, and changed access requires another
+consent review. The process-owned coordinator stages accepted bytes through the
+one-use native handoff. The network boundary is described in
+[published-network.md](published-network.md). Embedded signed public-only
+revisions now pass first-open, decline, accept and cold-restart journeys on
+Android API 36 and iOS Simulator. A live public relay/Blossom journey and
+physical-device acceptance are still open.
 Inactive identity deletion now has a shared
 review and an Android system-PIN journey; iOS
 action acceptance still requires a physical device.
@@ -168,7 +175,7 @@ approved suite, source registry, commands, evidence and remaining native work.
 
 | Area | Required engineering output |
 | --- | --- |
-| Published napplet loading | Pin the link/delivery contract; implement accepted first-open trust and explicit verified updates; define version retention/failure handling and fixture publisher/signer/release destinations |
+| Published napplet loading | Prove live public relay/Blossom retrieval and native first-open/update on both platforms beyond embedded fixtures; choose fixture publication destinations and retain exact-version failure evidence |
 | Kehto/NAP/native adaptation | Pin compatible Kehto, NAP, NIP-5A and proposed NIP-5D revisions; define schemas, caller binding, error/resource limits and smallest host capability surface |
 | Identity protection | Choose Android and iOS storage/encryption and secure manual export handling; implement confirmed failed-read, preservation and whole-shell switch behavior |
 | Signing approval | Bind exact payload authorization through asynchronous work; implement accepted cancellation/restart rules; define queue bounds, expiry, revocation and partial failures |

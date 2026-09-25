@@ -158,20 +158,40 @@ Standalone dependency audits for the app, runtime and quality-tool lockfiles
 all completed with no known vulnerabilities. Aislop's embedded audit timeout
 does not change its 100/100 score.
 
-## Next automated native update fixture
+## Automated native published-update fixture — 25 September 2026
 
-The current Settings **Signed test napplet** stages one embedded artifact
-directly in `PublishedHostLab`; it does not traverse the production coordinator,
-grant store or workspace update action. An update test must use those owners.
-Prepare two immutable, independently verified kind-35129 artifacts signed by
-one disposable test publisher for the same `d` identifier. Keep the test secret
-out of the app and ship only signed public fixtures. Feed them through a
-test-only published source while keeping the normal Settings update review and
-one-use native handoff. Android and the isolated public-identity iOS QA entry
-should assert initial guest readiness, refusal keeping the old guest, acceptance
-replacing it, changed-access refusal, exact pinned restart, downgrade rejection
-and background revocation. Bind screenshots and driver results to source and
-installed-artifact hashes. This fixture will test native update UX and
-lifecycle; it cannot establish public WSS/HTTPS behavior or production iOS
-identity security. A known working public `naddr` and endpoints are still
-needed for the separate live transport journey.
+Two immutable, independently verified kind-35129 artifacts for one coordinate
+are embedded without the disposable signing secret. A test-only source reveals
+the newer revision only after the fixture release action. The isolated app
+uses the ordinary first-open consent, process-owned coordinator, grant store,
+Settings update review, workspace replacement and native hosts. Its public
+identity cannot sign or publish.
+
+The Android API 36 Release fixture on the unlocked `Hypergolic_API_36` emulator
+passed all ten driver checks: empty shell, exact first-open approval, native
+v1 guest, update release, exact old/new review, decline retaining v1, acceptance
+replacing it with v2, cold restart retaining v2, and source freeze. Its APK SHA-256 is
+`ba5548d0b3ae19799c51ef3e670127d19c32eecb462205b67bb36bd59a86c99f`;
+the frozen-source digest is
+`ab72a7e22a5ac570499a92f43867e2e69a1fe6475602ea7e9507b503fe8e47ba`.
+The native hierarchy and screenshot both showed `update-v2` after acceptance.
+The first attempt on `Hypergolic_Auth_API_36` stopped at its PIN keyguard; it
+made no application claim. A subsequent driver run on the unlocked emulator
+required scrolling to the offscreen review actions, which the final driver
+handles.
+
+The iPhone 17 Pro iOS 26.5 Simulator Release fixture passed its five native
+XCTest checks for public identity/runtime, exact first-open review, decline
+retaining the old guest, acceptance replacing it with v2, and cold restart
+retaining the accepted v2 guest and pin. The final v2
+screenshot visibly showed the updated guest. Both test entries use the same
+signed public revisions. See
+[the fixture instructions](../../../tests/native/published-update-fixtures/README.md)
+for build, artifact handoff, native commands and evidence limits.
+
+TypeScript and focused fixture tests pass. React Doctor and aislop both score
+100/100; aislop reports two non-scoring function-length warnings and an audit
+timeout advisory. Live public relay/Blossom loading, changed-access review,
+rollback and background revocation journeys, physical iPhone
+security, and older Android compatibility remain open. No source remote was
+changed or pushed.

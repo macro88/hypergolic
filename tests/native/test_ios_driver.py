@@ -127,6 +127,33 @@ class LauncherTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             driver.validate_report(report, "abcdef012345", "org.nostrocket.hypergolic.identityuifixture", "published-host")
 
+    def test_published_update_is_bound_to_public_only_fixture_before_device_work(self):
+        with tempfile.TemporaryDirectory() as temporary, patch.object(driver.subprocess, "run") as command:
+            output = Path(temporary) / "evidence"
+            with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+                driver.main(["--udid", "00000000-0000-4000-8000-000000000001", "published-update",
+                             "--bundle-id", "org.nostrocket.hypergolic.dev", "--output", str(output)])
+            self.assertEqual(error.exception.code, 2)
+            command.assert_not_called()
+            self.assertFalse(output.exists())
+        bundle = "org.nostrocket.hypergolic.publishedupdatefixture"
+        report = {"kind": "hypergolic-ios-published-update-v1", "scenario": "published-update", "completed": True,
+                  "allChecksPassed": True, "checks": [{"name": name, "passed": True}
+                                                        for name in driver.SCENARIOS["published-update"]["checks"]],
+                  "observations": {"nonce": "abcdef012345", "bundleIdentifier": bundle}}
+        driver.validate_report(report, "abcdef012345", bundle, "published-update")
+        report["checks"].pop()
+        with self.assertRaises(RuntimeError):
+            driver.validate_report(report, "abcdef012345", bundle, "published-update")
+
+    def test_source_manifest_includes_published_update_fixture_entry(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary)
+            entry = repo / "tests/native/published-update-fixtures/index.tsx"
+            entry.parent.mkdir(parents=True)
+            entry.write_text("public fixture entry")
+            self.assertIn("tests/native/published-update-fixtures/index.tsx", driver.source_manifest(repo))
+
     def test_implicit_booted_selector_rejected_before_any_command(self):
         with tempfile.TemporaryDirectory() as temporary, patch.object(driver.subprocess, "run") as command:
             with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:

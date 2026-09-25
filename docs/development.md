@@ -407,6 +407,13 @@ The iOS scenario checks the exact signed review, native connected state,
 accessible guest marker and close. Its result does not establish production
 identity, network retrieval, first-open grants or physical-device security.
 
+The separate [published update fixture](../tests/native/published-update-fixtures/README.md)
+uses two signed public revisions and the ordinary first-open and update flows.
+Its Android and iOS drivers capture the explicit review, rejection retaining
+the old native guest, acceptance replacing it with the new guest, and cold
+restart retaining that accepted guest. Keep
+these results separate from live network and physical-device acceptance.
+
 ## Tester APK command
 
 `pnpm run build:tester` packages the current checkout as a signed standalone ARM64
