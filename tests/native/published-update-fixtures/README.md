@@ -128,3 +128,11 @@ pre-adaptation failure receipt remains alongside the final passing receipts in
 the private project checkpoint. The APK SHA-256 was
 `f0b04111812beb066e7cb4ada83f877efcacb5718db71bd6dcebd389e945bf38`.
 These embedded fixtures do not prove live public relay update retrieval.
+
+The final trusted runtime was rebuilt in the isolated iOS 26.5 Simulator
+Release fixture on 25 September 2026. After clearing only the disposable
+fixture container, XCTest passed all seven unchanged-access update checks and
+all five changed-access checks with the bundled `host.js` matching SHA-256
+`2098a63671ce05a3f6c5dbdeaa4fe9f55e40eb078b8af0431b500c7554eb5281`.
+An initial run rejected the non-empty fixture workspace, as intended; its
+failed receipt is preserved separately. This remains embedded public-only QA.

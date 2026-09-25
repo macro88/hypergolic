@@ -16,13 +16,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-14)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Individual signing is connected; Android local-relay publication and both-platform review/lifecycle checks pass. Embedded signed public-only native update journeys pass on Android API 36 and iOS Simulator, including changed-access approval. A separate public-only live relay/Blossom first-open journey now passes on both platforms. Next prove live published updates, protected production identity, older Android compatibility and physical iPhone security. Android system PIN and fingerprint deletion pass on the isolated API 36 emulator; iOS review/denial/cancel UI passes on Simulator. Lazy restoration loads only the selected napplet, with repeated iOS cold-launch and both-platform saved-state proof.
+**Current focus:** Complete v1 native acceptance on Android and iOS. Public relay/Blossom first-open passes on Android API 36, Android API 29/WebView 91 and iOS 26.5 Simulator; the normal Android API 29 app opens and restores the remote guest under its process-owned identity. Embedded signed update and changed-access journeys pass on Android API 36/API 29 and iOS Simulator. API 26/WebView 58 safely refuses guests with an actionable update message. Next prove live published updates, protected identity/signing on a physical iPhone and compatibility with an updated API 26 WebView. Android system PIN/fingerprint deletion and both-platform workspace restoration have scoped native evidence.
 
 ## Current Position
 
 Phase: 2 of 3 (Independent Android and iOS proof / seed phase 1)
 Plan: 02-04 individual signing approval; remaining 02-03 device security and 02-07 acceptance
-Status: Identity/workspace/import/switch and manual backup implemented; State Lab and lazy restoration work on both platforms. Signing is connected with Android protected-signing/local-wire proof and iOS public-fixture review proof. iOS protected signing, remote loading and complete physical security acceptance remain open
+Status: Identity/workspace/import/switch and manual backup are implemented; State Lab and lazy restoration work on both platforms. Signing has Android protected-signing/local-wire proof and iOS public-fixture review proof. Public remote first-open works on both platforms, and the normal Android API 29 path restores a connected remote guest. Live remote updates, physical iPhone protected identity/signing and full release acceptance remain open.
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
 Previous native action checkpoint: 2026-09-15 — Added the Android native deletion authority with 95 owning JVM assertions and the protected-record/erase reader with 89 actual Android assertions. Existing SDK records are unchanged; disposable data alone was erased. The actual Release app and separate instrumentation APK build and their installed bytes match. The production deletion path remains denied pending native context/lifecycle and system-prompt integration; authentication in the record probe is a double. See docs/identity-storage.md.
@@ -314,3 +314,15 @@ actionable Android System WebView update message for the native
 other runtime statuses retain their existing labels. A fresh signed normal Release APK on API 26/WebView 58 showed the exact
 message after an in-place install while retaining the same selected public
 npub. The native host still refused guest execution.
+
+
+Final-runtime iOS update regression (2026-09-25): a fresh isolated iPhone
+17 Pro iOS 26.5 Simulator Release fixture with trusted host asset SHA-256
+`2098a63671ce05a3f6c5dbdeaa4fe9f55e40eb078b8af0431b500c7554eb5281`
+passes all seven signed-update XCTest checks and all five changed-access checks.
+The first update attempt correctly rejected the prior non-empty fixture app
+container; each passing run used a fresh disposable fixture install and
+recorded unchanged source snapshots. This does not prove live public relay
+updates or protected identity on a physical iPhone. `build:tester --check`
+requires external `HYPERGOLIC_KEYSTORE_PATH` in this session, so no new
+signed tester package was produced. Source remote/push remains owner-only.

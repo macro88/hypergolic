@@ -12,7 +12,7 @@ example, not a required product napplet.
 | [State Lab](../napplets/state-lab/README.md) | Embedded; native storage/identity journeys recorded on Android and iOS | Unsaved/saved state, close/reopen and user + publisher + stable napplet isolation |
 | [Approval Lab](../napplets/approval-lab/README.md) | Standalone unsigned artifact; native integration remains open | Explicit approve/deny, background deferral, cancellation and independently verified results |
 | Signed host QA fixture | Fixed signed event and HTML embedded locally; Android Settings and isolated iOS native QA journeys pass | Published-artifact verification, explicit review, one-use native transfer and host rendering without relay or publisher deployment |
-| [Live published QA fixture](../tests/native/live-published-fixture/README.md) | Public `file-browser` signed event loaded on Android API 36 and iOS 26.5 Simulator | Real native relay/Blossom retrieval, first-open publisher/access review, and connected guest rendering with a public-only identity |
+| [Live published QA fixture](../tests/native/live-published-fixture/README.md) | Public `file-browser` signed event loaded on Android API 36/API 29 and iOS 26.5 Simulator | Real native relay/Blossom retrieval, first-open publisher/access review, and connected guest rendering with a public-only identity |
 
 Use disposable identities for automated runs and retain the same identity across
 the restart being tested. Keep the fixture publisher separate. A resettable local
@@ -99,6 +99,12 @@ Both used the same source/APK-bound Release fixture. The drivers now scroll
 to the update's current-event field before applying their existing strict
 review assertions on this older accessibility tree. Live public updates remain
 unproved.
+
+The final iOS 26.5 Simulator Release fixture containing the same trusted
+host asset also reran the embedded signed-update and changed-access paths.
+The XCTest journeys passed seven and five checks respectively, after separate
+fresh disposable fixture installs. The normal iOS app still requires a physical
+iPhone for protected identity acceptance.
 
 ## Selected fixture tooling and checked references
 
