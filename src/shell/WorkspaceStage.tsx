@@ -7,6 +7,7 @@ import { Overview, type OverviewHandle } from './Overview';
 import { cardTransform, clamp, overviewGeometry, resolveCardRect, type HandleSide, type CardMeasurement, type Rect, type Size } from './motion';
 import { adjacentNapplet, type NappletDescriptor, type Workspace } from './workspace';
 import { colors, HANDLE_GUTTER } from './theme';
+import { runtimeStatus } from './runtime-status';
 
 interface LiveProps {
   session: NappletDescriptor;
@@ -41,7 +42,7 @@ const LiveSession = memo(function LiveSession({ session, index, size, rect, prog
   });
   const onNativeEvent = useCallback(({ nativeEvent }: NativeSyntheticEvent<HostEvent>) => {
     if (nativeEvent.sessionId !== session.id) return;
-    setStatus(nativeEvent.type === 'ready' ? 'Runtime connected' : `Runtime unavailable: ${nativeEvent.code}`);
+    setStatus(runtimeStatus(nativeEvent));
     onHostEvent?.(nativeEvent);
   }, [onHostEvent, session.id]);
   return (

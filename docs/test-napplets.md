@@ -66,7 +66,7 @@ connected bundled UX Lab across a cold restart. The final runtime also passed
 the iOS 26.5 Simulator live first-open rerun.
 
 Android API 26 with bundled WebView 58 lacks the native message-listener feature.
-The app shows `webview-update-required` and does not execute the guest. A modern
+The host reports `webview-update-required`, and the shell tells the user to update Android System WebView. The guest does not execute. A modern
 WebView or a supported native bridge remains necessary for API 26. These runs
 do not prove live published updates, protected identity on iPhone, or physical
 device security.

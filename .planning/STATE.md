@@ -306,3 +306,11 @@ rejection and background retry. The accessibility driver scrolls to the
 current-event row before its unchanged strict review assertions; its initial
 viewport-only failure is preserved. These are embedded signed fixtures, not
 public relay update retrieval. Source remote/push remains owner-only.
+
+
+API 26 unsupported-WebView status (2026-09-25): the shell now presents an
+actionable Android System WebView update message for the native
+`webview-update-required` refusal. The host still refuses guest execution;
+other runtime statuses retain their existing labels. A fresh signed normal Release APK on API 26/WebView 58 showed the exact
+message after an in-place install while retaining the same selected public
+npub. The native host still refused guest execution.
