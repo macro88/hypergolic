@@ -23,10 +23,11 @@ import { openShellDatabase } from '../../../src/storage/database';
 import { createEmbeddedUpdateSource, EMBEDDED_UPDATE_ADDRESS } from '../../../src/napplets/embedded-update-source';
 
 // Public fixture identity only. This entry cannot import, store, reveal, or sign with an nsec.
-const PUBLIC_SCALAR_TWO = 'c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5';
+// Generated once from a random disposable secret that was not stored or printed.
+const PUBLIC_IDENTITY = '0349e311d2f7f8e2750e169025728a5bd5ac804c285882928bf098cf8b1e98be';
 const source = createEmbeddedUpdateSource(defaults.lookupRelays);
 const identity: VaultSnapshot = Object.freeze({ vaultId: 'public_published_update_fixture', revision: 1,
-  selectedPubkey: PUBLIC_SCALAR_TWO, identities: Object.freeze([Object.freeze({ pubkey: PUBLIC_SCALAR_TWO,
+  selectedPubkey: PUBLIC_IDENTITY, identities: Object.freeze([Object.freeze({ pubkey: PUBLIC_IDENTITY,
     addedAt: 1, origin: 'generated' as const, status: 'active' as const })]), pendingDeletion: null });
 
 async function openPublicFixture(): Promise<TrustedIdentityOwner> {

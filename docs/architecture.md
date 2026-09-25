@@ -43,8 +43,9 @@ keeps the old session until acceptance, and changed access requires another
 consent review. The process-owned coordinator stages accepted bytes through the
 one-use native handoff. The network boundary is described in
 [published-network.md](published-network.md). Embedded signed public-only
-revisions now pass first-open, decline, accept and cold-restart journeys on
-Android API 36 and iOS Simulator. A live public relay/Blossom journey and
+revisions now pass first-open, decline, accept, cold-restart, rollback-denial
+and background-revocation/retry journeys on Android API 36 and iOS Simulator.
+A live public relay/Blossom journey and
 physical-device acceptance are still open.
 Inactive identity deletion now has a shared
 review and an Android system-PIN journey; iOS

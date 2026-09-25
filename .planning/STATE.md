@@ -214,12 +214,14 @@ Embedded signed-update native checkpoint (2026-09-25): separate public-only
 Release fixtures now exercise the real first-open consent and process-owned
 published update path. Android API 36 and iPhone 17 Pro iOS 26.5 Simulator
 drivers both pass exact signed review, decline retaining the v1 native guest,
-approval replacing it with v2, and cold restart retaining v2. The Android run is bound to its installed
+approval replacing it with v2, cold restart retaining v2, rejection of an
+older signed revision, and background revocation with explicit retry. The
+Android run is bound to its installed
 APK and frozen source digest; the iOS XCTest report and final screenshots show
 the accepted guest. The first Android attempt was blocked by the auth emulator's
 PIN keyguard, so the passing run used the separate unlocked test emulator.
 Focused fixture tests, TypeScript, React Doctor 100/100 and aislop 100/100 pass.
-These embedded runs do not prove public relay/Blossom transport, changed-access
-review, rollback and background revocation journeys, physical iPhone key
+These embedded runs do not prove public relay/Blossom transport,
+changed-access review, fixture guest-signing denial, physical iPhone key
 protection, or older Android.
 No source remote or push change.

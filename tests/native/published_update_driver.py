@@ -15,6 +15,7 @@ from driver import CheckFailed, exactly_one, label
 
 PACKAGE = 'org.nostrocket.hypergolic.publishedupdatefixture'
 FIXTURE = {
+    'identityNpub': 'npub1qdy7xywj7luwyagwz6gz2u52t026eqzv9pvg9y5t7zvvlzc7nzlqnsqte4',
     'publisher': '638cd26c28fb52d057f424d11a14e24526ac4b5e08cbad5d6c36f8f57cacce2f',
     'app': 'hypergolic-update-qa',
     'oldEvent': 'dc078ef5973560de09933f39f19dddc28c51b2b30c7ec505157442db665a48b1',
@@ -88,7 +89,8 @@ def verify_update_review(nodes):
     if len(review_ids) != 1:
         raise CheckFailed('Expected one visible UUID-scoped update review')
     for value, field in ((FIXTURE['publisher'], 'publisher'), (FIXTURE['app'], 'napplet'),
-                         (FIXTURE['oldEvent'], 'current event'), (FIXTURE['newEvent'], 'new event')):
+                         (FIXTURE['oldEvent'], 'current event'), (FIXTURE['newEvent'], 'new event'),
+                         ('Requested access: theme', 'requested access')):
         if not any(label(n) == value for n in nodes):
             raise CheckFailed('Update review did not show the expected ' + field)
     session_id = review_ids[0].removeprefix('published-update-review-')
@@ -208,7 +210,10 @@ class PublishedUpdateDriver(base.Driver):
         self.check('empty-shell-before-open', 'No published guest was open before first consent')
         self.capture('01-fixture')
 
-        self.open_settings()
+        nodes = self.open_settings()
+        if not any(resource_id_is(n, 'settings-full-npub') and label(n) == FIXTURE['identityNpub']
+                   for n in nodes):
+            raise CheckFailed('Fixture selected identity is not the disposable public-only key')
         self.scroll_until(lambda n: resource_id_is(n, 'settings-napplet-address'),
                           'first-open naddr field')
         self.tap_id('settings-napplet-address', 'public naddr field')
@@ -309,6 +314,54 @@ class PublishedUpdateDriver(base.Driver):
         self.check('cold-restart-retains-v2',
                    'Cold-launched fixture restored the accepted update-v2 native guest without update-v1')
         self.capture('08-restarted-update-v2')
+
+        self.open_settings()
+        nodes = self.scroll_until(lambda n: resource_id_suffix(n).startswith('published-update-check-'),
+                                  'check older fixture revision after restart')
+        check = find_update_control(nodes, 'published-update-check-')
+        restarted_session_id = resource_id_suffix(check).removeprefix('published-update-check-')
+        self.tap(check)
+        _, nodes = self.wait(lambda observed: any(
+            'current version remains open' in label(n) or 'latest verified version' in label(n)
+            for n in observed), 'older fixture revision rejected without review')
+        if any(resource_id_suffix(n).startswith('published-update-review-') for n in nodes) or not any(
+                label(n) == 'Pinned event ' + FIXTURE['newEvent'] for n in nodes):
+            raise CheckFailed('Older fixture revision changed the accepted pin or opened a review')
+        self.tap_id('settings-done', 'close Settings after older revision check')
+        _, nodes = self.wait(lambda observed: guest_marker(observed, 'update-v2'),
+                             'accepted guest after older revision check')
+        if guest_marker(nodes, 'update-v1'):
+            raise CheckFailed('Older fixture revision replaced the accepted native guest')
+        self.check('rollback-rejected-after-restart',
+                   {'restoredSessionId': restarted_session_id,
+                    'olderReviewOffered': False, 'pinnedEvent': FIXTURE['newEvent'], 'host': 'update-v2'})
+        self.capture('09-older-revision-rejected')
+
+        self.adb_run('shell', 'input', 'keyevent', 'KEYCODE_HOME')
+        foreground = self.adb_run('shell', 'am', 'start', '-W', '-n',
+                                  PACKAGE + '/org.nostrocket.hypergolic.dev.MainActivity')
+        if 'Status: ok' not in foreground:
+            raise CheckFailed('Android did not foreground the fixture after backgrounding')
+        retry_id = 'published-retry-' + restarted_session_id
+        _, nodes = self.wait(lambda observed: any(resource_id_suffix(n) == retry_id for n in observed)
+                             and any('Runtime unavailable: backgrounded' in label(n) for n in observed),
+                             'published native host revoked while backgrounded',
+                             expected_error='Runtime unavailable: backgrounded')
+        if guest_marker(nodes, 'update-v2') or any(label(n) == 'Runtime connected' for n in nodes):
+            raise CheckFailed('The backgrounded published guest remained connected')
+        self.capture('10-background-revoked')
+        retry = exactly_one(nodes, lambda n: resource_id_suffix(n) == retry_id,
+                            'retry action scoped to restored published session')
+        self.tap(retry)
+        _, nodes = self.wait(lambda observed: guest_marker(observed, 'update-v2')
+                             and any(label(n) == 'Runtime connected' for n in observed),
+                             'accepted v2 guest after background retry',
+                             expected_error='Runtime unavailable: backgrounded')
+        if guest_marker(nodes, 'update-v1'):
+            raise CheckFailed('Background retry reopened the old revision')
+        self.check('background-revokes-and-retry-v2',
+                   {'revokedGuest': True, 'retryOpenedPinnedEvent': FIXTURE['newEvent']})
+        self.capture('11-retried-update-v2')
 
         self.result['sourceAfter'] = self.source_snapshot()
         if self.result['sourceAfter'] != self.result['sourceBefore']:

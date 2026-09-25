@@ -24,7 +24,7 @@ final class WorkspaceTests: XCTestCase {
     "gestures": ["vertical-content-scroll", "horizontal-content-scroll", "marker-selection", "scroll-and-selection-retained"],
     "approval-review": ["exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"],
     "published-host": ["review-exact-signed-fixture", "native-host-connected", "close-returns-to-fixture"],
-    "published-update": ["public-fixture-and-runtime", "first-open-exact-review", "update-cancel-retains-old", "update-accept-replaces-host", "cold-restart-retains-v2"],
+    "published-update": ["public-fixture-and-runtime", "first-open-exact-review", "update-cancel-retains-old", "update-accept-replaces-host", "cold-restart-retains-v2", "rollback-rejected-after-restart", "background-revokes-and-retry-v2"],
   ]
 
   override func setUpWithError() throws {
@@ -377,8 +377,12 @@ final class WorkspaceTests: XCTestCase {
           app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).count == 0 else {
       throw Failure.invalid("Published update fixture did not start with an empty shell workspace")
     }
+    let fixtureNpub = "npub1qdy7xywj7luwyagwz6gz2u52t026eqzv9pvg9y5t7zvvlzc7nzlqnsqte4"
+    guard try selectedIdentity() == fixtureNpub else {
+      throw Failure.invalid("Published update fixture selected a different identity")
+    }
     record("public-fixture-and-runtime", true, ["fixture": fixture.label, "naddr": addressText,
-      "selectedIdentity": try selectedIdentity(), "initialFocusedTitle": currentTitle(), "runtimeSessions": 0, "signing": "unavailable"])
+      "selectedIdentity": fixtureNpub, "initialFocusedTitle": currentTitle(), "runtimeSessions": 0, "signing": "unavailable"])
     capture("published-update-fixture-empty-shell")
 
     try identityPress("shell-settings")
@@ -431,8 +435,14 @@ final class WorkspaceTests: XCTestCase {
     let reviewWasVisible = updateReview.exists
     let oldClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", oldEvent)).firstMatch
     let newClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", newEvent)).firstMatch
-    try until("Review names exact old and new signed events") { oldClaim.exists && newClaim.exists }
+    let publisherClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", publisher)).firstMatch
+    let appClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", appId)).firstMatch
+    let accessClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", "Requested access: theme")).firstMatch
+    try until("Review names exact publisher, napplet, access and signed events") {
+      oldClaim.exists && newClaim.exists && publisherClaim.exists && appClaim.exists && accessClaim.exists
+    }
     let exactCancelledCandidate = oldClaim.label == oldEvent && newClaim.label == newEvent
+      && publisherClaim.label == publisher && appClaim.label == appId && accessClaim.label == "Requested access: theme"
     capture("published-update-review-cancel")
     let cancel = app.buttons.matching(identifier: "published-update-cancel-" + sessionId).firstMatch
     try stateNativeReveal(cancel)
@@ -459,8 +469,11 @@ final class WorkspaceTests: XCTestCase {
     try until("Second update candidate review") { self.app.descendants(matching: .any).matching(identifier: updateReviewId).firstMatch.exists }
     let secondOldClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", oldEvent)).firstMatch
     let secondNewClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", newEvent)).firstMatch
-    try until("Second review names exact old and new events") { secondOldClaim.exists && secondNewClaim.exists }
+    try until("Second review names exact publisher, napplet, access and events") {
+      secondOldClaim.exists && secondNewClaim.exists && publisherClaim.exists && appClaim.exists && accessClaim.exists
+    }
     let exactAcceptedCandidate = secondOldClaim.label == oldEvent && secondNewClaim.label == newEvent
+      && publisherClaim.label == publisher && appClaim.label == appId && accessClaim.label == "Requested access: theme"
     capture("published-update-review-accept")
     let accept = app.buttons.matching(identifier: "published-update-accept-" + sessionId).firstMatch
     try stateNativeReveal(accept)
@@ -501,6 +514,48 @@ final class WorkspaceTests: XCTestCase {
     record("cold-restart-retains-v2", newPinAfterRestart,
       ["pinnedEvent": newEvent, "host": "update-v2", "oldHostVisible": false, "runtimeConnected": true])
     capture("published-update-restarted-v2")
+
+    try identityPress("shell-settings")
+    let olderCheck = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "published-update-check-")).firstMatch
+    try stateNativeReveal(olderCheck)
+    let restartedSessionId = String(olderCheck.identifier.dropFirst("published-update-check-".count))
+    guard restartedSessionId.range(of: "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", options: .regularExpression) != nil else {
+      throw Failure.invalid("Restored published session control did not include a UUID")
+    }
+    try nativeTap(olderCheck, name: "check-older-revision")
+    let olderStatus = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "current version remains open")).firstMatch
+    let latestStatus = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "latest verified version")).firstMatch
+    try until("Older signed revision rejected without review") { olderStatus.exists || latestStatus.exists }
+    let olderWasRejected = !app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "published-update-review-")).firstMatch.exists
+      && app.staticTexts.matching(NSPredicate(format: "label == %@", "Pinned event " + newEvent)).firstMatch.exists
+    try identityPress("settings-done")
+    try until("Accepted guest remains after older revision check") {
+      self.publishedMarker("update-v2") && !self.publishedMarker("update-v1")
+    }
+    record("rollback-rejected-after-restart", olderWasRejected,
+      ["restoredSessionId": restartedSessionId, "availableRevision": oldEvent,
+       "pinnedEvent": newEvent, "reviewOffered": false, "host": "update-v2"])
+    capture("published-update-older-revision-rejected")
+
+    XCUIDevice.shared.press(.home)
+    try until("Published fixture backgrounded") {
+      self.app.state == .runningBackground || self.app.state == .runningBackgroundSuspended
+    }
+    app.activate()
+    let retry = app.buttons.matching(identifier: "published-retry-" + restartedSessionId).firstMatch
+    let backgroundError = app.staticTexts.matching(NSPredicate(format: "label == %@", "Runtime unavailable: backgrounded")).firstMatch
+    try until("Backgrounded published guest revoked") { retry.exists && backgroundError.exists }
+    let guestWasRevoked = !publishedMarker("update-v2")
+      && app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label != "Runtime connected"
+    capture("published-update-background-revoked")
+    try nativeTap(retry, name: "retry-pinned-update-after-background")
+    try until("Accepted v2 guest reopened after background") {
+      self.publishedMarker("update-v2") && !self.publishedMarker("update-v1")
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+    }
+    record("background-revokes-and-retry-v2", guestWasRevoked,
+      ["revokedGuest": true, "retryOpenedPinnedEvent": newEvent])
+    capture("published-update-retried-v2")
     complete = true
   }
 

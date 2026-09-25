@@ -1,6 +1,7 @@
 # Published update native fixture
 
-This test entry uses a public identity and two separately signed, embedded
+This test entry uses a randomly generated public identity whose disposable
+secret was discarded and two separately signed, embedded
 kind-35129 revisions for one napplet coordinate. The signing key was discarded;
 the app cannot sign or publish. The second revision becomes discoverable only
 after the fixture's **Make new revision available** action. Both native drivers
@@ -79,7 +80,10 @@ python3 -B tests/native/ios-driver.py --udid EXPLICIT_SIMULATOR_UUID \
 
 Inspect the result JSON and screenshots. These journeys establish explicit
 first-open review, v1 native guest readiness, rejection retaining v1,
-acceptance replacing it with v2, and v2 restoration after a cold app restart
-on the named Simulator/emulator builds. They do not establish live
-relay/Blossom transport, changed-access review, physical iPhone identity
-security, or older Android compatibility.
+acceptance replacing it with v2, v2 restoration after a cold app restart,
+rejection of an older available revision, and background revocation followed
+by an explicit retry of v2 on the named Simulator/emulator builds. The fixture
+does not issue a guest signing request; its injected signing and publication
+effects throw, so these journeys make no native-signing claim. They do not
+establish live relay/Blossom transport, changed-access review, physical
+iPhone identity security, or older Android compatibility.

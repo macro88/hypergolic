@@ -28,6 +28,7 @@ def update_review_nodes(session='76be31d0-7748-4c6f-b7c6-819253a6074c'):
         node(text=pud.FIXTURE['app']),
         node(text=pud.FIXTURE['oldEvent']),
         node(text=pud.FIXTURE['newEvent']),
+        node(text='Requested access: theme'),
         node('org.test:id/published-update-accept-' + session, 'Close and use update'),
         node('org.test:id/published-update-cancel-' + session, 'Keep current version'),
     ]
@@ -70,6 +71,10 @@ class PublishedUpdateDriverTests(unittest.TestCase):
     def test_update_review_rejects_mismatched_ids_or_claims(self):
         changed = update_review_nodes()
         changed[4]['text'] = 'wrong next event'
+        with self.assertRaises(CheckFailed):
+            pud.verify_update_review(changed)
+        changed = update_review_nodes()
+        changed[5]['text'] = 'Requested access: identity'
         with self.assertRaises(CheckFailed):
             pud.verify_update_review(changed)
         changed = update_review_nodes()

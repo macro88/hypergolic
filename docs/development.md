@@ -410,8 +410,9 @@ identity, network retrieval, first-open grants or physical-device security.
 The separate [published update fixture](../tests/native/published-update-fixtures/README.md)
 uses two signed public revisions and the ordinary first-open and update flows.
 Its Android and iOS drivers capture the explicit review, rejection retaining
-the old native guest, acceptance replacing it with the new guest, and cold
-restart retaining that accepted guest. Keep
+the old native guest, acceptance replacing it with the new guest, cold
+restart retaining that accepted guest, rejection of an older available
+revision, and background revocation with explicit retry. Keep
 these results separate from live network and physical-device acceptance.
 
 ## Tester APK command

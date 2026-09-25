@@ -33,7 +33,7 @@ SCENARIOS = {
     "gestures": {"checks": {"vertical-content-scroll", "horizontal-content-scroll", "marker-selection", "scroll-and-selection-retained"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testGestures"},
     "approval-review": {"checks": {"exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testApprovalReview"},
     "published-host": {"checks": {"review-exact-signed-fixture", "native-host-connected", "close-returns-to-fixture"}, "kind": "hypergolic-ios-published-host-v1", "test": "WorkspaceTests/testPublishedHost"},
-    "published-update": {"checks": {"public-fixture-and-runtime", "first-open-exact-review", "update-cancel-retains-old", "update-accept-replaces-host", "cold-restart-retains-v2"}, "kind": "hypergolic-ios-published-update-v1", "test": "WorkspaceTests/testPublishedUpdate"},
+    "published-update": {"checks": {"public-fixture-and-runtime", "first-open-exact-review", "update-cancel-retains-old", "update-accept-replaces-host", "cold-restart-retains-v2", "rollback-rejected-after-restart", "background-revokes-and-retry-v2"}, "kind": "hypergolic-ios-published-update-v1", "test": "WorkspaceTests/testPublishedUpdate"},
 }
 
 

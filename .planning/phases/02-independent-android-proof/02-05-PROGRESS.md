@@ -165,25 +165,30 @@ are embedded without the disposable signing secret. A test-only source reveals
 the newer revision only after the fixture release action. The isolated app
 uses the ordinary first-open consent, process-owned coordinator, grant store,
 Settings update review, workspace replacement and native hosts. Its public
-identity cannot sign or publish.
+identity was generated from a discarded disposable secret; injected signing
+and publication effects throw. A guest signing request is not exercised.
 
 The Android API 36 Release fixture on the unlocked `Hypergolic_API_36` emulator
-passed all ten driver checks: empty shell, exact first-open approval, native
+passed all twelve driver checks: empty shell, exact first-open approval, native
 v1 guest, update release, exact old/new review, decline retaining v1, acceptance
-replacing it with v2, cold restart retaining v2, and source freeze. Its APK SHA-256 is
-`ba5548d0b3ae19799c51ef3e670127d19c32eecb462205b67bb36bd59a86c99f`;
+replacing it with v2, cold restart retaining v2, rejection of the older
+available revision, background revocation and retry of v2, and source freeze.
+Its APK SHA-256 is
+`5aea496dd092ba7d39b4cc55239f9765c17523e5badb4a2c4a629ca81dad635a`;
 the frozen-source digest is
-`ab72a7e22a5ac570499a92f43867e2e69a1fe6475602ea7e9507b503fe8e47ba`.
+`515be1ccdb1e5c61318f6433675bfb11bd2a63e1834c8820440a71fe24b2dc77`.
 The native hierarchy and screenshot both showed `update-v2` after acceptance.
 The first attempt on `Hypergolic_Auth_API_36` stopped at its PIN keyguard; it
 made no application claim. A subsequent driver run on the unlocked emulator
 required scrolling to the offscreen review actions, which the final driver
 handles.
 
-The iPhone 17 Pro iOS 26.5 Simulator Release fixture passed its five native
+The iPhone 17 Pro iOS 26.5 Simulator Release fixture passed its seven native
 XCTest checks for public identity/runtime, exact first-open review, decline
 retaining the old guest, acceptance replacing it with v2, and cold restart
-retaining the accepted v2 guest and pin. The final v2
+retaining the accepted v2 guest and pin. An older signed revision was rejected,
+and backgrounding revoked the guest until an explicit Retry reopened v2.
+The final v2
 screenshot visibly showed the updated guest. Both test entries use the same
 signed public revisions. See
 [the fixture instructions](../../../tests/native/published-update-fixtures/README.md)
@@ -192,6 +197,6 @@ for build, artifact handoff, native commands and evidence limits.
 TypeScript and focused fixture tests pass. React Doctor and aislop both score
 100/100; aislop reports two non-scoring function-length warnings and an audit
 timeout advisory. Live public relay/Blossom loading, changed-access review,
-rollback and background revocation journeys, physical iPhone
+guest-signing denial in this fixture, physical iPhone
 security, and older Android compatibility remain open. No source remote was
 changed or pushed.
