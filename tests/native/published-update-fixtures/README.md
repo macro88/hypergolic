@@ -115,3 +115,16 @@ does not issue a guest signing request; its injected signing and publication
 effects throw, so these journeys make no native-signing claim. They do not
 establish live relay/Blossom transport, physical iPhone identity security, or
 older Android compatibility.
+
+### API 29/WebView 91 compatibility run — 25 September 2026
+
+The final trusted host also passed both signed embedded journeys on an Android
+API 29 ARM64 emulator with bundled WebView 91. The same isolated fixture APK
+ran the unchanged-access update and the separate `theme, relay` changed-access
+review. Each native driver now scrolls until the current-event row is visible
+before applying its existing exact publisher/app/event/access assertions; API 29
+exposes the review across more than one accessibility viewport. The original
+pre-adaptation failure receipt remains alongside the final passing receipts in
+the private project checkpoint. The APK SHA-256 was
+`f0b04111812beb066e7cb4ada83f877efcacb5718db71bd6dcebd389e945bf38`.
+These embedded fixtures do not prove live public relay update retrieval.

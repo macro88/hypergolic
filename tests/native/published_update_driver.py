@@ -255,6 +255,7 @@ class PublishedUpdateDriver(base.Driver):
         _, nodes = self.wait(lambda observed: any(
             re.fullmatch(r'published-update-review-' + UUID.pattern, resource_id_suffix(n)) for n in observed),
             'verified old/new update review')
+        nodes = self.scroll_until(lambda n: label(n) == FIXTURE['oldEvent'], 'visible current event field')
         session_id = verify_update_review(nodes)
         self.result['sessionId'] = session_id
         self.check('update-review-exact', {'publisher': FIXTURE['publisher'], 'app': FIXTURE['app'],
@@ -285,6 +286,7 @@ class PublishedUpdateDriver(base.Driver):
         _, nodes = self.wait(lambda observed: any(
             re.fullmatch(r'published-update-review-' + UUID.pattern, resource_id_suffix(n)) for n in observed),
             'second verified update review')
+        nodes = self.scroll_until(lambda n: label(n) == FIXTURE['oldEvent'], 'visible current event field')
         session_id2 = verify_update_review(nodes)
         if session_id2 != session_id:
             raise CheckFailed('Session identity changed after declining the update')

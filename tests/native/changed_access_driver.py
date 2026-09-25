@@ -246,6 +246,7 @@ class ChangedAccessDriver(base.Driver):
         self.tap(check)
         _, nodes = self.wait(lambda observed: any(re.fullmatch(r'published-update-review-' + UUID.pattern,
                                     resource_id_suffix(n)) for n in observed), 'verified update review')
+        nodes = self.scroll_until(lambda n: label(n) == FIXTURE['oldEvent'], 'visible current event field')
         session = update_session_id(nodes)
         self.result['sessionId'] = session
         self.check('update-review-exact', {'publisher': FIXTURE['publisher'], 'app': FIXTURE['app'],
@@ -288,6 +289,7 @@ class ChangedAccessDriver(base.Driver):
                              'repeat update check after access decline'))
         _, nodes = self.wait(lambda observed: any(re.fullmatch(r'published-update-review-' + UUID.pattern,
                                     resource_id_suffix(n)) for n in observed), 'repeat verified update review')
+        nodes = self.scroll_until(lambda n: label(n) == FIXTURE['oldEvent'], 'visible current event field')
         if update_session_id(nodes) != session:
             raise CheckFailed('Session identity changed after declining changed access')
         accept_update = self.scroll_until(lambda n: resource_id_suffix(n) == 'published-update-accept-' + session,

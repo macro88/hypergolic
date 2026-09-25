@@ -90,6 +90,16 @@ force-stop and cold launch. This covers the older WebView's SDK/storage path,
 not a published napplet's storage grant. The manual screenshots and receipt are
 in the private checkpoint.
 
+The signed embedded update fixtures were also rerun on Android API 29 with
+WebView 91 after the compatibility fix. The unchanged-access journey passed
+exact review, decline, acceptance, cold restoration, rollback denial and
+background revocation/retry. The changed-access journey passed its separate
+`theme, relay` review, decline preserving v1 and acceptance replacing it.
+Both used the same source/APK-bound Release fixture. The drivers now scroll
+to the update's current-event field before applying their existing strict
+review assertions on this older accessibility tree. Live public updates remain
+unproved.
+
 ## Selected fixture tooling and checked references
 
 UX Lab pins SDK **0.27.2**, Vite plugin **0.14.1**, conformance CLI **0.2.18**,

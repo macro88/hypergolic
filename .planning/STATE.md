@@ -296,3 +296,13 @@ force-stop and cold launch, Read returned the saved value again. This manual
 emulator observation exercises Kehto's older-WebView operation path, but does
 not establish remote storage grants, signing, or physical-device security.
 Source remote/push remains owner-only.
+
+
+Android API 29 signed-update compatibility (2026-09-25): the final Release
+fixture on WebView 91 passes the embedded unchanged-access and changed-access
+journeys, including exact publisher/event review, separate new `relay` access
+consent, declines retaining v1, accepts replacing v1, cold restart, rollback
+rejection and background retry. The accessibility driver scrolls to the
+current-event row before its unchanged strict review assertions; its initial
+viewport-only failure is preserved. These are embedded signed fixtures, not
+public relay update retrieval. Source remote/push remains owner-only.
