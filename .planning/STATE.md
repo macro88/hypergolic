@@ -287,3 +287,12 @@ selected npub and remote guest, still connected. This emulator journey does not
 exercise secret readback or signing and does not prove physical-device identity
 security. Live published updates, iPhone protected path, and API 26 modern
 WebView support remain open. No source push or remote change.
+
+
+Normal API 29 State Lab checkpoint (2026-09-25): the same Release APK and
+WebView 91 connected bundled State Lab to the selected public identity. The
+actual native storage broker confirmed a disposable Write and Read; after a
+force-stop and cold launch, Read returned the saved value again. This manual
+emulator observation exercises Kehto's older-WebView operation path, but does
+not establish remote storage grants, signing, or physical-device security.
+Source remote/push remains owner-only.

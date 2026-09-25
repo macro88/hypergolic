@@ -83,6 +83,13 @@ filesystem remains unavailable because the signed artifact requests only
 prove secret readback, signing, physical iPhone security or a live update. The
 receipt and screenshots are in the private Notes checkpoint.
 
+The same normal API 29 Release app also opened bundled State Lab through
+genuine Kehto and native storage. It showed **Identity connected**, confirmed a
+disposable Write, read the value back, then returned the same value after a
+force-stop and cold launch. This covers the older WebView's SDK/storage path,
+not a published napplet's storage grant. The manual screenshots and receipt are
+in the private checkpoint.
+
 ## Selected fixture tooling and checked references
 
 UX Lab pins SDK **0.27.2**, Vite plugin **0.14.1**, conformance CLI **0.2.18**,
