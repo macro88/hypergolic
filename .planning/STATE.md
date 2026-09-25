@@ -16,7 +16,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-14)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Individual signing is connected; Android local-relay publication and both-platform review/lifecycle checks pass. The explicit published-update flow now passes an embedded signed public-only native journey on Android API 36 and iOS Simulator: first-open review, decline retaining v1, acceptance replacing the host with v2. Complete the remaining signing/security acceptance and live remote loading. Android system PIN and fingerprint deletion pass on the isolated API 36 emulator. Shared iOS review/denial/cancel UI passes; physical iPhone authentication remains open. Lazy restoration loads only the selected napplet, with repeated iOS cold-launch and both-platform saved-state proof. Older Android, live network loading and physical iPhone security remain open.
+**Current focus:** Individual signing is connected; Android local-relay publication and both-platform review/lifecycle checks pass. Embedded signed public-only native update journeys pass on Android API 36 and iOS Simulator, including changed-access approval. A separate public-only live relay/Blossom first-open journey now passes on both platforms. Next prove live published updates, protected production identity, older Android compatibility and physical iPhone security. Android system PIN and fingerprint deletion pass on the isolated API 36 emulator; iOS review/denial/cancel UI passes on Simulator. Lazy restoration loads only the selected napplet, with repeated iOS cold-launch and both-platform saved-state proof.
 
 ## Current Position
 
@@ -40,7 +40,7 @@ See `docs/architecture.md` for confirmed requirements and unresolved policy.
 ### Blockers/Concerns
 
 First theme-only native contract is selected. Validate privileged adapters and delivery contracts before their dependent work. Preserve Expo 57.0.20 despite the existing Doctor patch-version mismatch. Source remote/push remains owner-only.
-Resume budget (2026-09-23): the user superseded the earlier 50% limit and authorized continuation until 70% weekly usage consumed / 30% remaining. Check account usage after each small batch and pause for approval at that threshold. Use smaller agents for bounded independent work while root owns integration and review.
+Current budget (2026-09-25): the user authorized continuation until about 90% weekly usage consumed, then pause for approval. Check account usage after each small batch. Use smaller agents for bounded independent work while root owns integration and review.
 Android emulator and iPhone Simulator scaffold checks are verified. Physical-iPhone signing and execution remain untested; native security acceptance is still open.
 See `docs/phase-zero.md` for actual checks and artifacts.
 
@@ -245,3 +245,18 @@ releases are newer than this repository's seven-day `minimumReleaseAge`, and
 pnpm correctly refuses an early install. No version checks were suppressed or
 dependencies changed. Live relay/Blossom loading, physical iPhone identity
 security and older Android remain open. No source remote or push change.
+
+Live public-artifact checkpoint (2026-09-25): an externally published, theme-only
+`file-browser` event and 56,974-byte HTML passed an independent pinned relay/Blossom
+probe. Separate public-only Android API 36 and iPhone 17 Pro iOS 26.5 Simulator
+Release fixtures then passed native WSS lookup, signed manifest verification,
+native HTTPS retrieval, exact publisher/event/access first-open review, and visible
+connected guest after consent. The guest's filesystem UI remains unavailable
+because its signed manifest requests only `theme`. The live run revealed two
+fixture/adapter gaps: public-only startup had omitted production's native random
+bootstrap for relay subscription IDs; React Native's constructed Response lacks
+a streamed body, so the shared reader now uses a private, native-bounded byte
+branch. TypeScript, 92 napplet tests, React Doctor 100/100 and aislop 100/100 pass.
+This does not prove protected production identity, functional filesystem, live
+update retrieval, physical iPhone security or older Android. Source remote/push
+remains owner-only.

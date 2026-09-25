@@ -1,5 +1,5 @@
 import { MAX_HTML_BYTES } from './verified-artifact.ts';
-import type { BoundedFetchInit, PublishedHttpsFetch } from './published-source.ts';
+import { createNativeBoundedResponse, type BoundedFetchInit, type PublishedHttpsFetch } from './published-source.ts';
 
 /** Trusted React Native module only; never expose this object to the WebView. */
 export interface NativePublishedHttpsPort {
@@ -60,7 +60,7 @@ export function createNativePublishedHttpsFetch(port: NativePublishedHttpsPort):
       const encoded = await port.fetchPublishedHttps(operationId, url);
       if (init.signal.aborted) throw new PublishedNativeHttpsError();
       const bytes = decodeNativePublishedBody(encoded);
-      return new Response(bytes, { status: 200, headers: { 'content-length': String(bytes.length) } });
+      return createNativeBoundedResponse(bytes);
     } catch { throw new PublishedNativeHttpsError(); }
     finally { init.signal.removeEventListener('abort', cancel); }
   };

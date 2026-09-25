@@ -54,6 +54,17 @@ class PublishedSourceError extends Error {
 }
 const fail = (): never => { throw new PublishedSourceError(); };
 const HEX64 = /^[0-9a-f]{64}$/;
+const nativeBoundedBodies = new WeakMap<Response, Uint8Array>();
+
+/** Native already capped and decoded these bytes; never grant this fallback to an ordinary network Response. */
+export function createNativeBoundedResponse(bytes: Uint8Array): Response {
+  if (!(bytes instanceof Uint8Array) || bytes.byteLength < 1 || bytes.byteLength > MAX_HTML_BYTES) return fail();
+  const boundedBytes = new Uint8Array(new ArrayBuffer(bytes.byteLength));
+  boundedBytes.set(bytes);
+  const response = new Response(boundedBytes, { status: 200, headers: { 'content-length': String(boundedBytes.byteLength) } });
+  nativeBoundedBodies.set(response, boundedBytes);
+  return response;
+}
 
 function boundedTimeout(value: unknown, fallback: number, max: number): number {
   if (value === undefined) return fallback;
@@ -163,6 +174,11 @@ async function readBoundedBody(response: Response, maxBytes: number, signal: Abo
     if (!/^\d+$/.test(lengthHeader)) return fail();
     const declared = Number(lengthHeader);
     if (!Number.isSafeInteger(declared) || declared > maxBytes) return fail();
+  }
+  const nativeBytes = nativeBoundedBodies.get(response);
+  if (nativeBytes !== undefined) {
+    if (signal.aborted || nativeBytes.byteLength > maxBytes) return fail();
+    return new Uint8Array(nativeBytes);
   }
   const reader = response.body?.getReader();
   if (!reader) return fail();

@@ -48,8 +48,10 @@ and background-revocation/retry journeys on Android API 36 and iOS Simulator.
 A second embedded signed coordinate adds `relay` access in v2; both platforms
 pass a separate changed-access review, denial retaining v1, and acceptance
 replacing it with v2.
-A live public relay/Blossom journey and
-physical-device acceptance are still open.
+A public-only live relay/Blossom first-open journey now passes on Android API 36
+and iOS 26.5 Simulator, including exact review and connected guest rendering.
+Live published updates, protected production identity and physical-device
+acceptance remain open.
 Inactive identity deletion now has a shared
 review and an Android system-PIN journey; iOS
 action acceptance still requires a physical device.
@@ -166,9 +168,10 @@ Saved data is scoped to user + verified publisher + stable napplet identity.
 Use the [RocketShell relay defaults](relays.md) as editable local startup lists,
 keeping network reads/writes separate from lookup/manifest discovery. The settings
 service persists edits; selected Network relays reach signing approval and selected
-Lookup relays feed trusted published entry. Live routing on both platforms and
-the Settings journey remain to be proved. Automatic
-NIP-65 relay-list discovery and routing are deferred beyond v1.
+Lookup relays feed trusted published entry. Live first-open routing now passes
+in public-only Android/iOS fixtures; production identity and live updates remain
+to be proved. Automatic NIP-65 relay-list discovery and routing are deferred
+beyond v1.
 
 Purpose-built test napplets are approved, with embedding first and publication
 under the designated key later. The standalone UX Lab and its browser tests are
@@ -179,7 +182,7 @@ approved suite, source registry, commands, evidence and remaining native work.
 
 | Area | Required engineering output |
 | --- | --- |
-| Published napplet loading | Prove live public relay/Blossom retrieval and native first-open/update on both platforms beyond embedded fixtures; choose fixture publication destinations and retain exact-version failure evidence |
+| Published napplet loading | Extend the proven public-only live first-open path to protected production identity and live updates on both platforms; choose our fixture publication destinations and retain exact-version failure evidence |
 | Kehto/NAP/native adaptation | Pin compatible Kehto, NAP, NIP-5A and proposed NIP-5D revisions; define schemas, caller binding, error/resource limits and smallest host capability surface |
 | Identity protection | Choose Android and iOS storage/encryption and secure manual export handling; implement confirmed failed-read, preservation and whole-shell switch behavior |
 | Signing approval | Bind exact payload authorization through asynchronous work; implement accepted cancellation/restart rules; define queue bounds, expiry, revocation and partial failures |

@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 import { createNativePublishedHttpsFetch, decodeNativePublishedBody, type NativePublishedHttpsPort } from '../../src/napplets/native-published-https.ts';
-import type { BoundedFetchInit } from '../../src/napplets/published-source.ts';
+import { createNativePublishedArtifactSource, type BoundedFetchInit } from '../../src/napplets/published-source.ts';
 
 const ID = 'd2398c45-e6db-48a4-ab51-e83828f0eb91';
 const init = (signal: AbortSignal): BoundedFetchInit => ({ method: 'GET', redirect: 'manual', credentials: 'omit', cache: 'no-store', signal });
@@ -31,6 +32,27 @@ test('returns bounded native bytes to the published source as a 200 response', a
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('content-length'), '6');
   assert.deepEqual([...new Uint8Array(await response.arrayBuffer())], [0, 1, 2, 3, 254, 255]);
+});
+
+test('native bounded bytes reach the shared hash reader without a streamed Response body', async () => {
+  const html = new TextEncoder().encode('<!doctype html><title>Bounded native body</title>');
+  const hash = createHash('sha256').update(html).digest('hex');
+  const port: NativePublishedHttpsPort = {
+    newInstanceId: () => ID,
+    async fetchPublishedHttps() { return Buffer.from(html).toString('base64'); },
+    cancelPublishedHttps() {}, revokeAllPublishedHttps() {},
+  };
+  const OriginalResponse = globalThis.Response;
+  class NoStreamResponse extends OriginalResponse { override get body(): null { return null; } }
+  globalThis.Response = NoStreamResponse;
+  try {
+    const source = createNativePublishedArtifactSource({
+      relayLookup: { query: async () => [] }, fetchPublicHttps: createNativePublishedHttpsFetch(port),
+    });
+    const hints = ['https://blossom.example.org/'];
+    assert.deepEqual(await source.readHtml(hash, hints, html.byteLength, new AbortController().signal), html);
+    await assert.rejects(source.readHtml(hash, hints, html.byteLength - 1, new AbortController().signal));
+  } finally { globalThis.Response = OriginalResponse; }
 });
 
 test('abort cancels the pending native request and a late result stays rejected', async () => {

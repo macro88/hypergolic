@@ -12,13 +12,15 @@ example, not a required product napplet.
 | [State Lab](../napplets/state-lab/README.md) | Embedded; native storage/identity journeys recorded on Android and iOS | Unsaved/saved state, close/reopen and user + publisher + stable napplet isolation |
 | [Approval Lab](../napplets/approval-lab/README.md) | Standalone unsigned artifact; native integration remains open | Explicit approve/deny, background deferral, cancellation and independently verified results |
 | Signed host QA fixture | Fixed signed event and HTML embedded locally; Android Settings and isolated iOS native QA journeys pass | Published-artifact verification, explicit review, one-use native transfer and host rendering without relay or publisher deployment |
+| [Live published QA fixture](../tests/native/live-published-fixture/README.md) | Public `file-browser` signed event loaded on Android API 36 and iOS 26.5 Simulator | Real native relay/Blossom retrieval, first-open publisher/access review, and connected guest rendering with a public-only identity |
 
 Use disposable identities for automated runs and retain the same identity across
 the restart being tested. Keep the fixture publisher separate. A resettable local
 relay will provide repeatable success, rejection, delay and disconnection; a
-separate integration check will retrieve releases from real Nostr/Blossom
-locations. Local relay fault checks now run through `pnpm run test:relay`; native relay
-integration and published release checks remain open.
+separate integration check retrieves releases from real Nostr/Blossom
+locations. A public third-party napplet now passes that native first-open check on
+Android and iOS Simulator; live published updates and our own fixture publication
+remain open. Local relay fault checks run through `pnpm run test:relay`.
 
 Embedding the fixture first is approved, followed by publication of the same bytes
 under the designated publisher. The publisher npub, trusted signer and destinations
@@ -32,6 +34,25 @@ not been published. Its signed manifest has no server hint, so its Settings
 test route reads only the embedded bytes.
 UX Lab has no network/signing/storage requirement, so its standalone tests do not
 need the relay or a test identity.
+
+## Live public-artifact checkpoint — 25 September 2026
+
+A read-only probe retrieved and independently verified the signed `file-browser`
+event and its 56,974-byte HTML. Separate public-only Android API 36 and iPhone 17 Pro
+iOS 26.5 Simulator Release fixtures then used the real native WSS and HTTPS ports,
+showed the exact publisher, event and `theme` access before consent, and rendered
+the remote guest with **Runtime connected** after approval. [The fixture guide](../tests/native/live-published-fixture/README.md)
+records the exact event/hash and test limits. Its own filesystem UI is unavailable:
+the publisher requested only `theme`, so this does not establish functional file
+browsing. The fixture does not sign, use a protected identity, publish an event,
+or prove physical-device security. Live update retrieval remains to be tested.
+
+The live run exposed two integration gaps that are now corrected: the public-only
+fixture must install the same native secure-random bootstrap as production identity
+startup before generating relay subscription IDs; and React Native's constructed
+`Response` lacks the streaming body expected by the shared artifact reader. The
+native HTTPS adapter now privately marks only already-capped native bytes so the
+reader can copy and recheck them without accepting unbounded network responses.
 
 ## Selected fixture tooling and checked references
 
