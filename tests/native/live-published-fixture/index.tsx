@@ -9,6 +9,7 @@ import { loadNativePublishedArtifactSource } from '../../../src/napplets/native-
 import { decodeNativePublishedBody, type NativePublishedHttpsPort } from '../../../src/napplets/native-published-https';
 import { resolveNappletLink } from '../../../src/napplets/resolve-link';
 import { MAX_HTML_BYTES, verifyArtifact, verifyManifest } from '../../../src/napplets/verified-artifact';
+import type { PublishedArtifactSource } from '../../../src/napplets/loader';
 import { loadNativePublishedTransferPort } from '../../../src/napplets/native-transfer-port';
 import { loadNativeApprovalPort } from '../../../src/runtime/native-approval-port';
 import { loadNativeCapabilityPort } from '../../../src/runtime/native-capability-port';
@@ -53,26 +54,60 @@ async function openPublicFixture(): Promise<TrustedIdentityOwner> {
     sign: async () => { throw new Error('PUBLIC_FIXTURE_SIGNING_UNAVAILABLE'); },
     publishEvent: async () => { throw new Error('PUBLIC_FIXTURE_PUBLICATION_UNAVAILABLE'); },
   });
+  const nativeSource = loadNativePublishedArtifactSource();
+  const observedSource: PublishedArtifactSource = {
+    async query(...args) {
+      updateOpenDiagnostic('Settings native relay lookup started');
+      try {
+        const events = await nativeSource.query(...args);
+        updateOpenDiagnostic(`Settings native relay lookup returned ${events.length} event(s)`);
+        return events;
+      } catch (error) {
+        updateOpenDiagnostic(`Settings native relay lookup failed: ${boundedFailure(error)}`);
+        throw error;
+      }
+    },
+    async readHtml(...args) {
+      updateOpenDiagnostic('Settings native HTTPS artifact read started');
+      try {
+        const bytes = await nativeSource.readHtml(...args);
+        updateOpenDiagnostic(`Settings native HTTPS artifact read returned ${bytes.length} bytes`);
+        return bytes;
+      } catch (error) {
+        updateOpenDiagnostic(`Settings native HTTPS artifact read failed: ${boundedFailure(error)}`);
+        throw error;
+      }
+    },
+  };
   runtime = createRuntimeOwner(database, transition, loadNativeCapabilityPort(),
     { service: approvals, destinations: () => Object.freeze([...defaults.networkRelays]) },
-    { sqlite: SQLite, source: loadNativePublishedArtifactSource(), native: loadNativePublishedTransferPort(),
+    { sqlite: SQLite, source: observedSource, native: loadNativePublishedTransferPort(),
       lookupRelays: () => Object.freeze([...defaults.lookupRelays]) });
   return Object.freeze({ transition, formatNpub, approvals, runtime, relaySettings: null });
 }
 
-let state: Readonly<{ owner: TrustedIdentityOwner | null; error: boolean }> = Object.freeze({ owner: null, error: false });
+let state: Readonly<{ owner: TrustedIdentityOwner | null; error: boolean; openDiagnostic: string }> =
+  Object.freeze({ owner: null, error: false, openDiagnostic: 'Settings source idle' });
 let started = false;
 const listeners = new Set<() => void>();
+function boundedFailure(error: unknown): string {
+  if (!(error instanceof Error)) return 'unknown error';
+  return `${error.name}: ${error.message.replace(/\s+/g, ' ').slice(0, 120)}`;
+}
+function updateOpenDiagnostic(value: string) {
+  state = Object.freeze({ ...state, openDiagnostic: value });
+  for (const listener of listeners) listener();
+}
 function subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; }
 function snapshot() { return state; }
 function start() {
   if (started) return;
   started = true;
   void openPublicFixture().then(owner => {
-    state = Object.freeze({ owner, error: false });
+    state = Object.freeze({ ...state, owner, error: false });
     for (const listener of listeners) listener();
   }).catch(() => {
-    state = Object.freeze({ owner: null, error: true });
+    state = Object.freeze({ ...state, owner: null, error: true });
     for (const listener of listeners) listener();
   });
 }
@@ -137,6 +172,7 @@ function LivePublishedFixture() {
         <Text style={styles.probeText}>Probe native source</Text>
       </Pressable>
       <Text testID="live-fixture-probe-result" style={styles.label}>{probe}</Text>
+      <Text testID="live-fixture-open-diagnostic" style={styles.label}>{current.openDiagnostic}</Text>
     </SafeAreaView>
     {current.owner ? <IdentityShell owner={current.owner} />
       : <Text style={styles.label}>{current.error ? 'Live published fixture unavailable' : 'Opening public live fixture…'}</Text>}

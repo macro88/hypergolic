@@ -411,7 +411,11 @@ final class WorkspaceTests: XCTestCase {
       (self.app.descendants(matching: .any).matching(identifier: "settings-napplet-review").firstMatch.exists
         && self.app.buttons.matching(identifier: "settings-napplet-approve").firstMatch.isHittable) || openError.exists
     }
-    if openError.exists { throw Failure.invalid("Published open reported verification error before review") }
+    if openError.exists {
+      let source = app.staticTexts.matching(identifier: "live-fixture-open-diagnostic").firstMatch
+      throw Failure.invalid("Published open reported verification error before review: " +
+        String(openError.label.prefix(200)) + " / " + (source.exists ? String(source.label.prefix(200)) : "source stage unavailable"))
+    }
     let claims = Set(app.staticTexts.allElementsBoundByIndex.filter { $0.exists }.map(\.label))
     record("live-first-open-exact-review", claims.contains(publisher) && claims.contains("file-browser")
       && claims.contains(event) && claims.contains("Requested access: theme"),

@@ -101,3 +101,21 @@ an iOS transport regression or an iOS end-to-end pass on the changed source.
 The separately prepared disposable two-revision QA publisher remains the
 preferred way to make the live update journey repeatable, pending the publisher
 choice before public upload and publication.
+
+### Current-source iOS rerun — 28 September 2026
+
+The separate iPhone 17 Pro/iOS 26.5 Simulator Release fixture was rebuilt
+from the current source. Its JavaScript bundle SHA-256 is
+`4043383f58894f028ef31a1fb8131209bbf86aa009c97b39d3a27cb5dcea798a`.
+The public-only fixture now records bounded Settings relay/HTTPS source stages,
+and XCTest includes that stage when the ordinary open fails. After clean
+disposable installs, the first run verified the native source but Settings
+returned its generic verification error; the second run failed the initial
+native relay query. The third run passed all three source-bound XCTest checks:
+exact signed native relay/HTTPS artifact, publisher/event/theme review, and
+connected guest. The source and installed bundle stayed unchanged during that
+pass. Review and connected screenshots were inspected. A separate cold launch
+showed the file-browser UI and its expected `Filesystem unavailable` message;
+the manifest grants `theme` only. Both failed receipts are retained alongside
+the pass. This intermittent external candidate still cannot substitute for a
+controlled live-update release or physical-device acceptance.

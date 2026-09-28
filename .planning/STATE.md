@@ -526,3 +526,19 @@ prebuild and unsigned ARM64 Release build pass (APK SHA-256
 The shared HTTPS loopback proof still passes 69 + 25 checks; TypeScript and
 React Doctor numeric **100/100** pass. The network-enabled aislop audit still
 awaits separate approval.
+
+Current-source iOS public fixture rerun (2026-09-28): the isolated iPhone 17
+Pro/iOS 26.5 Simulator Release fixture rebuilt with JS SHA-256
+`4043383f58894f028ef31a1fb8131209bbf86aa009c97b39d3a27cb5dcea798a`.
+A QA-only bounded Settings relay/HTTPS stage marker now accompanies native
+probe results. One clean XCTest attempt verified 56,974 signed bytes but the
+ordinary Settings open returned its generic verification error before consent;
+a second clean attempt failed its initial native relay query. A third clean
+attempt passed **3/3** source-bound checks with unchanged installed bundle and
+source snapshot: signed native artifact, exact publisher/event/theme review,
+and connected guest. Review and connected screenshots were inspected; a later
+cold launch visibly rendered the file-browser UI and its expected filesystem
+denial under the theme-only manifest. This current iOS pass coexists with the
+failed receipts and does not prove stable third-party relay availability, a
+live update or protected physical-iPhone identity. The owned QA publication
+still awaits publisher selection; source remote/push remains owner-only.
