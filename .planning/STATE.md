@@ -590,3 +590,14 @@ WSS frames and cancellation in the simulator runtime. It does not exercise
 the Expo app's background/session lifecycle, physical iPhone, mixed
 private/public DNS or live v1-to-v2 publication. The owned QA publisher and
 full network-enabled aislop audit remain pending user decisions.
+
+iOS whole-answer DNS veto proof (2026-09-28): production `resolve` now calls
+a directly exercised `vetResolvedAddresses` before any connection attempt.
+The HTTPS runner passes four synthetic DNS cases on macOS and iPhone Simulator:
+public/private answers in both orders and an empty answer set are denied;
+a public-only set is retained. The six HTTPS socket cases and eight WSS socket
+cases still pass on both runtimes. This checks the actual veto used by both
+native owners, but does not inject a mixed reply into platform `getaddrinfo`
+or prove a physical-device DNS attack path. The normal unsigned iOS Release
+app build passes without the proof flag; live QA publication and full aislop
+approval remain pending.

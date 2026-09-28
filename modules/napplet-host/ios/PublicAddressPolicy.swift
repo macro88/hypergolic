@@ -1,6 +1,7 @@
 import Foundation
 
-/// Conservative IP-literal policy for a future pinned native transport. This does not pin DNS.
+/// Conservative address classifier used before native published transports connect.
+/// The transport separately binds a vetted numeric answer to its socket.
 public enum PublicAddressPolicy {
   /// Classifies an address already resolved by a transport, without any name lookup.
   public static func accepts(_ address: Data) -> Bool {

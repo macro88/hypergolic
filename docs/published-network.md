@@ -140,8 +140,12 @@ ID to compile and run the same six cases inside that simulator. This executes
 the owning Swift transport and Network.framework in iOS Simulator as a
 standalone proof binary; it does not exercise the Expo app's lifecycle or a
 physical iPhone. The iOS Simulator Release build checks the actual Expo module
-target. The shared
-frame proof is `python3 tests/native/websocket-frames/run.py`. WSS handshake,
+target. The production resolver calls `vetResolvedAddresses` before connecting.
+The HTTPS runner
+checks both orderings of a synthetic public/private answer pair, an empty set
+and a public-only set through that same production veto on macOS and Simulator.
+These checks do not inject a mixed reply into the platform `getaddrinfo` call.
+The shared frame proof is `python3 tests/native/websocket-frames/run.py`. WSS handshake,
 client-frame and native query proofs are in `tests/native/websocket-handshake`,
 `tests/native/websocket-client-frames`, `tests/native/android-published-wss`
 and `tests/native/ios-published-wss`. The Android WSS runner includes loopback

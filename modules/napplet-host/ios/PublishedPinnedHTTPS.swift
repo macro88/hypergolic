@@ -101,6 +101,11 @@ enum PublishedPinnedHTTPS {
       } else { throw Failure.resolution }
       guard addresses.count <= 32 else { throw Failure.resolution }
     }
+    return try vetResolvedAddresses(addresses)
+  }
+
+  /// The resolver must reject the whole answer set before any address is tried.
+  static func vetResolvedAddresses(_ addresses: [Address]) throws -> [Address] {
     guard !addresses.isEmpty, addresses.allSatisfy({ PublicAddressPolicy.accepts($0.bytes) })
     else { throw Failure.privateAddress }
     return addresses

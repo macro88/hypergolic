@@ -97,11 +97,16 @@ def main() -> None:
             str(NATIVE / "PublishedHTTPResponse.swift"),
             str(NATIVE / "PublishedPinnedHTTPS.swift"), str(PROOF),
         ], cwd=ROOT, env=compiler_environment, check=True)
-        for mode in ("valid", "failover", "untrusted", "wrong-host", "redirect", "cancel"):
+        for mode in ("valid", "failover", "untrusted", "wrong-host", "redirect", "cancel", "mixed-dns"):
             key, cert, anchor = (
                 (wrong_key, wrong_cert, wrong_der) if mode == "wrong-host"
                 else (valid_key, valid_cert, valid_der)
             )
+            command = (["xcrun", "simctl", "spawn", simulator] if simulator else [])
+            if mode == "mixed-dns":
+                subprocess.run([*command, str(binary), "1", str(anchor), mode],
+                               cwd=ROOT, check=True, timeout=12)
+                continue
             listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             listener.bind(("127.0.0.1", 0))
@@ -111,7 +116,6 @@ def main() -> None:
             errors: list[str] = []
             thread = threading.Thread(target=serve, args=(mode, key, cert, listener, observed, errors), daemon=True)
             thread.start()
-            command = (["xcrun", "simctl", "spawn", simulator] if simulator else [])
             subprocess.run([*command, str(binary), str(port), str(anchor), mode],
                            cwd=ROOT, check=True, timeout=12)
             thread.join(timeout=9)

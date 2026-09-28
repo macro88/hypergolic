@@ -26,6 +26,21 @@ private final class ResultBox: @unchecked Sendable {
     let mode = args[3]
     let loopback = PublishedPinnedHTTPS.Address(host: .ipv4(IPv4Address("127.0.0.1")!),
                                                   bytes: Data([127, 0, 0, 1]))
+    if mode == "mixed-dns" {
+      let publicAddress = PublishedPinnedHTTPS.Address(host: .ipv4(IPv4Address("8.8.8.8")!),
+                                                        bytes: Data([8, 8, 8, 8]))
+      for answers in [[publicAddress, loopback], [loopback, publicAddress], []] {
+        do {
+          _ = try PublishedPinnedHTTPS.vetResolvedAddresses(answers)
+          throw NSError(domain: "mixed/empty DNS was accepted", code: 1)
+        } catch PublishedPinnedHTTPS.Failure.privateAddress { }
+      }
+      guard try PublishedPinnedHTTPS.vetResolvedAddresses([publicAddress]).count == 1 else {
+        throw NSError(domain: "public DNS was rejected", code: 1)
+      }
+      print("{\"mode\":\"mixed-dns\",\"checks\":4,\"failed\":0}")
+      return
+    }
     let addresses: [PublishedPinnedHTTPS.Address]
     if mode == "failover" {
       addresses = [PublishedPinnedHTTPS.Address(host: .ipv6(IPv6Address("::1")!),

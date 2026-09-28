@@ -103,3 +103,9 @@ These are standalone native executables exercising the actual Swift owners
 and iOS Network.framework, not the full Expo app or background lifecycle.
 Physical-iPhone, mixed-DNS, app-level revocation and live update acceptance
 remain open.
+
+The production Swift resolver's whole-answer veto is now directly exercised:
+four synthetic answer-set checks pass on macOS and iPhone Simulator, including
+both public/private orderings and empty DNS. HTTPS six socket cases and WSS
+eight socket cases still pass on each runtime. Platform `getaddrinfo` injection
+and physical-device DNS behavior remain untested.
