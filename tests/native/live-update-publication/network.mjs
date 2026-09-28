@@ -1,7 +1,30 @@
-import { finalizeEvent, verifyEvent } from 'nostr-tools/pure';
+import { finalizeEvent, getPublicKey, verifyEvent } from 'nostr-tools/pure';
 import { sha256, validateReleasePair } from './release-pair.mjs';
 
 const TIMEOUT_MS = 20_000;
+const MAX_DESCRIPTOR_BYTES = 4096;
+
+async function boundedBody(response, maximumBytes) {
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error('Blossom response body missing');
+  const chunks = [];
+  let size = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!(value instanceof Uint8Array) || value.byteLength > maximumBytes - size) {
+        throw new Error('Blossom response body exceeded expected size');
+      }
+      chunks.push(value);
+      size += value.byteLength;
+    }
+  } catch (error) {
+    try { await reader.cancel(); } catch { /* The read failure is authoritative. */ }
+    throw error;
+  } finally { reader.releaseLock(); }
+  return Buffer.concat(chunks, size);
+}
 
 export async function uploadRevision(server, revision, secret, fetcher = fetch) {
   const url = new URL(server);
@@ -20,7 +43,9 @@ export async function uploadRevision(server, revision, secret, fetcher = fetch) 
     },
   });
   if (result.status !== 200 && result.status !== 201) throw new Error('Blossom upload rejected: HTTP ' + result.status);
-  const descriptor = await result.json();
+  let descriptor;
+  try { descriptor = JSON.parse((await boundedBody(result, MAX_DESCRIPTOR_BYTES)).toString('utf8')); }
+  catch { throw new Error('Blossom descriptor invalid or oversized'); }
   if (descriptor?.sha256 !== revision.hash || descriptor.size !== bytes.length) throw new Error('Blossom descriptor mismatch');
   const readback = await verifyPublicBlob(server, revision, fetcher);
   return { status: result.status, hash: revision.hash, bytes: readback.bytes };
@@ -31,8 +56,9 @@ export async function verifyPublicBlob(server, revision, fetcher = fetch) {
     method: 'GET', redirect: 'manual', signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (readback.status !== 200 || readback.redirected) throw new Error('Blossom direct readback failed');
-  const body = Buffer.from(await readback.arrayBuffer());
-  if (body.length !== Buffer.byteLength(revision.html) || sha256(body) !== revision.hash) {
+  const expectedBytes = Buffer.byteLength(revision.html);
+  const body = await boundedBody(readback, expectedBytes);
+  if (body.length !== expectedBytes || sha256(body) !== revision.hash) {
     throw new Error('Blossom readback mismatch');
   }
   return { hash: revision.hash, bytes: body.length };
@@ -40,6 +66,9 @@ export async function verifyPublicBlob(server, revision, fetcher = fetch) {
 
 export async function uploadPair(bundle, secret, fetcher = fetcherDefault) {
   validateReleasePair(bundle);
+  if (!(secret instanceof Uint8Array) || secret.byteLength !== 32 || getPublicKey(secret) !== bundle.publisher) {
+    throw new Error('QA upload key does not match the signed publisher');
+  }
   const receipts = [];
   for (const revision of bundle.revisions) receipts.push(await uploadRevision(bundle.server, revision, secret, fetcher));
   return receipts;

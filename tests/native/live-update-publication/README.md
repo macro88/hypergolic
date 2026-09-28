@@ -38,8 +38,11 @@ https://another-public-blossom.example/` selects a different public HTTPS root.
 The relay is `wss://relay.damus.io`, which the isolated fixture's normal native
 Lookup list includes. The commands fail if the server rejects the upload, its
 response or readback differs from the expected hash, or the relay does not
-acknowledge the exact signed event. `publish` rechecks both public blobs before
-releasing the selected revision. Keep the private temporary bundle path out of
+acknowledge the exact signed event. The upload path verifies that its in-memory
+key matches the signed handoff publisher before making any request. It bounds
+the Blossom descriptor to 4 KiB and the direct HTML readback to the exact
+expected byte count. `publish` rechecks both public blobs before releasing the
+selected revision. Keep the private temporary bundle path out of
 source commits even though it contains no secret.
 
 Build and install the isolated `live-published-fixture` Release app according to

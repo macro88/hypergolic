@@ -484,3 +484,12 @@ native probe. Both failed receipts are retained for diagnosis. This is not a
 both-platform live first-open regression pass and cannot replace the pending
 owned QA release or physical-iPhone acceptance. React Doctor remains 100/100;
 source remote/push remains owner-only.
+
+
+Unpublished live-update harness preflight (2026-09-28): the QA upload path now
+rejects a private key that does not match the signed handoff publisher before
+network access and bounds Blossom upload descriptors and HTML readback bodies.
+Eight offline publication/verifier tests pass. No QA blob or event was uploaded
+or published; the disposable QA publisher choice remains pending. React Doctor
+and the earlier local aislop score remain 100/100, but the network-enabled
+full aislop audit still requires approval after automatic review rejected it.

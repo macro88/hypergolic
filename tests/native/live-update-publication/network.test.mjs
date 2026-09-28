@@ -46,6 +46,24 @@ test('Blossom readback with different bytes fails even after a success descripto
   await assert.rejects(uploadPair(pair, secret, fetcher), /readback mismatch/);
 });
 
+test('upload rejects a mismatched publisher key before any network request', async () => {
+  let requests = 0;
+  await assert.rejects(uploadPair(pair, new Uint8Array(32).fill(5), async () => {
+    requests++;
+    throw new Error('network must not run');
+  }), /key does not match/);
+  assert.equal(requests, 0);
+});
+
+test('upload refuses oversized Blossom descriptor and HTML readback', async () => {
+  const oversizedDescriptor = async () => new Response('x'.repeat(4097), { status: 201 });
+  await assert.rejects(uploadPair(pair, secret, oversizedDescriptor), /descriptor invalid or oversized/);
+  const oversizedReadback = async (_url, init) => init.method === 'PUT'
+    ? new Response(JSON.stringify({ sha256: init.headers['X-SHA-256'], size: init.body.length }), { status: 201 })
+    : new Response('x'.repeat(Buffer.byteLength(pair.revisions[0].html) + 1), { status: 200 });
+  await assert.rejects(uploadPair(pair, secret, oversizedReadback), /exceeded expected size/);
+});
+
 class MockSocket {
   constructor(relay) { this.relay = relay; queueMicrotask(() => this.onopen()); }
   send(message) {
