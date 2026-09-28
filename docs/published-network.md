@@ -57,6 +57,15 @@ an explicit certificate SAN checker for its isolated socket; Android keeps its
 platform verifier. Controlled failures on Android devices, the iOS Network
 framework path and background/restart lifecycle acceptance remain open.
 
+The host-JVM loopback WSS proof drives the actual Android relay TLS socket,
+upgrade and frame path using the same package-local test inputs. It verifies a
+named-certificate upgrade, masked outbound `REQ`, a complete `EVENT`/`EOSE`
+read, and pre-request retry to a vetted IPv4 address. It rejects an untrusted
+certificate, wrong hostname, mixed private DNS answer, redirect, bad upgrade
+accept value, oversized server frame and a query cancelled after upgrade.
+These are controlled host-JVM checks; Android-device and iOS controlled relay
+failure paths remain separate acceptance work.
+
 ## Current integration boundary
 
 Both Expo modules expose an app-only `fetchPublishedHttps(operationId, url)`
@@ -123,7 +132,8 @@ iOS Simulator Release build checks the actual Expo module target. The shared
 frame proof is `python3 tests/native/websocket-frames/run.py`. WSS handshake,
 client-frame and native query proofs are in `tests/native/websocket-handshake`,
 `tests/native/websocket-client-frames`, `tests/native/android-published-wss`
-and `tests/native/ios-published-wss`. Exact current counts and build evidence
+and `tests/native/ios-published-wss`. The Android WSS runner includes loopback
+TLS cases and needs local socket permission and OpenSSL. Exact counts and build evidence
 are recorded in the phase progress note.
 
 ## Relay integration contract

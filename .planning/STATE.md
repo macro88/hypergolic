@@ -510,3 +510,19 @@ This is host-JVM network evidence, not a device failure-path pass. iOS
 controlled TLS, lifecycle and physical-iPhone acceptance remain open, as do
 the public QA publisher and network-enabled aislop approvals. Source remote
 and push remain owner-only.
+
+Controlled Android WSS host proof (2026-09-28): a package-local test path
+now runs the actual WSS TLS socket, upgrade and frame loop against an isolated
+loopback relay with a disposable certificate. The public query retains its
+platform DNS, TLS factory and hostname verifier. Existing Android WSS URL,
+classification and owner proofs pass **140 + 23 + 23** checks; the new relay
+TLS proof passes **37** checks covering valid named-certificate `REQ` and
+`EVENT`/`EOSE`, pre-request IPv6-to-IPv4 retry, untrusted and wrong-host
+certificates, mixed private DNS before connect, redirect, bad upgrade accept,
+oversized frame and cancellation after upgrade. This is host-JVM evidence;
+Android-device and iOS controlled failure paths remain open. A fresh Android
+prebuild and unsigned ARM64 Release build pass (APK SHA-256
+`cd5aaf884f9ebe9f8b0a26362ec8595df8bc432a4b24666db0af77e7b22ca8a4`).
+The shared HTTPS loopback proof still passes 69 + 25 checks; TypeScript and
+React Doctor numeric **100/100** pass. The network-enabled aislop audit still
+awaits separate approval.

@@ -31,7 +31,7 @@ import javax.net.ssl.TrustManagerFactory;
 /** Actual loopback TLS proof; only package-local test inputs permit a private endpoint. */
 public final class PublishedHttpsTlsProof {
   private static final char[] PASSWORD = "temporary-proof".toCharArray();
-  private static final HostnameVerifier PROOF_HOSTNAME_VERIFIER = (hostname, session) -> {
+  static final HostnameVerifier PROOF_HOSTNAME_VERIFIER = (hostname, session) -> {
     try {
       X509Certificate leaf = (X509Certificate) session.getPeerCertificates()[0];
       Collection<List<?>> names = leaf.getSubjectAlternativeNames();
@@ -161,7 +161,7 @@ public final class PublishedHttpsTlsProof {
         proofPolicy, cancellation, resolver, dns, factory, PROOF_HOSTNAME_VERIFIER);
   }
 
-  private static SSLContext serverContext(Path pkcs12) throws Exception {
+  static SSLContext serverContext(Path pkcs12) throws Exception {
     KeyStore keys = KeyStore.getInstance("PKCS12");
     try (InputStream input = Files.newInputStream(pkcs12)) { keys.load(input, PASSWORD); }
     KeyManagerFactory managers = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -171,7 +171,7 @@ public final class PublishedHttpsTlsProof {
     return context;
   }
 
-  private static SSLSocketFactory trustedFactory(Path pem) throws Exception {
+  static SSLSocketFactory trustedFactory(Path pem) throws Exception {
     KeyStore trust = KeyStore.getInstance(KeyStore.getDefaultType());
     trust.load(null, null);
     try (InputStream input = Files.newInputStream(pem)) {

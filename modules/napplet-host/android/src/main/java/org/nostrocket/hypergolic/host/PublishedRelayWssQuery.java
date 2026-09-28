@@ -24,6 +24,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SNIHostName;
@@ -49,6 +50,15 @@ public final class PublishedRelayWssQuery {
   /** Returns complete text messages through caller-validated EOSE matching the subscription id. */
   public static List<String> query(String rawUrl, String request, PublishedHttpsTransport.AddressPolicy policy,
       PublishedHttpsTransport.Cancellation cancellation, TextStopPolicy shouldStop) throws IOException {
+    return queryWithTransport(rawUrl, request, policy, cancellation, shouldStop,
+        InetAddress::getAllByName, DNS, defaultFactory(), HttpsURLConnection.getDefaultHostnameVerifier());
+  }
+
+  /** Package-local inputs allow a controlled host-JVM TLS relay without changing the public query path. */
+  static List<String> queryWithTransport(String rawUrl, String request, PublishedHttpsTransport.AddressPolicy policy,
+      PublishedHttpsTransport.Cancellation cancellation, TextStopPolicy shouldStop,
+      PublishedHttpsTransport.HostResolver resolver, ThreadPoolExecutor executor,
+      SSLSocketFactory socketFactory, HostnameVerifier hostnameVerifier) throws IOException {
     RelayUrl relay = parseUrl(rawUrl);
     if (policy == null || shouldStop == null) throw new IllegalArgumentException("Missing relay policy");
     if (!policy.isAllowedHost(relay.host)) throw new IOException("Unsafe relay hostname");
@@ -60,9 +70,9 @@ public final class PublishedRelayWssQuery {
     Deadline deadline = Deadline.start();
     AbortMonitor abort = new AbortMonitor(cancellation, deadline);
     try {
-      InetAddress[] addresses = resolve(relay.host, deadline, abort);
+      InetAddress[] addresses = resolve(relay.host, deadline, abort, resolver, executor);
       addresses = PublishedHttpsTransport.checkedAddresses(addresses, policy);
-      SSLSocket tls = connect(relay, addresses, policy, abort, deadline);
+      SSLSocket tls = connect(relay, addresses, policy, abort, deadline, socketFactory, hostnameVerifier);
       try (SSLSocket closeable = tls) {
         DeadlineInput input = new DeadlineInput(closeable.getInputStream(), closeable, deadline);
         OutputStream output = closeable.getOutputStream();
@@ -116,10 +126,11 @@ public final class PublishedRelayWssQuery {
       throws IOException {
     return PublishedHttpsTransport.checkedAddresses(answers, policy);
   }
-  private static InetAddress[] resolve(String hostname, Deadline deadline, AbortMonitor abort) throws IOException {
+  private static InetAddress[] resolve(String hostname, Deadline deadline, AbortMonitor abort,
+      PublishedHttpsTransport.HostResolver resolver, ThreadPoolExecutor executor) throws IOException {
     abort.check();
-    FutureTask<InetAddress[]> lookup = new FutureTask<>(() -> InetAddress.getAllByName(hostname));
-    try { DNS.execute(lookup); }
+    FutureTask<InetAddress[]> lookup = new FutureTask<>(() -> resolver.resolve(hostname));
+    try { executor.execute(lookup); }
     catch (RejectedExecutionException saturated) { throw new IOException("Relay DNS capacity exhausted", saturated); }
     try {
       while (true) {
@@ -135,12 +146,13 @@ public final class PublishedRelayWssQuery {
       throw new IOException("Relay DNS lookup failed", failed.getCause());
     } finally {
       if (!lookup.isDone()) lookup.cancel(true);
-      DNS.remove(lookup);
+      executor.remove(lookup);
     }
   }
 
   private static SSLSocket connect(RelayUrl relay, InetAddress[] addresses,
-      PublishedHttpsTransport.AddressPolicy policy, AbortMonitor abort, Deadline deadline) throws IOException {
+      PublishedHttpsTransport.AddressPolicy policy, AbortMonitor abort, Deadline deadline,
+      SSLSocketFactory socketFactory, HostnameVerifier hostnameVerifier) throws IOException {
     IOException last = null;
     for (InetAddress address : addresses) {
       abort.check();
@@ -149,7 +161,7 @@ public final class PublishedRelayWssQuery {
       abort.setSocket(tcp);
       try {
         tcp.connect(new InetSocketAddress(address, relay.port), deadline.timeoutMs(CONNECT_TIMEOUT_MS));
-        SSLSocket tls = (SSLSocket) defaultFactory().createSocket(tcp, relay.host, relay.port, true);
+        SSLSocket tls = (SSLSocket) socketFactory.createSocket(tcp, relay.host, relay.port, true);
         abort.setSocket(tls);
         tls.setSoTimeout(deadline.timeoutMs(READ_TIMEOUT_MS));
         SSLParameters parameters = tls.getSSLParameters();
@@ -163,7 +175,7 @@ public final class PublishedRelayWssQuery {
         if (protocols.isEmpty()) throw new IOException("TLS 1.2 or newer is required");
         tls.setEnabledProtocols(protocols.toArray(new String[0]));
         tls.startHandshake();
-        if (!HttpsURLConnection.getDefaultHostnameVerifier().verify(relay.host, tls.getSession())) {
+        if (!hostnameVerifier.verify(relay.host, tls.getSession())) {
           throw new IOException("Relay TLS hostname mismatch");
         }
         abort.check();
