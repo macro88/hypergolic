@@ -13,6 +13,7 @@ example, not a required product napplet.
 | [Approval Lab](../napplets/approval-lab/README.md) | Standalone unsigned artifact; native integration remains open | Explicit approve/deny, background deferral, cancellation and independently verified results |
 | Signed host QA fixture | Fixed signed event and HTML embedded locally; Android Settings and isolated iOS native QA journeys pass | Published-artifact verification, explicit review, one-use native transfer and host rendering without relay or publisher deployment |
 | [Live published QA fixture](../tests/native/live-published-fixture/README.md) | Public `file-browser` signed event loaded on Android API 36/API 29 and iOS 26.5 Simulator | Real native relay/Blossom retrieval, first-open publisher/access review, and connected guest rendering with a public-only identity |
+| [Live update publication QA](../tests/native/live-update-publication/README.md) | Signed two-revision generator, Blossom/relay protocol checks and Android/iOS native drivers prepared; no public QA release or native journey yet | Real network v1 opening followed by independently published v2, exact update review, decline, accept and cold restoration |
 
 Use disposable identities for automated runs and retain the same identity across
 the restart being tested. Keep the fixture publisher separate. A resettable local

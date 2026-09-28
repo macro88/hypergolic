@@ -337,3 +337,27 @@ its SDK 57 patch check expects expo 57.0.25, expo-build-properties
 pinned earlier patches. The seven-day package release-age rule and pinned
 lockfile were not bypassed or changed. The tester-build preflight also needs
 `HYPERGOLIC_KEYSTORE_PATH` in this session.
+
+Live public-update QA preparation (2026-09-28): a disposable signed kind-35129
+v1/v2 release generator now produces server-hinted `/index.html` manifests that
+both pass the real application verifier. The test-only publication helper checks
+BUD-11 hash/server-scoped Blossom authorization, exact direct blob readback and
+relay `OK` acknowledgement. Android's APK/source-bound driver and separate iOS
+Simulator v1/v2 XCTest scenarios are prepared; the latter compile in the
+standalone UI runner. Six publication checks and 18 native-driver unit checks
+pass. The isolated Android API 29 ARM64 Release fixture APK built, verified and
+installed; its SHA-256 is
+`3260587e825fbc2bcb127de614d291489932a7d41014f68e3d822a0eadc278f6`.
+The isolated iOS Simulator Release app built with bundle ID
+`org.nostrocket.hypergolic.livepublishedfixture` and `main.jsbundle` SHA-256
+`69f73d45675acaf9ca57c027e3662ec6301b2465be8d27c75e5061a287beaf2a`.
+The Android generated Gradle file was restored byte-for-byte. React Doctor and
+aislop each score 100/100, TypeScript and 27 shell tests pass; all three direct
+pnpm dependency audits found no known vulnerabilities. No QA blob or event has
+been published and no live update native journey has run yet. The choice of a
+disposable QA publisher versus the project publisher is pending user input.
+Physical iPhone proof is unavailable without a connected device. Expo Doctor
+remains 20/21 on six SDK patch expectations; the expo and expo-build-properties
+patches dated 24 September are still younger than the configured seven-day
+minimum release age. The Hypergolic source remote remains owner-controlled;
+no source push was made.

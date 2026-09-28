@@ -25,6 +25,8 @@ final class WorkspaceTests: XCTestCase {
     "approval-review": ["exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"],
     "published-host": ["review-exact-signed-fixture", "native-host-connected", "close-returns-to-fixture"],
     "published-update": ["public-fixture-and-runtime", "first-open-exact-review", "update-cancel-retains-old", "update-accept-replaces-host", "cold-restart-retains-v2", "rollback-rejected-after-restart", "background-revokes-and-retry-v2"],
+    "live-update-v1": ["live-public-fixture", "live-first-open-exact-review", "live-v1-connected"],
+    "live-update-v2": ["live-v1-before-update", "live-update-exact-review", "live-decline-retains-v1", "live-accept-renders-v2", "live-cold-restart-retains-v2"],
     "changed-access": ["public-fixture-and-runtime", "first-open-exact-review", "update-review-exact-candidate", "changed-access-decline-retains-v1", "changed-access-accept-replaces-host"],
   ]
 
@@ -45,7 +47,7 @@ final class WorkspaceTests: XCTestCase {
     let names = Set(checks.compactMap { $0["name"] as? String })
     let allPassed = complete && names == expected[scenario] && checks.count == expected[scenario]?.count && checks.allSatisfy { $0["passed"] as? Bool == true }
     attach([
-      "kind": scenario == "published-host" ? "hypergolic-ios-published-host-v1" : scenario == "published-update" ? "hypergolic-ios-published-update-v1" : scenario == "changed-access" ? "hypergolic-ios-changed-access-v1" : "hypergolic-ios-workspace-v1", "scenario": scenario, "completed": complete,
+      "kind": scenario == "published-host" ? "hypergolic-ios-published-host-v1" : scenario == "published-update" ? "hypergolic-ios-published-update-v1" : scenario.hasPrefix("live-update-") ? "hypergolic-ios-live-update-v1" : scenario == "changed-access" ? "hypergolic-ios-changed-access-v1" : "hypergolic-ios-workspace-v1", "scenario": scenario, "completed": complete,
       "allChecksPassed": allPassed, "checks": checks, "observations": observations, "gestures": gestures,
       "proofScope": "Public native XCTest gestures and accessibility. Temporary fixture values/scroll positions only; native generation identity and transition frame pacing are not directly observed."
     ], "workspace-report")
@@ -360,6 +362,129 @@ final class WorkspaceTests: XCTestCase {
     }
     record("close-returns-to-fixture", true, ["title": "Signed host QA fixture", "selectedIdentityAssumed": false])
     capture("published-host-fixture-returned")
+    complete = true
+  }
+
+  private func liveUpdateFixture() throws -> (naddr: String, publisher: String, identifier: String, v1: String, v2: String) {
+    let environment = ProcessInfo.processInfo.environment
+    guard environment["HG_TARGET_BUNDLE_ID"] == "org.nostrocket.hypergolic.livepublishedfixture",
+          let naddr = environment["HG_LIVE_NADDR"], naddr.hasPrefix("naddr1"),
+          let publisher = environment["HG_LIVE_PUBLISHER"], publisher.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil,
+          let identifier = environment["HG_LIVE_IDENTIFIER"], identifier.range(of: "^[a-z0-9-]{1,13}$", options: .regularExpression) != nil,
+          let v1 = environment["HG_LIVE_V1"], v1.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil,
+          let v2 = environment["HG_LIVE_V2"], v2.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil,
+          v1 != v2 else { throw Failure.invalid("Requires exact public live-update fixture handoff") }
+    return (naddr, publisher, identifier, v1, v2)
+  }
+
+  func testLiveUpdateV1() throws {
+    let fixture = try liveUpdateFixture()
+    let banner = try one(app.staticTexts.matching(identifier: "live-fixture-label"), "public live fixture banner", visible: false)
+    guard banner.label == "Live published QA · public identity · signing unavailable",
+          currentTitle() == "Hypergolic",
+          !publishedMarker("update-v1") && !publishedMarker("update-v2") else {
+      throw Failure.invalid("Live update fixture did not begin empty and public-only")
+    }
+    let selected = try selectedIdentity()
+    guard selected.hasPrefix("npub1") else { throw Failure.invalid("Public-only selected identity missing") }
+    record("live-public-fixture", true, ["selectedIdentity": selected, "signing": "unavailable", "initialTitle": currentTitle()])
+    capture("live-update-empty-shell")
+
+    try identityPress("shell-settings")
+    let input = try one(app.textFields.matching(identifier: "settings-napplet-address"), "live naddr input", visible: false)
+    input.tap()
+    for character in fixture.naddr { input.typeText(String(character)) }
+    guard (input.value as? String) == fixture.naddr else { throw Failure.invalid("Could not enter exact live naddr") }
+    let open = app.buttons.matching(identifier: "settings-open-napplet").firstMatch
+    try stateNativeReveal(open)
+    try identityPress("settings-open-napplet")
+    try until("Live v1 first-open review") {
+      self.app.descendants(matching: .any).matching(identifier: "settings-napplet-review").firstMatch.exists
+        && self.app.buttons.matching(identifier: "settings-napplet-approve").firstMatch.isHittable
+    }
+    let claims = Set(app.staticTexts.allElementsBoundByIndex.filter { $0.exists }.map(\.label))
+    record("live-first-open-exact-review", claims.contains(fixture.publisher) && claims.contains(fixture.identifier)
+      && claims.contains(fixture.v1) && claims.contains("Requested access: theme"),
+      ["publisher": fixture.publisher, "identifier": fixture.identifier, "eventId": fixture.v1,
+       "requestedAccess": "theme", "explicitApprovalRequired": true])
+    capture("live-update-v1-review")
+    try identityPress("settings-napplet-approve")
+    try until("Live v1 native host connected") {
+      self.currentTitle() == fixture.identifier && self.publishedMarker("update-v1") && !self.publishedMarker("update-v2")
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+    }
+    record("live-v1-connected", true, ["eventId": fixture.v1, "host": "update-v1", "runtimeConnected": true])
+    capture("live-update-v1-connected")
+    complete = true
+  }
+
+  func testLiveUpdateV2() throws {
+    let fixture = try liveUpdateFixture()
+    try until("Pinned live v1 restored before update check") {
+      self.currentTitle() == fixture.identifier && self.publishedMarker("update-v1") && !self.publishedMarker("update-v2")
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+    }
+    record("live-v1-before-update", true, ["host": "update-v1", "eventId": fixture.v1])
+    capture("live-update-before-v2-review")
+    try identityPress("shell-settings")
+    let check = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "published-update-check-")).firstMatch
+    try stateNativeReveal(check)
+    let session = String(check.identifier.dropFirst("published-update-check-".count))
+    guard session.range(of: "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", options: .regularExpression) != nil,
+          app.staticTexts.matching(NSPredicate(format: "label == %@", "Pinned event " + fixture.v1)).firstMatch.exists else {
+      throw Failure.invalid("Live v1 pin or session identity missing")
+    }
+    try identityPress(check.identifier)
+    let reviewId = "published-update-review-" + session
+    try until("Live v2 candidate review") { self.app.descendants(matching: .any).matching(identifier: reviewId).firstMatch.exists }
+    let publisherClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", fixture.publisher)).firstMatch
+    let identifierClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", fixture.identifier)).firstMatch
+    let oldClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", fixture.v1)).firstMatch
+    let newClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", fixture.v2)).firstMatch
+    let accessClaim = app.staticTexts.matching(NSPredicate(format: "label == %@", "Requested access: theme")).firstMatch
+    try until("Exact live old and new event fields") {
+      publisherClaim.exists && identifierClaim.exists && oldClaim.exists && newClaim.exists && accessClaim.exists
+    }
+    record("live-update-exact-review", publisherClaim.label == fixture.publisher && identifierClaim.label == fixture.identifier
+      && oldClaim.label == fixture.v1 && newClaim.label == fixture.v2 && accessClaim.label == "Requested access: theme",
+      ["publisher": fixture.publisher, "identifier": fixture.identifier, "oldEvent": fixture.v1, "newEvent": fixture.v2])
+    capture("live-update-v2-review-decline")
+    let cancel = app.buttons.matching(identifier: "published-update-cancel-" + session).firstMatch
+    try stateNativeReveal(cancel)
+    try nativeTap(cancel, name: "decline-live-v2")
+    try identityPress("settings-done")
+    try until("Declining live v2 retains native v1 guest") {
+      self.publishedMarker("update-v1") && !self.publishedMarker("update-v2")
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+    }
+    record("live-decline-retains-v1", true, ["pinnedEvent": fixture.v1, "host": "update-v1"])
+    capture("live-update-declined-v1")
+
+    try identityPress("shell-settings")
+    let secondCheck = app.buttons.matching(identifier: "published-update-check-" + session).firstMatch
+    try stateNativeReveal(secondCheck)
+    try identityPress(secondCheck.identifier)
+    try until("Second exact live v2 review") {
+      self.app.descendants(matching: .any).matching(identifier: reviewId).firstMatch.exists
+        && oldClaim.exists && newClaim.exists && publisherClaim.exists && identifierClaim.exists && accessClaim.exists
+    }
+    let accept = app.buttons.matching(identifier: "published-update-accept-" + session).firstMatch
+    try stateNativeReveal(accept)
+    try nativeTap(accept, name: "accept-live-v2")
+    try until("Accepted live v2 native guest") {
+      self.publishedMarker("update-v2") && !self.publishedMarker("update-v1")
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+    }
+    record("live-accept-renders-v2", true, ["eventId": fixture.v2, "host": "update-v2", "runtimeConnected": true])
+    capture("live-update-accepted-v2")
+    app.terminate()
+    app.activate()
+    try until("Accepted live v2 restored after cold restart") {
+      self.currentTitle() == fixture.identifier && self.publishedMarker("update-v2") && !self.publishedMarker("update-v1")
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+    }
+    record("live-cold-restart-retains-v2", true, ["eventId": fixture.v2, "host": "update-v2"])
+    capture("live-update-restarted-v2")
     complete = true
   }
 

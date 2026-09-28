@@ -181,6 +181,38 @@ class LauncherTests(unittest.TestCase):
             entry.write_text("public fixture entry")
             self.assertIn("tests/native/published-update-fixtures/index.tsx", driver.source_manifest(repo))
 
+    def test_live_update_scenarios_require_isolated_bundle_and_exact_receipts(self):
+        with tempfile.TemporaryDirectory() as temporary, patch.object(driver.subprocess, "run") as command:
+            output = Path(temporary) / "evidence"
+            with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+                driver.main(["--udid", "00000000-0000-4000-8000-000000000001", "live-update-v1",
+                             "--bundle-id", "org.nostrocket.hypergolic.dev", "--output", str(output)])
+            self.assertEqual(error.exception.code, 2)
+            command.assert_not_called()
+            self.assertFalse(output.exists())
+        bundle = "org.nostrocket.hypergolic.livepublishedfixture"
+        for scenario in ("live-update-v1", "live-update-v2"):
+            report = {"kind": "hypergolic-ios-live-update-v1", "scenario": scenario, "completed": True,
+                      "allChecksPassed": True, "checks": [{"name": name, "passed": True}
+                                                        for name in driver.SCENARIOS[scenario]["checks"]],
+                      "observations": {"nonce": "abcdef012345", "bundleIdentifier": bundle}}
+            driver.validate_report(report, "abcdef012345", bundle, scenario)
+            report["checks"].pop()
+            with self.assertRaises(RuntimeError):
+                driver.validate_report(report, "abcdef012345", bundle, scenario)
+
+    def test_source_manifest_includes_live_fixture_and_publication_handoff(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary)
+            for name in ("tests/native/live-published-fixture/index.tsx",
+                         "tests/native/live-update-publication/release-pair.mjs"):
+                path = repo / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("public QA source")
+            manifest = driver.source_manifest(repo)
+            self.assertIn("tests/native/live-published-fixture/index.tsx", manifest)
+            self.assertIn("tests/native/live-update-publication/release-pair.mjs", manifest)
+
     def test_implicit_booted_selector_rejected_before_any_command(self):
         with tempfile.TemporaryDirectory() as temporary, patch.object(driver.subprocess, "run") as command:
             with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:

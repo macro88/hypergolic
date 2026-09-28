@@ -2,9 +2,10 @@
 
 The published loader already verifies a signed kind-35129 manifest, its exact
 publisher and `d` coordinate, the `/index.html` hash and the NIP-5A aggregate.
-Network replies remain untrusted input. This checkpoint adds native transport
-cores and an app-only HTTPS bridge; it does **not** connect a remote napplet to
-the ordinary workspace.
+Network replies remain untrusted input. The native WSS and HTTPS bridges now
+feed ordinary `naddr` entry and its published workspace. Public-only Android
+and iOS Simulator first-open journeys have exercised that path; a live network
+update and physical-iPhone protected identity remain open.
 
 ## Destination policy
 
@@ -72,7 +73,8 @@ shows the old/new signed event IDs before replacing the workspace card. Changed
 access gets a separate review. Declining either review leaves the running pin
 untouched. Acceptance closes pending signing requests, revokes the old native
 session and stages the new bytes under a fresh one-use session ID. The update
-flow has focused coordinator/runtime tests, but no complete native phone journey.
+flow has focused coordinator/runtime tests and embedded signed native journeys
+on Android and iOS Simulator. Its live relay/Blossom update journey remains open.
 For a published napplet granted `relay`, the signing approval owner additionally
 requires the live verified workspace binding and exact native generation before
 showing a request; every event still needs the v1 approval sheet.
@@ -81,10 +83,14 @@ active, it must also revoke that admission's live session before another stage;
 the current coordinator checks the identity/session epoch, not a new database
 read for every upload chunk.
 
-The existing Settings signed-host QA route uses a locally embedded signed
-fixture and does not test remote network behavior. Native compile and isolated
-parsing/address tests do not establish live TLS behavior on a phone or a
-complete Android/iOS published loading journey through ordinary entry.
+The Settings signed-host QA route still uses a locally embedded signed fixture.
+A separate public-only fixture has now opened a real remote napplet through
+native WSS and HTTPS on Android API 36/API 29 and iOS 26.5 Simulator; the normal
+Android API 29 app also opens and restores that remote guest. The new
+[live-update QA harness](../tests/native/live-update-publication/README.md)
+prepares a v1/v2 release on public transports but has not yet published it or
+passed a native update run. None of these fixtures proves physical-device
+identity security or guest signing.
 
 Run the address proof with `python3 tests/native/public-ip-classifier/run.py`.
 The Android HTTPS proof is `python3 tests/native/android-published-https/runner.py`.
@@ -124,8 +130,8 @@ wire envelopes. Event signatures and original artifact hashes must still be
 checked in the trusted loader. No relay publishes or signer requests belong to
 this lookup transport.
 
-Before accepting ordinary published entry for v1, exercise the native Android and iOS
-paths against controlled TLS endpoints: a valid relay and Blossom server,
+Before v1 release, finish the native Android and iOS negative-path audit
+against controlled TLS endpoints: a valid relay and Blossom server,
 mixed private/public DNS answers, hostname or certificate mismatch, redirects,
 bad upgrade responses, oversized frames, cancellation, background revocation,
 and restart with the exact pinned event. The successful path must reach the

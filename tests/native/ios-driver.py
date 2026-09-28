@@ -34,6 +34,8 @@ SCENARIOS = {
     "approval-review": {"checks": {"exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testApprovalReview"},
     "published-host": {"checks": {"review-exact-signed-fixture", "native-host-connected", "close-returns-to-fixture"}, "kind": "hypergolic-ios-published-host-v1", "test": "WorkspaceTests/testPublishedHost"},
     "published-update": {"checks": {"public-fixture-and-runtime", "first-open-exact-review", "update-cancel-retains-old", "update-accept-replaces-host", "cold-restart-retains-v2", "rollback-rejected-after-restart", "background-revokes-and-retry-v2"}, "kind": "hypergolic-ios-published-update-v1", "test": "WorkspaceTests/testPublishedUpdate"},
+    "live-update-v1": {"checks": {"live-public-fixture", "live-first-open-exact-review", "live-v1-connected"}, "kind": "hypergolic-ios-live-update-v1", "test": "WorkspaceTests/testLiveUpdateV1"},
+    "live-update-v2": {"checks": {"live-v1-before-update", "live-update-exact-review", "live-decline-retains-v1", "live-accept-renders-v2", "live-cold-restart-retains-v2"}, "kind": "hypergolic-ios-live-update-v1", "test": "WorkspaceTests/testLiveUpdateV2"},
     "changed-access": {"checks": {"public-fixture-and-runtime", "first-open-exact-review", "update-review-exact-candidate", "changed-access-decline-retains-v1", "changed-access-accept-replaces-host"}, "kind": "hypergolic-ios-changed-access-v1", "test": "WorkspaceTests/testChangedAccess"},
 }
 
@@ -67,7 +69,7 @@ def bundle_manifest(bundle: Path) -> dict:
 
 def source_manifest(repo: Path) -> dict:
     paths = set()
-    for directory in ("src", "runtime/src", "runtime/fixtures", "runtime/dist", "modules/napplet-host", "assets", "scripts", "tests/native/published-update-fixtures", "tests/napplets/fixtures"):
+    for directory in ("src", "runtime/src", "runtime/fixtures", "runtime/dist", "modules/napplet-host", "assets", "scripts", "tests/native/published-update-fixtures", "tests/native/live-published-fixture", "tests/native/live-update-publication", "tests/napplets/fixtures"):
         for path in (repo / directory).rglob("*"):
             relative = path.relative_to(repo)
             if path.is_file() and not {"build", ".gradle", "node_modules", ".expo"}.intersection(relative.parts):
@@ -142,10 +144,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--bundle-id", default="org.nostrocket.hypergolic.dev")
     parser.add_argument("--developer-dir", default=os.environ.get("DEVELOPER_DIR", "/Applications/Xcode.app/Contents/Developer"))
     parser.add_argument("--repo", type=Path, help="Optional read-only source correspondence metadata")
+    parser.add_argument("--live-update-bundle", type=Path, help="Public signed QA handoff for live-update scenarios")
     parser.add_argument("--expected-title", default="UX Lab 1")
     parser.add_argument("--expected-session", default="ux-lab-1")
     parser.add_argument("--timeout", type=float, default=30)
-    parser.add_argument("scenario", choices=["identity-delete-unavailable", "state-close", "state-storage", "identity-switch", "workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "approval-review", "published-host", "published-update", "changed-access", "identity", "host-boundary", "renderer-loss"])
+    parser.add_argument("scenario", choices=["identity-delete-unavailable", "state-close", "state-storage", "identity-switch", "workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "approval-review", "published-host", "published-update", "live-update-v1", "live-update-v2", "changed-access", "identity", "host-boundary", "renderer-loss"])
     parser.add_argument("--output", type=Path, required=True, help="New private evidence directory, never overwritten")
     args = parser.parse_args(argv)
     if args.scenario not in SCENARIOS:
@@ -156,6 +159,21 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("published-update requires the isolated public-only published-update fixture bundle")
     if args.scenario == "changed-access" and args.bundle_id != "org.nostrocket.hypergolic.publishedupdatefixture":
         parser.error("changed-access requires the isolated public-only changed-access fixture bundle")
+    live_fixture = None
+    if args.scenario.startswith("live-update-"):
+        if args.bundle_id != "org.nostrocket.hypergolic.livepublishedfixture" or not args.live_update_bundle:
+            parser.error("live updates require the isolated public-only live fixture and --live-update-bundle")
+        bundle_path = args.live_update_bundle.expanduser().resolve()
+        inspected = subprocess.run(["node", str(ROOT / "live-update-publication" / "cli.mjs"),
+                                    "inspect", "--bundle", str(bundle_path)],
+                                   cwd=ROOT.parents[1], capture_output=True, text=True, timeout=20, check=False)
+        if inspected.returncode:
+            parser.error("signed live-update handoff verification failed: " + inspected.stderr[:200])
+        live_fixture = json.loads(inspected.stdout)
+        if live_fixture.get("relays") != ["wss://relay.damus.io"]:
+            parser.error("live-update handoff relay is outside the fixture's normal Lookup list")
+    elif args.live_update_bundle:
+        parser.error("--live-update-bundle belongs only to live-update scenarios")
     if not re.fullmatch(r"[A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12}", args.udid):
         parser.error("--udid must be an explicit Simulator UUID")
     if not re.fullmatch(r"[A-Za-z0-9]+(?:[.-][A-Za-z0-9]+)+", args.bundle_id):
@@ -240,6 +258,16 @@ def main(argv: list[str] | None = None) -> int:
         expected_session = "published-host-qa-fixture" if args.scenario == "published-host" else args.expected_session
         document = simulator_run(plistlib.loads(manifests[0].read_bytes()), runner_id, args.bundle_id, nonce,
                                    expected_title, expected_session, args.timeout, args.scenario)
+        if live_fixture:
+            for target in test_targets(document):
+                target["EnvironmentVariables"].update({
+                    "HG_LIVE_NADDR": live_fixture["naddr"],
+                    "HG_LIVE_PUBLISHER": live_fixture["publisher"],
+                    "HG_LIVE_IDENTIFIER": live_fixture["identifier"],
+                    "HG_LIVE_V1": live_fixture["v1"],
+                    "HG_LIVE_V2": live_fixture["v2"],
+                })
+            result["liveFixture"] = live_fixture
         if args.scenario == "identity-switch":
             if args.bundle_id != "org.nostrocket.hypergolic.identityuifixture":
                 raise RuntimeError("Identity UI scenario requires the isolated public-key fixture")
@@ -255,7 +283,7 @@ def main(argv: list[str] | None = None) -> int:
         test = run(["xcodebuild", "test-without-building", "-xctestrun", str(configured),
                     "-destination", "platform=iOS Simulator,id=" + args.udid,
                     "-parallel-testing-enabled", "NO", "-maximum-concurrent-test-simulator-destinations", "1",
-                    "-resultBundlePath", str(bundle)], timeout=600, check=False)
+                    "-resultBundlePath", str(bundle)], timeout=900 if live_fixture else 600, check=False)
         result["xcodeTestExitCode"] = test.returncode
         if not bundle.is_dir():
             raise RuntimeError("Xcode produced no result bundle")
