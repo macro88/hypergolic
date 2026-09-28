@@ -4,6 +4,7 @@
 import base64
 import hashlib
 from pathlib import Path
+import os
 import shutil
 import socket
 import ssl
@@ -118,14 +119,23 @@ def main() -> None:
         raise RuntimeError("OpenSSL and Swift are required for the loopback WSS proof")
     with tempfile.TemporaryDirectory(prefix="hypergolic-ios-wss-tls-") as temporary:
         output = Path(temporary)
+        simulator = os.environ.get("HYPERGOLIC_TLS_SIMULATOR_UDID")
         valid_key, valid_cert, valid_der = identity(output, "relay.example.org")
         wrong_key, wrong_cert, wrong_der = identity(output, "other.example.org")
         binary = output / "ios-wss-tls-proof"
+        compiler = ["swiftc", "-D", "HYPERGOLIC_NETWORK_PROOF", "-warnings-as-errors"]
+        compiler_environment = os.environ.copy()
+        if simulator:
+            sdk = subprocess.check_output(["xcrun", "--sdk", "iphonesimulator", "--show-sdk-path"], text=True).strip()
+            compiler_environment["SDKROOT"] = sdk
+            compiler.extend([
+                "-target", "arm64-apple-ios18.4-simulator", "-parse-as-library",
+                "-sdk", sdk,
+            ])
         subprocess.run([
-            "swiftc", "-D", "HYPERGOLIC_NETWORK_PROOF", "-warnings-as-errors",
-            "-module-cache-path", str(output / "swift-modules"), "-o", str(binary),
+            *compiler, "-module-cache-path", str(output / "swift-modules"), "-o", str(binary),
             *(str(NATIVE / source) for source in SOURCES), str(PROOF),
-        ], cwd=ROOT, check=True)
+        ], cwd=ROOT, env=compiler_environment, check=True)
         for mode in ("valid", "failover", "untrusted", "wrong-host", "redirect",
                      "bad-accept", "oversize", "cancel"):
             key, cert, anchor = (
@@ -141,7 +151,9 @@ def main() -> None:
             errors: list[str] = []
             thread = threading.Thread(target=serve, args=(mode, key, cert, listener, observed, errors), daemon=True)
             thread.start()
-            subprocess.run([str(binary), str(port), str(anchor), mode], cwd=ROOT, check=True, timeout=12)
+            command = (["xcrun", "simctl", "spawn", simulator] if simulator else [])
+            subprocess.run([*command, str(binary), str(port), str(anchor), mode],
+                           cwd=ROOT, check=True, timeout=12)
             thread.join(timeout=10)
             if thread.is_alive() or errors:
                 raise AssertionError(f"{mode}: server did not finish cleanly: {errors}")

@@ -95,3 +95,11 @@ Simulator module compile pass. The normal unsigned iOS Simulator Release app
 build passes without the proof flag. These tests do not exercise iOS Simulator
 or physical-iPhone failure paths; controlled on-device negative cases remain
 part of v1 acceptance. See `docs/published-network.md` for commands and scope.
+
+The same six HTTPS and eight WSS cases subsequently passed in the booted
+arm64 iPhone 17 Pro/iOS 26.5 Simulator using
+`HYPERGOLIC_TLS_SIMULATOR_UDID=<booted-device-ID>` with each proof runner.
+These are standalone native executables exercising the actual Swift owners
+and iOS Network.framework, not the full Expo app or background lifecycle.
+Physical-iPhone, mixed-DNS, app-level revocation and live update acceptance
+remain open.

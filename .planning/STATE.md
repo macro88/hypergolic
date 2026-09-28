@@ -579,3 +579,14 @@ frame and cancellation after upgrade. This is host-macOS evidence, not an
 iOS Simulator or physical-device failure-path pass. The normal unsigned
 iOS Simulator Release app builds without the proof flag. Owned QA publication
 and the network-enabled aislop audit remain pending user decisions.
+
+iPhone Simulator controlled TLS checkpoint (2026-09-28): the same six HTTPS
+and eight WSS loopback TLS cases now pass with the actual Swift owners and
+Network.framework in the booted arm64 iPhone 17 Pro/iOS 26.5 Simulator.
+These are standalone native proof binaries compiled with the test-only flag;
+the normal unsigned iOS Release app still compiles without it. The proof
+covers certificate mismatch, redirect/upgrade rejection, failover, oversized
+WSS frames and cancellation in the simulator runtime. It does not exercise
+the Expo app's background/session lifecycle, physical iPhone, mixed
+private/public DNS or live v1-to-v2 publication. The owned QA publisher and
+full network-enabled aislop audit remain pending user decisions.

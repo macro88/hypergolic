@@ -6,6 +6,7 @@ proof does not claim iOS Simulator or physical-iPhone runtime acceptance.
 """
 
 from pathlib import Path
+import os
 import shutil
 import socket
 import ssl
@@ -75,18 +76,27 @@ def main() -> None:
         raise RuntimeError("OpenSSL and Swift are required for the loopback TLS proof")
     with tempfile.TemporaryDirectory(prefix="hypergolic-ios-https-tls-") as temporary:
         output = Path(temporary)
+        simulator = os.environ.get("HYPERGOLIC_TLS_SIMULATOR_UDID")
         valid_key, valid_cert = identity(output, "blossom.example.net")
         wrong_key, wrong_cert = identity(output, "other.example.net")
         valid_der = output / "blossom.example.net.der"
         wrong_der = output / "other.example.net.der"
         binary = output / "ios-https-tls-proof"
+        compiler = ["swiftc", "-D", "HYPERGOLIC_NETWORK_PROOF", "-warnings-as-errors"]
+        compiler_environment = os.environ.copy()
+        if simulator:
+            sdk = subprocess.check_output(["xcrun", "--sdk", "iphonesimulator", "--show-sdk-path"], text=True).strip()
+            compiler_environment["SDKROOT"] = sdk
+            compiler.extend([
+                "-target", "arm64-apple-ios18.4-simulator", "-parse-as-library",
+                "-sdk", sdk,
+            ])
         subprocess.run([
-            "swiftc", "-D", "HYPERGOLIC_NETWORK_PROOF", "-warnings-as-errors",
-            "-module-cache-path", str(output / "swift-modules"), "-o", str(binary),
+            *compiler, "-module-cache-path", str(output / "swift-modules"), "-o", str(binary),
             str(NATIVE / "PublicAddressPolicy.swift"),
             str(NATIVE / "PublishedHTTPResponse.swift"),
             str(NATIVE / "PublishedPinnedHTTPS.swift"), str(PROOF),
-        ], cwd=ROOT, check=True)
+        ], cwd=ROOT, env=compiler_environment, check=True)
         for mode in ("valid", "failover", "untrusted", "wrong-host", "redirect", "cancel"):
             key, cert, anchor = (
                 (wrong_key, wrong_cert, wrong_der) if mode == "wrong-host"
@@ -101,7 +111,8 @@ def main() -> None:
             errors: list[str] = []
             thread = threading.Thread(target=serve, args=(mode, key, cert, listener, observed, errors), daemon=True)
             thread.start()
-            subprocess.run([str(binary), str(port), str(anchor), mode],
+            command = (["xcrun", "simctl", "spawn", simulator] if simulator else [])
+            subprocess.run([*command, str(binary), str(port), str(anchor), mode],
                            cwd=ROOT, check=True, timeout=12)
             thread.join(timeout=9)
             if thread.is_alive() or errors:

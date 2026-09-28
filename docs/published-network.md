@@ -135,8 +135,12 @@ with a proof-only address and certificate anchor seam compiled under
 IPv6-to-IPv4 pre-request failover, untrusted and wrong-host certificates,
 redirect rejection and cancellation during a withheld response. The normal
 native build does not define the proof flag, resolve override or custom trust
-anchor. This is host transport evidence, not iOS device failure-path proof. The
-iOS Simulator Release build checks the actual Expo module target. The shared
+anchor. Set `HYPERGOLIC_TLS_SIMULATOR_UDID` to a booted arm64 iPhone Simulator
+ID to compile and run the same six cases inside that simulator. This executes
+the owning Swift transport and Network.framework in iOS Simulator as a
+standalone proof binary; it does not exercise the Expo app's lifecycle or a
+physical iPhone. The iOS Simulator Release build checks the actual Expo module
+target. The shared
 frame proof is `python3 tests/native/websocket-frames/run.py`. WSS handshake,
 client-frame and native query proofs are in `tests/native/websocket-handshake`,
 `tests/native/websocket-client-frames`, `tests/native/android-published-wss`
@@ -147,8 +151,11 @@ actual Swift WSS owner against disposable loopback TLS relays with the same
 compile-gated proof seam. Its eight host-macOS cases cover valid masked `REQ`
 and `EVENT`/`EOSE`, pre-request IPv6-to-IPv4 failover, untrusted and wrong-host
 certificates, redirect and bad-upgrade rejection, oversized frames and
-cancellation after upgrade. This does not prove iOS device behavior. Exact
-counts and build evidence are recorded in the phase progress note.
+cancellation after upgrade. The same eight cases also pass inside a booted
+arm64 iPhone Simulator with
+`HYPERGOLIC_TLS_SIMULATOR_UDID` set. That proof runs a standalone native binary,
+not the Expo app or a physical iPhone. Exact counts and build evidence are
+recorded in the phase progress note.
 
 ## Relay integration contract
 
