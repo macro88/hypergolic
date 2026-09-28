@@ -644,3 +644,14 @@ execution. WebView 58 still refuses guests. The current backup/deletion system
 authentication adapter intentionally requires API 30+, so v1's minimum Android
 version is an open product decision; no device PIN or production security path
 was changed in this run.
+
+API 26 current-source upgrade (2026-09-28): rebuilt the normal ARM64 Release
+app from clean commit `278a975`, signed it with the disposable debug test key,
+verified package/ABI/certificate and installed SHA-256
+`1e27084cf5da494efeeba69bc9ec28abbd503cfd9814dc06fcea14cdd7e89b31`.
+The certificate matched the previous API 26 app, so a data-preserving update
+succeeded. The same native public-identity driver passed **3/3** again and the
+full npub matched the pre-upgrade receipt. All four new screenshots were
+inspected; build manifest, source/harness seals and captures are in the
+private Notes checkpoint. WebView 58 still refuses guest execution and
+backup/deletion authentication remains unavailable below API 30.

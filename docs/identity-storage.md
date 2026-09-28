@@ -392,3 +392,15 @@ has no enrolled device credential, and the backup UI reports authentication
 unavailable. The protected backup/deletion adapter currently requires API 30+;
 the older-Android support decision is pending. This pass is limited to public
 identity continuity.
+
+A subsequent current-source build closed the APK-age limit above. The normal
+ARM64 Release app was rebuilt from clean commit `278a975`, then aligned and
+signed with the repository's disposable Android debug key. Its new APK SHA-256
+is `1e27084cf5da494efeeba69bc9ec28abbd503cfd9814dc06fcea14cdd7e89b31`;
+the signing certificate matched the old installation. A data-preserving update
+on API 26 succeeded and the installed bytes matched the new APK. The public
+identity driver passed **3/3** again, with the same npub as before the update,
+four canonical decodes, stable installed bytes and unchanged source/harness
+hashes. All four new screenshots were visually inspected. The private Notes
+checkpoint holds the build/upgrade manifest, native receipt and captures.
+The API 26 WebView and authenticated-action limits above still apply.
