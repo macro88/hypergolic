@@ -125,13 +125,14 @@ Enable the pinned Node/pnpm environment first. Select full Xcode for each shell:
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 ```
 
-For an absent native project, generate only iOS to preserve Android:
+For an absent native project, build the bundled runtime and generate only iOS to
+preserve Android:
 
 ```sh
-pnpm exec expo prebuild --platform ios --no-install
+pnpm run prebuild:ios
 ```
 
-The normal local build command installs dependencies and starts Metro as needed:
+The Simulator build command installs dependencies and starts Metro as needed:
 
 ```sh
 pnpm exec expo run:ios --device 'iPhone 17'
@@ -153,11 +154,14 @@ restored. Text entry was tested in Simulator Spotlight; this scaffold has no app
 form, navigation flow or product controls.
 
 The Debug app needs Metro. These checks do not establish offline iOS operation,
-physical-iPhone signing, device behavior or security. For a local iPhone run, sign
-in to Xcode, select a team for the app target, connect/unlock/trust the phone and
-enable Developer Mode, then use `pnpm exec expo run:ios --device`. A phone must reach
-Metro over the local network; this Simulator's localhost address is not the phone's
-address. The owner handles account, pairing and device confirmations.
+physical-iPhone signing, device behavior or security. For a local iPhone run, follow
+the [README's phone setup and signing steps](../README.md#ios), then run
+`pnpm exec expo run:ios --device` and select the connected phone. Keep Metro running;
+the phone and Mac must share a reachable local network. This Simulator's localhost
+address is not the phone's address. Xcode team selection in the generated native
+project may need repeating after a clean prebuild. Keep Apple account credentials
+and personal signing settings out of tracked files. The owner handles account,
+pairing and device confirmations.
 
 A free Xcode Personal Team supports personal-device testing, with seven-day
 provisioning and app/device/capability limits. Paid Apple Developer Program membership

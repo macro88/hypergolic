@@ -81,17 +81,45 @@ an identity.
 
 ### iOS
 
-Use macOS, full Xcode and CocoaPods. The native host targets **iOS 18.4 or later**.
-Select your development device and configure signing in Xcode:
+Use a Mac with full Xcode and CocoaPods, plus an iPhone running **iOS 18.4 or
+later**. Follow the [iOS toolchain setup](docs/development.md#ios-development),
+then complete these steps on your Mac and phone:
 
-```sh
-pnpm run prebuild:ios
-pnpm exec expo run:ios --device
-```
+1. Connect the unlocked iPhone with a data-capable cable and tap **Trust** on the
+   phone if prompted. Wait until Xcode shows it as a connected device.
+2. On the iPhone, enable **Settings → Privacy & Security →
+   [Developer Mode](https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device)**.
+   Restart and confirm with the device passcode when asked. If the switch is not
+   visible, finish pairing with Xcode first.
+3. From the repository root, generate the iOS project:
 
-The normal app needs a physical iPhone for protected identity storage, and that
-complete device journey remains unverified. For shared UI and storage experiments
-on Simulator, follow the separate [native test harness](tests/native/README.md).
+   ```sh
+   pnpm run prebuild:ios
+   ```
+
+4. In Xcode, sign in with your Apple Account if needed. Open
+   `ios/Hypergolic.xcworkspace`; select the **Hypergolic** app target →
+   **Signing & Capabilities**, turn on **Automatically manage signing**, and
+   select your development team. A free **Personal Team** can install a local
+   development build on your own iPhone. If Xcode says the bundle identifier is
+   unavailable for your team, set a unique `expo.ios.bundleIdentifier` in
+   `app.json` and run `pnpm run prebuild:ios` again. See
+   [Apple's device-signing guide](https://developer.apple.com/documentation/xcode/running-your-app-on-simulated-or-physical-devices)
+   if Xcode cannot create the development profile.
+5. Build, install and launch the app on the connected iPhone:
+
+   ```sh
+   pnpm exec expo run:ios --device
+   ```
+
+Select the connected iPhone when Expo prompts. Keep the terminal's Metro server
+running and put the Mac and iPhone on the same local network so the Debug app
+can load its JavaScript. The **Hypergolic** icon should appear on the phone and
+open to the identity entry screen. This is a locally signed Debug installation,
+not a shareable iPhone IPA. Use a disposable test identity; physical-iPhone
+protected storage and authentication still need acceptance testing. For
+Simulator-only UI and storage experiments, use the separate
+[native test harness](tests/native/README.md).
 
 For both platforms, a Debug build needs Metro. See the
 [development guide](docs/development.md) for toolchain pins, troubleshooting and
