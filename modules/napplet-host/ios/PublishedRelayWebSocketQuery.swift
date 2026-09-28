@@ -112,6 +112,25 @@ enum PublishedRelayWebSocketQuery {
     return operation
   }
 
+#if HYPERGOLIC_NETWORK_PROOF
+  /// Host-only proof seam. The production query cannot choose addresses or trust anchors.
+  static func queryForProof(_ url: String, subscription: String,
+                            addresses: [PublishedPinnedHTTPS.Address], anchorDER: Data?,
+                            classifyText: @escaping @Sendable (String) throws -> TextKind,
+                            completion: @escaping @Sendable (Result<[String], Error>) -> Void) throws -> Operation {
+    let request = try Request(url)
+    guard Data(subscription.utf8).count <= PublishedRelayWebSocketClientFrames.maxTextBytes,
+          String(data: Data(subscription.utf8), encoding: .utf8) == subscription,
+          !addresses.isEmpty else { throw Failure.invalidURL }
+    let operation = Operation(request: request, subscription: subscription,
+                              classifyText: classifyText, completion: completion)
+    operation.proofAddresses = addresses
+    operation.proofAnchorDER = anchorDER
+    operation.start()
+    return operation
+  }
+#endif
+
   final class Operation: @unchecked Sendable {
     private let request: Request
     private let subscription: String
@@ -126,6 +145,10 @@ enum PublishedRelayWebSocketQuery {
     private var total = 0
     private var collector = TextCollector()
     private var ended = false
+#if HYPERGOLIC_NETWORK_PROOF
+    fileprivate var proofAddresses: [PublishedPinnedHTTPS.Address]?
+    fileprivate var proofAnchorDER: Data?
+#endif
 
     fileprivate init(request: Request, subscription: String,
                      classifyText: @escaping @Sendable (String) throws -> TextKind,
@@ -135,6 +158,16 @@ enum PublishedRelayWebSocketQuery {
 
     fileprivate func start() {
       queue.asyncAfter(deadline: .now() + 10) { self.finish(.failure(Failure.timeout)) }
+#if HYPERGOLIC_NETWORK_PROOF
+      if let proofAddresses {
+        queue.async {
+          guard !self.ended else { return }
+          self.addresses = VettedAddressCursor(proofAddresses)
+          self.connectNext()
+        }
+        return
+      }
+#endif
       DispatchQueue.global(qos: .utility).async {
         let result = Result { try PublishedPinnedHTTPS.resolve(self.request.host) }
         self.queue.async {
@@ -167,11 +200,22 @@ enum PublishedRelayWebSocketQuery {
       request.host.withCString { sec_protocol_options_set_tls_server_name(tls.securityProtocolOptions, $0) }
       sec_protocol_options_set_min_tls_protocol_version(tls.securityProtocolOptions, .TLSv12)
       let expectedHost = request.host
+#if HYPERGOLIC_NETWORK_PROOF
+      let proofAnchorDER = proofAnchorDER
+#endif
       sec_protocol_options_set_verify_block(tls.securityProtocolOptions, { _, peerTrust, verify in
         let trust = sec_trust_copy_ref(peerTrust).takeRetainedValue()
         let policy = SecPolicyCreateSSL(true, expectedHost as CFString)
         guard SecTrustSetPolicies(trust, policy) == errSecSuccess,
               SecTrustSetNetworkFetchAllowed(trust, false) == errSecSuccess else { verify(false); return }
+#if HYPERGOLIC_NETWORK_PROOF
+        if let proofAnchorDER {
+          guard let anchor = SecCertificateCreateWithData(nil, proofAnchorDER as CFData),
+                SecTrustSetAnchorCertificates(trust, [anchor] as CFArray) == errSecSuccess,
+                SecTrustSetAnchorCertificatesOnly(trust, true) == errSecSuccess
+          else { verify(false); return }
+        }
+#endif
         verify(SecTrustEvaluateWithError(trust, nil))
       }, queue)
       let parameters = NWParameters(tls: tls, tcp: NWProtocolTCP.Options())

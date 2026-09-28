@@ -81,3 +81,17 @@ Private receipts and inspected captures are indexed under
 `tests/native`. Source remote and push remain owner-only. Next: integrate protected
 identities, scoped persistence, individual approvals, verified loading/updates and
 editable relay settings, then finish native and standalone device acceptance.
+
+## Published iOS host transport checkpoint (2026-09-28)
+
+The actual Swift HTTPS and WSS owners now run against disposable local TLS
+servers through an address/trust seam compiled only with
+`HYPERGOLIC_NETWORK_PROOF`. The ordinary native entry points keep public DNS
+classification, original-hostname TLS verification and platform trust. HTTPS
+passes six host-macOS socket cases; WSS passes eight, including a masked `REQ`,
+`EVENT`/`EOSE`, failed upgrade, oversized frame and cancellation. Existing
+HTTPS contract checks pass 33 cases; the WSS contract runner and arm64 iOS
+Simulator module compile pass. The normal unsigned iOS Simulator Release app
+build passes without the proof flag. These tests do not exercise iOS Simulator
+or physical-iPhone failure paths; controlled on-device negative cases remain
+part of v1 acceptance. See `docs/published-network.md` for commands and scope.

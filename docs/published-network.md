@@ -141,8 +141,14 @@ frame proof is `python3 tests/native/websocket-frames/run.py`. WSS handshake,
 client-frame and native query proofs are in `tests/native/websocket-handshake`,
 `tests/native/websocket-client-frames`, `tests/native/android-published-wss`
 and `tests/native/ios-published-wss`. The Android WSS runner includes loopback
-TLS cases and needs local socket permission and OpenSSL. Exact counts and build evidence
-are recorded in the phase progress note.
+TLS cases and needs local socket permission and OpenSSL. The iOS WSS transport
+proof is `python3 tests/native/ios-published-wss/tls_runner.py`; it runs the
+actual Swift WSS owner against disposable loopback TLS relays with the same
+compile-gated proof seam. Its eight host-macOS cases cover valid masked `REQ`
+and `EVENT`/`EOSE`, pre-request IPv6-to-IPv4 failover, untrusted and wrong-host
+certificates, redirect and bad-upgrade rejection, oversized frames and
+cancellation after upgrade. This does not prove iOS device behavior. Exact
+counts and build evidence are recorded in the phase progress note.
 
 ## Relay integration contract
 

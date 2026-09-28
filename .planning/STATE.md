@@ -565,5 +565,17 @@ IPv6-to-IPv4 failover, untrusted and wrong-host certificates, redirect rejection
 and cancellation during a withheld response. The original HTTPS contract proof
 still passes 33 checks; WSS host proof and arm64 Simulator compile pass. This
 does not prove iOS Simulator or physical-iPhone negative paths. The normal
-unsigned iOS Simulator Release app build passes without the proof flag. Owned QA publication and the
-network-enabled aislop audit remain pending user decisions.
+unsigned iOS Simulator Release app build passes without the proof flag. Owned
+QA publication and the network-enabled aislop audit remain pending user
+decisions.
+
+Controlled iOS WSS host proof (2026-09-28): the Swift relay query now has a
+compile-gated, host-proof-only address and certificate anchor seam; normal
+public queries still resolve, classify and use system TLS trust. Eight
+disposable loopback TLS cases pass the actual socket, upgrade and frame path:
+valid masked `REQ` and `EVENT`/`EOSE`, pre-request IPv6-to-IPv4 failover,
+untrusted and wrong-host certificates, redirect, bad upgrade accept, oversized
+frame and cancellation after upgrade. This is host-macOS evidence, not an
+iOS Simulator or physical-device failure-path pass. The normal unsigned
+iOS Simulator Release app builds without the proof flag. Owned QA publication
+and the network-enabled aislop audit remain pending user decisions.
