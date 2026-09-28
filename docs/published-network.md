@@ -45,8 +45,17 @@ HTTPS and WSS owners try the next address from the same fully vetted DNS answer
 set if a connection fails or waits before it reaches ready. Once ready, an HTTP
 request or WebSocket session cannot fail over, and all attempts share the
 original deadline. Offline owner proofs cover cancellation, timeout and address
-selection; controlled TLS failover and lifecycle acceptance still need native
-runtime evidence.
+selection. A host-JVM loopback TLS proof now drives the actual Android HTTPS
+socket and response path with a disposable certificate. Package-local test
+inputs replace DNS answers and trust only in that proof; the public entry point
+still uses platform DNS and trust. The proof covers a valid named certificate,
+retry from an unavailable vetted IPv6 address to IPv4, an untrusted certificate,
+hostname mismatch, mixed private DNS answers before connect, a redirect and
+cancellation while a response is withheld. The host JDK's default
+`HttpsURLConnection` verifier rejects raw socket sessions, so the proof uses
+an explicit certificate SAN checker for its isolated socket; Android keeps its
+platform verifier. Controlled failures on Android devices, the iOS Network
+framework path and background/restart lifecycle acceptance remain open.
 
 ## Current integration boundary
 
@@ -104,7 +113,8 @@ passed a native update run. None of these fixtures proves physical-device
 identity security or guest signing.
 
 Run the address proof with `python3 tests/native/public-ip-classifier/run.py`.
-The Android HTTPS proof is `python3 tests/native/android-published-https/runner.py`.
+The Android HTTPS proof is `python3 tests/native/android-published-https/runner.py`;
+its loopback TLS cases need local socket permission and OpenSSL.
 The Android Expo owner proof is
 `python3 tests/native/android-published-https-bridge/runner.py`.
 The iOS response and request proof is `python3 tests/native/published-https/run.py`;

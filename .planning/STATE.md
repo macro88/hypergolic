@@ -493,3 +493,20 @@ Eight offline publication/verifier tests pass. No QA blob or event was uploaded
 or published; the disposable QA publisher choice remains pending. React Doctor
 and the earlier local aislop score remain 100/100, but the network-enabled
 full aislop audit still requires approval after automatic review rejected it.
+
+Controlled Android HTTPS host proof (2026-09-28): the normal public entry
+point still uses platform DNS and TLS trust. A package-local test seam lets
+the host JVM run the actual HTTPS socket/response path against an isolated
+loopback TLS server and disposable certificate. The existing transport proof
+passes **69** assertions and the new TLS proof passes **25** checks: valid
+named-certificate response, pre-request IPv6-to-IPv4 failover, untrusted and
+wrong-host certificates, mixed private DNS rejection before connect, redirect
+rejection and cancellation during a withheld response. The JDK's default raw-
+socket hostname verifier always rejects, so only the proof supplies its own
+certificate SAN checker; Android continues to use its platform verifier.
+A fresh Android prebuild and unsigned ARM64 Release build pass (APK SHA-256
+`22d4be7c149765f26ca942102f84ca4d3f4670cc5d01d61147b550cb63d54e93`).
+This is host-JVM network evidence, not a device failure-path pass. iOS
+controlled TLS, lifecycle and physical-iPhone acceptance remain open, as do
+the public QA publisher and network-enabled aislop approvals. Source remote
+and push remain owner-only.

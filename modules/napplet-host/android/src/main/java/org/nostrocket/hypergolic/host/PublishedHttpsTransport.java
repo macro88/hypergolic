@@ -28,6 +28,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SNIHostName;
@@ -63,6 +64,14 @@ public final class PublishedHttpsTransport {
 
   /** Returns verified-by-connection HTTPS bytes only; callers still verify signed event and HTML claims. */
   public static byte[] get(String rawUrl, AddressPolicy policy, Cancellation cancellation) throws IOException {
+    return getWithTransport(rawUrl, policy, cancellation, InetAddress::getAllByName, DNS,
+        defaultSocketFactory(), HttpsURLConnection.getDefaultHostnameVerifier());
+  }
+
+  /** Package-local transport inputs let the host-JVM proof use an isolated TLS endpoint. */
+  static byte[] getWithTransport(String rawUrl, AddressPolicy policy, Cancellation cancellation,
+      HostResolver resolver, ThreadPoolExecutor executor, SSLSocketFactory socketFactory,
+      HostnameVerifier hostnameVerifier) throws IOException {
     URL url = validateRequest(rawUrl, policy);
     if (cancellationRequested(cancellation)) throw new IOException("Request cancelled");
     URI uri;
@@ -71,7 +80,8 @@ public final class PublishedHttpsTransport {
     Deadline deadline = Deadline.afterMillis(TOTAL_TIMEOUT_MS);
     AbortMonitor abort = new AbortMonitor(cancellation, deadline);
     try {
-      SSLSocket socket = openPinnedTls(url.getHost(), url.getPort() < 0 ? 443 : url.getPort(), policy, abort, deadline);
+      SSLSocket socket = openPinnedTls(url.getHost(), url.getPort() < 0 ? 443 : url.getPort(), policy,
+          abort, deadline, resolver, executor, socketFactory, hostnameVerifier);
       try (SSLSocket closeable = socket) {
         closeable.setSoTimeout(deadline.timeoutMs(READ_TIMEOUT_MS));
         sendRequest(closeable.getOutputStream(), uri, url);
@@ -159,10 +169,12 @@ public final class PublishedHttpsTransport {
   }
 
   private static SSLSocket openPinnedTls(String host, int port, AddressPolicy policy, AbortMonitor abort,
-      Deadline deadline) throws IOException {
+      Deadline deadline, HostResolver resolver, ThreadPoolExecutor executor, SSLSocketFactory socketFactory,
+      HostnameVerifier hostnameVerifier)
+      throws IOException {
     abort.check();
     InetAddress[] addresses = checkedAddresses(resolveAddresses(host,
-        abort::isCancelled, deadline, InetAddress::getAllByName, DNS), policy);
+        abort::isCancelled, deadline, resolver, executor), policy);
     abort.check();
     IOException lastFailure = null;
     for (InetAddress address : addresses) {
@@ -171,7 +183,7 @@ public final class PublishedHttpsTransport {
       if (abort != null) abort.setSocket(tcp);
       try {
         tcp.connect(new InetSocketAddress(address, port), deadline.timeoutMs(CONNECT_TIMEOUT_MS));
-        SSLSocket tls = (SSLSocket) defaultSocketFactory().createSocket(tcp, host, port, true);
+        SSLSocket tls = (SSLSocket) socketFactory.createSocket(tcp, host, port, true);
         if (abort != null) abort.setSocket(tls);
         tls.setSoTimeout(deadline.timeoutMs(READ_TIMEOUT_MS));
         SSLParameters parameters = tls.getSSLParameters();
@@ -185,7 +197,7 @@ public final class PublishedHttpsTransport {
         if (secureProtocols.isEmpty()) throw new IOException("TLS 1.2 or newer is required");
         tls.setEnabledProtocols(secureProtocols.toArray(new String[0]));
         tls.startHandshake();
-        if (!HttpsURLConnection.getDefaultHostnameVerifier().verify(host, tls.getSession())) {
+        if (!hostnameVerifier.verify(host, tls.getSession())) {
           tls.close();
           throw new IOException("HTTPS certificate hostname mismatch");
         }
