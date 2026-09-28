@@ -168,6 +168,31 @@ See [Apple's account overview](https://developer.apple.com/help/account/basics/a
 [Simulator setup](https://docs.expo.dev/workflow/ios-simulator/) and
 [EAS internal distribution](https://docs.expo.dev/build/internal-distribution/).
 
+## iPhoneOS Release compile checkpoint
+
+On 28 September 2026 the normal production entry compiled as an unsigned
+`Release-iphoneos` app for a generic iPhone, using the current workspace and
+`CODE_SIGNING_ALLOWED=NO`:
+
+```sh
+source .tools/use-local-tools.sh
+source .tools/use-ios-tools.sh
+xcodebuild -workspace ios/Hypergolic.xcworkspace -scheme Hypergolic \
+  -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+  -derivedDataPath /tmp/hypergolic-ios-device-build CODE_SIGNING_ALLOWED=NO build
+```
+
+The app reports `iphoneos`, arm64, minimum iOS 18.4 and bundle ID
+`org.nostrocket.hypergolic.dev`. Its embedded `main.jsbundle` SHA-256 is
+`28bd07d03c86b248821fac0ba86a83b9e8386f74dbfc5312d9b616d64b2b5925`;
+its packaged trusted `host.js` matches the expected
+`2098a63671ce05a3f6c5dbdeaa4fe9f55e40eb078b8af0431b500c7554eb5281`.
+The Info.plist includes the Face ID backup/deletion usage text. This app has no
+code signature or embedded provisioning profile and cannot be installed on an
+iPhone. Only simulated iPhones were connected at this checkpoint; signed-device
+packaging, protected storage, system authentication and the full native journey
+remain open.
+
 ## Dependency policy
 
 The root and tools/quality directories each have an independent pnpm workspace and

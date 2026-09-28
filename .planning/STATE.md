@@ -378,3 +378,14 @@ The temporary generated Gradle package edit was restored byte-identically.
 Current TypeScript, React Doctor numeric 100/100 and aislop 100/100 pass; Expo
 Doctor remains 20/21 on the same six patch expectations. This is not
 physical-device security acceptance.
+
+Production iPhoneOS compile checkpoint (2026-09-28): the normal Release-iphoneos
+entry built successfully for generic iPhone with `CODE_SIGNING_ALLOWED=NO`.
+The artifact is arm64 iOS (not Simulator), minimum iOS 18.4 and bundle ID
+`org.nostrocket.hypergolic.dev`. It includes a 4,602,445-byte JavaScript bundle
+SHA-256 `28bd07d03c86b248821fac0ba86a83b9e8386f74dbfc5312d9b616d64b2b5925`
+and the verified trusted host SHA-256
+`2098a63671ce05a3f6c5dbdeaa4fe9f55e40eb078b8af0431b500c7554eb5281`.
+No code signature or provisioning profile exists, and `devicectl` listed only
+simulated iPhones. Device installation and protected identity/signing/backup
+journeys remain open; compilation alone does not close them.
