@@ -5,7 +5,7 @@ import { finalizeEvent } from 'nostr-tools/pure';
 import { createHash } from 'node:crypto';
 import { EMBEDDED_TEST_COORDINATE, EMBEDDED_TEST_EVENT, EMBEDDED_TEST_PUBLISHER,
   getEmbeddedTestHtmlBytes } from '../../src/napplets/embedded-test-fixture.ts';
-import { createPublishedSessionCoordinator, type PublishedSessionDependencies } from '../../src/napplets/published-session.ts';
+import { createPublishedSessionCoordinator, UnsupportedNappletCapabilitiesError, type PublishedSessionDependencies } from '../../src/napplets/published-session.ts';
 import type { NativePublishedTransferPort } from '../../src/napplets/native-transfer.ts';
 import { setup } from '../storage/harness.ts';
 import { createRuntimeOwner } from '../../src/runtime/runtime-owner.ts';
@@ -78,6 +78,30 @@ test('first open verifies, reviews, caches and stages; pinned restart uses cache
   reopened.revoke();
   epoch++;
   assert.throws(() => reopened.assertActive());
+});
+
+test('unsupported required capabilities fail before consent or native registration', async t => {
+  const { database, sqlite } = await setup(t);
+  const html = getEmbeddedTestHtmlBytes();
+  const appId = 'unsupported-capabilities';
+  const event = signedFixture(1_800_000_003, appId, html, ['webrtc', 'cvm'], new Uint8Array(32).fill(8));
+  const calls: string[] = [];
+  const service = createPublishedSessionCoordinator({
+    database, sqlite, native: native(calls), newInstanceId: () => SESSION,
+    identity: { sessionAuthority: () => ({ user: USER, epoch: 1, assertActive: () => undefined }),
+      getSnapshot: () => ({ session: { epoch: 1 } }) } as PublishedSessionDependencies['identity'],
+    lookupRelays: () => ['wss://relay.example.org'],
+    source: { query: async () => [event], readHtml: async () => new Uint8Array(html) },
+  });
+  const link = naddrEncode({ kind: 35129, pubkey: event.pubkey, identifier: appId });
+  await assert.rejects(service.openLink(link, new AbortController().signal, async () => {
+    assert.fail('unsupported access must not be offered for consent');
+  }), error => {
+    assert(error instanceof UnsupportedNappletCapabilitiesError);
+    assert.deepEqual(error.domains, ['cvm', 'webrtc']);
+    return true;
+  });
+  assert.deepEqual(calls, []);
 });
 
 test('denial and identity change during review never register a native published session', async t => {
@@ -286,5 +310,12 @@ test('changed update access needs a second review before any new native session'
   assert(accepted);
   assert.equal(accepted.descriptor.eventId, changed.id);
   assert.equal(calls.filter(call => call.startsWith('register:')).length, 2);
+  latest = signedFixture(1_800_000_022, appId, html, ['relay', 'theme', 'cvm'], key);
+  const registrations = calls.filter(call => call.startsWith('register:')).length;
+  await assert.rejects(service.prepareUpdate(accepted.descriptor, new AbortController().signal,
+    async () => { assert.fail('unsupported update must not reach review'); },
+    async () => { assert.fail('unsupported access must not reach consent'); }),
+  { code: 'UNSUPPORTED_NAPPLET_CAPABILITIES', domains: ['cvm'] });
+  assert.equal(calls.filter(call => call.startsWith('register:')).length, registrations);
   opened.revoke(); accepted.revoke();
 });

@@ -2,6 +2,7 @@ import { identifier, publicKey, revision, text, utf8Bytes } from '../storage/cod
 import { LIMITS, type Scope } from '../storage/ports.ts';
 
 export const CAPABILITY_LIMITS = Object.freeze({ messageBytes: 2 * 1024 * 1024, sessionRequests: 1024 });
+export const SUPPORTED_CAPABILITY_DOMAINS = Object.freeze(['identity', 'storage', 'theme', 'relay']);
 export const IDENTITY_OPERATIONS = ['identity.getPublicKey', 'identity.getRelays', 'identity.getProfile',
   'identity.getFollows', 'identity.getMutes', 'identity.getBlocked', 'identity.getList',
   'identity.getZaps', 'identity.getBadges'] as const;
@@ -37,7 +38,7 @@ export function decodeNativeRegistration(value: unknown): NativeRegistration {
   const data = record(value);
   fields(data, ['sessionId', 'generation', 'epoch', 'user', 'publisher', 'appId', 'version', 'instanceId', 'fixture', 'domains']);
   if (!Array.isArray(data.domains) || data.domains.length > 4 ||
-      data.domains.some(domain => !['identity', 'storage', 'theme', 'relay'].includes(domain)) || new Set(data.domains).size !== data.domains.length) return invalid();
+      data.domains.some(domain => !SUPPORTED_CAPABILITY_DOMAINS.includes(domain)) || new Set(data.domains).size !== data.domains.length) return invalid();
   return Object.freeze({ sessionId: identifier(data.sessionId), generation: identifier(data.generation),
     epoch: revision(data.epoch), user: publicKey(data.user), publisher: publicKey(data.publisher),
     appId: text(data.appId, 1024), version: publicKey(data.version), instanceId: identifier(data.instanceId),

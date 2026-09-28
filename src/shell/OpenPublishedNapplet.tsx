@@ -2,13 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { SettingsActions } from './Shell';
 import type { NappletConsentReview } from '../napplets/first-open-consent';
+import { resolveNappletLink } from '../napplets/resolve-link';
+import { UnsupportedNappletCapabilitiesError } from '../napplets/published-session';
 import { colors } from './theme';
 
 /** A trusted settings surface for one explicit naddr open, never rendered inside guest content. */
 export function OpenPublishedNapplet({ open }: { open: SettingsActions['openPublished'] }) {
   const [link, setLink] = useState('');
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
   const [review, setReview] = useState<NappletConsentReview | null>(null);
   const pending = useRef<AbortController | null>(null);
   const decision = useRef<((accepted: boolean) => void) | null>(null);
@@ -20,17 +22,21 @@ export function OpenPublishedNapplet({ open }: { open: SettingsActions['openPubl
   };
   const start = () => {
     if (busy || pending.current || !link.trim()) return;
+    try { resolveNappletLink(link.trim()); }
+    catch { setError('Paste a napplet address starting with naddr1, not a web page URL.'); return; }
     Keyboard.dismiss();
     const controller = new AbortController();
     pending.current = controller;
     setBusy(true);
-    setError(false);
+    setError('');
     void open(link.trim(), controller.signal, request => new Promise<boolean>(resolve => {
       if (controller.signal.aborted) { resolve(false); return; }
       decision.current = resolve;
       setReview(request);
-    })).catch(() => {
-      if (!controller.signal.aborted) setError(true);
+    })).catch(error => {
+      if (!controller.signal.aborted) setError(error instanceof UnsupportedNappletCapabilitiesError
+        ? `This napplet requires capabilities Hypergolic does not yet support: ${error.domains.join(', ')}.`
+        : 'The napplet could not be verified or opened. Check your Lookup relays and connection, then try again.');
     }).finally(() => {
       if (pending.current === controller) pending.current = null;
       if (!controller.signal.aborted) setBusy(false);
@@ -48,10 +54,11 @@ export function OpenPublishedNapplet({ open }: { open: SettingsActions['openPubl
   return <View style={styles.group}>
     <Text accessibilityRole="header" style={styles.title}>Open a napplet</Text>
     <Text style={styles.detail}>Paste a napplet naddr. Hypergolic will verify its signed version and show the publisher and requested access before the first open.</Text>
-    <TextInput testID="settings-napplet-address" accessibilityLabel="Napplet naddr" value={link} onChangeText={value => { setLink(value); setError(false); }}
+    <TextInput testID="settings-napplet-address" accessibilityLabel="Napplet naddr" value={link} onChangeText={value => { setLink(value); setError(''); }}
       autoCapitalize="none" autoCorrect={false} maxLength={8192} editable={!busy} placeholder="naddr1…" placeholderTextColor={colors.muted}
       style={styles.input} returnKeyType="done" onSubmitEditing={start} />
-    {error && <Text testID="settings-napplet-error" accessibilityLiveRegion="polite" style={styles.detail}>The napplet could not be verified or opened. Check its address and relay availability, then try again.</Text>}
+    {error !== '' && <Text testID="settings-napplet-error" accessibilityLiveRegion="polite" style={styles.error}>{error}</Text>}
+    {busy && !review && <Text testID="settings-napplet-loading" accessibilityLiveRegion="polite" style={styles.detail}>Finding and verifying the signed napplet…</Text>}
     <Pressable accessibilityRole="button" testID="settings-open-napplet" disabled={busy || !link.trim()} accessibilityState={{ disabled: busy || !link.trim() }} onPress={start} style={styles.action}>
       {busy ? <ActivityIndicator color={colors.background} /> : <Text style={styles.actionText}>Verify and open</Text>}
     </Pressable>
@@ -61,6 +68,7 @@ export function OpenPublishedNapplet({ open }: { open: SettingsActions['openPubl
 const styles = StyleSheet.create({
   group: { gap: 12 }, title: { color: colors.text, fontSize: 20, fontWeight: '600' },
   detail: { color: colors.muted, fontSize: 15, lineHeight: 22 },
+  error: { color: colors.accent, fontSize: 15, lineHeight: 22 },
   input: { color: colors.text, borderWidth: 1, borderColor: colors.border, borderRadius: 14, minHeight: 56, padding: 16, fontSize: 16 },
   action: { padding: 18, minHeight: 56, borderRadius: 16, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
   actionText: { color: colors.background, fontSize: 16, fontWeight: '600' },

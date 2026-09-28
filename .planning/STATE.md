@@ -655,3 +655,19 @@ full npub matched the pre-upgrade receipt. All four new screenshots were
 inspected; build manifest, source/harness seals and captures are in the
 private Notes checkpoint. WebView 58 still refuses guest execution and
 backup/deletion authentication remains unavailable below API 30.
+
+
+External napplet open diagnosis (2026-09-28): the supplied public kind-35129
+`naddr` decodes to a valid coordinate, but its TLV field ordering differs from
+`nostr-tools` re-encoding. The app rejected it before network lookup, causing an
+instant, poorly signalled failure. NIP-19 revision `0046368` defines TLV types
+without an ordering requirement; the parser now accepts the link and the exact
+address has a regression test. Public lookup found the signed event on both
+`nos.lol` (a configured default) and `nostr.mom`; the manifest verifies, but its
+`requires` tags name `cvm` and `webrtc`, outside this native host's four supported
+domains. The session coordinator now refuses unsupported domains before consent
+or native registration, and Settings reports them explicitly. The UI also keeps
+visible loading text and distinguishes malformed input from retrieval failure.
+This fixes the silent failure and identifies the compatibility limit; it does
+not make the external napplet executable. No signing or broader capability
+support was added. Physical Android/iOS verification of the new UI remains open.

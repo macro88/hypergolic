@@ -1,4 +1,4 @@
-import { decode, naddrEncode } from 'nostr-tools/nip19';
+import { decode } from 'nostr-tools/nip19';
 
 export type NappletCoordinate = Readonly<{
   kind: 35129;
@@ -29,7 +29,7 @@ function validPublicWssRelay(value: string): boolean {
   return host.split('.').every(label => DNS_LABEL.test(label));
 }
 
-/** Accepts only the two selected textual forms, with canonical lowercase NIP-19 encoding. */
+/** Accepts lowercase NIP-19 coordinates regardless of valid TLV field ordering. */
 export function resolveNappletLink(input: unknown): NappletCoordinate {
   if (typeof input !== 'string' || input.length > MAX_LINK_CHARS) return fail();
   const encoded = input.startsWith('nostr:') ? input.slice(6) : input;
@@ -41,8 +41,7 @@ export function resolveNappletLink(input: unknown): NappletCoordinate {
     if (kind !== 35129 || !HEX64.test(pubkey) || typeof identifier !== 'string' || !identifier ||
         identifier.trim() !== identifier || /[\u0000-\u001f\u007f]/.test(identifier) ||
         new TextEncoder().encode(identifier).byteLength > MAX_IDENTIFIER_BYTES ||
-        !Array.isArray(relays) || !relays.every(relay => typeof relay === 'string' && validPublicWssRelay(relay)) ||
-        naddrEncode({ kind, pubkey, identifier, relays }) !== encoded) return fail();
+        !Array.isArray(relays) || !relays.every(relay => typeof relay === 'string' && validPublicWssRelay(relay))) return fail();
     return Object.freeze({ kind: 35129, pubkey, identifier, relayHints: Object.freeze([...relays]) });
   } catch { return fail(); }
 }

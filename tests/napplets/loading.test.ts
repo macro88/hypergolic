@@ -31,7 +31,7 @@ const LINK = naddrEncode({ kind: 35129, pubkey: PUBKEY, identifier: 'hello', rel
 const coordinate = () => resolveNappletLink(`nostr:${LINK}`);
 const rejects = async (operation: () => unknown | Promise<unknown>) => assert.rejects(operation, NappletVerificationError);
 
-test('resolves canonical lowercase naddr and nostr:naddr with validated non-authoritative hints', () => {
+test('resolves lowercase naddr and nostr:naddr with validated non-authoritative hints', () => {
   assert.deepEqual(resolveNappletLink(LINK), {
     kind: 35129, pubkey: PUBKEY, identifier: 'hello', relayHints: ['wss://relay.example.org'],
   });
@@ -39,7 +39,17 @@ test('resolves canonical lowercase naddr and nostr:naddr with validated non-auth
   assert.equal(Object.isFrozen(resolveNappletLink(LINK).relayHints), true);
 });
 
-test('rejects wrong-kind, malformed, noncanonical and non-public relay coordinates', () => {
+test('accepts valid naddr TLV ordering from a published external napplet', () => {
+  const link = 'naddr1qqxkutf4xfnrjefjxfnr2cm9qyg8wumn8ghj7mn0wd68ytnddakj7q3q82jczunncwe0jn6frpqwq3e0qjws7yqqnc3auccqv9nte2dnd63sxpqqqzynjnnn6hl';
+  assert.deepEqual(resolveNappletLink(link), {
+    kind: 35129,
+    pubkey: '3aa5817273c3b2f94f491840e0472f049d0f10009e23de63006166bca9b36ea3',
+    identifier: 'n-52f9e22f5ce',
+    relayHints: ['wss://nostr.mom/'],
+  });
+});
+
+test('rejects wrong-kind, malformed and non-public relay coordinates', () => {
   for (const input of [
     '', `nostr:${LINK.toUpperCase()}`,
     'naddr1' + 'q'.repeat(8192),

@@ -38,6 +38,14 @@ The Settings QA path opens one locally embedded signed published view on both
 native hosts. Ordinary workspace entry now resolves a pasted `naddr` through the
 configured Lookup relays and native HTTPS transport, verifies the signed event
 and HTML, requests first-open consent, pins the exact event and saves its grant.
+The NIP-19 decoder accepts valid `naddr` TLV field orderings; re-encoding an
+address must not be used as a byte-for-byte admission rule. Unsupported
+`requires` domains are identified before consent, and Settings names them to
+the user rather than offering access the native host cannot supply. The current
+host supports `identity`, `storage`, `theme` and `relay`; a verified napplet that
+requires `cvm` or `webrtc` remains incompatible. This follows
+[NIP-19 at revision 0046368](https://github.com/nostr-protocol/nips/blob/0046368a747c5c25ae2bec28bae0e537744c8f10/19.md),
+which defines address TLV fields and does not prescribe their ordering.
 Settings can check for a newer signed event; a separate explicit update review
 keeps the old session until acceptance, and changed access requires another
 consent review. The process-owned coordinator stages accepted bytes through the
