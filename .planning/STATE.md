@@ -542,3 +542,17 @@ denial under the theme-only manifest. This current iOS pass coexists with the
 failed receipts and does not prove stable third-party relay availability, a
 live update or protected physical-iPhone identity. The owned QA publication
 still awaits publisher selection; source remote/push remains owner-only.
+
+Current-source Android public fixture rerun (2026-09-28): the separate,
+debug-key-signed ARM64 APK SHA-256 is
+`89cc258b797204e52cb430764c4cda568ad1a757b9dc3c1b7355f89dd42772ac`;
+the generated Gradle fixture edit was restored exactly. On API 29/WebView 91,
+the first clean native run found no pinned third-party signed event. The
+second passed **3/3** native relay/HTTPS, exact publisher/event/theme review
+and connected guest checks. A separate force-stop and cold launch restored
+the file-browser and connected runtime; the native hierarchy and screenshot
+show its expected theme-only filesystem denial. The Android driver now stops
+on a Settings error with the fixture's bounded source stage. The flaky
+third-party relay result remains an external test dependency. This does not
+close live updates, physical-device identity security or the network-enabled
+aislop approval. Source remote/push remains owner-only.

@@ -117,8 +117,13 @@ class LivePublishedDriver(base.Driver):
         self.adb_run('shell', 'input', 'keyevent', '4')
         self.scroll_until(lambda n: has_id(n, 'settings-open-napplet'), 'Verify and open action')
         self.tap_id('settings-open-napplet', 'Verify and open public napplet')
-        _, nodes = self.wait(lambda ns: any(has_id(n, 'settings-napplet-review') for n in ns),
-                             'exact first-open publisher and access review', timeout=150)
+        _, nodes = self.wait(lambda ns: any(has_id(n, 'settings-napplet-review') or
+                                            has_id(n, 'settings-napplet-error') for n in ns),
+                             'first-open review or explicit Settings error', timeout=150)
+        if any(has_id(n, 'settings-napplet-error') for n in nodes):
+            diagnostic = next((label(n) for n in nodes if has_id(n, 'live-fixture-open-diagnostic')),
+                              'source stage unavailable')
+            raise CheckFailed('Published Settings open failed before review: ' + diagnostic[:240])
         approve = self.verify_review(nodes)
         self.check('first-open-review-exact', {'publisher': PUBLISHER, 'event': EVENT,
                    'app': APP_ID, 'requestedAccess': 'theme', 'explicitApprovalRequired': True})

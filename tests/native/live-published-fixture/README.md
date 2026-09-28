@@ -119,3 +119,19 @@ showed the file-browser UI and its expected `Filesystem unavailable` message;
 the manifest grants `theme` only. Both failed receipts are retained alongside
 the pass. This intermittent external candidate still cannot substitute for a
 controlled live-update release or physical-device acceptance.
+
+### Current-source Android API 29 rerun — 28 September 2026
+
+The rebuilt, debug-key-signed public-only ARM64 fixture APK SHA-256 is
+`89cc258b797204e52cb430764c4cda568ad1a757b9dc3c1b7355f89dd42772ac`.
+Its generated Gradle package/entry edit was restored byte-identically. On
+Android API 29 with WebView 91, the first clean run did not find the pinned
+signed event in the relay result. The second clean run passed all three checks:
+exact 56,974-byte native relay/HTTPS artifact, publisher/event/`theme`
+first-open review, and visibly connected guest. The Android driver now stops
+on an explicit Settings error and reports the QA-only source stage. A separate
+force-stop and cold launch restored `file-browser` and `Runtime connected` in
+the native accessibility hierarchy; the screenshot shows the guest UI and
+expected filesystem denial. The failed and passing receipts remain distinct.
+This is current Android first-open and restoration evidence, not a live
+published update or functional filesystem proof.
