@@ -465,3 +465,22 @@ Six offline JavaScript live-publication tests and two Python driver tests pass;
 no new public event was published. Controlled TLS runtime failover, public
 live-update publication, physical-iPhone protected journeys and the full
 quality-audit approval remain open. Source remote/push remains owner-only.
+
+Public-source regression rerun (2026-09-28): a freshly built, isolated
+Android API 29/WebView 91 live-published fixture first reached manifest
+verification without finding the pinned third-party event. After a clean
+fixture reset, its signed Release APK (SHA-256
+`a03b2d26f4e6dde7c34764b560526c37a10e5f8700923beffa6588c70f504461`)
+passed all three native relay/HTTPS, exact consent and connected guest checks.
+Review and connected screenshots were visually inspected. The test napplet now
+shows bounded probe error detail and the driver stops on observed failure.
+The iOS 26.5 Simulator fixture Release build passes (JS bundle SHA-256
+`9e5248d08ffe658af37e910723bca3ee2d088addc78a67d1bfec71071ce6c5b5`),
+and a new source-bound XCTest scenario is wired with an exact fixture-only
+bundle and receipt gate (17 Python driver tests pass). Two public-source iOS
+attempts did not pass: one verified the native artifact but ordinary Settings
+open returned an error before review; the next found no pinned event during
+native probe. Both failed receipts are retained for diagnosis. This is not a
+both-platform live first-open regression pass and cannot replace the pending
+owned QA release or physical-iPhone acceptance. React Doctor remains 100/100;
+source remote/push remains owner-only.

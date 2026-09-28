@@ -165,6 +165,25 @@ class LauncherTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             driver.validate_report(report, "abcdef012345", bundle, "changed-access")
 
+    def test_live_published_is_bound_to_public_fixture_and_exact_receipt(self):
+        with tempfile.TemporaryDirectory() as temporary, patch.object(driver.subprocess, "run") as command:
+            output = Path(temporary) / "evidence"
+            with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+                driver.main(["--udid", "00000000-0000-4000-8000-000000000001", "live-published",
+                             "--bundle-id", "org.nostrocket.hypergolic.dev", "--output", str(output)])
+            self.assertEqual(error.exception.code, 2)
+            command.assert_not_called()
+            self.assertFalse(output.exists())
+        bundle = "org.nostrocket.hypergolic.livepublishedfixture"
+        report = {"kind": "hypergolic-ios-live-published-v1", "scenario": "live-published", "completed": True,
+                  "allChecksPassed": True, "checks": [{"name": name, "passed": True}
+                                                    for name in driver.SCENARIOS["live-published"]["checks"]],
+                  "observations": {"nonce": "abcdef012345", "bundleIdentifier": bundle}}
+        driver.validate_report(report, "abcdef012345", bundle, "live-published")
+        report["checks"].pop()
+        with self.assertRaises(RuntimeError):
+            driver.validate_report(report, "abcdef012345", bundle, "live-published")
+
     def test_source_manifest_includes_changed_access_signed_fixture(self):
         with tempfile.TemporaryDirectory() as temporary:
             repo = Path(temporary)

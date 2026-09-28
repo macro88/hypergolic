@@ -65,3 +65,39 @@ Release app likewise retained its public npub across restart and refused the
 bundled guest. This is a safe compatibility limit, not an API 26 guest pass.
 The final trusted host was rebuilt on iOS 26.5 Simulator and again passed the
 source probe and three first-open checks.
+
+### Bounded rerun and iOS scenario — 28 September 2026
+
+The public-only fixture now shows a bounded native probe error detail, and the
+Android driver stops promptly on an observed probe failure instead of waiting
+for a success-only timeout. A fresh API 29/WebView 91 Release fixture initially
+reached manifest verification without finding its pinned signed event. A clean
+rerun then passed all three native checks: 56,974 verified HTML bytes, exact
+publisher/event/theme consent, and `Runtime connected`. The passing signed
+fixture APK SHA-256 is
+`a03b2d26f4e6dde7c34764b560526c37a10e5f8700923beffa6588c70f504461`.
+Both failed and passing receipts are retained in the private project checkpoint;
+the initial failure is not counted as a pass.
+
+The iOS Simulator fixture builds with the same diagnostic and now has a
+source-bound `live-published` XCTest scenario. Run it only against the separate
+public-only bundle on an explicitly named booted Simulator:
+
+```sh
+python3 -B tests/native/ios-driver.py --udid EXPLICIT_SIMULATOR_UUID \
+  --bundle-id org.nostrocket.hypergolic.livepublishedfixture \
+  --repo "$PWD" --expected-title Hypergolic \
+  --output /private/tmp/hypergolic-ios-live-published-UNIQUE \
+  --timeout 60 live-published
+```
+
+The 28 September iPhone 17 Pro/iOS 26.5 Simulator rerun did **not** pass the
+full journey. One attempt verified the exact native relay/HTTPS artifact and
+then Settings returned its generic verification error before the first-open
+review. A clean second attempt reported that the pinned signed event was absent
+from the relay result during the probe. The fixture's public third-party event
+is therefore an intermittent test dependency. These attempts do not establish
+an iOS transport regression or an iOS end-to-end pass on the changed source.
+The separately prepared disposable two-revision QA publisher remains the
+preferred way to make the live update journey repeatable, pending the publisher
+choice before public upload and publication.

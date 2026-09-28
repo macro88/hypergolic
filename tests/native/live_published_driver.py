@@ -94,8 +94,14 @@ class LivePublishedDriver(base.Driver):
             raise CheckFailed('Fixture naddr differs from the pinned public candidate')
         self.capture('01-live-fixture')
         self.tap_id('live-fixture-probe', 'Probe native source')
-        _, nodes = self.wait(lambda ns: any(label(n) == PROBE_RESULT for n in ns),
-                             'exact native relay and HTTPS verification result', timeout=150)
+        _, nodes = self.wait(lambda ns: any(
+            has_id(n, 'live-fixture-probe-result') and
+            (label(n) == PROBE_RESULT or ' failed:' in label(n)) for n in ns),
+            'native relay and HTTPS probe outcome', timeout=150)
+        outcome = label(exactly_one(nodes, lambda n: has_id(n, 'live-fixture-probe-result'),
+                                    'native source probe result'))
+        if outcome != PROBE_RESULT:
+            raise CheckFailed('Native source probe reported ' + outcome)
         self.check('native-relay-https-artifact', PROBE_RESULT)
         self.capture('02-probe-verified')
 

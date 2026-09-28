@@ -121,7 +121,8 @@ function LivePublishedFixture() {
       setProbe(`Native relay and HTTPS artifact verified (${bytes.length} bytes)`);
     } catch (error) {
       const cause = error instanceof Error && error.cause instanceof Error ? ` / ${error.cause.name}` : '';
-      setProbe(`${stage} failed: ${error instanceof Error ? error.name : 'unknown error'}${cause}`);
+      const detail = error instanceof Error ? error.message.replace(/\s+/g, ' ').slice(0, 160) : '';
+      setProbe(`${stage} failed: ${error instanceof Error ? error.name : 'unknown error'}${detail ? `: ${detail}` : ''}${cause}`);
     } finally {
       controller.abort();
       setProbing(false);

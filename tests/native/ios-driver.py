@@ -33,6 +33,7 @@ SCENARIOS = {
     "gestures": {"checks": {"vertical-content-scroll", "horizontal-content-scroll", "marker-selection", "scroll-and-selection-retained"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testGestures"},
     "approval-review": {"checks": {"exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"}, "kind": "hypergolic-ios-workspace-v1", "test": "WorkspaceTests/testApprovalReview"},
     "published-host": {"checks": {"review-exact-signed-fixture", "native-host-connected", "close-returns-to-fixture"}, "kind": "hypergolic-ios-published-host-v1", "test": "WorkspaceTests/testPublishedHost"},
+    "live-published": {"checks": {"live-native-relay-https", "live-first-open-exact-review", "live-guest-connected"}, "kind": "hypergolic-ios-live-published-v1", "test": "WorkspaceTests/testLivePublished"},
     "published-update": {"checks": {"public-fixture-and-runtime", "first-open-exact-review", "update-cancel-retains-old", "update-accept-replaces-host", "cold-restart-retains-v2", "rollback-rejected-after-restart", "background-revokes-and-retry-v2"}, "kind": "hypergolic-ios-published-update-v1", "test": "WorkspaceTests/testPublishedUpdate"},
     "live-update-v1": {"checks": {"live-public-fixture", "live-first-open-exact-review", "live-v1-connected"}, "kind": "hypergolic-ios-live-update-v1", "test": "WorkspaceTests/testLiveUpdateV1"},
     "live-update-v2": {"checks": {"live-v1-before-update", "live-update-exact-review", "live-decline-retains-v1", "live-accept-renders-v2", "live-cold-restart-retains-v2"}, "kind": "hypergolic-ios-live-update-v1", "test": "WorkspaceTests/testLiveUpdateV2"},
@@ -148,13 +149,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--expected-title", default="UX Lab 1")
     parser.add_argument("--expected-session", default="ux-lab-1")
     parser.add_argument("--timeout", type=float, default=30)
-    parser.add_argument("scenario", choices=["identity-delete-unavailable", "state-close", "state-storage", "identity-switch", "workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "approval-review", "published-host", "published-update", "live-update-v1", "live-update-v2", "changed-access", "identity", "host-boundary", "renderer-loss"])
+    parser.add_argument("scenario", choices=["identity-delete-unavailable", "state-close", "state-storage", "identity-switch", "workspace-restart", "card-cancel", "trace-host", "switch-state", "gestures", "closing", "approval-review", "published-host", "live-published", "published-update", "live-update-v1", "live-update-v2", "changed-access", "identity", "host-boundary", "renderer-loss"])
     parser.add_argument("--output", type=Path, required=True, help="New private evidence directory, never overwritten")
     args = parser.parse_args(argv)
     if args.scenario not in SCENARIOS:
         parser.error(f"{args.scenario} is not implemented for iOS; no build or device action was attempted")
     if args.scenario == "published-host" and args.bundle_id != "org.nostrocket.hypergolic.publishedhostfixture":
         parser.error("published-host requires the isolated direct published-host fixture bundle")
+    if args.scenario == "live-published" and args.bundle_id != "org.nostrocket.hypergolic.livepublishedfixture":
+        parser.error("live-published requires the isolated public-only live fixture bundle")
     if args.scenario == "published-update" and args.bundle_id != "org.nostrocket.hypergolic.publishedupdatefixture":
         parser.error("published-update requires the isolated public-only published-update fixture bundle")
     if args.scenario == "changed-access" and args.bundle_id != "org.nostrocket.hypergolic.publishedupdatefixture":

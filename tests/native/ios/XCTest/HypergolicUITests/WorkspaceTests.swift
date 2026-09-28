@@ -24,6 +24,7 @@ final class WorkspaceTests: XCTestCase {
     "gestures": ["vertical-content-scroll", "horizontal-content-scroll", "marker-selection", "scroll-and-selection-retained"],
     "approval-review": ["exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"],
     "published-host": ["review-exact-signed-fixture", "native-host-connected", "close-returns-to-fixture"],
+    "live-published": ["live-native-relay-https", "live-first-open-exact-review", "live-guest-connected"],
     "published-update": ["public-fixture-and-runtime", "first-open-exact-review", "update-cancel-retains-old", "update-accept-replaces-host", "cold-restart-retains-v2", "rollback-rejected-after-restart", "background-revokes-and-retry-v2"],
     "live-update-v1": ["live-public-fixture", "live-first-open-exact-review", "live-v1-connected"],
     "live-update-v2": ["live-v1-before-update", "live-update-exact-review", "live-decline-retains-v1", "live-accept-renders-v2", "live-cold-restart-retains-v2"],
@@ -46,8 +47,16 @@ final class WorkspaceTests: XCTestCase {
     if app != nil { capture("final") }
     let names = Set(checks.compactMap { $0["name"] as? String })
     let allPassed = complete && names == expected[scenario] && checks.count == expected[scenario]?.count && checks.allSatisfy { $0["passed"] as? Bool == true }
+    let kind: String
+    switch scenario {
+    case "published-host": kind = "hypergolic-ios-published-host-v1"
+    case "live-published": kind = "hypergolic-ios-live-published-v1"
+    case "published-update": kind = "hypergolic-ios-published-update-v1"
+    case "changed-access": kind = "hypergolic-ios-changed-access-v1"
+    default: kind = scenario.hasPrefix("live-update-") ? "hypergolic-ios-live-update-v1" : "hypergolic-ios-workspace-v1"
+    }
     attach([
-      "kind": scenario == "published-host" ? "hypergolic-ios-published-host-v1" : scenario == "published-update" ? "hypergolic-ios-published-update-v1" : scenario.hasPrefix("live-update-") ? "hypergolic-ios-live-update-v1" : scenario == "changed-access" ? "hypergolic-ios-changed-access-v1" : "hypergolic-ios-workspace-v1", "scenario": scenario, "completed": complete,
+      "kind": kind, "scenario": scenario, "completed": complete,
       "allChecksPassed": allPassed, "checks": checks, "observations": observations, "gestures": gestures,
       "proofScope": "Public native XCTest gestures and accessibility. Temporary fixture values/scroll positions only; native generation identity and transition frame pacing are not directly observed."
     ], "workspace-report")
@@ -362,6 +371,59 @@ final class WorkspaceTests: XCTestCase {
     }
     record("close-returns-to-fixture", true, ["title": "Signed host QA fixture", "selectedIdentityAssumed": false])
     capture("published-host-fixture-returned")
+    complete = true
+  }
+
+  func testLivePublished() throws {
+    guard ProcessInfo.processInfo.environment["HG_TARGET_BUNDLE_ID"] == "org.nostrocket.hypergolic.livepublishedfixture" else {
+      throw Failure.invalid("Requires isolated public-only live fixture")
+    }
+    let naddr = "naddr1qvzqqqyf8ypzqfngzhsvjggdlgeycm96x4emzjlwf8dyyzdfg4hefp89zpkdgz99qqxxv6tvv5kkyun0waek2us8fz2v6"
+    let publisher = "266815e0c9210dfa324c6cba3573b14bee49da4209a9456f9484e5106cd408a5"
+    let event = "a3c01be3f0d75cd8ff758c78f71ab9446487f01b791f53ac141fce15d1214d0d"
+    let verified = "Native relay and HTTPS artifact verified (56974 bytes)"
+    let banner = try one(app.staticTexts.matching(identifier: "live-fixture-label"), "public-only live fixture", visible: false)
+    let address = try one(app.staticTexts.matching(identifier: "live-fixture-address"), "public signed coordinate", visible: false)
+    guard banner.label == "Live published QA · public identity · signing unavailable", address.label == naddr,
+          currentTitle() == "Hypergolic", (try selectedIdentity()).hasPrefix("npub1") else {
+      throw Failure.invalid("Live fixture did not begin with the exact public identity and coordinate")
+    }
+    capture("live-published-start")
+    try identityPress("live-fixture-probe")
+    let probe = app.staticTexts.matching(identifier: "live-fixture-probe-result").firstMatch
+    try until("Native relay and HTTPS probe outcome", timeout: 60) {
+      probe.exists && (probe.label == verified || probe.label.contains(" failed:"))
+    }
+    guard probe.label == verified else { throw Failure.invalid("Native source probe reported " + probe.label) }
+    record("live-native-relay-https", true, ["result": probe.label, "eventId": event])
+    capture("live-published-probe-verified")
+
+    try identityPress("shell-settings")
+    let input = try one(app.textFields.matching(identifier: "settings-napplet-address"), "published naddr input", visible: false)
+    input.tap()
+    for character in naddr { input.typeText(String(character)) }
+    guard (input.value as? String) == naddr else { throw Failure.invalid("Could not enter exact public naddr") }
+    let open = app.buttons.matching(identifier: "settings-open-napplet").firstMatch
+    try stateNativeReveal(open)
+    try identityPress("settings-open-napplet")
+    let openError = app.staticTexts.matching(identifier: "settings-napplet-error").firstMatch
+    try until("Live first-open review or explicit open error", timeout: 60) {
+      (self.app.descendants(matching: .any).matching(identifier: "settings-napplet-review").firstMatch.exists
+        && self.app.buttons.matching(identifier: "settings-napplet-approve").firstMatch.isHittable) || openError.exists
+    }
+    if openError.exists { throw Failure.invalid("Published open reported verification error before review") }
+    let claims = Set(app.staticTexts.allElementsBoundByIndex.filter { $0.exists }.map(\.label))
+    record("live-first-open-exact-review", claims.contains(publisher) && claims.contains("file-browser")
+      && claims.contains(event) && claims.contains("Requested access: theme"),
+      ["publisher": publisher, "identifier": "file-browser", "eventId": event, "requestedAccess": "theme"])
+    capture("live-published-review")
+    try identityPress("settings-napplet-approve")
+    try until("Verified live guest connected", timeout: 45) {
+      self.currentTitle() == "file-browser"
+        && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
+    }
+    record("live-guest-connected", true, ["title": "file-browser", "runtimeConnected": true])
+    capture("live-published-connected")
     complete = true
   }
 
@@ -1506,8 +1568,8 @@ final class WorkspaceTests: XCTestCase {
     guard found.count == 1 else { throw Failure.invalid("\(description): expected one element, observed \(found.count)") }
     return found[0]
   }
-  private func until(_ description: String, _ condition: () -> Bool) throws {
-    let deadline = Date().addingTimeInterval(10)
+  private func until(_ description: String, timeout: TimeInterval = 10, _ condition: () -> Bool) throws {
+    let deadline = Date().addingTimeInterval(timeout)
     repeat { if condition() { return }; RunLoop.current.run(until: Date().addingTimeInterval(0.2)) } while Date() < deadline
     throw Failure.invalid("Timed out: " + description)
   }
