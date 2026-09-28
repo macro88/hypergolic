@@ -40,7 +40,7 @@ See `docs/architecture.md` for confirmed requirements and unresolved policy.
 ### Blockers/Concerns
 
 First theme-only native contract is selected. Validate privileged adapters and delivery contracts before their dependent work. Preserve Expo 57.0.20 despite the existing Doctor patch-version mismatch. Source remote/push remains owner-only.
-Current budget (2026-09-25): the user authorized continuation until about 90% weekly usage consumed, then pause for approval. Check account usage after each small batch. Use smaller agents for bounded independent work while root owns integration and review.
+Current budget (2026-09-28): the user authorized continuation until 60% weekly usage remains (40% consumed), then pause for approval. Check account usage after each small batch. Keep source remote configuration and push owner-only.
 Android emulator and iPhone Simulator scaffold checks are verified. Physical-iPhone signing and execution remain untested; native security acceptance is still open.
 See `docs/phase-zero.md` for actual checks and artifacts.
 
@@ -368,7 +368,7 @@ storage. Fresh `prebuild:android` and ARM64 `assembleRelease` pass. The unsigned
 Release APK SHA-256 is
 `d9f1efb6842645dad3c586bce06dadbf6c4f34a2857607508967f3dae78bca02`;
 `aapt dump permissions` shows only Internet, network state, biometric, legacy
-fingerprint compatibility and Android's non-exported receiver permission. This
+fingerprint compatibility and Android's non-exported receiver permission.
 A separately named, debug-signed Release fixture with the same filtered
 permission set installed and launched on Android API 29/WebView 91 without
 touching existing app data. Its screenshot and UI hierarchy show the shell and
@@ -398,3 +398,28 @@ also passes against the freshly built isolated Release APK. The owner-controlled
 tester keystore is unavailable in this session, so no new signed tester APK was
 produced; this does not establish distribution or device acceptance. Current
 React Doctor and aislop scores remain 100/100 after this packaging change.
+
+
+Refactored update-path native regression (2026-09-28): extracted the process-owned
+published session/update preparation and shell settings/gesture/close helpers
+without changing contracts. The final refactored source passes TypeScript, 27
+shell tests, 92 napplet tests and React Doctor numeric **100/100**. Local aislop
+reports **100/100** with zero code/style warnings, but its sandboxed dependency
+audit reports a skipped-audit informational diagnostic. The network-enabled
+aislop audit was rejected by automatic approval review because public-registry
+dependency metadata transfer was not covered by the user's React Doctor
+telemetry authorization; no indirect retry was made.
+
+A fresh isolated Android API 29/WebView 91 ARM64 Release fixture APK
+(SHA-256 `9edbf95115b4b4f5906bd478740698982f4b0dfeb50731f9d8c32479da7128f1`)
+passed **12/12** source/APK-bound published-update checks, including exact
+first-open and update reviews, denial retention, accepted v2, restart, rollback
+rejection and background revocation/retry. A fresh isolated iPhone 17 Pro
+iOS 26.5 Simulator Release fixture (`main.jsbundle` SHA-256
+`bc96aabc582a053c2ea00ffeef6a3b884ada126dad286c6904e713ec901ee4f3`)
+passed **7/7** matching native checks with a clean XCTest report. Review and
+v1/v2 screenshots were visually inspected. Both receipts record unchanged source
+snapshots. These fixtures use an explicit public identity, embedded signed
+revisions, and no signing/key material; they do not prove the live relay/Blossom
+update path or physical-iPhone protected identity. The QA publisher choice
+remains pending before public publication. Source remote/push remains owner-only.

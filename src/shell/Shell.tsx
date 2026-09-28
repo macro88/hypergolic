@@ -70,7 +70,6 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
   const busyRef = useRef(false);
   const lastCloseId = useRef<string | null>(null);
   const overview = useRef<OverviewHandle>(null);
-  const settingsClose = useRef<View>(null);
   const focusedIndex = Math.max(0, workspace.sessions.findIndex(session => session.id === workspace.focusedId));
   const focused = workspace.sessions.find(session => session.id === workspace.focusedId);
   const nextFixtureNumber = useRef(Math.max(3, ...workspace.sessions.map(session => Number(session.title.match(/ ([1-9][0-9]*)$/)?.[1] ?? 0))) + 1);
@@ -140,37 +139,17 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
     });
     return () => subscription.remove();
   }, [blocked, focusSession, openOverview, workspace.focusedId, workspace.overview]);
-  const onHandleEnd = (side: HandleSide, result: 'overview' | 'switch' | 'cancel') => {
-    setHandleDragging(false);
-    if (blocked || busyRef.current) return;
-    if (result === 'overview') { position.set(focusedIndex); openOverview(); return; }
-    const id = result === 'switch' ? adjacentNapplet(current.current, directionForHandle(side)) : null;
-    const destination = id ? current.current.sessions.findIndex(session => session.id === id) : focusedIndex;
-    runAnimation(position, destination, () => {
-      if (id) { change(focusNapplet(current.current, id)); AccessibilityInfo.announceForAccessibility(current.current.sessions[destination].title); }
-    }, 190);
-  };
-  const requestClose = (id: string) => {
-    if (blocked || busyRef.current || !current.current.sessions.some(session => session.id === id)) return;
-    Keyboard.dismiss();
-    lastCloseId.current = id;
-    setClosingId(id);
-  };
+  const onHandleEnd = (side: HandleSide, result: 'overview' | 'switch' | 'cancel') => handleWorkspaceGestureEnd({
+    side, result, blocked, busyRef, focusedIndex, current, position, openOverview, runAnimation, change,
+    setHandleDragging,
+  });
+  const requestClose = (id: string) => requestWorkspaceNappletClose(id, { blocked, busyRef, current, lastCloseId, setClosingId });
   const keepOpen = () => {
     setClosingId(null);
     // Modal's Android onDismiss is not guaranteed; focus follows the next commit too.
     requestAnimationFrame(() => overview.current?.focusCard(lastCloseId.current));
   };
-  const confirmClose = () => {
-    const session = current.current.sessions.find(item => item.id === closingId);
-    if (!session) return;
-    onBeforeClose?.(session);
-    if (session.source === 'published') runtime?.discardPublished(session.id);
-    change(closeNapplet(current.current, session.id));
-    setClosingId(null);
-    lastCloseId.current = null;
-    requestAnimationFrame(() => overview.current?.focusCard(null));
-  };
+  const confirmClose = () => confirmWorkspaceNappletClose({ closingId, current, onBeforeClose, runtime, change, setClosingId, lastCloseId, overview });
   const openSettings = () => { if (!blocked && !busyRef.current) { Keyboard.dismiss(); setSettings(true); } };
   const openFixture = (variant: BundledVariant) => {
     while (current.current.sessions.some(session => session.id === `${variant}-${nextFixtureNumber.current}`)) nextFixtureNumber.current++;
@@ -224,21 +203,100 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
           onHandleEnd={onHandleEnd} />
       </View>
       <ClosePrompt title={workspace.sessions.find(session => session.id === closingId)?.title ?? null} onKeepOpen={keepOpen} onClose={confirmClose} onDismiss={() => overview.current?.focusCard(lastCloseId.current)} />
-      <Modal visible={settings} animationType="none" onRequestClose={() => { if (!blocked) setSettings(false); }} onShow={() => {
-        settingsClose.current?.focus();
-        if (settingsClose.current) AccessibilityInfo.sendAccessibilityEvent(settingsClose.current, 'focus');
-      }}>
-        <SafeAreaProvider><SafeAreaView style={styles.settingsScreen}>
-          <View style={styles.settingsHeader}><Text accessibilityRole="header" style={styles.settingsTitle}>Settings</Text><Pressable ref={settingsClose} disabled={blocked} accessibilityState={{ disabled: blocked }} accessibilityRole="button" testID="settings-done" onPress={() => setSettings(false)} style={styles.done}><Text style={styles.doneText}>Done</Text></Pressable></View>
-          {settings && (SettingsContent ? <SettingsContent closeSettings={() => setSettings(false)} openBundledTest={openBundledTest} openStateLab={openFixture} openPublished={openPublished}
-            publishedSessions={workspace.sessions.filter(session => session.source === 'published')} checkPublishedUpdate={checkPublishedUpdate} /> : <View style={styles.settingsBody}>
-            <Text selectable testID="settings-full-npub" style={styles.settingsText}>{identity ? identity.npub : 'Identity is not configured in this build.'}</Text>
-            <Text accessibilityRole="header" style={styles.settingsSection}>Bundled test napplets</Text>
-            <Pressable testID="settings-open-ux-lab" accessibilityRole="button" onPress={openBundledTest} style={styles.openTest}><Text style={styles.openTestText}>Open UX Lab</Text><Text style={styles.addMark} accessible={false}>+</Text></Pressable>
-          </View>)}
-        </SafeAreaView></SafeAreaProvider>
-      </Modal>
+      <ShellSettings settings={settings} blocked={blocked} identity={identity} SettingsContent={SettingsContent}
+        publishedSessions={workspace.sessions.filter(session => session.source === 'published')}
+        openSettings={() => setSettings(false)} openBundledTest={openBundledTest} openFixture={openFixture}
+        openPublished={openPublished} checkPublishedUpdate={checkPublishedUpdate} />
     </SafeAreaView>
+  );
+}
+
+interface ShellSettingsProps {
+  settings: boolean;
+  blocked: boolean;
+  identity?: ShellIdentity;
+  SettingsContent?: ComponentType<SettingsActions>;
+  publishedSessions: readonly NappletDescriptor[];
+  openSettings: () => void;
+  openBundledTest: () => void;
+  openFixture: (variant: BundledVariant) => void;
+  openPublished: SettingsActions['openPublished'];
+  checkPublishedUpdate: SettingsActions['checkPublishedUpdate'];
+}
+
+function handleWorkspaceGestureEnd({ side, result, blocked, busyRef, focusedIndex, current, position, openOverview, runAnimation, change, setHandleDragging }: {
+  side: HandleSide;
+  result: 'overview' | 'switch' | 'cancel';
+  blocked: boolean;
+  busyRef: { current: boolean };
+  focusedIndex: number;
+  current: { current: Workspace };
+  position: SharedValue<number>;
+  openOverview: () => void;
+  runAnimation: (value: SharedValue<number>, toValue: number, done: () => void, duration?: number) => void;
+  change: (next: Workspace) => void;
+  setHandleDragging: (dragging: boolean) => void;
+}) {
+  setHandleDragging(false);
+  if (blocked || busyRef.current) return;
+  if (result === 'overview') { position.set(focusedIndex); openOverview(); return; }
+  const id = result === 'switch' ? adjacentNapplet(current.current, directionForHandle(side)) : null;
+  const destination = id ? current.current.sessions.findIndex(session => session.id === id) : focusedIndex;
+  runAnimation(position, destination, () => {
+    if (id) { change(focusNapplet(current.current, id)); AccessibilityInfo.announceForAccessibility(current.current.sessions[destination].title); }
+  }, 190);
+}
+
+function confirmWorkspaceNappletClose({ closingId, current, onBeforeClose, runtime, change, setClosingId, lastCloseId, overview }: {
+  closingId: string | null;
+  current: { current: Workspace };
+  onBeforeClose?: ShellProps['onBeforeClose'];
+  runtime: { discardPublished: (id: string) => void } | null;
+  change: (next: Workspace) => void;
+  setClosingId: (id: string | null) => void;
+  lastCloseId: { current: string | null };
+  overview: { current: OverviewHandle | null };
+}) {
+  const session = current.current.sessions.find(item => item.id === closingId);
+  if (!session) return;
+  onBeforeClose?.(session);
+  if (session.source === 'published') runtime?.discardPublished(session.id);
+  change(closeNapplet(current.current, session.id));
+  setClosingId(null);
+  lastCloseId.current = null;
+  requestAnimationFrame(() => overview.current?.focusCard(null));
+}
+
+function requestWorkspaceNappletClose(id: string, { blocked, busyRef, current, lastCloseId, setClosingId }: {
+  blocked: boolean;
+  busyRef: { current: boolean };
+  current: { current: Workspace };
+  lastCloseId: { current: string | null };
+  setClosingId: (id: string | null) => void;
+}) {
+  if (blocked || busyRef.current || !current.current.sessions.some(session => session.id === id)) return;
+  Keyboard.dismiss();
+  lastCloseId.current = id;
+  setClosingId(id);
+}
+
+function ShellSettings({ settings, blocked, identity, SettingsContent, publishedSessions, openSettings, openBundledTest, openFixture, openPublished, checkPublishedUpdate }: ShellSettingsProps) {
+  const settingsClose = useRef<View>(null);
+  return (
+    <Modal visible={settings} animationType="none" onRequestClose={() => { if (!blocked) openSettings(); }} onShow={() => {
+      settingsClose.current?.focus();
+      if (settingsClose.current) AccessibilityInfo.sendAccessibilityEvent(settingsClose.current, 'focus');
+    }}>
+      <SafeAreaProvider><SafeAreaView style={styles.settingsScreen}>
+        <View style={styles.settingsHeader}><Text accessibilityRole="header" style={styles.settingsTitle}>Settings</Text><Pressable ref={settingsClose} disabled={blocked} accessibilityState={{ disabled: blocked }} accessibilityRole="button" testID="settings-done" onPress={openSettings} style={styles.done}><Text style={styles.doneText}>Done</Text></Pressable></View>
+        {settings && (SettingsContent ? <SettingsContent closeSettings={openSettings} openBundledTest={openBundledTest} openStateLab={openFixture} openPublished={openPublished}
+          publishedSessions={publishedSessions} checkPublishedUpdate={checkPublishedUpdate} /> : <View style={styles.settingsBody}>
+          <Text selectable testID="settings-full-npub" style={styles.settingsText}>{identity ? identity.npub : 'Identity is not configured in this build.'}</Text>
+          <Text accessibilityRole="header" style={styles.settingsSection}>Bundled test napplets</Text>
+          <Pressable testID="settings-open-ux-lab" accessibilityRole="button" onPress={openBundledTest} style={styles.openTest}><Text style={styles.openTestText}>Open UX Lab</Text><Text style={styles.addMark} accessible={false}>+</Text></Pressable>
+        </View>)}
+      </SafeAreaView></SafeAreaProvider>
+    </Modal>
   );
 }
 
