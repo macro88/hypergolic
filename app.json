@@ -3,6 +3,7 @@
     "name": "Hypergolic",
     "slug": "hypergolic",
     "version": "0.0.0",
+    "icon": "./assets/brand/app-icon.png",
     "platforms": [
       "android",
       "ios"
@@ -10,6 +11,11 @@
     "orientation": "portrait",
     "android": {
       "package": "org.nostrocket.hypergolic.dev",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/brand/app-icon-foreground.png",
+        "monochromeImage": "./assets/brand/app-icon-monochrome.png",
+        "backgroundColor": "#140f0b"
+      },
       "blockedPermissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
@@ -20,6 +26,7 @@
     },
     "ios": {
       "bundleIdentifier": "org.nostrocket.hypergolic.dev",
+      "icon": "./assets/brand/app-icon.png",
       "infoPlist": {
         "NSFaceIDUsageDescription": "Use Face ID to approve identity backup and deletion."
       }

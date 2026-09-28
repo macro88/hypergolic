@@ -15,5 +15,23 @@ surfaces was inspected. **32 logical pixels is the confirmed starting size**,
 accepted on 14 September 2026 and subject to native header/device validation. The four-point silhouette remains recognisable, while fine glow
 and texture recede at small sizes.
 
-This asset is not yet wired into the native shell, launcher icon or splash screen.
-No artwork transformations or native configuration changes accompanied its capture.
+The original file is wired into the native shell header and first-entry screen.
+The three derived 1024 × 1024 launcher assets in this directory preserve its
+original colors and aspect ratio while satisfying platform packaging:
+
+- `app-icon.png` is opaque on the shell's `#140f0b` background for iOS and
+  legacy Android launchers. The original canvas was scaled to 800 pixels and
+  centered with no crop or added mark.
+- `app-icon-foreground.png` is transparent; the original canvas was scaled to
+  620 pixels and centered so its visible pixels stay inside Android's adaptive
+  launcher safe zone. Expo supplies the same dark color as the background layer.
+- `app-icon-monochrome.png` uses the foreground's alpha as a white monochrome
+  layer for themed Android launchers.
+
+The original `hypergolic-logo.png` remains byte-identical to the supplied file.
+`app.json` owns the platform icon configuration; Expo prebuild regenerates native
+icon resources from these assets. No splash-screen design has been selected.
+
+The native asset sizes follow [Expo's app icon configuration](https://docs.expo.dev/develop/user-interface/splash-screen-and-app-icon/),
+[Apple's 1024-pixel icon guidance](https://developer.apple.com/design/human-interface-guidelines/app-icons),
+and [Android's 66/108 adaptive safe zone](https://developer.android.com/develop/ui/compose/system/icon_design_adaptive).

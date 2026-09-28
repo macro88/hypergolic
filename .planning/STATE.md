@@ -423,3 +423,22 @@ snapshots. These fixtures use an explicit public identity, embedded signed
 revisions, and no signing/key material; they do not prove the live relay/Blossom
 update path or physical-iPhone protected identity. The QA publisher choice
 remains pending before public publication. Source remote/push remains owner-only.
+
+
+Launcher icon checkpoint (2026-09-28): Expo now packages the user's preserved
+four-point spark as an opaque 1024-pixel iOS/legacy icon and a transparent
+Android adaptive foreground with themed monochrome variant. The supplied
+`hypergolic-logo.png` SHA-256 remains
+`16fcc05023863f81bbc74395fb039b59f9634fef0930f370541a979979b92448`.
+The foreground alpha bounds fit Android's published safe zone. Fresh Android
+and iOS prebuilds and isolated ARM64 Android/iPhone 17 Pro Simulator Release
+builds pass. The Android APK's aapt review retains the same four system
+permissions and package-scoped receiver permission, and the signed disposable
+fixture launches a connected UX Lab on API 29. Android system App info visibly
+shows the spark icon. The isolated iOS Release fixture launches and its actual
+Simulator Home Screen shows the spark icon; the JS bundle SHA-256 is
+`cf036c92433fa973751564e56e65fa9b59eeb37fe9646ffdabb7c2d3ea37c583`.
+The generated Android Gradle package edit was restored byte-identically.
+TypeScript, 12 tester packaging tests and React Doctor numeric **100/100** pass.
+This icon work does not close public live updates, physical-iPhone security or
+the network-audit approval gap. Source remote/push remains owner-only.
