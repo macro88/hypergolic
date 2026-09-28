@@ -2,6 +2,28 @@ import Foundation
 import Network
 import Security
 
+/// Walk only the addresses already vetted by the native public-address policy.
+/// Once a connection reaches ready, failures belong to that session and cannot fail over.
+struct VettedAddressCursor<Address> {
+  private let addresses: [Address]
+  private var index = 0
+  private(set) var ready = false
+
+  init(_ addresses: [Address]) { self.addresses = addresses }
+
+  mutating func next() -> Address? {
+    guard !ready, index < addresses.count else { return nil }
+    defer { index += 1 }
+    return addresses[index]
+  }
+
+  mutating func markReady() -> Bool {
+    guard !ready else { return false }
+    ready = true
+    return true
+  }
+}
+
 /// HTTPS fetch over a numeric, vetted endpoint. URLSession cannot bind a DNS result
 /// before connecting, so this owner resolves first and never gives NWConnection a name.
 enum PublishedPinnedHTTPS {
@@ -102,6 +124,7 @@ enum PublishedPinnedHTTPS {
     private let completion: @Sendable (Result<PublishedHTTPResponse, Error>) -> Void
     private let accumulator: PublishedHTTPResponseAccumulator
     private var connection: NWConnection?
+    private var addresses: VettedAddressCursor<Address>?
     private var ended = false
 
     fileprivate init(request: Request, maximumBodyBytes: Int, timeout: TimeInterval,
@@ -120,13 +143,23 @@ enum PublishedPinnedHTTPS {
           guard !self.ended else { return }
           switch result {
           case .failure(let error): self.finish(.failure(error))
-          case .success(let addresses): self.connect(addresses[0])
+          case .success(let addresses):
+            self.addresses = VettedAddressCursor(addresses)
+            self.connectNext()
           }
         }
       }
     }
 
     func cancel() { queue.async { self.finish(.failure(Failure.cancelled)) } }
+
+    private func connectNext() {
+      guard let address = addresses?.next() else { finish(.failure(Failure.connection)); return }
+      connection?.stateUpdateHandler = nil
+      connection?.cancel()
+      connection = nil
+      connect(address)
+    }
 
     private func connect(_ address: Address) {
       let tls = NWProtocolTLS.Options()
@@ -147,14 +180,15 @@ enum PublishedPinnedHTTPS {
       let connection = NWConnection(host: address.host, port: port, using: parameters)
       self.connection = connection
       connection.stateUpdateHandler = { [weak self] state in
-        guard let self, !self.ended else { return }
+        guard let self, !self.ended, self.connection === connection else { return }
         switch state {
         case .ready:
+          guard self.addresses?.markReady() == true else { return }
           connection.send(content: self.request.wire, completion: .contentProcessed { error in
             if error != nil { self.finish(.failure(Failure.connection)) }
             else { self.receive() }
           })
-        case .failed, .cancelled: self.finish(.failure(Failure.connection))
+        case .failed, .cancelled, .waiting: self.connectNext()
         default: break
         }
       }

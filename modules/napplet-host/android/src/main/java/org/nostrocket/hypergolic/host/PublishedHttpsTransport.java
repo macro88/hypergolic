@@ -20,6 +20,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
@@ -36,6 +43,12 @@ public final class PublishedHttpsTransport {
   public static final int TOTAL_TIMEOUT_MS = 30_000;
   private static final int MAX_RESPONSE_HEADERS = 128;
   private static final int MAX_CHUNK_LINE_BYTES = 128;
+  private static final ThreadPoolExecutor DNS = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+      new ArrayBlockingQueue<>(4), task -> {
+        Thread thread = new Thread(task, "napplet-https-dns");
+        thread.setDaemon(true);
+        return thread;
+      });
 
   private PublishedHttpsTransport() {}
 
@@ -148,7 +161,8 @@ public final class PublishedHttpsTransport {
   private static SSLSocket openPinnedTls(String host, int port, AddressPolicy policy, AbortMonitor abort,
       Deadline deadline) throws IOException {
     abort.check();
-    InetAddress[] addresses = checkedAddresses(InetAddress.getAllByName(host), policy);
+    InetAddress[] addresses = checkedAddresses(resolveAddresses(host,
+        abort::isCancelled, deadline, InetAddress::getAllByName, DNS), policy);
     abort.check();
     IOException lastFailure = null;
     for (InetAddress address : addresses) {
@@ -184,6 +198,41 @@ public final class PublishedHttpsTransport {
     if (abort != null) abort.check();
     throw lastFailure == null ? new IOException("No vetted HTTPS address connected") : lastFailure;
   }
+
+  static InetAddress[] resolveAddresses(String host, Cancellation cancellation, Deadline deadline,
+      HostResolver resolver, ThreadPoolExecutor executor) throws IOException {
+    checkDeadlineAndCancellation(deadline, cancellation);
+    FutureTask<InetAddress[]> lookup = new FutureTask<>(() -> resolver.resolve(host));
+    try { executor.execute(lookup); }
+    catch (RejectedExecutionException saturated) { throw new IOException("HTTPS DNS capacity exhausted", saturated); }
+    try {
+      while (true) {
+        checkDeadlineAndCancellation(deadline, cancellation);
+        long remainingMs = deadline.remainingMs();
+        if (remainingMs <= 0) throw new SocketTimeoutException("Published napplet HTTPS request timed out");
+        try { return lookup.get(Math.min(50L, remainingMs), TimeUnit.MILLISECONDS); }
+        catch (TimeoutException poll) { /* Recheck cancellation and deadline. */ }
+      }
+    } catch (InterruptedException interrupted) {
+      lookup.cancel(true);
+      Thread.currentThread().interrupt();
+      throw new IOException("HTTPS DNS lookup interrupted", interrupted);
+    } catch (ExecutionException failed) {
+      Throwable cause = failed.getCause();
+      if (cause instanceof IOException) throw (IOException) cause;
+      throw new IOException("HTTPS DNS lookup failed", cause);
+    } finally {
+      if (!lookup.isDone()) lookup.cancel(true);
+      executor.remove(lookup);
+    }
+  }
+
+  private static void checkDeadlineAndCancellation(Deadline deadline, Cancellation cancellation) throws IOException {
+    if (deadline.expired()) throw new SocketTimeoutException("Published napplet HTTPS request timed out");
+    checkCancellation(cancellation);
+  }
+
+  interface HostResolver { InetAddress[] resolve(String hostname) throws IOException; }
 
   private static SSLSocketFactory defaultSocketFactory() throws IOException {
     try { return SSLContext.getDefault().getSocketFactory(); }
@@ -243,11 +292,15 @@ public final class PublishedHttpsTransport {
     if (cancellationRequested(cancellation)) throw new IOException("Request cancelled");
   }
 
-  private static final class Deadline {
+  static final class Deadline {
     private final long deadlineNanos;
     private Deadline(long deadlineNanos) { this.deadlineNanos = deadlineNanos; }
     static Deadline afterMillis(long durationMs) { return new Deadline(System.nanoTime() + durationMs * 1_000_000L); }
     boolean expired() { return System.nanoTime() >= deadlineNanos; }
+    long remainingMs() {
+      long remaining = deadlineNanos - System.nanoTime();
+      return remaining <= 0 ? 0 : (remaining + 999_999L) / 1_000_000L;
+    }
     int timeoutMs(int maximumMs) throws SocketTimeoutException {
       long remaining = deadlineNanos - System.nanoTime();
       if (remaining <= 0) throw new SocketTimeoutException("Published napplet HTTPS request timed out");
@@ -312,6 +365,10 @@ public final class PublishedHttpsTransport {
         throw new SocketTimeoutException("Published napplet HTTPS request timed out");
       }
       if (cancellationRequested(cancellation)) { closeSocket(); throw new IOException("Request cancelled"); }
+    }
+    boolean isCancelled() {
+      try { return cancellationRequested(cancellation); }
+      catch (IOException unavailable) { return true; }
     }
     private void closeSocket() {
       Socket current = socket;

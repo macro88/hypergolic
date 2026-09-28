@@ -120,6 +120,7 @@ enum PublishedRelayWebSocketQuery {
     private let queue = DispatchQueue(label: "org.nostrocket.hypergolic.published-relay-wss")
     private let frames = PublishedRelayWebSocketFrames()
     private var connection: NWConnection?
+    private var addresses: VettedAddressCursor<PublishedPinnedHTTPS.Address>?
     private var nonce = Data()
     private var handshake = HandshakeAccumulator()
     private var total = 0
@@ -140,13 +141,23 @@ enum PublishedRelayWebSocketQuery {
           guard !self.ended else { return }
           switch result {
           case .failure(let error): self.finish(.failure(error))
-          case .success(let addresses): self.connect(addresses[0])
+          case .success(let addresses):
+            self.addresses = VettedAddressCursor(addresses)
+            self.connectNext()
           }
         }
       }
     }
 
     func cancel() { queue.async { self.finish(.failure(Failure.cancelled)) } }
+
+    private func connectNext() {
+      guard let address = addresses?.next() else { finish(.failure(Failure.connection)); return }
+      connection?.stateUpdateHandler = nil
+      connection?.cancel()
+      connection = nil
+      connect(address)
+    }
 
     private func connect(_ address: PublishedPinnedHTTPS.Address) {
       var random = [UInt8](repeating: 0, count: 16)
@@ -168,16 +179,17 @@ enum PublishedRelayWebSocketQuery {
       let connection = NWConnection(host: address.host, port: port, using: parameters)
       self.connection = connection
       connection.stateUpdateHandler = { [weak self] state in
-        guard let self, !self.ended else { return }
+        guard let self, !self.ended, self.connection === connection else { return }
         switch state {
         case .ready:
+          guard self.addresses?.markReady() == true else { return }
           do {
             let request = try self.request.upgrade(nonce: self.nonce)
             connection.send(content: request, completion: .contentProcessed { error in
               if error != nil { self.finish(.failure(Failure.connection)) } else { self.receiveHandshake() }
             })
           } catch { self.finish(.failure(error)) }
-        case .failed, .cancelled: self.finish(.failure(Failure.connection))
+        case .failed, .cancelled, .waiting: self.connectNext()
         default: break
         }
       }

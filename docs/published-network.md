@@ -37,6 +37,17 @@ to 8 KiB. Android applies its own header and body ceilings. Neither owner
 confers signing, publisher trust or execution authority; the signed-artifact
 verifier remains mandatory after fetching bytes.
 
+Android HTTPS runs DNS in one bounded daemon worker and polls it against the
+operation deadline and cancellation. A blocked platform resolver can outlive a
+cancelled request if it ignores interruption; the four-slot queue then rejects
+further lookups when full rather than accumulating unbounded work. The iOS
+HTTPS and WSS owners try the next address from the same fully vetted DNS answer
+set if a connection fails or waits before it reaches ready. Once ready, an HTTP
+request or WebSocket session cannot fail over, and all attempts share the
+original deadline. Offline owner proofs cover cancellation, timeout and address
+selection; controlled TLS failover and lifecycle acceptance still need native
+runtime evidence.
+
 ## Current integration boundary
 
 Both Expo modules expose an app-only `fetchPublishedHttps(operationId, url)`

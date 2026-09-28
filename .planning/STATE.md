@@ -442,3 +442,26 @@ The generated Android Gradle package edit was restored byte-identically.
 TypeScript, 12 tester packaging tests and React Doctor numeric **100/100** pass.
 This icon work does not close public live updates, physical-iPhone security or
 the network-audit approval gap. Source remote/push remains owner-only.
+
+
+Native transport hardening checkpoint (2026-09-28): Android HTTPS DNS now uses
+a bounded worker so cancellation and the 30-second overall deadline can return
+even when platform DNS stalls. Its injected blocking-resolver and saturation
+proof passes 69 assertions; a resolver that ignores interruption may still occupy the single
+worker, and subsequent lookups fail closed when its queue fills. iOS HTTPS and
+WSS now retry only the remaining already-vetted numeric addresses before the
+connection reaches ready, preserving hostname TLS checks and the original
+operation deadline. Swift HTTPS proof passes 33 checks and WSS framing/query
+proof plus arm64 Simulator module compile pass. Fresh Android prebuild and
+unsigned ARM64 Release APK build pass
+(APK SHA-256 `f82146db9447e7de959138fd43d396a6bb1865a22cdb6101bd7916a8b080f914`).
+Full iOS Simulator Release and unsigned arm64 iPhoneOS Release builds pass, with
+JavaScript bundle SHA-256
+`a95d06e26f05c0ac67d0a11e84ed9fad9d69ee4a37829558197659d0e73038e6`
+and `a726e923c95b0faa20255ad2026765bbb0a7981f27c53aac25d0cd485d2ef935`.
+TypeScript, both platform exports and React Doctor numeric **100/100** pass;
+Expo Doctor remains **20/21** on the previously recorded SDK patch mismatch.
+Six offline JavaScript live-publication tests and two Python driver tests pass;
+no new public event was published. Controlled TLS runtime failover, public
+live-update publication, physical-iPhone protected journeys and the full
+quality-audit approval remain open. Source remote/push remains owner-only.

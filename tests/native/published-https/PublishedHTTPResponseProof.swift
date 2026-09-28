@@ -52,6 +52,16 @@ import Foundation
       try noHeaderEnd.append(Data(repeating: 0x61, count: 5))
       throw NSError(domain: "unbounded header accepted", code: 1)
     } catch is PublishedHTTPResponse.Failure { checks += 1 }
+    var retry = VettedAddressCursor(["first", "second"])
+    guard retry.next() == "first", retry.next() == "second", retry.next() == nil else {
+      throw NSError(domain: "vetted address exhaustion", code: 1)
+    }
+    checks += 1
+    var ready = VettedAddressCursor(["first", "second"])
+    guard ready.next() == "first", ready.markReady(), !ready.markReady(), ready.next() == nil else {
+      throw NSError(domain: "no failover after ready", code: 1)
+    }
+    checks += 1
     let request = try PublishedPinnedHTTPS.Request("https://blossom.example.net:8443/abc?format=html")
     try checkRequest(request, host: "blossom.example.net", port: 8443,
       wire: "GET /abc?format=html HTTP/1.1\r\nHost: blossom.example.net:8443\r\nAccept: text/html\r\nAccept-Encoding: identity\r\nConnection: close\r\n\r\n")

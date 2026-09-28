@@ -7,6 +7,11 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /** JVM contract proof for URL and host rejection before any network connection is opened. */
 public final class PublishedHttpsTransportProof {
@@ -16,6 +21,7 @@ public final class PublishedHttpsTransportProof {
     acceptsOnlyCredentialFreeHttpsDnsNames();
     appliesHostPolicyBeforeReturningRequest();
     filtersEveryResolvedAddressBeforeConnecting();
+    boundsDnsResolutionByCancellationAndDeadline();
     boundsAndParsesHttpResponses();
     rejectsAmbiguousAndPartialFraming();
     System.out.println("PublishedHttpsTransportProof: " + assertions + " assertions passed");
@@ -74,6 +80,85 @@ public final class PublishedHttpsTransportProof {
     throwsIo(() -> PublishedHttpsTransport.checkedAddresses(new InetAddress[0], publicOnly));
     check(Arrays.equals(publicIp.getAddress(), PublishedHttpsTransport.checkedAddresses(
         new InetAddress[] {publicIp}, publicOnly)[0].getAddress()));
+  }
+
+  private static void boundsDnsResolutionByCancellationAndDeadline() throws Exception {
+    CountDownLatch releaseDeadlineResolver = new CountDownLatch(1);
+    ThreadPoolExecutor deadlineExecutor = proofDnsExecutor();
+    try {
+      long started = System.nanoTime();
+      throwsIo(() -> PublishedHttpsTransport.resolveAddresses("slow.example.org", null,
+          PublishedHttpsTransport.Deadline.afterMillis(100), ignored -> {
+            boolean released = false;
+            while (!released) {
+              try { released = releaseDeadlineResolver.await(1, TimeUnit.SECONDS); }
+              catch (InterruptedException ignoredInterrupt) { /* Simulate a resolver that ignores interruption. */ }
+            }
+            return new InetAddress[] {InetAddress.getByAddress(new byte[] {8, 8, 8, 8})};
+          }, deadlineExecutor));
+      long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+      check(elapsedMs < 1_000);
+    } finally {
+      releaseDeadlineResolver.countDown();
+      deadlineExecutor.shutdownNow();
+      check(deadlineExecutor.awaitTermination(1, TimeUnit.SECONDS));
+    }
+
+    CountDownLatch releaseCancelledResolver = new CountDownLatch(1);
+    CountDownLatch cancelledResolverEntered = new CountDownLatch(1);
+    ThreadPoolExecutor cancellationExecutor = proofDnsExecutor();
+    try {
+      AtomicInteger cancellationChecks = new AtomicInteger();
+      throwsIo(() -> PublishedHttpsTransport.resolveAddresses("slow.example.org",
+          () -> {
+            if (cancellationChecks.incrementAndGet() < 2) return false;
+            try { return cancelledResolverEntered.await(1, TimeUnit.SECONDS); }
+            catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); return true; }
+          },
+          PublishedHttpsTransport.Deadline.afterMillis(2_000), ignored -> {
+            cancelledResolverEntered.countDown();
+            while (releaseCancelledResolver.getCount() != 0) {
+              try { releaseCancelledResolver.await(1, TimeUnit.SECONDS); }
+              catch (InterruptedException ignoredInterrupt) { /* Simulate a resolver that ignores interruption. */ }
+            }
+            return new InetAddress[] {InetAddress.getByAddress(new byte[] {8, 8, 8, 8})};
+          }, cancellationExecutor));
+      check(cancellationChecks.get() >= 2);
+    } finally {
+      releaseCancelledResolver.countDown();
+      cancellationExecutor.shutdownNow();
+      check(cancellationExecutor.awaitTermination(1, TimeUnit.SECONDS));
+    }
+
+    CountDownLatch workerEntered = new CountDownLatch(1);
+    CountDownLatch releaseWorker = new CountDownLatch(1);
+    ThreadPoolExecutor saturatedExecutor = proofDnsExecutor();
+    try {
+      saturatedExecutor.execute(() -> {
+        workerEntered.countDown();
+        try { releaseWorker.await(1, TimeUnit.SECONDS); }
+        catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); }
+      });
+      check(workerEntered.await(1, TimeUnit.SECONDS));
+      saturatedExecutor.execute(() -> { /* Fill the one-slot queue. */ });
+      long started = System.nanoTime();
+      throwsIo(() -> PublishedHttpsTransport.resolveAddresses("slow.example.org", null,
+          PublishedHttpsTransport.Deadline.afterMillis(1_000), ignored ->
+              new InetAddress[] {InetAddress.getByAddress(new byte[] {8, 8, 8, 8})}, saturatedExecutor));
+      check(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started) < 500);
+    } finally {
+      releaseWorker.countDown();
+      saturatedExecutor.shutdownNow();
+      check(saturatedExecutor.awaitTermination(1, TimeUnit.SECONDS));
+    }
+  }
+
+  private static ThreadPoolExecutor proofDnsExecutor() {
+    return new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(1), task -> {
+      Thread thread = new Thread(task, "published-https-proof-dns");
+      thread.setDaemon(true);
+      return thread;
+    });
   }
 
   private static void boundsAndParsesHttpResponses() throws Exception {
