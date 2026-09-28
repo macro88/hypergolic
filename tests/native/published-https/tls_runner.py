@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Exercise the actual iOS HTTPS owner against disposable loopback TLS servers.
 
-The address/trust seam exists only with HYPERGOLIC_NETWORK_PROOF. This host
-proof does not claim iOS Simulator or physical-iPhone runtime acceptance.
+The address/trust seam exists only with HYPERGOLIC_NETWORK_PROOF. Set
+HYPERGOLIC_TLS_SIMULATOR_UDID to exercise a standalone iOS Simulator binary.
 """
 
 from pathlib import Path

@@ -614,3 +614,11 @@ to Java 8 APIs; production transport files were unchanged. This proves
 Android runtime sockets with test trust under the shell UID, not the Expo
 bridge, normal app trust, background revocation or a physical device. Live
 v1-to-v2 QA publication and the full aislop audit remain pending decisions.
+
+Source-bound iPhone Simulator TLS receipt (2026-09-28): the new wrapper runs
+both standalone Swift transport suites on the booted iPhone 17 Pro/iOS 26.5
+Simulator and records the exact case matrix plus hashes of 12 owning source
+and proof files before/after. HTTPS passes **10** checks (six TLS socket cases
+and four synthetic DNS answer-set checks); WSS passes **8** TLS socket cases.
+The receipt does not claim the Expo app's lifecycle, physical-device trust or
+the live published update. Source remote/push remains owner-only.

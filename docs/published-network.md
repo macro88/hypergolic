@@ -172,6 +172,12 @@ arm64 iPhone Simulator with
 `HYPERGOLIC_TLS_SIMULATOR_UDID` set. That proof runs a standalone native binary,
 not the Expo app or a physical iPhone. Exact counts and build evidence are
 recorded in the phase progress note.
+Run both iPhone Simulator suites with a source-bound JSON receipt using
+`python3 tests/native/ios-published-transport-simulator/runner.py --simulator <booted-UDID> --output <new-dir>`.
+The iPhone 17 Pro/iOS 26.5 pass records ten HTTPS checks (six socket and four
+synthetic DNS answers) plus eight WSS socket checks. The wrapper compares
+source hashes before and after execution; the result remains scoped to
+standalone proof binaries, not the Expo app.
 
 ## Relay integration contract
 

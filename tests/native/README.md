@@ -66,3 +66,7 @@ host trace driver described above.
 The [published transport runtime proof](android-published-transport-device/README.md)
 runs the owning Java HTTPS and WSS TLS paths in a disposable emulator DEX. It
 does not install or modify the normal app.
+
+The [iPhone Simulator transport proof](ios-published-transport-simulator/README.md)
+runs the owning Swift HTTPS and WSS paths as standalone native binaries with
+a source-bound JSON receipt.

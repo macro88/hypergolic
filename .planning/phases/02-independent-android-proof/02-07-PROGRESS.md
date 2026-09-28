@@ -118,3 +118,9 @@ DEX to source hashes, records each emulator build fingerprint and removes its
 temporary files. The production transport is unchanged. The proof runs under
 the shell UID, outside the Expo app; app lifecycle, normal system trust and
 physical-device failures remain open.
+
+The iPhone Simulator transport wrapper now emits one source-bound JSON
+receipt for the six HTTPS socket, four synthetic DNS and eight WSS socket
+checks. On iPhone 17 Pro/iOS 26.5 all **18** checks pass with unchanged
+owning source hashes. This is a standalone native proof, not an Expo app
+session or physical-iPhone run.
