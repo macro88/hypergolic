@@ -374,3 +374,21 @@ python3 tests/native/identity_backup.py --pin-timeout \
   --output /private/tmp/hypergolic-backup-pin-timeout-proof \
   identity-backup-pin-timeout
 ```
+
+### API 26 public identity continuity
+
+On 28 September 2026, the normal app already installed on the disposable API
+26 emulator passed the public-npub Settings/restart driver. Two force-stops
+retired the app process; each cold launch showed the same full selected npub in
+Settings and the header. Four values decoded canonically, the installed APK
+SHA-256 stayed `931e4de91f9e6623352b610d6d8fdb61dc58216d8f8e3ace27abdd59af570057`,
+and source/harness snapshots did not change during the run. All four screenshots
+were visually inspected. The receipt and original captures are in the private
+Notes project checkpoint.
+
+The APK was last installed on 25 September, so this is not a current-source
+rebuild. Its bundled WebView 58 still refuses napplet execution. The emulator
+has no enrolled device credential, and the backup UI reports authentication
+unavailable. The protected backup/deletion adapter currently requires API 30+;
+the older-Android support decision is pending. This pass is limited to public
+identity continuity.

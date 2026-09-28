@@ -633,3 +633,14 @@ publisher choice is still pending. The API 26 Google APIs emulator has no Play
 Store or local updated WebView package, so its known WebView 58 guest refusal
 remains an unclosed compatibility check. Full network-enabled aislop and
 physical-iPhone acceptance remain pending; source remote/push is owner-only.
+
+Android API 26 identity checkpoint (2026-09-28): the already installed normal
+app passed a source/harness-frozen, APK-bound public-npub Settings and cold-
+restart journey with **3/3** native checks and four canonical npub decodes.
+Four screenshots were visually inspected; the exact receipt and captures are
+in the private Notes project checkpoint. This proves public identity continuity
+for the 25 September APK, not a rebuild from current source, backup or guest
+execution. WebView 58 still refuses guests. The current backup/deletion system
+authentication adapter intentionally requires API 30+, so v1's minimum Android
+version is an open product decision; no device PIN or production security path
+was changed in this run.
