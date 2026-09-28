@@ -59,6 +59,25 @@ Android Studio's SDK Manager or the official Android CLI. On this machine the do
 command-line tools are revision 23.0. The new CLI takes slash
 package names; the sdkmanager compatibility wrapper split old semicolon names.
 
+On macOS, an existing checkout-local `.tools/` bundle can supply the pinned Node,
+Java and Android SDK. It is ignored by Git and does not configure a new shell
+automatically. From the repository root, **source** its helper in the same terminal
+before running Expo:
+
+```sh
+source .tools/use-local-tools.sh
+node --version
+java -version
+adb devices -l
+pnpm run android
+```
+
+The helper sets `ANDROID_HOME`, `JAVA_HOME` and `PATH` only for the current shell.
+If `.tools/` is absent, install the toolchain normally and set `ANDROID_HOME` to
+the actual SDK directory with `platform-tools` on `PATH`. A fresh terminal without
+either setup makes Expo search the default `~/Library/Android/sdk` and fail to
+spawn `adb` when the SDK lives elsewhere.
+
 ```powershell
 . ./scripts/use-local-tools.ps1
 & ./.tools/android-sdk/cmdline-tools/23.0/cmdline-tools/bin/android.exe --sdk "$env:ANDROID_HOME" sdk install platforms/android-36 build-tools/36.0.0 ndk/27.1.12297006 cmake/3.22.1

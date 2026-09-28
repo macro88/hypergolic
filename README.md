@@ -68,6 +68,12 @@ Install the Android SDK and Java prerequisites in the
 [development guide](docs/development.md#android), then start an emulator or connect
 a development device:
 
+On macOS, if you have this checkout's ignored `.tools/` bundle, run
+`source .tools/use-local-tools.sh` in **each new terminal** first. It selects the
+pinned Node and Java versions, sets `ANDROID_HOME`, and adds `adb` to `PATH` for
+that shell. Otherwise, configure your installed SDK and JDK as described in the
+development guide.
+
 ```sh
 pnpm run prebuild:android
 pnpm run android
