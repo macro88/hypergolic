@@ -361,3 +361,20 @@ remains 20/21 on six SDK patch expectations; the expo and expo-build-properties
 patches dated 24 September are still younger than the configured seven-day
 minimum release age. The Hypergolic source remote remains owner-controlled;
 no source push was made.
+
+Android permission review (2026-09-28): tracked Expo config now blocks the four
+unused template permissions for vibration, overlay windows and read/write external
+storage. Fresh `prebuild:android` and ARM64 `assembleRelease` pass. The unsigned
+Release APK SHA-256 is
+`d9f1efb6842645dad3c586bce06dadbf6c4f34a2857607508967f3dae78bca02`;
+`aapt dump permissions` shows only Internet, network state, biometric, legacy
+fingerprint compatibility and Android's non-exported receiver permission. This
+A separately named, debug-signed Release fixture with the same filtered
+permission set installed and launched on Android API 29/WebView 91 without
+touching existing app data. Its screenshot and UI hierarchy show the shell and
+`Runtime connected` UX Lab; its APK SHA-256 is
+`618ca88978930beec5c1e92180d83494b1919c9ed65f3484ef4702d90dcd4c5e`.
+The temporary generated Gradle package edit was restored byte-identically.
+Current TypeScript, React Doctor numeric 100/100 and aislop 100/100 pass; Expo
+Doctor remains 20/21 on the same six patch expectations. This is not
+physical-device security acceptance.

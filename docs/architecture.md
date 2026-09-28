@@ -80,11 +80,12 @@ building, local signing and artifact verification using that existing key; it do
 not establish native security acceptance. Do not edit generated native files as
 permanent configuration.
 
-APK inspection shows Expo's template currently declares Internet, vibration,
-overlay-window permission, read/write external storage through API 32, and its
-internal non-exported receiver permission. The screen requests none of these at
-runtime. Review and remove unnecessary declarations before product/device security
-acceptance; these template defaults are not a chosen napplet capability policy.
+The Expo config blocks the unused Android template declarations for vibration,
+overlay windows and read/write external storage. A regenerated ARM64 Release APK's
+merged manifest contains Internet, network state, biometric and legacy fingerprint
+compatibility, plus Android's internal non-exported receiver permission. The app
+still needs native device security review; these package declarations are not a
+napplet capability policy.
 
 ## Intended boundary
 

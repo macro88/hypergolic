@@ -76,6 +76,11 @@ dependencies. No EAS command or Expo account is required by this route.
 The expected output is `android/app/build/outputs/apk/release/app-release-unsigned.apk`.
 It embeds JavaScript and does not need Metro, but it must be signed before installation.
 The plugin deliberately removes Expo's default debug signing for release builds.
+The tracked `app.json` blocks unused vibration, overlay and external-storage
+permissions during prebuild; verify the final merged release APK, not only the
+generated manifest, with `"$ANDROID_HOME/build-tools/36.0.0/aapt" dump permissions
+android/app/build/outputs/apk/release/app-release-unsigned.apk`. Debug builds may
+retain overlay permission for development tools.
 
 Set `HYPERGOLIC_KEYSTORE_PATH` privately to an owner-controlled keystore, then use
 build-tools 36.0.0 locally:

@@ -10,6 +10,12 @@
     "orientation": "portrait",
     "android": {
       "package": "org.nostrocket.hypergolic.dev",
+      "blockedPermissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.VIBRATE"
+      ],
       "versionCode": 1
     },
     "ios": {
