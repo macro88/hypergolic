@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { verifyEvent } from 'nostr-tools/pure';
 import { makeReleasePair } from './release-pair.mjs';
-import { publishRevision, uploadPair } from './network.mjs';
+import { publishRevision, readBackRevision, uploadPair } from './network.mjs';
 
 const secret = new Uint8Array(32).fill(4);
 const pair = makeReleasePair(secret, { identifier: 'hg-update-qa',
@@ -67,9 +67,18 @@ test('upload refuses oversized Blossom descriptor and HTML readback', async () =
 class MockSocket {
   constructor(relay) { this.relay = relay; queueMicrotask(() => this.onopen()); }
   send(message) {
-    const [, event] = JSON.parse(message);
+    const [kind, payload, filter] = JSON.parse(message);
     const allowed = !this.relay.includes('ditto');
-    queueMicrotask(() => this.onmessage({ data: JSON.stringify(['OK', event.id, allowed, allowed ? '' : 'blocked']) }));
+    if (kind === 'EVENT') {
+      queueMicrotask(() => this.onmessage({ data: JSON.stringify(['OK', payload.id, allowed, allowed ? '' : 'blocked']) }));
+      return;
+    }
+    assert.equal(kind, 'REQ');
+    assert.deepEqual(filter, { kinds: [35129], authors: [pair.publisher], '#d': [pair.identifier], limit: 32 });
+    queueMicrotask(() => {
+      this.onmessage({ data: JSON.stringify(['EVENT', payload, pair.revisions[1].event]) });
+      this.onmessage({ data: JSON.stringify(['EOSE', payload]) });
+    });
   }
   close() {}
 }
@@ -78,6 +87,46 @@ test('release requires relay acknowledgement for the exact signed revision', asy
   const receipt = await publishRevision(pair, 'v2', MockSocket);
   assert.equal(receipt.eventId, pair.revisions[1].event.id);
   assert.deepEqual(receipt.accepted.map(item => item.relay), ['wss://relay.damus.io']);
+  assert.equal(receipt.accepted[0].queryable, true);
   assert.equal(receipt.failures, 1);
   await assert.rejects(publishRevision(pair, 'v3', MockSocket), /Select v1 or v2/);
+});
+
+test('relay acknowledgement without exact coordinate readback is not a publication pass', async () => {
+  class AbsentReadbackSocket extends MockSocket {
+    send(message) {
+      const [kind, payload] = JSON.parse(message);
+      if (kind !== 'REQ') return super.send(message);
+      queueMicrotask(() => this.onmessage({ data: JSON.stringify(['EOSE', payload]) }));
+    }
+  }
+  await assert.rejects(publishRevision(pair, 'v2', AbsentReadbackSocket),
+    /acknowledged but no lookup relay made the QA revision queryable/);
+});
+
+test('readback of the older signed revision cannot stand in for the new one', async () => {
+  class StaleReadbackSocket extends MockSocket {
+    send(message) {
+      const [kind, payload] = JSON.parse(message);
+      if (kind !== 'REQ') return super.send(message);
+      queueMicrotask(() => {
+        this.onmessage({ data: JSON.stringify(['EVENT', payload, pair.revisions[0].event]) });
+        this.onmessage({ data: JSON.stringify(['EOSE', payload]) });
+      });
+    }
+  }
+  await assert.rejects(readBackRevision('wss://relay.damus.io', pair.revisions[1].event, StaleReadbackSocket),
+    /exact QA revision was not queryable/);
+});
+
+test('readback rejects an invalid relay event before EOSE', async () => {
+  class InvalidReadbackSocket extends MockSocket {
+    send(message) {
+      const [kind, payload] = JSON.parse(message);
+      if (kind !== 'REQ') return super.send(message);
+      queueMicrotask(() => this.onmessage({ data: JSON.stringify(['EVENT', payload, { id: 'not-signed' }]) }));
+    }
+  }
+  await assert.rejects(readBackRevision('wss://relay.damus.io', pair.revisions[1].event, InvalidReadbackSocket),
+    /readback event invalid/);
 });

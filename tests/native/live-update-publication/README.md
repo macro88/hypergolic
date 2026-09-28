@@ -38,7 +38,9 @@ https://another-public-blossom.example/` selects a different public HTTPS root.
 The relay is `wss://relay.damus.io`, which the isolated fixture's normal native
 Lookup list includes. The commands fail if the server rejects the upload, its
 response or readback differs from the expected hash, or the relay does not
-acknowledge the exact signed event. The upload path verifies that its in-memory
+acknowledge the exact signed event and return it in a fresh, bounded coordinate
+lookup using the app's unpinned filter. An `OK` alone is not a native lookup
+pass. The upload path verifies that its in-memory
 key matches the signed handoff publisher before making any request. It bounds
 the Blossom descriptor to 4 KiB and the direct HTML readback to the exact
 expected byte count. `publish` rechecks both public blobs before releasing the

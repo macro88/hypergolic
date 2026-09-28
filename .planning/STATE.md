@@ -622,3 +622,14 @@ and proof files before/after. HTTPS passes **10** checks (six TLS socket cases
 and four synthetic DNS answer-set checks); WSS passes **8** TLS socket cases.
 The receipt does not claim the Expo app's lifecycle, physical-device trust or
 the live published update. Source remote/push remains owner-only.
+
+Live-update publication handoff (2026-09-28): the disposable QA publisher now
+requires both a relay `OK` and a fresh bounded `REQ`/`EVENT`/`EOSE` readback
+using the app's unpinned kind-35129 publisher/`d` lookup filter. A missing,
+older or invalid event cannot count as a published revision. Eleven offline
+publication tests, two driver tests, TypeScript and React Doctor numeric
+**100/100** pass. No Blossom upload or relay event has been sent; the QA
+publisher choice is still pending. The API 26 Google APIs emulator has no Play
+Store or local updated WebView package, so its known WebView 58 guest refusal
+remains an unclosed compatibility check. Full network-enabled aislop and
+physical-iPhone acceptance remain pending; source remote/push is owner-only.
