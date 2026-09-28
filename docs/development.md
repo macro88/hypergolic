@@ -455,6 +455,10 @@ from this guide, with Build Tools 36.0.0 installed. Install root, runtime and qu
 workspaces first. The command runs `prebuild:android`, Gradle `assembleRelease`,
 `zipalign`, signing and final signature/alignment verification. It checks the APK's
 application ID/version against app.json and rejects debuggable or non-ARM64 output.
+It also checks the packaged manifest against the reviewed Release permission set:
+Internet, network state, biometric, legacy fingerprint compatibility and the
+package-scoped non-exported receiver permission. A future permission addition
+must be reviewed and the contract updated before tester packaging can succeed.
 
 ### One-time signing setup
 

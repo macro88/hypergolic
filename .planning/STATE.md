@@ -389,3 +389,12 @@ and the verified trusted host SHA-256
 No code signature or provisioning profile exists, and `devicectl` listed only
 simulated iPhones. Device installation and protected identity/signing/backup
 journeys remain open; compilation alone does not close them.
+
+Tester permission regression gate (2026-09-28): `build:tester` now compares
+`aapt dump permissions` from the actual unsigned Release APK with the reviewed
+permission set before alignment or signing. Twelve packaging tests pass,
+including a new unexpected and SDK-scoped permission rejection. The verifier
+also passes against the freshly built isolated Release APK. The owner-controlled
+tester keystore is unavailable in this session, so no new signed tester APK was
+produced; this does not establish distribution or device acceptance. Current
+React Doctor and aislop scores remain 100/100 after this packaging change.

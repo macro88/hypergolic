@@ -20,6 +20,19 @@ Output: .tools/tester-apks/<version>-<versionCode>-<commit>-<unique>/
 No upload, installation, key generation or automatic version increment occurs.
 `;
 
+export function verifyReleasePermissions(aaptOutput, applicationId) {
+  const actual = [...aaptOutput.matchAll(/^uses-permission(?:-sdk-\d+)?: name='([^']+)'/gm)]
+    .map(match => match[1]).sort();
+  const expected = [
+    'android.permission.ACCESS_NETWORK_STATE',
+    'android.permission.INTERNET',
+    'android.permission.USE_BIOMETRIC',
+    'android.permission.USE_FINGERPRINT',
+    `${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`,
+  ].sort();
+  assert.deepEqual(actual, expected, 'Review changed Android Release permissions before tester packaging.');
+}
+
 function execute(command, args, { cwd, env, capture = false }) {
   const result = spawnSync(command, args, { cwd, env, shell: false,
     stdio: capture ? ['ignore', 'pipe', 'pipe'] : 'inherit', encoding: 'utf8' });
@@ -80,6 +93,7 @@ export async function buildTester({ root = ROOT, env = process.env, args = proce
       'Built APK identity/version differs from app.json.');
     assert(!metadata.includes('application-debuggable'), 'Refusing a debuggable APK.');
     assert(/^native-code: 'arm64-v8a'\s*$/m.test(metadata), 'Expected an ARM64 APK.');
+    verifyReleasePermissions(invoke(tools.aapt, ['dump', 'permissions', unsigned], true), app.android.package);
     temporary = await mkdtemp(path.join(outputRoot, '.building-'));
     const aligned = path.join(temporary, 'aligned.apk');
     const filename = `hypergolic-${app.version}-${app.android.versionCode}-arm64.apk`;

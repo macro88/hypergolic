@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, writeFile, rm, readdir, readFile, realpath } from 'node
 import { writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { buildTester } from '../../scripts/build-tester.mjs';
+import { buildTester, verifyReleasePermissions } from '../../scripts/build-tester.mjs';
 
 async function fixture(t, failure) {
   const base = await realpath(await mkdtemp(path.join(tmpdir(), 'tester-build-')));
@@ -33,6 +33,7 @@ async function fixture(t, failure) {
       if (failure === 'build') throw new Error('gradle failed');
       if (failure !== 'missing') writeFileSync(unsigned, 'fresh unsigned');
     }
+    if (name === 'aapt' && args[1] === 'permissions') return `package: org.example.tester\nuses-permission: name='android.permission.INTERNET'\nuses-permission: name='android.permission.USE_BIOMETRIC'\nuses-permission: name='android.permission.ACCESS_NETWORK_STATE'\nuses-permission: name='android.permission.USE_FINGERPRINT'\nuses-permission: name='org.example.tester.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'\n${failure === 'permission' ? "uses-permission: name='android.permission.VIBRATE'" : ''}`;
     if (name === 'aapt') return `package: name='org.example.tester' versionCode='${failure === 'version' ? 1 : 2}' versionName='0.0.1'\nnative-code: 'arm64-v8a'\n${failure === 'debug' ? 'application-debuggable' : ''}`;
     if (name === 'zipalign' && args[0] !== '-c') writeFileSync(args.at(-1), 'aligned');
     if (name === 'apksigner' && args[0] === 'sign') {
@@ -63,7 +64,7 @@ test('Packages verified APKs without credentials, supports spaced paths and pres
   assert(!(await readdir(first)).includes('aligned.apk'));
   assert(f.calls.findIndex(c => c[0] === 'zipalign') < f.calls.findIndex(c => c[0] === 'apksigner'));
 });
-for (const failure of ['build', 'missing', 'version', 'debug', 'sign', 'verify']) {
+for (const failure of ['build', 'missing', 'version', 'debug', 'permission', 'sign', 'verify']) {
   test(`No successful output after ${failure} failure`, async t => {
     const f = await fixture(t, failure);
     await assert.rejects(buildTester(f));
@@ -87,4 +88,14 @@ test('An existing build lock and its artifacts remain untouched', async t => {
   await writeFile(path.join(output, '.build.lock'), 'another process');
   await assert.rejects(buildTester(f), /EEXIST/);
   assert.equal(await readFile(path.join(output, '.build.lock'), 'utf8'), 'another process');
+});
+
+test('Final permission verifier rejects even a version-scoped unexpected request', () => {
+  const output = "uses-permission: name='android.permission.INTERNET'\n" +
+    "uses-permission: name='android.permission.USE_BIOMETRIC'\n" +
+    "uses-permission: name='android.permission.ACCESS_NETWORK_STATE'\n" +
+    "uses-permission: name='android.permission.USE_FINGERPRINT'\n" +
+    "uses-permission: name='org.example.tester.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'\n" +
+    "uses-permission-sdk-23: name='android.permission.READ_EXTERNAL_STORAGE'\n";
+  assert.throws(() => verifyReleasePermissions(output, 'org.example.tester'), /Review changed Android Release permissions/);
 });
