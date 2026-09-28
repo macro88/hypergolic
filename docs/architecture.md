@@ -56,10 +56,10 @@ The normal Android API 29 Release app also passes public remote first-open
 consent and restores the connected guest with the same npub after cold restart.
 Live published updates, protected identity security and physical-device
 acceptance remain open.
-Controlled host-JVM Android HTTPS/WSS and host-macOS plus iPhone Simulator
-iOS HTTPS/WSS TLS proofs cover selected failure paths. The iOS Simulator
-proofs run the owning Swift transports as standalone binaries; app lifecycle
-and physical-device failure paths remain open.
+Controlled host-JVM plus API 26/API 29 Android-runtime HTTPS/WSS and host-macOS plus
+iPhone Simulator iOS HTTPS/WSS TLS proofs cover selected failure paths. The
+emulator/Simulator proofs run owning transports as standalone binaries; app
+lifecycle and physical-device failure paths remain open.
 Inactive identity deletion now has a shared
 review and an Android system-PIN journey; iOS
 action acceptance still requires a physical device.

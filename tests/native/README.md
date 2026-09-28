@@ -62,3 +62,7 @@ The separate [identity system-authentication journey](android-identity-actions/R
 explicitly manages a public PIN only on its named disposable auth emulator. Those
 credential-setup actions are confined to that driver and are not part of the generic
 host trace driver described above.
+
+The [published transport runtime proof](android-published-transport-device/README.md)
+runs the owning Java HTTPS and WSS TLS paths in a disposable emulator DEX. It
+does not install or modify the normal app.

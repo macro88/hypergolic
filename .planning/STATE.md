@@ -601,3 +601,16 @@ native owners, but does not inject a mixed reply into platform `getaddrinfo`
 or prove a physical-device DNS attack path. The normal unsigned iOS Release
 app build passes without the proof flag; live QA publication and full aislop
 approval remain pending.
+
+Android API 26/API 29 runtime TLS checkpoint (2026-09-28): the unchanged Java
+HTTPS and WSS owners pass **25 HTTPS** and **37 WSS** controlled TLS checks
+under `app_process` on each emulator. Disposable DEX SHA-256 is
+`eed9e5badd29e19edde533b1dcd11131fa460d2b229e23557598a268061d3182`
+for API 26 and
+`285c78c5fb3d2d8fb132cb9aaec22377f38180e33939dd841f7ef399a6e7b921`
+for API 29. The runner records source hashes, emulator build fingerprints
+and successful temporary-file cleanup. Only test harness calls were adapted
+to Java 8 APIs; production transport files were unchanged. This proves
+Android runtime sockets with test trust under the shell UID, not the Expo
+bridge, normal app trust, background revocation or a physical device. Live
+v1-to-v2 QA publication and the full aislop audit remain pending decisions.

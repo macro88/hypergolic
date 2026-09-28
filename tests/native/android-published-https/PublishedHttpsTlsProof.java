@@ -9,6 +9,7 @@ import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -52,8 +53,8 @@ public final class PublishedHttpsTlsProof {
 
   public static void main(String[] args) throws Exception {
     if (args.length != 2) throw new IllegalArgumentException("Expected disposable certificate and PKCS12 paths");
-    SSLSocketFactory trusted = trustedFactory(Path.of(args[0]));
-    SSLContext serverContext = serverContext(Path.of(args[1]));
+    SSLSocketFactory trusted = trustedFactory(Paths.get(args[0]));
+    SSLContext serverContext = serverContext(Paths.get(args[1]));
     ThreadPoolExecutor dns = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
         new ArrayBlockingQueue<>(4), task -> {
           Thread thread = new Thread(task, "published-https-tls-proof-dns");
@@ -223,9 +224,9 @@ public final class PublishedHttpsTlsProof {
           int value = input.read();
           if (value < 0) return;
           bytes.write(value);
-          if (bytes.toString(StandardCharsets.US_ASCII).endsWith("\r\n\r\n")) break;
+          if (new String(bytes.toByteArray(), StandardCharsets.US_ASCII).endsWith("\r\n\r\n")) break;
         }
-        request = bytes.toString(StandardCharsets.US_ASCII);
+        request = new String(bytes.toByteArray(), StandardCharsets.US_ASCII);
         requestCount++;
         requestArrived.countDown();
         if (waitForRelease && !releaseResponse.await(3, TimeUnit.SECONDS)) return;

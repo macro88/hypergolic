@@ -109,3 +109,12 @@ four synthetic answer-set checks pass on macOS and iPhone Simulator, including
 both public/private orderings and empty DNS. HTTPS six socket cases and WSS
 eight socket cases still pass on each runtime. Platform `getaddrinfo` injection
 and physical-device DNS behavior remain untested.
+
+The owning Android HTTPS and WSS Java sources also pass their controlled TLS
+cases in both API 26 and API 29 emulator runtimes: 25 HTTPS and 37 WSS checks
+on each.
+`tests/native/android-published-transport-device/runner.py` binds a disposable
+DEX to source hashes, records each emulator build fingerprint and removes its
+temporary files. The production transport is unchanged. The proof runs under
+the shell UID, outside the Expo app; app lifecycle, normal system trust and
+physical-device failures remain open.

@@ -124,6 +124,18 @@ identity security or guest signing.
 Run the address proof with `python3 tests/native/public-ip-classifier/run.py`.
 The Android HTTPS proof is `python3 tests/native/android-published-https/runner.py`;
 its loopback TLS cases need local socket permission and OpenSSL.
+The Android runtime proof is
+`python3 tests/native/android-published-transport-device/runner.py --serial <emulator> --output <new-dir>`.
+It compiles the unchanged owning Java sources into a disposable DEX and runs
+25 HTTPS plus 37 WSS TLS checks on the named emulator. API 26 and API 29
+both pass, bound respectively to DEX SHA-256
+`eed9e5badd29e19edde533b1dcd11131fa460d2b229e23557598a268061d3182`
+and `285c78c5fb3d2d8fb132cb9aaec22377f38180e33939dd841f7ef399a6e7b921`.
+This uses Android's runtime and socket stack under the shell UID with temporary
+test trust inputs; it does not exercise the Expo app, its system trust store or
+background lifecycle. The runner removes its temporary emulator files and
+writes a source-hashed JSON receipt.
+
 The Android Expo owner proof is
 `python3 tests/native/android-published-https-bridge/runner.py`.
 The iOS response and request proof is `python3 tests/native/published-https/run.py`;
@@ -141,9 +153,9 @@ the owning Swift transport and Network.framework in iOS Simulator as a
 standalone proof binary; it does not exercise the Expo app's lifecycle or a
 physical iPhone. The iOS Simulator Release build checks the actual Expo module
 target. The production resolver calls `vetResolvedAddresses` before connecting.
-The HTTPS runner
-checks both orderings of a synthetic public/private answer pair, an empty set
-and a public-only set through that same production veto on macOS and Simulator.
+The HTTPS runner checks both orderings of a synthetic public/private answer
+pair, an empty set and a public-only set through that same production veto on
+macOS and Simulator.
 These checks do not inject a mixed reply into the platform `getaddrinfo` call.
 The shared frame proof is `python3 tests/native/websocket-frames/run.py`. WSS handshake,
 client-frame and native query proofs are in `tests/native/websocket-handshake`,

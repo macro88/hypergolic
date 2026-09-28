@@ -1,14 +1,16 @@
 package org.nostrocket.hypergolic.host;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -35,8 +37,8 @@ public final class PublishedRelayWssTlsProof {
 
   public static void main(String[] args) throws Exception {
     if (args.length != 2) throw new IllegalArgumentException("Expected disposable certificate and PKCS12 paths");
-    SSLContext serverContext = PublishedHttpsTlsProof.serverContext(Path.of(args[1]));
-    SSLSocketFactory trusted = PublishedHttpsTlsProof.trustedFactory(Path.of(args[0]));
+    SSLContext serverContext = PublishedHttpsTlsProof.serverContext(Paths.get(args[1]));
+    SSLSocketFactory trusted = PublishedHttpsTlsProof.trustedFactory(Paths.get(args[0]));
     ThreadPoolExecutor dns = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
         new ArrayBlockingQueue<>(4), task -> {
           Thread thread = new Thread(task, "published-wss-tls-proof-dns");
@@ -65,7 +67,7 @@ public final class PublishedRelayWssTlsProof {
       List<String> result = query(relay, "relay.example.org", null, ignored -> new InetAddress[] {
           InetAddress.getByAddress(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}), LOOPBACK
       }, dns, trusted);
-      equal(List.of("event", "eose"), result);
+      equal(Arrays.asList("event", "eose"), result);
       equal(1, relay.accepted);
       equal(REQUEST, relay.clientRequest);
       check(relay.upgrade.startsWith("GET /nostr HTTP/1.1\r\nHost: relay.example.org:" + relay.port()));
@@ -255,8 +257,8 @@ public final class PublishedRelayWssTlsProof {
       int value = input.read();
       if (value < 0) throw new IOException("Client closed before upgrade");
       bytes.write(value);
-      if (bytes.toString(StandardCharsets.US_ASCII).endsWith("\r\n\r\n")) {
-        return bytes.toString(StandardCharsets.US_ASCII);
+      if (new String(bytes.toByteArray(), StandardCharsets.US_ASCII).endsWith("\r\n\r\n")) {
+        return new String(bytes.toByteArray(), StandardCharsets.US_ASCII);
       }
     }
     throw new IOException("Oversized client upgrade");
@@ -283,8 +285,10 @@ public final class PublishedRelayWssTlsProof {
       throw new IOException("Invalid client REQ frame");
     }
     int length = second & 0x7f;
-    byte[] mask = input.readNBytes(4), payload = input.readNBytes(length);
-    if (mask.length != 4 || payload.length != length) throw new IOException("Truncated client REQ frame");
+    byte[] mask = new byte[4], payload = new byte[length];
+    DataInputStream framed = new DataInputStream(input);
+    framed.readFully(mask);
+    framed.readFully(payload);
     for (int i = 0; i < payload.length; i++) payload[i] ^= mask[i & 3];
     return new String(payload, StandardCharsets.UTF_8);
   }
