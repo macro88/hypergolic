@@ -128,6 +128,14 @@ The Android Expo owner proof is
 `python3 tests/native/android-published-https-bridge/runner.py`.
 The iOS response and request proof is `python3 tests/native/published-https/run.py`;
 it compiles the actual native sources with `swiftc -warnings-as-errors`. The
+iOS HTTPS transport proof is `python3 tests/native/published-https/tls_runner.py`.
+It runs the actual Swift HTTPS owner against disposable loopback TLS servers
+with a proof-only address and certificate anchor seam compiled under
+`HYPERGOLIC_NETWORK_PROOF`. Its six host-macOS cases cover valid HTTPS,
+IPv6-to-IPv4 pre-request failover, untrusted and wrong-host certificates,
+redirect rejection and cancellation during a withheld response. The normal
+native build does not define the proof flag, resolve override or custom trust
+anchor. This is host transport evidence, not iOS device failure-path proof. The
 iOS Simulator Release build checks the actual Expo module target. The shared
 frame proof is `python3 tests/native/websocket-frames/run.py`. WSS handshake,
 client-frame and native query proofs are in `tests/native/websocket-handshake`,

@@ -56,6 +56,8 @@ The normal Android API 29 Release app also passes public remote first-open
 consent and restores the connected guest with the same npub after cold restart.
 Live published updates, protected identity security and physical-device
 acceptance remain open.
+Controlled host-JVM Android HTTPS/WSS and host-macOS iOS HTTPS TLS proofs cover
+selected failure paths; they do not establish failure-path behavior on devices.
 Inactive identity deletion now has a shared
 review and an Android system-PIN journey; iOS
 action acceptance still requires a physical device.

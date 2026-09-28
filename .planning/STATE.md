@@ -556,3 +556,14 @@ on a Settings error with the fixture's bounded source stage. The flaky
 third-party relay result remains an external test dependency. This does not
 close live updates, physical-device identity security or the network-enabled
 aislop approval. Source remote/push remains owner-only.
+
+Controlled iOS HTTPS host proof (2026-09-28): a compile-gated
+`HYPERGOLIC_NETWORK_PROOF` seam runs the actual Swift HTTPS owner against
+disposable loopback TLS servers without changing production address resolution
+or certificate trust. Six host-macOS cases pass: valid response, pre-request
+IPv6-to-IPv4 failover, untrusted and wrong-host certificates, redirect rejection
+and cancellation during a withheld response. The original HTTPS contract proof
+still passes 33 checks; WSS host proof and arm64 Simulator compile pass. This
+does not prove iOS Simulator or physical-iPhone negative paths. The normal
+unsigned iOS Simulator Release app build passes without the proof flag. Owned QA publication and the
+network-enabled aislop audit remain pending user decisions.

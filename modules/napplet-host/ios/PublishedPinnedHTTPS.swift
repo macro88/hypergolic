@@ -117,6 +117,23 @@ enum PublishedPinnedHTTPS {
     return operation
   }
 
+#if HYPERGOLIC_NETWORK_PROOF
+  /// Host-only proof seam. Production builds never compile address or trust overrides.
+  static func fetchForProof(_ input: String, maximumBodyBytes: Int, timeout: TimeInterval = 5,
+                            addresses: [Address], anchorDER: Data?,
+                            completion: @escaping @Sendable (Result<PublishedHTTPResponse, Error>) -> Void) throws -> Operation {
+    let request = try Request(input)
+    guard (1...PublishedHTTPResponse.maximumBodyBytes).contains(maximumBodyBytes),
+          timeout > 0, timeout <= 60, !addresses.isEmpty else { throw Failure.invalidURL }
+    let operation = try Operation(request: request, maximumBodyBytes: maximumBodyBytes,
+                                  timeout: timeout, completion: completion)
+    operation.proofAddresses = addresses
+    operation.proofAnchorDER = anchorDER
+    operation.start()
+    return operation
+  }
+#endif
+
   final class Operation: @unchecked Sendable {
     private let request: Request
     private let timeout: TimeInterval
@@ -126,6 +143,10 @@ enum PublishedPinnedHTTPS {
     private var connection: NWConnection?
     private var addresses: VettedAddressCursor<Address>?
     private var ended = false
+#if HYPERGOLIC_NETWORK_PROOF
+    fileprivate var proofAddresses: [Address]?
+    fileprivate var proofAnchorDER: Data?
+#endif
 
     fileprivate init(request: Request, maximumBodyBytes: Int, timeout: TimeInterval,
                      completion: @escaping @Sendable (Result<PublishedHTTPResponse, Error>) -> Void) throws {
@@ -137,6 +158,16 @@ enum PublishedPinnedHTTPS {
 
     fileprivate func start() {
       queue.asyncAfter(deadline: .now() + timeout) { self.finish(.failure(Failure.connection)) }
+#if HYPERGOLIC_NETWORK_PROOF
+      if let proofAddresses {
+        queue.async {
+          guard !self.ended else { return }
+          self.addresses = VettedAddressCursor(proofAddresses)
+          self.connectNext()
+        }
+        return
+      }
+#endif
       DispatchQueue.global(qos: .utility).async {
         let result = Result { try PublishedPinnedHTTPS.resolve(self.request.host) }
         self.queue.async {
@@ -167,12 +198,23 @@ enum PublishedPinnedHTTPS {
       sec_protocol_options_add_tls_application_protocol(tls.securityProtocolOptions, "http/1.1")
       sec_protocol_options_set_min_tls_protocol_version(tls.securityProtocolOptions, .TLSv12)
       let name = request.host
+#if HYPERGOLIC_NETWORK_PROOF
+      let proofAnchorDER = proofAnchorDER
+#endif
       sec_protocol_options_set_verify_block(tls.securityProtocolOptions, { _, peerTrust, verify in
         let trust = sec_trust_copy_ref(peerTrust).takeRetainedValue()
         let policy = SecPolicyCreateSSL(true, name as CFString)
         guard SecTrustSetPolicies(trust, policy) == errSecSuccess,
               SecTrustSetNetworkFetchAllowed(trust, false) == errSecSuccess
         else { verify(false); return }
+#if HYPERGOLIC_NETWORK_PROOF
+        if let proofAnchorDER {
+          guard let anchor = SecCertificateCreateWithData(nil, proofAnchorDER as CFData),
+                SecTrustSetAnchorCertificates(trust, [anchor] as CFArray) == errSecSuccess,
+                SecTrustSetAnchorCertificatesOnly(trust, true) == errSecSuccess
+          else { verify(false); return }
+        }
+#endif
         verify(SecTrustEvaluateWithError(trust, nil))
       }, queue)
       let parameters = NWParameters(tls: tls, tcp: NWProtocolTCP.Options())
