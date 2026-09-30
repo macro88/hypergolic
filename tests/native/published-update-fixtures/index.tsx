@@ -51,7 +51,7 @@ async function openPublicFixture(): Promise<TrustedIdentityOwner> {
     { service: approvals, destinations: () => Object.freeze([...defaults.networkRelays]) },
     { sqlite: SQLite, source, native: loadNativePublishedTransferPort(),
       lookupRelays: () => Object.freeze([...defaults.lookupRelays]) });
-  return Object.freeze({ transition, formatNpub, approvals, runtime, relaySettings: null });
+  return Object.freeze({ transition, formatNpub, approvals, runtime, relaySettings: null, resourceSettings: null });
 }
 
 let state: Readonly<{ owner: TrustedIdentityOwner | null; error: boolean }> = Object.freeze({ owner: null, error: false });

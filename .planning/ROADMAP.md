@@ -14,7 +14,7 @@ and resolve each phase's material policy decisions before generating those files
 - [ ] **Phase 2: Independent Android and iOS proof** — native foundation and device evidence; full MVP acceptance is phase 2.11.
 - [x] **Phase 2.1: Relay query and compatibility** — M; Feed Lab.
 - [x] **Phase 2.2: Live relay subscriptions** — L; Feed Lab.
-- [ ] **Phase 2.3: Resource access** — L; Resource Lab.
+- [x] **Phase 2.3: Resource access** — L; Resource Lab.
 - [ ] **Phase 2.4: Uploads** — L; Upload Lab.
 - [ ] **Phase 2.5: Public identity data** — M; State Lab and Feed Lab.
 - [ ] **Phase 2.6: External links** — S–M; Resource Lab.
@@ -77,7 +77,8 @@ The existing phase directory name remains unchanged to preserve references.
 **Requirements:** CAP-04
 **Fixture:** Resource Lab
 **Work and exit criteria:** Select resource schemes and cache policy; mediate bounded bytes/handles with DNS, redirect, MIME and integrity checks. Verify actual rendering, private-destination denial, oversize, cancellation and handle revocation.
-**Plans:** Pending owning-contract research and phase-local decisions; no completion claimed.
+**Selected scope:** HTTPS, SHA-256-verified Blossom, one-hop Nostr and embedded data, including bounded audio/video playback alongside images and attachments; memory-only caches while the napplet is loaded, with refetch after app restart. The resource grant permits any public HTTPS domain without per-file prompts; private/local destinations remain blocked. Blossom downloads use an editable default server list managed in trusted Settings; the [accepted resource profile](../docs/resource-access.md) records selected Primal/Satellite origins, validated redirects and exact engineering bounds. Playback pauses on switching/background, retains position while loaded and requires Play to resume. Streaming and large-file delivery remain separate unresolved work. Hashtree and SVG support are deferred gaps to revisit after Phase 4.
+**Plans:** [02.3-01](phases/02.3-resource-access/02.3-01-PLAN.md) SDK/native HTTPS tracer; [02.3-02](phases/02.3-resource-access/02.3-02-PLAN.md) schemes, bulk, caches and settings; [02.3-03](phases/02.3-resource-access/02.3-03-PLAN.md) playback/lifetime and final quality. All three plans pass the selected bounded profile; [verification](phases/02.3-resource-access/02.3-VERIFICATION.md) records actual native bytes/playback and lifecycle evidence, quality gates and remaining final-integration limits.
 
 ### Phase 2.4: Uploads
 
@@ -169,6 +170,13 @@ Value architecture decision. iOS remains required throughout.
 **Fixture:** Value Lab
 **Work and exit criteria:** Choose provider/model/rails and pin contracts; implement quote, trusted review, send, status and restart reconciliation. Test fee/recipient changes, expiry, denial, lost replies, duplicate prevention, recovery, and distinct payment/zap-receipt evidence on both platforms.
 **Plans:** Pending owning-contract research and phase-local decisions; no completion claimed.
+
+## Gaps to revisit after Phase 4
+
+- **Hashtree resource support:** verified root/tree/chunk retrieval and decryption where applicable, fragment-key protection and native Android/iOS acceptance.
+- **SVG resource support:** bounded rasterization without network access before delivery, with native Android/iOS rendering and denial tests. The selected Phase-2.3 profile rejects raw SVG.
+
+These deferred resource extensions are outside the selected Phase-2.3 baseline and Phase-4 value scope. Recheck owning contracts and target napplet compatibility before implementing them. No new phase number or completion is implied.
 
 ## Planning and verification discipline
 

@@ -1,3 +1,5 @@
+import { bindResourceMedia, injectResourceMediaGate } from './resource-media';
+import { createResourceAdapter } from './resource-adapter';
 import { ensureObjectHasOwn } from './legacy-webview';
 import { parseRelaySubscribe, parseRelayClose } from '../../src/network/relay-subscription-contract';
 import {
@@ -54,11 +56,11 @@ const csp = [
 ].join('; ');
 
 /** Only fixed generated HTML whose bytes were independently verified is admitted. */
-function injectCsp(html: string): string {
+function injectCsp(html: string, policy: string): string {
   if (!/^<!doctype html>\s*<html lang="en">\s*<head>/i.test(html)) {
     throw new Error('Unexpected fixture structure');
   }
-  return html.replace('<head>', `<head><meta http-equiv="Content-Security-Policy" content="${csp}">`);
+  return html.replace('<head>', `<head><meta http-equiv="Content-Security-Policy" content="${policy}">`);
 }
 async function digest(value: string): Promise<string> {
   const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
@@ -72,6 +74,7 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
     colors: { background: '#140f0b', text: '#f3efeb', primary: '#e8805d' },
   } });
   const supported = new Set(artifact.domains);
+  const resource = createResourceAdapter(native, captureRecipient);
   const storage = async ({ message, send }: HostOperationContext): Promise<void> => { send({ ...await native.request(message) }); };
   const relayPublish = async ({ message, send }: HostOperationContext): Promise<void> => { send({ ...await native.request(message) }); };
   const relaySubscribe = ({message,send}:HostOperationContext):void => {
@@ -105,13 +108,15 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
     workerRelay: { getWorkerRelay: () => null },
     crypto: { verifyEvent: async () => false },
     services: { theme: theme.handler, ...(supported.has('identity') ? { identity } : {}),
+      ...(supported.has('resource') ? { resource: { descriptor: { name: 'resource', version: '1.0.0' }, handleMessage: unavailable } } : {}),
       ...(supported.has('relay') ? { relay: { descriptor: { name: 'relay', version: '1.0.0' }, handleMessage: unavailable } } : {}) },
-    ...((supported.has('storage') || supported.has('relay')) ? { operationOverrides: {
+    ...((supported.has('storage') || supported.has('relay') || supported.has('resource')) ? { operationOverrides: {
+      ...(supported.has('resource') ? { 'resource.info': resource, 'resource.bytes': resource, 'resource.bytesMany': resource, 'resource.cancel': resource } : {}),
       ...(supported.has('storage') ? { 'storage.get': storage, 'storage.set': storage, 'storage.remove': storage, 'storage.keys': storage } : {}),
       ...(supported.has('relay') ? { 'relay.publish': relayPublish, 'relay.query': relayPublish, 'relay.subscribe': relaySubscribe, 'relay.close': relayClose } : {}),
     } } : {}),
     capabilities: {
-      disabledDomains: ['relay', 'identity', 'storage', 'inc', 'keys', 'media', 'notify'].filter(domain => !supported.has(domain)),
+      disabledDomains: ['resource', 'relay', 'identity', 'storage', 'inc', 'keys', 'media', 'notify'].filter(domain => !supported.has(domain)),
       resolveEnvironment: () => ({ domains: [...supported], services: ['theme', ...(supported.has('identity') ? ['identity'] : [])] }),
     },
   };
@@ -119,7 +124,7 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
 
 const privilegedRequests = new Set(['identity.getPublicKey', 'identity.getRelays', 'identity.getProfile',
   'identity.getFollows', 'identity.getMutes', 'identity.getBlocked', 'identity.getList',
-  'identity.getZaps', 'identity.getBadges', 'storage.get', 'storage.set', 'storage.remove', 'storage.keys', 'relay.query']);
+  'identity.getZaps', 'identity.getBadges', 'storage.get', 'storage.set', 'storage.remove', 'storage.keys', 'relay.query', 'resource.info', 'resource.bytes', 'resource.bytesMany', 'resource.cancel']);
 function validEnvelope(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const message = value as Record<string, unknown>;
@@ -174,6 +179,8 @@ function mount(artifact: RuntimeArtifact): void {
   document.body.replaceChildren(frame);
   const source = frame.contentWindow;
   if (!source) { bridge.destroy(); throw new Error('Frame unavailable'); }
+  const media = bindResourceMedia(source);
+  const policy = artifact.domains.includes('resource') ? csp.replace("media-src 'none'", 'media-src blob:') : csp;
   originRegistry.register(source, sessionId, identity);
   originRegistry.setEnvironment(source, environment);
   let ready = false;
@@ -210,9 +217,11 @@ function mount(artifact: RuntimeArtifact): void {
     // generation on any subsequent document load; never bless new source bytes.
     if (frameLoaded) { fail('frame-navigation'); return; }
     frameLoaded = true;
+    media.refresh();
     if (frame.contentWindow !== source) fail('frame-navigation');
   };
   cleanup = (): void => {
+    media.close();
     window.clearTimeout(deadline);
     window.removeEventListener('message', receive);
     frame.removeEventListener('load', loaded);
@@ -224,8 +233,8 @@ function mount(artifact: RuntimeArtifact): void {
   };
   window.addEventListener('message', receive);
   frame.addEventListener('load', loaded);
-  frame.srcdoc = injectNappletNamespacePrelude(artifact.published
-    ? injectPublishedCsp(artifact.html, csp) : injectCsp(artifact.html), {
+  frame.srcdoc = injectNappletNamespacePrelude(injectResourceMediaGate(artifact.published
+    ? injectPublishedCsp(artifact.html, policy) : injectCsp(artifact.html, policy)), {
     ...environment.capabilities,
     ...(artifact.publishTimeoutMs === undefined ? {} : { requestTimeoutsMs: { 'relay.publish': artifact.publishTimeoutMs } }),
   });

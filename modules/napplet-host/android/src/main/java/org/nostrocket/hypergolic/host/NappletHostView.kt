@@ -101,7 +101,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
         if (url != expectedUrl || loaded) { fail("navigation-blocked"); view.stopLoading() }
       }
       override fun onPageFinished(view: WebView, url: String?) {
-        if (live && url == expectedUrl) loaded = true
+        if (live && url == expectedUrl) { loaded = true; updateMediaPlayback() }
       }
       override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) { handler.cancel() }
       override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
@@ -179,8 +179,9 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   }
 
   fun setActive(active: Boolean) {
-    if (disposed) return
+    if (disposed || this.active == active) return
     this.active = active
+    updateMediaPlayback()
     ApprovalTransport.focus(generation, active)
     webView.importantForAccessibility = if (active) View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
       else View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
@@ -189,6 +190,13 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     webView.clearFocus()
     (context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager)
       ?.hideSoftInputFromWindow(token, 0)
+  }
+
+  private fun updateMediaPlayback() {
+    if (disposed) return
+    val playingAllowed = active && mediaForeground
+    if (loaded) webView.evaluateJavascript("window.__hypergolicMediaActive?.($playingAllowed)", null)
+    if (playingAllowed) webView.onResume() else webView.onPause()
   }
 
   fun startConfiguredSession(raw: String) {
@@ -380,6 +388,12 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   companion object {
     const val HOST = "appassets.androidplatform.net"
     const val ORIGIN = "https://appassets.androidplatform.net"
+    private var mediaForeground = true
+    fun setMediaForeground(foreground: Boolean) {
+      mediaForeground = foreground
+      val views = synchronized(publishedViews) { publishedViews.toList() }
+      views.forEach { it.updateMediaPlayback() }
+    }
     private val publishedViews = Collections.newSetFromMap(WeakHashMap<NappletHostView, Boolean>())
     fun revokePublishedOnBackground() {
       val views = synchronized(publishedViews) { publishedViews.toList() }

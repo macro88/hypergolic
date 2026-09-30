@@ -1,5 +1,20 @@
 import Foundation
 import CoreFoundation
+import UIKit
+
+/// Native notifications revoke authority synchronously, before React Native lifecycle delivery.
+final class CapabilityLifecycle: @unchecked Sendable {
+  private var observers: [NSObjectProtocol] = []
+  init() {
+    let center = NotificationCenter.default
+    for name in [UIApplication.willResignActiveNotification, UIApplication.didEnterBackgroundNotification] {
+      observers.append(center.addObserver(forName: name, object: nil, queue: nil) { _ in CapabilityTransport.foreground(false) })
+    }
+    observers.append(center.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { _ in CapabilityTransport.foreground(true) })
+    Task { @MainActor in CapabilityTransport.foreground(UIApplication.shared.applicationState == .active) }
+  }
+  deinit { for observer in observers { NotificationCenter.default.removeObserver(observer) } }
+}
 
 /// React Native owns this immutable configuration. Requests cannot supply namespace fields.
 struct CapabilityConfiguration {
@@ -35,11 +50,12 @@ struct CapabilityConfiguration {
     case "ux-lab": expected = ["theme"]
     case "state-lab", "state-lab-peer": expected = ["identity", "storage", "theme"]
     case "approval-lab": expected = ["identity", "relay", "theme"]
+    case "resource-lab": expected = ["resource", "theme"]
     case "feed-lab": expected = ["relay", "theme"]
     case "published":
       expected = Set(domains)
-      guard domains.count <= 4,
-        expected.isSubset(of: ["identity", "storage", "theme", "relay"]) else {
+      guard domains.count <= 5,
+        expected.isSubset(of: ["identity", "storage", "theme", "relay", "resource"]) else {
         throw Invalid.configuration
       }
     default: throw Invalid.configuration
@@ -78,6 +94,13 @@ struct CapabilityConfiguration {
 @MainActor
 enum CapabilityTransport {
   nonisolated static let leases = CapabilityLeaseRegistry()
+  nonisolated static let lifecycle = CapabilityLifecycle()
+  nonisolated static func foreground(_ value: Bool) {
+    let revoked = leases.setForeground(value)
+    Task { @MainActor in
+      for token in revoked { pending.removeValue(forKey: token)?.reply(nil) }
+    }
+  }
   private struct Pending {
     let generation: String
     let reply: @MainActor @Sendable (String?) -> Void
@@ -103,6 +126,7 @@ enum CapabilityTransport {
   }
   static func revoke(_ generation: String) {
     leases.revoke(generation)
+    ResourceHTTPSBridgeOwner.shared.revoke(generation)
     RelaySubscriptionTransport.shared.revoke(generation)
     for token in pending.filter({ $0.value.generation == generation }).keys {
       pending.removeValue(forKey: token)?.reply(nil)

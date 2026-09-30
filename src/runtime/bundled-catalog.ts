@@ -1,5 +1,8 @@
 /** Reviewed unsigned test artifacts. These records confer no remote publisher trust. */
 export const BUNDLED_FIXTURES = Object.freeze({
+  'resource-lab': Object.freeze({ title: 'Resource Lab', appId: 'resource-lab',
+    sha256: 'af7ae3738898edec2e2db867075bc7ad1a9cae205a8c516c48e8e1fb586815fb', aggregateHash: '4bb5bae7297291698fed042ebd3a65310e0dda28580f614a5d53faed6d81ff38',
+    domains: Object.freeze(['resource', 'theme']) }),
   'feed-lab': Object.freeze({ title: 'Feed Lab', appId: 'feed-lab',
     sha256: 'c63decfce9deeaf3770edca004a5b82aaf23064bf14c06878d9ab9a1f9ecf872', aggregateHash: '522672e9315e98ffe3658e3d5cef2fcf96b2d29262fe6a558ebfd3d417cb78f2',
     domains: Object.freeze(['relay', 'theme']) }),

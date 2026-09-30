@@ -3,9 +3,9 @@ gsd_state_version: '1.0'
 status: executing
 progress:
   total_phases: 14
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 11
-  completed_plans: 5
+  completed_plans: 8
 ---
 
 # Project State
@@ -742,3 +742,16 @@ No physical-iPhone, older-WebView or full published MVP completion is claimed.
 Inline installed-GSD fallback was used without typed planner/checker guarantees.
 Latest weekly usage is 32% consumed; pause at 50%. Source push/remote remain
 owner-only. Progress counts accepted executable plans, not overall MVP readiness.
+
+
+## Resource access started — 30 September 2026
+
+Phase 2.2 coherent commit is `9054465`, local/unpushed. Phase 2.3 product interview is complete: bounded HTTPS/verified Blossom/one-hop Nostr/data, memory-only loaded caches, any public HTTPS after resource grant, editable default download servers, bounded audio/video and pause on switching/background with manual Play after return. Hashtree/SVG gaps follow Phase 4. Streaming/large files remain distinct unresolved work.
+
+Three executable plans cover SDK/native HTTPS tracer, schemes/bulk/cache/settings and playback/native acceptance. Work runs inline under the installed GSD Codex fallback, without typed planner/checker guarantees. Current task: 02.3-01 resource ownership/byte carrier and actual image tracer. NAP-RESOURCE candidate head `8c0645d32ceb159bc3e8bcec1107a92862b7e86a` is selected for this explicitly declared bounded profile; no full-domain conformance or resource native acceptance is claimed. Latest weekly usage: 35% consumed; pause at 50%. Source push/remotes remain owner-only.
+
+
+Phase 2.3 checkpoint: the first genuine SDK/native HTTPS image tracer passed five checks on each selected Android/iOS Simulator profile. The loaded PNG hash, MIME and decoded dimensions match independently downloaded bytes. Portable intermediate receipts are retained in the private shared knowledge store. This is not final-source acceptance: resource cancellation/revocation, schemes/bulk/cache/settings and media playback/lifecycle remain open. Browser cancellation and SDK object URL ownership checks are being extended.
+
+
+Phase 2.3 completion — 30 September 2026: all three resource plans pass the selected bounded profile. Android passes 25 actual SDK/native checks; iOS passes all five resource suites. Independent exact bytes, image/video/audio rendering, schemes/bulk/cache/settings and seven controlled cancellation/revocation cases per host are recorded in 02.3-VERIFICATION.md. A real native background lease bug is fixed on both platforms, with 107 owning registry assertions each. CAP-04 is scoped accepted; CAP-01/CAP-14 and physical/older/full-published gates remain open. Full numeric quality and eight audits must be sealed against this final source before the targeted local commit. Next phase is 2.4 uploads; its rail/provider/consent/unknown-outcome decisions are pending. Weekly usage is 38% consumed; pause at 50%. Source push/remotes remain owner-only.

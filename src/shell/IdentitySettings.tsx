@@ -1,3 +1,4 @@
+import { ResourceSettings } from './ResourceSettings';
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { ActivityIndicator, AppState, Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { SettingsActions } from './Shell';
@@ -112,7 +113,7 @@ function PublishedNappletSettings({ available, openPublished, publishedSessions,
   </>;
 }
 export function IdentitySettings({ openBundledTest, openStateLab, openPublished, publishedSessions, checkPublishedUpdate }: SettingsActions) {
-  const { transition, formatNpub, runtime, actions, relaySettings } = useIdentityOwner();
+  const { transition, formatNpub, runtime, actions, relaySettings, resourceSettings } = useIdentityOwner();
   const state = useSyncExternalStore(transition.subscribe, transition.getSnapshot);
   const [importing, setImporting] = useState(false);
   const [deletion, setDeletion] = useState<DeletionReview | null>(null);
@@ -182,6 +183,7 @@ export function IdentitySettings({ openBundledTest, openStateLab, openPublished,
       </View>)}
       <Action title="Import identity" testID="settings-import-identity" onPress={() => setImporting(true)} />
       <RelaySettings service={relaySettings} />
+      <ResourceSettings service={resourceSettings} />
       {runtime && <>
         <Text accessibilityRole="header" style={styles.title}>Signed host test</Text>
         <Action title="Inspect signed test napplet" testID="settings-inspect-signed-test" onPress={() => setSignedLab(true)} subdued />
@@ -189,6 +191,7 @@ export function IdentitySettings({ openBundledTest, openStateLab, openPublished,
       <Text accessibilityRole="header" style={styles.title}>Bundled test napplets</Text>
       <Action title="Open UX Lab" testID="settings-open-ux-lab" onPress={openBundledTest} subdued />
       {runtime && <>
+        <Action title="Open Resource Lab" testID="settings-open-resource-lab" onPress={() => openStateLab('resource-lab')} subdued />
         <Action title="Open Feed Lab" testID="settings-open-feed-lab" onPress={() => openStateLab('feed-lab')} subdued />
         <Action title="Open Approval Lab" testID="settings-open-approval-lab" onPress={() => openStateLab('approval-lab')} subdued />
         <Action title="Open State Lab" testID="settings-open-state-lab" onPress={() => openStateLab('state-lab')} subdued />

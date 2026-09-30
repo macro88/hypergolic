@@ -30,9 +30,14 @@ internal object CapabilityTransport {
       request.reply(if (admitted && leases.sessionActive(request.generation)) bounded else null)
     }
   }
+  fun foreground(value: Boolean) {
+    val revoked = leases.setForeground(value)
+    main.post { for (token in revoked) pending.remove(token)?.reply?.invoke(null) }
+  }
   fun revoke(generation: String) {
     // Revoke before dispatching callbacks, navigating or dismantling a renderer.
     leases.revoke(generation)
+    ResourceHttpsRequestOwner.INSTANCE.revokeGeneration(generation)
     RelaySubscriptionTransport.revoke(generation)
     check(Looper.myLooper() == Looper.getMainLooper())
     val tokens = pending.filterValues { it.generation == generation }.keys.toList()

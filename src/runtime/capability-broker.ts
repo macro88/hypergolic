@@ -1,3 +1,4 @@
+import { createResourceBroker, type ResourceHost } from '../resources/resource-broker.ts';
 import type { RelayQueryService } from '../network/native-relay-query.ts';
 import type { ShellDatabase } from '../storage/database.ts';
 import { ShellStorageError, type StringStorage } from '../storage/ports.ts';
@@ -39,9 +40,10 @@ async function operate(storage: StringStorage, request: CapabilityRequest): Prom
   }
 }
 /** One broker per registered native view. It is never passed into the WebView. */
-export function createCapabilityBroker(database: ShellDatabase, native: NativeCapabilityPort, owner: CapabilityOwner, queries?: RelayQueryService, closeRelay?: (request:unknown)=>void) {
+export function createCapabilityBroker(database: ShellDatabase, native: NativeCapabilityPort, owner: CapabilityOwner, queries?: RelayQueryService, closeRelay?: (request:unknown)=>void, resources?: ResourceHost) {
   const registration = decodeNativeRegistration(owner.registration);
   const expected = JSON.stringify(registration);
+  const resource = resources ? createResourceBroker(resources, owner) : null;
   const seen = new Set<string>();
   let disposed = false;
   const pending = new Set<AbortController>();
@@ -50,7 +52,7 @@ export function createCapabilityBroker(database: ShellDatabase, native: NativeCa
     owner.assertActive();
   };
   return Object.freeze({
-    revoke: () => { disposed = true; seen.clear(); for (const query of pending) query.abort(); pending.clear(); },
+    revoke: () => { disposed = true; resource?.revoke(); seen.clear(); for (const query of pending) query.abort(); pending.clear(); },
     async dispatch(token: string): Promise<void> {
       let response: string | null = null;
       let claimed = false;
@@ -64,6 +66,11 @@ export function createCapabilityBroker(database: ShellDatabase, native: NativeCa
         assertActive(token);
         if (captured.request && typeof captured.request === 'object' && 'type' in captured.request && captured.request.type === 'relay.close') {
           if (registration.domains.includes('relay')) closeRelay?.(captured.request);
+          return;
+        }
+        if (captured.request && typeof captured.request === 'object' && 'type' in captured.request &&
+          typeof captured.request.type === 'string' && captured.request.type.startsWith('resource.')) {
+          response = await resource?.dispatch(captured.request, {nativeToken: token, assertActive: () => assertActive(token)}) ?? null;
           return;
         }
         let request: CapabilityRequest;

@@ -52,7 +52,7 @@ function receiveOrdinary(envelope:{sequence:number;response:unknown},pending:Map
   try {
     if (typeof envelope.response !== 'string') throw new Error('Native request denied');
     const response = JSON.parse(envelope.response);
-    if (!response || response.type !== request.type + '.result' || response.id !== request.id) throw new Error('Native response mismatch');
+    if (!response || (response.type !== request.type + '.result' && !(request.type.startsWith('resource.') && response.type === request.type + '.error')) || response.id !== request.id) throw new Error('Native response mismatch');
     request.resolve(response);
   } catch { request.reject(); }
   finally { pending.delete(envelope.sequence); window.clearTimeout(request.timer); }

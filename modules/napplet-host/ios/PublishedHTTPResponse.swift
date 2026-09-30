@@ -6,15 +6,16 @@ struct PublishedHTTPResponse {
   static let maximumHeaderBytes = 16 * 1024
   static let maximumFramingBytes = 64 * 1024
   static let maximumBodyBytes = 2 * 1024 * 1024
+  static let maximumResourceBodyBytes = 10 * 1024 * 1024
 
-  enum Failure: Error { case invalidResponse, tooLarge }
+  enum Failure: Error { case invalidResponse, tooLarge, resourceStatus(Int), resourcePolicy, resourceRedirect(String) }
 
   let status: Int
   let headers: [String: String]
   let body: Data
 
-  static func parse(_ wire: Data, maximumBodyBytes: Int = maximumBodyBytes) throws -> PublishedHTTPResponse {
-    guard (1...Self.maximumBodyBytes).contains(maximumBodyBytes),
+  static func parse(_ wire: Data, maximumBodyBytes: Int = maximumBodyBytes, resourceProfile: Bool = false) throws -> PublishedHTTPResponse {
+    guard (1...(resourceProfile ? Self.maximumResourceBodyBytes : Self.maximumBodyBytes)).contains(maximumBodyBytes),
           wire.count <= maximumBodyBytes + maximumHeaderBytes + maximumFramingBytes else { throw Failure.tooLarge }
     let separator = Data([13, 10, 13, 10])
     guard let boundary = wire.range(of: separator), boundary.lowerBound <= maximumHeaderBytes else { throw Failure.invalidResponse }
@@ -24,10 +25,11 @@ struct PublishedHTTPResponse {
     let lines = head.components(separatedBy: "\r\n")
     guard let statusLine = lines.first, statusLine.hasPrefix("HTTP/1.1 "),
           statusLine.count >= 12, let status = Int(statusLine.dropFirst(9).prefix(3)),
-          status == 200, (statusLine.count == 12 || statusLine[statusLine.index(statusLine.startIndex, offsetBy: 12)] == " "),
+          (statusLine.count == 12 || statusLine[statusLine.index(statusLine.startIndex, offsetBy: 12)] == " "),
           statusLine.dropFirst(12).allSatisfy({ $0 == " " || $0.isASCII && !$0.isNewline }),
           lines.dropFirst().allSatisfy({ !$0.isEmpty && !$0.hasPrefix(" ") && !$0.hasPrefix("\t") })
     else { throw Failure.invalidResponse }
+    let singular = Set(["content-length", "transfer-encoding", "content-encoding", "location", "connection"])
     var headers: [String: String] = [:]
     for line in lines.dropFirst() {
       guard let colon = line.firstIndex(of: ":") else { throw Failure.invalidResponse }
@@ -35,14 +37,23 @@ struct PublishedHTTPResponse {
       let value = String(line[line.index(after: colon)...]).trimmingCharacters(in: .whitespaces)
       guard !name.isEmpty, name.utf8.allSatisfy({ byte in
         (byte >= 97 && byte <= 122) || (byte >= 48 && byte <= 57) || byte == 45
-      }), !headers.keys.contains(name), !value.contains("\r"), !value.contains("\n")
+      }), (!headers.keys.contains(name) || resourceProfile && !singular.contains(name)), !value.contains("\r"), !value.contains("\n")
       else { throw Failure.invalidResponse }
-      headers[name] = value
+      // Resource headers never enter the SDK; repeated informational values have no authority.
+      if headers[name] == nil { headers[name] = value }
+    }
+    if resourceProfile && [301,302,303,307,308].contains(status) {
+      guard let location = headers["location"], !location.isEmpty, location.utf8.count <= 8192 else { throw Failure.resourcePolicy }
+      throw Failure.resourceRedirect(location)
+    }
+    guard status == 200 else {
+      if resourceProfile { throw Failure.resourceStatus(status) }
+      throw Failure.invalidResponse
     }
     guard !headers.keys.contains("content-encoding"),
           !headers.keys.contains("location"),
           !headers.keys.contains("connection") || headers["connection"]?.lowercased() == "close" || headers["connection"]?.lowercased() == "keep-alive"
-    else { throw Failure.invalidResponse }
+    else { throw resourceProfile ? Failure.resourcePolicy : Failure.invalidResponse }
     let payload = wire.suffix(from: boundary.upperBound)
     let hasLength = headers["content-length"] != nil
     let chunked = headers["transfer-encoding"]?.lowercased() == "chunked"
@@ -92,12 +103,14 @@ struct PublishedHTTPResponse {
 final class PublishedHTTPResponseAccumulator {
   private var wire = Data()
   private let maximumBodyBytes: Int
+  private let resourceProfile: Bool
 
-  init(maximumBodyBytes: Int) throws {
-    guard (1...PublishedHTTPResponse.maximumBodyBytes).contains(maximumBodyBytes) else {
+  init(maximumBodyBytes: Int, resourceProfile: Bool = false) throws {
+    guard (1...(resourceProfile ? PublishedHTTPResponse.maximumResourceBodyBytes : PublishedHTTPResponse.maximumBodyBytes)).contains(maximumBodyBytes) else {
       throw PublishedHTTPResponse.Failure.tooLarge
     }
     self.maximumBodyBytes = maximumBodyBytes
+    self.resourceProfile = resourceProfile
   }
 
   func append(_ chunk: Data) throws {
@@ -107,6 +120,9 @@ final class PublishedHTTPResponseAccumulator {
     let separator = Data([13, 10, 13, 10])
     if let boundary = wire.range(of: separator) {
       guard boundary.lowerBound <= PublishedHTTPResponse.maximumHeaderBytes else { throw PublishedHTTPResponse.Failure.tooLarge }
+      if resourceProfile, wire.count >= 12, let status = Int(String(decoding: wire[9..<12], as: UTF8.self)), status != 200 {
+        _ = try PublishedHTTPResponse.parse(wire, maximumBodyBytes: maximumBodyBytes, resourceProfile: true)
+      }
     } else if wire.count > PublishedHTTPResponse.maximumHeaderBytes + separator.count {
       throw PublishedHTTPResponse.Failure.tooLarge
     }
@@ -114,6 +130,6 @@ final class PublishedHTTPResponseAccumulator {
 
   func finish() throws -> PublishedHTTPResponse {
     defer { wire.removeAll(keepingCapacity: false) }
-    return try PublishedHTTPResponse.parse(wire, maximumBodyBytes: maximumBodyBytes)
+    return try PublishedHTTPResponse.parse(wire, maximumBodyBytes: maximumBodyBytes, resourceProfile: resourceProfile)
   }
 }

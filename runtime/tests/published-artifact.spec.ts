@@ -11,9 +11,12 @@ const identity = {
   publisher: '1'.repeat(64), appId: 'published-test', eventId: '2'.repeat(64), version, htmlHash,
 };
 
-type Mode = 'normal' | 'bad-hash' | 'malformed-base64' | 'replayed-sequence' | 'unknown-domain' | 'relay-domain';
+type Mode = 'normal' | 'bad-hash' | 'malformed-base64' | 'replayed-sequence' | 'unknown-domain' | 'relay-domain' | 'attributed-head';
 
 async function openPublished(page: Page, mode: Mode = 'normal', extraQuery = '') {
+  const artifact = mode === 'attributed-head' ? Buffer.from(html.toString().replace('<head>','<HEAD data-fixture="attribute">')) : html;
+  const artifactHash = digest(artifact);
+  const artifactIdentity = {...identity,htmlHash:artifactHash,version:digest(`${artifactHash} /index.html\n`)};
   await page.addInitScript(({ generation, htmlBase64, htmlLength, identity, badHashVersion, mode }) => {
     if (window !== window.top) return;
     const state = { requests: [] as unknown[], diagnostics: [] as unknown[] };
@@ -50,7 +53,7 @@ async function openPublished(page: Page, mode: Mode = 'normal', extraQuery = '')
     } });
     Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Storage disabled', 'SecurityError'); } });
     Object.defineProperty(window, 'sessionStorage', { get() { throw new DOMException('Storage disabled', 'SecurityError'); } });
-  }, { generation, htmlBase64: html.toString('base64'), htmlLength: html.length, identity,
+  }, { generation, htmlBase64: artifact.toString('base64'), htmlLength: artifact.length, identity:artifactIdentity,
     badHashVersion: awaitHashVersionPlaceholder, mode });
   await page.goto(`/assets/runtime/index.html?sessionId=${generation}&source=published${extraQuery}`);
 }
@@ -132,3 +135,10 @@ for (const mode of ['bad-hash', 'malformed-base64', 'replayed-sequence', 'unknow
     await expect(page.locator('iframe')).toHaveCount(0);
   });
 }
+
+test('trusted media prelude preserves the leading CSP in a valid attributed uppercase published head',async({page})=>{
+  await openPublished(page,'attributed-head');
+  await expect(page.frameLocator('#napplet').getByTestId('lab')).toHaveAttribute('data-ready','true');
+  const guest=page.frames().find(frame=>frame.parentFrame()===page.mainFrame())!;
+  expect(await guest.evaluate(()=>document.head.firstElementChild?.getAttribute('http-equiv'))).toBe('Content-Security-Policy');
+});

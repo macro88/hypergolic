@@ -1,7 +1,7 @@
 # Native capability lease proofs
 
 These standalone, host-executed programs exercise the production Java and Swift
-registry implementations, with an injected monotonic clock. Each reports 100
+registry implementations, with an injected monotonic clock. Each reports 107
 assertions: exact expiry, admission limits, sequence consumption/replay/gaps,
 UTF-8 bounds, one-use claim, generation revocation and concurrent claim ownership.
 They do not instantiate a WebView or exercise Expo modules.

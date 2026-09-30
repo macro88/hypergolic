@@ -67,6 +67,19 @@ public final class CapabilityLeaseProof {
     for (int i = 0; i < 64; i++) check(sessions.register("session-" + i), "session admit");
     check(!sessions.register("session-overflow"), "session bound");
     sessions.revoke("session-0"); check(sessions.register("fresh-generation"), "fresh generation capacity");
+    CapabilityLeaseRegistry lifetime = new CapabilityLeaseRegistry(clock::get);
+    lifetime.register("loaded");
+    String old = lifetime.admit("loaded", 1, "old"); lifetime.take(old);
+    String unclaimed = lifetime.admit("loaded", 2, "unclaimed");
+    check(lifetime.setForeground(false).size() == 2, "background revokes every pending token");
+    check(lifetime.sessionActive("loaded"), "loaded view retained");
+    check(lifetime.admit("loaded", 3, "background") == null, "background admission denied and sequence consumed");
+    lifetime.setForeground(true);
+    check(!lifetime.isActive(old) && lifetime.borrowedSnapshot(old) == null && !lifetime.finish(old), "return cannot resurrect claimed work");
+    check(lifetime.take(unclaimed) == null, "return cannot claim old unclaimed work");
+    check(lifetime.admit("loaded", 3, "replay") == null, "background sequence cannot replay");
+    String fresh = lifetime.admit("loaded", 4, "fresh");
+    check("fresh".equals(lifetime.take(fresh)) && lifetime.finish(fresh), "new foreground request succeeds");
     System.out.println("{\"language\":\"Java\",\"checks\":" + checks + ",\"failed\":0}");
   }
 }

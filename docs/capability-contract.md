@@ -26,6 +26,7 @@ or example into protocol authority.
 | SHELL, THEME, IDENTITY | [napplet/naps 5ac0490](https://github.com/napplet/naps/tree/5ac0490461ca6fec2f0d2e45b4835cf9bc08de24/naps) | Existing handshake/theme plus read-only identity |
 | STORAGE | [PR3 f71e84e](https://github.com/napplet/naps/blob/f71e84ebca7474db260346cbfc2d88f41b4e421e/naps/NAP-STORAGE.md) | Explicitly selected draft get/set/remove/keys subset |
 | RELAY | [PR2 0be8abc](https://github.com/napplet/naps/blob/0be8abce18beb46ca37bd4ddd042f58d30b4eedc/naps/NAP-RELAY.md) | Explicitly selected draft query/subscribe/close and individually approved publish |
+| RESOURCE | [PR13 8c0645d](https://github.com/napplet/naps/blob/8c0645d32ceb159bc3e8bcec1107a92862b7e86a/naps/NAP-RESOURCE.md) | Selected bounded info/bytes/bytesMany/cancel profile; [contract and limits](resource-access.md) |
 | OUTBOX | [PR32 4589a8f](https://github.com/napplet/naps/blob/4589a8f9a16d8aa29b3740e2b3b0cdca11e0976e/naps/NAP-OUTBOX.md) | Reviewed, disabled; required by the 29 September MVP expansion |
 | Relay authentication | [NIP-42 a2494f4](https://github.com/nostr-protocol/nips/blob/a2494f4f81d46684e5814a9bf35e2b1df978f955/42.md) | Separate explicit approval or auth-required denial |
 
@@ -47,7 +48,7 @@ from the owning unsigned shape; never supply a dummy signature to satisfy a type
 Requests flow napplet to host. Correlation id is a bounded opaque string, never
 authority. Results flow host to the original live source. Unregistered senders,
 forged results/pushes, malformed envelopes and ungranted domains are rejected
-before dispatch. Canonical failures use each operation's result/closed shape;
+before dispatch. Identity/storage/relay failures use each operation's result/closed shape; resource failures use canonical `.error` as specified in its separately selected draft.
 Kehto's nonstandard operation.error reply is not sufficient for this profile.
 
 Identity operations use request type plus .result and the same id. Public-key

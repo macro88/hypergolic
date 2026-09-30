@@ -72,26 +72,53 @@ public final class PublishedHttpsTransport {
   static byte[] getWithTransport(String rawUrl, AddressPolicy policy, Cancellation cancellation,
       HostResolver resolver, ThreadPoolExecutor executor, SSLSocketFactory socketFactory,
       HostnameVerifier hostnameVerifier) throws IOException {
-    URL url = validateRequest(rawUrl, policy);
+    return getBoundedWithTransport(rawUrl, policy, cancellation, resolver, executor, socketFactory, hostnameVerifier, MAX_BODY_BYTES, TOTAL_TIMEOUT_MS);
+  }
+
+  /** Separate app-only resource profile; the published-loader entry point remains bounded at 2 MiB. */
+  static byte[] getResource(String rawUrl, AddressPolicy policy, Cancellation cancellation) throws IOException {
+    return getBoundedWithTransport(rawUrl, policy, cancellation, InetAddress::getAllByName, DNS,
+        defaultSocketFactory(), HttpsURLConnection.getDefaultHostnameVerifier(), 10 * 1024 * 1024, 15_000);
+  }
+  static byte[] getResourceWithTransport(String rawUrl, AddressPolicy policy, Cancellation cancellation,
+      HostResolver resolver, ThreadPoolExecutor executor, SSLSocketFactory socketFactory,
+      HostnameVerifier hostnameVerifier) throws IOException {
+    return getBoundedWithTransport(rawUrl, policy, cancellation, resolver, executor, socketFactory, hostnameVerifier, 10 * 1024 * 1024, 15_000);
+  }
+  private static byte[] getBoundedWithTransport(String rawUrl, AddressPolicy policy, Cancellation cancellation,
+      HostResolver resolver, ThreadPoolExecutor executor, SSLSocketFactory socketFactory,
+      HostnameVerifier hostnameVerifier, int maximumBytes, int timeoutMs) throws IOException {
     if (cancellationRequested(cancellation)) throw new IOException("Request cancelled");
-    URI uri;
-    try { uri = new URI(rawUrl); }
-    catch (URISyntaxException error) { throw new IOException("Invalid HTTPS URL", error); }
-    Deadline deadline = Deadline.afterMillis(TOTAL_TIMEOUT_MS);
+    Deadline deadline = Deadline.afterMillis(timeoutMs);
     AbortMonitor abort = new AbortMonitor(cancellation, deadline);
+    String current = rawUrl;
+    java.util.Set<String> visited = new java.util.HashSet<>();
     try {
-      SSLSocket socket = openPinnedTls(url.getHost(), url.getPort() < 0 ? 443 : url.getPort(), policy,
-          abort, deadline, resolver, executor, socketFactory, hostnameVerifier);
-      try (SSLSocket closeable = socket) {
-        closeable.setSoTimeout(deadline.timeoutMs(READ_TIMEOUT_MS));
-        sendRequest(closeable.getOutputStream(), uri, url);
-        byte[] body = readResponse(new DeadlineInputStream(closeable.getInputStream(), closeable, deadline), cancellation);
+      for (int hop = 0; hop <= 2; hop++) {
         abort.check();
-        return body;
+        URL url = validateRequest(current, policy);
+        if (!visited.add(url.toExternalForm())) throw new PublishedHttpsResponseReader.ResourceFailure("blocked-by-policy", "Resource redirect loop");
+        URI uri;
+        try { uri = new URI(current); }
+        catch (URISyntaxException error) { throw new IOException("Invalid HTTPS URL", error); }
+        SSLSocket socket = openPinnedTls(url.getHost(), url.getPort() < 0 ? 443 : url.getPort(), policy,
+            abort, deadline, resolver, executor, socketFactory, hostnameVerifier);
+        try (SSLSocket closeable = socket) {
+          closeable.setSoTimeout(deadline.timeoutMs(READ_TIMEOUT_MS));
+          sendRequest(closeable.getOutputStream(), uri, url);
+          byte[] body = PublishedHttpsResponseReader.readBounded(new DeadlineInputStream(closeable.getInputStream(), closeable, deadline), cancellation, maximumBytes);
+          abort.check();
+          return body;
+        } catch (PublishedHttpsResponseReader.ResourceRedirect redirect) {
+          if (maximumBytes <= MAX_BODY_BYTES || hop == 2) throw new PublishedHttpsResponseReader.ResourceFailure("blocked-by-policy", "Resource redirect limit");
+          try { current = uri.resolve(redirect.location).toString(); validateRequest(current, policy); }
+          catch (IOException | IllegalArgumentException invalid) {
+            throw new PublishedHttpsResponseReader.ResourceFailure("blocked-by-policy", "Invalid resource redirect target");
+          }
+        }
       }
-    } finally {
-      if (abort != null) abort.close();
-    }
+      throw new PublishedHttpsResponseReader.ResourceFailure("blocked-by-policy", "Resource redirect limit");
+    } finally { abort.close(); }
   }
 
   static URL parseUrl(String rawUrl) throws IOException {
@@ -119,7 +146,7 @@ public final class PublishedHttpsTransport {
     URL url = parseUrl(rawUrl);
     String host = url.getHost();
     if (!isDnsHostname(host) || !policy.isAllowedHost(host.toLowerCase(Locale.ROOT))) {
-      throw new IOException("Unsafe HTTPS host");
+      throw new PublishedHttpsResponseReader.ResourceFailure("blocked-by-policy", "Unsafe HTTPS host");
     }
     return url;
   }
@@ -162,7 +189,7 @@ public final class PublishedHttpsTransport {
     if (resolved == null || resolved.length == 0 || policy == null) throw new IOException("DNS returned no addresses");
     for (InetAddress address : resolved) {
       if (address == null || !policy.isAllowedAddress(address)) {
-        throw new IOException("DNS resolved to a disallowed address");
+        throw new PublishedHttpsResponseReader.ResourceFailure("blocked-by-policy", "DNS resolved to a disallowed address");
       }
     }
     return resolved.clone();

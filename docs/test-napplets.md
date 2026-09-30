@@ -13,6 +13,7 @@ example, not a required product napplet.
 | [State Lab](../napplets/state-lab/README.md) | Embedded; native storage/identity journeys recorded on Android and iOS | Unsaved/saved state, close/reopen and user + publisher + stable napplet isolation |
 | [Approval Lab](../napplets/approval-lab/README.md) | Standalone unsigned artifact; native integration remains open | Explicit approve/deny, background deferral, cancellation and independently verified results |
 | [Feed Lab](../napplets/feed-lab/README.md) | Embedded query fixture; five isolated native query/lifecycle checks pass on Android API 36 and iOS Simulator | Exact signed event, empty EOSE, explicit failure, close/reopen and cold restart; eight live-stream lifecycle checks and nine diagnostic stream fault cases pass on both native hosts; public identity data/outbox remain planned |
+| [Resource Lab](../napplets/resource-lab/README.md) | Embedded genuine SDK fixture; selected native journeys and controlled lifetime matrix under verification | Complete image/audio/video Blobs, schemes/bulk/cache/settings, cancellation and revoked private handles; external opening remains Phase 2.6 |
 | Signed host QA fixture | Fixed signed event and HTML embedded locally; Android Settings and isolated iOS native QA journeys pass | Published-artifact verification, explicit review, one-use native transfer and host rendering without relay or publisher deployment |
 | [Live published QA fixture](../tests/native/live-published-fixture/README.md) | Public `file-browser` signed event loaded on Android API 36/API 29 and iOS 26.5 Simulator | Real native relay/Blossom retrieval, first-open publisher/access review, and connected guest rendering with a public-only identity |
 | [Live update publication QA](../tests/native/live-update-publication/README.md) | Signed two-revision generator, Blossom/relay protocol checks and Android/iOS native drivers prepared; no public QA release or native journey yet | Real network v1 opening followed by independently published v2, exact update review, decline, accept and cold restoration |
@@ -40,7 +41,7 @@ need the relay or a test identity.
 
 ## Required MVP fixture expansion — 29 September 2026
 
-These artifacts are planned, not implemented. Value Lab is deferred to phase 4
+Feed Lab and Resource Lab now have embedded artifacts; later capability groups remain planned. Value Lab is deferred to phase 4
 and is excluded from MVP acceptance. Phase IDs match the
 [roadmap](../.planning/ROADMAP.md) and acceptance IDs in
 [requirements](../.planning/REQUIREMENTS.md). Existing UX/State/Approval fixtures

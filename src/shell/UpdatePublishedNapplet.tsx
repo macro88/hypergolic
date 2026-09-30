@@ -50,6 +50,7 @@ export function UpdatePublishedNapplet({ session, check }: {
     <Text style={styles.detail}>Napplet</Text><Text selectable style={styles.claim}>{review.request.appId}</Text>
     <Text style={styles.detail}>Current event</Text><Text selectable style={styles.claim}>{review.request.previousEventId}</Text>
     <Text style={styles.detail}>New event</Text><Text selectable style={styles.claim}>{review.request.nextEventId}</Text>
+    {review.request.domains.includes('resource') && <Text style={styles.detail}>Resource access allows bounded public HTTPS downloads and your configured Blossom servers, retained in memory while loaded.</Text>}
     <Text style={styles.detail}>Requested access: {review.request.domains.length ? review.request.domains.join(', ') : 'none'}</Text>
     <Text style={styles.warning}>The current napplet will close. Unsaved changes and pending signing requests will be lost; saved napplet data stays available.</Text>
     <Pressable accessibilityRole="button" testID={`published-update-accept-${session.id}`} onPress={() => decide(true)} style={styles.action}><Text style={styles.actionText}>Close and use update</Text></Pressable>

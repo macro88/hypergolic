@@ -32,6 +32,8 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   init(onWebViewCreated: (@MainActor (WKWebView) -> Void)? = nil) {
     self.onWebViewCreated = onWebViewCreated
     super.init(frame: .zero)
+    NotificationCenter.default.addObserver(self, selector: #selector(mediaBackground), name: UIApplication.willResignActiveNotification, object: nil)
+    NotificationCenter.default.addObserver(self, selector: #selector(mediaForeground), name: UIApplication.didBecomeActiveNotification, object: nil)
     clipsToBounds = true
     backgroundColor = UIColor(red: 18/255, green: 14/255, blue: 10/255, alpha: 1)
   }
@@ -52,11 +54,29 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   }
 
   func setActive(_ isActive: Bool) {
+    guard active != isActive else { return }
     active = isActive
+    updateMediaPlayback()
     if configuration != nil { ApprovalTransport.setFocused(generation, active: isActive) }
-    // Dismiss only this retained view's editor. Do not reload, inject script,
-    // or send a global resign-first-responder action affecting another napplet.
+    // Dismiss only this retained view's editor; keep its loaded document and position.
     if !isActive { webView?.endEditing(true) }
+  }
+
+  @objc private func mediaBackground() { updateMediaPlayback(foreground: false) }
+  @objc private func mediaForeground() { updateMediaPlayback(foreground: true) }
+  private func updateMediaPlayback(foreground: Bool? = nil) {
+    guard let view = webView, !disposed else { return }
+    let allowed = active && (foreground ?? (UIApplication.shared.applicationState == .active))
+    if loaded { view.evaluateJavaScript("window.__hypergolicMediaActive?.(\(allowed))", completionHandler: nil) }
+    if !allowed { view.setAllMediaPlaybackSuspended(true, completionHandler: nil) }
+    else {
+      // Pause first: lifting suspension must not resume the old player automatically.
+      view.pauseAllMediaPlayback { [weak self, weak view] in
+        guard let self, let view, !self.disposed, self.active,
+          UIApplication.shared.applicationState == .active else { return }
+        view.setAllMediaPlaybackSuspended(false, completionHandler: nil)
+      }
+    }
   }
 
   func startConfiguredSession(_ raw: String) {
@@ -192,7 +212,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       ["trigger": ["url-filter": "^about:blank$", "resource-type": ["document"]], "action": ["type": "ignore-previous-rules"]],
       ["trigger": ["url-filter": "^about:srcdoc$", "resource-type": ["document"]], "action": ["type": "ignore-previous-rules"]],
       ["trigger": ["url-filter": "^data:", "resource-type": ["image"]], "action": ["type": "ignore-previous-rules"]],
-      ["trigger": ["url-filter": "^blob:", "resource-type": ["image"]], "action": ["type": "ignore-previous-rules"]],
+      ["trigger": ["url-filter": "^blob:", "resource-type": ["image", "raw", "media"]], "action": ["type": "ignore-previous-rules"]],
       ["trigger": ["url-filter": ".*"], "action": ["type": "block-cookies"]]
     ]
     return String(decoding: try JSONSerialization.data(withJSONObject: rules), as: UTF8.self)
@@ -205,7 +225,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     configuration.preferences.javaScriptCanOpenWindowsAutomatically = false
     configuration.defaultWebpagePreferences.allowsContentJavaScript = true
     configuration.mediaTypesRequiringUserActionForPlayback = .all
-    configuration.allowsInlineMediaPlayback = false
+    configuration.allowsInlineMediaPlayback = true
     configuration.allowsAirPlayForMediaPlayback = false
     configuration.allowsPictureInPictureMediaPlayback = false
     configuration.dataDetectorTypes = []
@@ -441,6 +461,8 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   func destroySession() {
     guard !disposed else { return }
     disposed = true
+    NotificationCenter.default.removeObserver(self)
+    webView?.setAllMediaPlaybackSuspended(true, completionHandler: nil)
     live = false
     publishedReader?.clear()
     publishedReader = nil
@@ -499,6 +521,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   func webView(_ view: WKWebView, didFinish navigation: WKNavigation!) {
     guard view === webView, live, view.url?.absoluteString == expectedURL?.absoluteString else { return }
     loaded = true
+    updateMediaPlayback()
   }
   func webView(_ view: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
     if view === webView && live { fail("host-load-failed") }

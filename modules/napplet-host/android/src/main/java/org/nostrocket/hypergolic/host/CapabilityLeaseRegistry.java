@@ -18,6 +18,16 @@ public final class CapabilityLeaseRegistry {
   private final LongSupplier elapsedRealtime;
   private final Map<String, Session> sessions = new HashMap<>();
   private final Map<String, Request> requests = new HashMap<>();
+  private boolean foreground = true;
+
+  /** Background invalidates pending work permanently while retaining loaded sessions and replay counters. */
+  public synchronized java.util.List<String> setForeground(boolean value) {
+    foreground = value;
+    if (value) return java.util.List.of();
+    java.util.List<String> revoked = new java.util.ArrayList<>(requests.keySet());
+    requests.clear();
+    return revoked;
+  }
 
   private static final class Session { long sequence = 0; }
   private static final class Request {
@@ -44,7 +54,7 @@ public final class CapabilityLeaseRegistry {
   public synchronized String admit(String generation, long sequence, String snapshot) {
     prune();
     if (!consumeSequence(generation, sequence)) return null;
-    if (snapshot == null || snapshot.length() > MAX_BYTES || snapshot.getBytes(StandardCharsets.UTF_8).length > MAX_BYTES || requests.size() >= MAX_PENDING) return null;
+    if (!foreground || snapshot == null || snapshot.length() > MAX_BYTES || snapshot.getBytes(StandardCharsets.UTF_8).length > MAX_BYTES || requests.size() >= MAX_PENDING) return null;
     long ownPending = requests.values().stream().filter(request -> request.generation.equals(generation)).count();
     if (ownPending >= MAX_PER_SESSION) return null;
     long now = elapsedRealtime.getAsLong();
@@ -70,6 +80,12 @@ public final class CapabilityLeaseRegistry {
     prune();
     Request request = requests.get(token);
     return request != null && request.claimed && sessions.containsKey(request.generation);
+  }
+  /** Read-only native borrowing after the one-use claim; this never grants or extends a lease. */
+  public synchronized String borrowedSnapshot(String token) {
+    prune();
+    Request request = requests.get(token);
+    return request != null && request.claimed && sessions.containsKey(request.generation) ? request.snapshot : null;
   }
   /** Consumes exactly this request. Delivery must still recheck its generation on the UI thread. */
   public synchronized boolean finish(String token) {

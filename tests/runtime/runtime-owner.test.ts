@@ -1,3 +1,5 @@
+import { createResourceService } from '../../src/resources/resource-service.ts';
+import { createResourceTransfers } from '../../src/resources/resource-transfers.ts';
 import assert from 'node:assert/strict';
 import test, { type TestContext } from 'node:test';
 import {finalizeEvent} from 'nostr-tools/pure';
@@ -208,4 +210,31 @@ test('normal Feed Lab owner preserves streams across focus and revokes paused in
   await new Promise(resolve=>setTimeout(resolve,40));assert.ok(closed.has('stream-token'));
   manager.setForeground(true);assert.equal(calls.length,1);frame(0);assert.equal(deliveries.length,1);
   assert.equal(JSON.parse(owner.open(descriptor).configuration).user,pubkey(2));
+});
+
+
+test('normal Resource Lab owner revokes pending work on confirmed identity change and new realm refetches', {timeout:5000}, async t => {
+  const h=await start(t),descriptor=h.owner.descriptor('resource-lab',7);
+  const workspace=h.transition.getSnapshot().session.workspace;
+  workspace.change(openNapplet(workspace.getSnapshot().workspace,descriptor));await workspace.flush();
+  let calls=0,release!:(bytes:Uint8Array<ArrayBuffer>)=>void;
+  const began=deferred(),body=new TextEncoder().encode('public sample');
+  const service=createResourceService({servers:()=>[],sha256:async()=>'',https:async()=> {
+    calls++;if(calls>1)return body;began.resolve();return new Promise(resolve=>{release=resolve;});
+  }});
+  t.after(()=>service.revokeAll());
+  const owner=createRuntimeOwner(h.database,h.transition,h.native,undefined,undefined,undefined,undefined,{service,transfers:createResourceTransfers(()=>h.native.newInstanceId())});
+  const binding=owner.open(descriptor),old=h.admit(binding,{type:'resource.bytes',id:'old',url:'https://cdn.example.org/sample'});
+  const completed=deferred();h.native.onFinish=token=>{if(token===old.token)completed.resolve();};
+  binding.receive(old.event);await began.promise;
+  const change=h.transition.prepareImport('nsec1fixture-2');assert(change);await h.transition.confirm(change);await completed.promise;
+  assert.equal(h.native.results.get(old.token),null);
+  release(body);await new Promise(resolve=>setTimeout(resolve,0));assert.equal(h.native.results.get(old.token),null);
+  const nextWorkspace=h.transition.getSnapshot().session.workspace;
+  nextWorkspace.change(openNapplet(nextWorkspace.getSnapshot().workspace,descriptor));await nextWorkspace.flush();
+  const next=owner.open(descriptor);assert.equal(JSON.parse(next.configuration).user,pubkey(2));
+  const request=h.admit(next,{type:'resource.bytes',id:'fresh',url:'https://cdn.example.org/sample'},'new-resource-generation');
+  const fresh=deferred();h.native.onFinish=token=>{if(token===request.token)fresh.resolve();};next.receive(request.event);await fresh.promise;
+  assert.equal(calls,2);assert.equal((h.native.results.get(request.token) as {type:string;transfer:{length:number}}).transfer.length,body.length);
+  assert.equal((h.native.results.get(request.token) as {type:string}).type,'resource.bytes.result');
 });

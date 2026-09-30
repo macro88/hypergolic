@@ -30,11 +30,13 @@ enum PublishedPinnedHTTPS {
   enum Failure: Error { case invalidURL, resolution, privateAddress, connection, cancelled }
 
   struct Request {
+    let source: String
     let host: String
     let port: UInt16
     let target: String
+    let resourceProfile: Bool
 
-    init(_ input: String) throws {
+    init(_ input: String, resourceProfile: Bool = false) throws {
       guard input.utf8.count <= 8192, !input.contains("\\"),
             let components = URLComponents(string: input), components.scheme == "https",
             components.user == nil, components.password == nil, components.fragment == nil,
@@ -57,14 +59,16 @@ enum PublishedPinnedHTTPS {
       guard target.utf8.allSatisfy({ $0 >= 33 && $0 <= 126 }), target.hasPrefix("/"),
             target.range(of: "%([01][0-9a-fA-F]|7[fF])", options: .regularExpression) == nil
       else { throw Failure.invalidURL }
+      self.source = input
       self.host = host
       self.port = UInt16(components.port ?? 443)
       self.target = target
+      self.resourceProfile = resourceProfile
     }
 
     var wire: Data {
       let authority = port == 443 ? host : "\(host):\(port)"
-      return Data("GET \(target) HTTP/1.1\r\nHost: \(authority)\r\nAccept: text/html\r\nAccept-Encoding: identity\r\nConnection: close\r\n\r\n".utf8)
+      return Data("GET \(target) HTTP/1.1\r\nHost: \(authority)\r\nAccept: \(resourceProfile ? "*/*" : "text/html")\r\nAccept-Encoding: identity\r\nConnection: close\r\n\r\n".utf8)
     }
   }
 
@@ -122,6 +126,16 @@ enum PublishedPinnedHTTPS {
     return operation
   }
 
+  /// Separate resource profile; ordinary published fetch keeps its 2 MiB parser and URL policy.
+  static func fetchResource(_ input: String,
+                            completion: @escaping @Sendable (Result<PublishedHTTPResponse, Error>) -> Void) throws -> Operation {
+    let request = try Request(input, resourceProfile: true)
+    let operation = try Operation(request: request, maximumBodyBytes: PublishedHTTPResponse.maximumResourceBodyBytes,
+                                  timeout: 15, completion: completion)
+    operation.start()
+    return operation
+  }
+
 #if HYPERGOLIC_NETWORK_PROOF
   /// Host-only proof seam. Production builds never compile address or trust overrides.
   static func fetchForProof(_ input: String, maximumBodyBytes: Int, timeout: TimeInterval = 5,
@@ -140,11 +154,14 @@ enum PublishedPinnedHTTPS {
 #endif
 
   final class Operation: @unchecked Sendable {
-    private let request: Request
+    private var request: Request
     private let timeout: TimeInterval
     private let queue = DispatchQueue(label: "org.nostrocket.hypergolic.published-https")
     private let completion: @Sendable (Result<PublishedHTTPResponse, Error>) -> Void
-    private let accumulator: PublishedHTTPResponseAccumulator
+    private var accumulator: PublishedHTTPResponseAccumulator
+    private let maximumBodyBytes: Int
+    private var redirects = 0
+    private var visited: Set<String> = []
     private var connection: NWConnection?
     private var addresses: VettedAddressCursor<Address>?
     private var ended = false
@@ -156,9 +173,11 @@ enum PublishedPinnedHTTPS {
     fileprivate init(request: Request, maximumBodyBytes: Int, timeout: TimeInterval,
                      completion: @escaping @Sendable (Result<PublishedHTTPResponse, Error>) -> Void) throws {
       self.request = request
+      self.maximumBodyBytes = maximumBodyBytes
+      self.visited.insert(request.source)
       self.timeout = timeout
       self.completion = completion
-      self.accumulator = try PublishedHTTPResponseAccumulator(maximumBodyBytes: maximumBodyBytes)
+      self.accumulator = try PublishedHTTPResponseAccumulator(maximumBodyBytes: maximumBodyBytes, resourceProfile: request.resourceProfile)
     }
 
     fileprivate func start() {
@@ -173,8 +192,13 @@ enum PublishedPinnedHTTPS {
         return
       }
 #endif
+      resolveCurrent()
+    }
+
+    private func resolveCurrent() {
+      let host = request.host
       DispatchQueue.global(qos: .utility).async {
-        let result = Result { try PublishedPinnedHTTPS.resolve(self.request.host) }
+        let result = Result { try PublishedPinnedHTTPS.resolve(host) }
         self.queue.async {
           guard !self.ended else { return }
           switch result {
@@ -252,8 +276,24 @@ enum PublishedPinnedHTTPS {
           if complete { self.finish(.success(try self.accumulator.finish())) }
           else if data == nil || data?.isEmpty == true { self.finish(.failure(Failure.connection)) }
           else { self.receive() }
+        } catch PublishedHTTPResponse.Failure.resourceRedirect(let location) {
+          self.followRedirect(location)
         } catch { self.finish(.failure(error)) }
       }
+    }
+
+    private func followRedirect(_ location: String) {
+      guard request.resourceProfile, redirects < 2,
+        let base = URL(string: request.source), let url = URL(string: location, relativeTo: base)?.absoluteURL,
+        !visited.contains(url.absoluteString) else { finish(.failure(PublishedHTTPResponse.Failure.resourcePolicy)); return }
+      do {
+        let next = try Request(url.absoluteString, resourceProfile: true)
+        connection?.stateUpdateHandler = nil;connection?.cancel();connection = nil
+        redirects += 1;visited.insert(next.source);request = next
+        accumulator = try PublishedHTTPResponseAccumulator(maximumBodyBytes:maximumBodyBytes,resourceProfile:true)
+        addresses = nil
+        resolveCurrent()
+      } catch { finish(.failure(error)) }
     }
 
     private func finish(_ result: Result<PublishedHTTPResponse, Error>) {

@@ -17,46 +17,83 @@ class NappletHostModule : Module() {
     OnCreate {
       RelaySubscriptionTransport.observeLifecycle { snapshot -> sendEvent("onRelayLifecycle", mapOf("snapshot" to snapshot)) }
       val foreground = appContext.runtime.reactContext?.lifecycleState == LifecycleState.RESUMED
+      CapabilityTransport.foreground(foreground)
+      NappletHostView.setMediaForeground(foreground)
       ApprovalTransport.foreground(foreground)
       RelaySubscriptionTransport.foreground(foreground)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(foreground)
+      ResourceHttpsRequestOwner.INSTANCE.setForeground(foreground)
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(foreground)
     }
     OnActivityEntersForeground {
+      CapabilityTransport.foreground(true)
+      NappletHostView.setMediaForeground(true)
       ApprovalTransport.foreground(true)
       RelaySubscriptionTransport.foreground(true)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(true)
+      ResourceHttpsRequestOwner.INSTANCE.setForeground(true)
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(true)
     }
     OnActivityEntersBackground {
+      CapabilityTransport.foreground(false)
+      NappletHostView.setMediaForeground(false)
       ApprovalTransport.foreground(false)
       RelaySubscriptionTransport.foreground(false)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(false)
+      ResourceHttpsRequestOwner.INSTANCE.setForeground(false)
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
       PublishedArtifactTransfer.INSTANCE.revokeAllPublishedArtifacts()
       // Verified loaded read views retain their generation; pending transfers are revoked above.
     }
     OnActivityDestroys {
+      CapabilityTransport.foreground(false)
+      NappletHostView.setMediaForeground(false)
       ApprovalTransport.foreground(false)
       RelaySubscriptionTransport.foreground(false)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(false)
+      ResourceHttpsRequestOwner.INSTANCE.setForeground(false)
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
       PublishedArtifactTransfer.INSTANCE.revokeAllPublishedArtifacts()
       NappletHostView.revokePublishedOnBackground()
     }
     OnUserLeavesActivity {
+      CapabilityTransport.foreground(false)
+      NappletHostView.setMediaForeground(false)
       RelaySubscriptionTransport.foreground(false)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(false)
+      ResourceHttpsRequestOwner.INSTANCE.setForeground(false)
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
     }
     OnDestroy {
+      CapabilityTransport.foreground(false)
       RelaySubscriptionTransport.foreground(false)
       RelaySubscriptionTransport.revokeAll()
       RelaySubscriptionTransport.observeLifecycle(null)
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
       PublishedHttpsRequestOwner.INSTANCE.revokeAll()
+      ResourceHttpsRequestOwner.INSTANCE.revokeAll()
       PublishedRelayWssRequestOwner.INSTANCE.revokeAll()
     }
+    AsyncFunction("fetchResourceHttps") Coroutine { token: String, operationId: String, url: String ->
+      val generation = ResourceCapability.admission(token)
+      val job = currentCoroutineContext()[Job]
+      withContext(Dispatchers.IO) {
+        val result = org.json.JSONObject()
+        if (generation == null) result.put("ok", false).put("error", "blocked-by-policy")
+        else try {
+          val length = ResourceHttpsRequestOwner.INSTANCE.fetch(operationId, token, generation, url,
+            { CapabilityTransport.leases.isActive(token) }, { job?.isActive == true })
+          result.put("ok", true).put("length", length)
+        } catch (error: ResourceHttpsRequestOwner.Failure) { result.put("ok", false).put("error", error.code) }
+        catch (_: Exception) { result.put("ok", false).put("error", "network-error") }
+        result.toString()
+      }
+    }
+    Function("readResourceHttpsChunk") { token: String, operationId: String, offset: Int ->
+      try { Base64.encodeToString(ResourceHttpsRequestOwner.INSTANCE.read(operationId, token, offset), Base64.NO_WRAP) }
+      catch (_: Exception) { null }
+    }
+    Function("cancelResourceHttps") { operationId: String -> ResourceHttpsRequestOwner.INSTANCE.cancel(operationId) }
     AsyncFunction("fetchPublishedHttps") Coroutine { operationId: String, url: String ->
       val job = currentCoroutineContext()[Job]
       withContext(Dispatchers.IO) {
@@ -67,7 +104,8 @@ class NappletHostModule : Module() {
     Function("cancelPublishedHttps") { operationId: String ->
       PublishedHttpsRequestOwner.INSTANCE.cancel(operationId)
     }
-    Function("revokeAllPublishedHttps") { PublishedHttpsRequestOwner.INSTANCE.revokeAll() }
+    Function("revokeAllPublishedHttps") { PublishedHttpsRequestOwner.INSTANCE.revokeAll()
+      ResourceHttpsRequestOwner.INSTANCE.revokeAll() }
     AsyncFunction("queryPublishedRelay") Coroutine { operationId: String, url: String, requestText: String,
       subscriptionId: String ->
       val job = currentCoroutineContext()[Job]

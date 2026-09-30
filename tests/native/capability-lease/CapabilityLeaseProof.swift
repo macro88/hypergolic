@@ -79,6 +79,20 @@ private struct CapabilityLeaseProof {
     try check(!sessions.register("session-overflow"), "session bound")
     sessions.revoke("session-0")
     try check(sessions.register("fresh-generation"), "fresh generation capacity")
+    let lifetime = CapabilityLeaseRegistry(now: clock.now)
+    _ = lifetime.register("loaded")
+    let old = lifetime.admit("loaded", sequence: 1, snapshot: "old")!
+    _ = lifetime.take(old)
+    let unclaimed = lifetime.admit("loaded", sequence: 2, snapshot: "unclaimed")!
+    try check(lifetime.setForeground(false).count == 2, "background revokes every pending token")
+    try check(lifetime.sessionActive("loaded"), "loaded view retained")
+    try check(lifetime.admit("loaded", sequence: 3, snapshot: "background") == nil, "background admission denied and sequence consumed")
+    _ = lifetime.setForeground(true)
+    try check(!lifetime.isActive(old) && lifetime.borrowedSnapshot(old) == nil && !lifetime.finish(old), "return cannot resurrect claimed work")
+    try check(lifetime.take(unclaimed) == nil, "return cannot claim old unclaimed work")
+    try check(lifetime.admit("loaded", sequence: 3, snapshot: "replay") == nil, "background sequence cannot replay")
+    let fresh = lifetime.admit("loaded", sequence: 4, snapshot: "fresh")!
+    try check(lifetime.take(fresh) == "fresh" && lifetime.finish(fresh), "new foreground request succeeds")
     print("{\"language\":\"Swift\",\"checks\":\(checks),\"failed\":0}")
   }
 }

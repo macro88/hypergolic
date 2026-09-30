@@ -17,7 +17,21 @@ final class PublishedHttpsResponseReader {
 
   private PublishedHttpsResponseReader() {}
 
+  static final class ResourceFailure extends IOException {
+    private static final long serialVersionUID = 1L;
+    final String code;
+    ResourceFailure(String code, String message) { super(message); this.code = code; }
+  }
+  static final class ResourceRedirect extends IOException {
+    private static final long serialVersionUID = 1L;
+    final String location;
+    ResourceRedirect(String location) { super("Resource HTTPS redirect"); this.location = location; }
+  }
   static byte[] read(InputStream input, PublishedHttpsTransport.Cancellation cancellation) throws IOException {
+    return readBounded(input, cancellation, PublishedHttpsTransport.MAX_BODY_BYTES);
+  }
+  static byte[] readBounded(InputStream input, PublishedHttpsTransport.Cancellation cancellation, int maximumBytes) throws IOException {
+    if (maximumBytes < 1 || maximumBytes > 10 * 1024 * 1024) throw new ResourceFailure("too-large", "Invalid HTTPS body limit");
     HeaderBlock block = readHeaders(input, PublishedHttpsTransport.MAX_RESPONSE_HEADER_BYTES);
     String[] lines = block.text.split("\r\n", -1);
     if (lines.length < 1 || !lines[0].matches("HTTP/1\\.[01] [0-9]{3}( .*)?")) {
@@ -28,26 +42,34 @@ final class PublishedHttpsResponseReader {
       if ((c < 0x20 && c != '\t') || c == 0x7f) throw new IOException("Malformed HTTPS status line");
     }
     int status = Integer.parseInt(lines[0].substring(9, 12));
-    if (status >= 300 && status < 400) throw new IOException("HTTPS redirects are not followed");
-    if (status != 200) throw new IOException("HTTPS response status " + status);
+    if (maximumBytes > PublishedHttpsTransport.MAX_BODY_BYTES &&
+        (status == 301 || status == 302 || status == 303 || status == 307 || status == 308)) {
+      String location = uniqueHeader(parseHeaders(lines), "location");
+      if (location == null || location.isEmpty() || location.length() > 8192) throw new ResourceFailure("blocked-by-policy", "Invalid resource redirect");
+      throw new ResourceRedirect(location);
+    }
+    if (status >= 300 && status < 400) throw new ResourceFailure("blocked-by-policy", "HTTPS redirects are not followed");
+    if (status != 200) throw new ResourceFailure(status == 404 ? "not-found" : status == 401 || status == 403 ? "blocked-by-policy" : "network-error", "HTTPS response status " + status);
     Map<String, List<String>> headers = parseHeaders(lines);
-    String encoding = singleHeader(headers, "content-encoding");
+    boolean resourceProfile = maximumBytes > PublishedHttpsTransport.MAX_BODY_BYTES;
+    if (resourceProfile) uniqueHeader(headers, "connection");
+    String encoding = resourceProfile ? uniqueHeader(headers, "content-encoding") : singleHeader(headers, "content-encoding");
     if (encoding != null && !"identity".equalsIgnoreCase(encoding.trim())) {
-      throw new IOException("Encoded HTTPS responses are unsupported");
+      throw new ResourceFailure("blocked-by-policy", "Encoded HTTPS responses are unsupported");
     }
     String transferEncoding = uniqueHeader(headers, "transfer-encoding");
     String contentLength = uniqueHeader(headers, "content-length");
     if (transferEncoding != null && contentLength != null) throw new IOException("Ambiguous HTTPS body framing");
     if (transferEncoding != null) {
       if (!"chunked".equalsIgnoreCase(transferEncoding.trim())) throw new IOException("Unsupported HTTPS transfer encoding");
-      return readChunked(input, block.size, cancellation);
+      return readChunked(input, block.size, cancellation, maximumBytes);
     }
     if (contentLength != null) {
       long length = parseLength(contentLength);
-      if (length > PublishedHttpsTransport.MAX_BODY_BYTES) throw new IOException("HTTPS response exceeds 2 MiB");
+      if (length > maximumBytes) throw new ResourceFailure("too-large", "HTTPS response exceeds its byte limit");
       return readExact(input, (int) length, cancellation);
     }
-    return readUntilEof(input, cancellation);
+    return readUntilEof(input, cancellation, maximumBytes);
   }
 
   private static HeaderBlock readHeaders(InputStream input, int maximumBytes) throws IOException {
@@ -122,7 +144,7 @@ final class PublishedHttpsResponseReader {
     return result;
   }
 
-  private static byte[] readUntilEof(InputStream input, PublishedHttpsTransport.Cancellation cancellation) throws IOException {
+  private static byte[] readUntilEof(InputStream input, PublishedHttpsTransport.Cancellation cancellation, int maximumBytes) throws IOException {
     ByteArrayOutputStream output = new ByteArrayOutputStream(8192);
     byte[] buffer = new byte[8192];
     int count;
@@ -130,12 +152,12 @@ final class PublishedHttpsResponseReader {
       PublishedHttpsTransport.checkCancellation(cancellation);
       count = input.read(buffer);
       if (count < 0) return output.toByteArray();
-      if (count > PublishedHttpsTransport.MAX_BODY_BYTES - output.size()) throw new IOException("HTTPS response exceeds 2 MiB");
+      if (count > maximumBytes - output.size()) throw new ResourceFailure("too-large", "HTTPS response exceeds its byte limit");
       output.write(buffer, 0, count);
     }
   }
 
-  private static byte[] readChunked(InputStream input, int headersBytes, PublishedHttpsTransport.Cancellation cancellation) throws IOException {
+  private static byte[] readChunked(InputStream input, int headersBytes, PublishedHttpsTransport.Cancellation cancellation, int maximumBytes) throws IOException {
     ByteArrayOutputStream output = new ByteArrayOutputStream(8192);
     int trailerBudget = PublishedHttpsTransport.MAX_RESPONSE_HEADER_BYTES - headersBytes;
     while (true) {
@@ -170,7 +192,7 @@ final class PublishedHttpsResponseReader {
           }
         }
       }
-      if (size > PublishedHttpsTransport.MAX_BODY_BYTES - output.size()) throw new IOException("HTTPS response exceeds 2 MiB");
+      if (size > maximumBytes - output.size()) throw new ResourceFailure("too-large", "HTTPS response exceeds its byte limit");
       byte[] chunk = readExact(input, (int) size, cancellation);
       output.write(chunk);
       if (input.read() != '\r' || input.read() != '\n') throw new IOException("Invalid HTTPS chunk terminator");

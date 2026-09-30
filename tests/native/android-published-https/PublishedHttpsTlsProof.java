@@ -21,6 +21,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -68,6 +69,7 @@ public final class PublishedHttpsTlsProof {
       rejectsMixedDnsBeforeConnect(serverContext, trusted, dns);
       rejectsRedirectAfterTls(serverContext, trusted, dns);
       cancelsBlockedResponse(serverContext, trusted, dns);
+      boundedResourceRedirects(serverContext, trusted, dns);
     } finally {
       dns.shutdownNow();
       check(dns.awaitTermination(2, TimeUnit.SECONDS));
@@ -148,6 +150,44 @@ public final class PublishedHttpsTlsProof {
       check(request.get(2, TimeUnit.SECONDS));
       check(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started) < 1_000);
     }
+  }
+
+  private static void boundedResourceRedirects(SSLContext context, SSLSocketFactory trusted,
+      ThreadPoolExecutor dns) throws Exception {
+    PublishedHttpsTransport.AddressPolicy proofPolicy = new PublishedHttpsTransport.AddressPolicy() {
+      @Override public boolean isAllowedHost(String host) { return true; }
+      @Override public boolean isAllowedAddress(InetAddress address) { return address.isLoopbackAddress() || PublicAddressPolicy.accepts(address.getAddress()); }
+    };
+    AtomicInteger lookups = new AtomicInteger();
+    try (LocalServer last = new LocalServer(context, ok("resource"), false);
+         LocalServer first = new LocalServer(context, redirect("https://napplets.example.org:" + last.port() + "/artifact"), false)) {
+      byte[] body = resource(first, proofPolicy, host -> {lookups.incrementAndGet();return new InetAddress[]{LOOPBACK};}, dns, trusted);
+      equal("resource", new String(body, StandardCharsets.US_ASCII));equal(2,lookups.get());equal(1,first.requestCount);equal(1,last.requestCount);
+    }
+    try (LocalServer first = new LocalServer(context, redirect("/artifact"), false)) {
+      throwsIo(() -> resource(first, proofPolicy, host -> new InetAddress[]{LOOPBACK}, dns, trusted));equal(1,first.requestCount);
+    }
+    for (String location : new String[]{"http://napplets.example.org/artifact","https://127.0.0.1/artifact","https://user@napplets.example.org/artifact","https://printer.local/artifact"}) {
+      try (LocalServer first = new LocalServer(context, redirect(location), false)) {
+        AtomicInteger calls = new AtomicInteger();
+        throwsIo(() -> resource(first,proofPolicy,host->{calls.incrementAndGet();return new InetAddress[]{LOOPBACK};},dns,trusted));equal(1,calls.get());
+      }
+    }
+    try (LocalServer last = new LocalServer(context, redirect("https://napplets.example.org:1/artifact"), false);
+         LocalServer middle = new LocalServer(context, redirect("https://napplets.example.org:" + last.port() + "/artifact"), false);
+         LocalServer first = new LocalServer(context, redirect("https://napplets.example.org:" + middle.port() + "/artifact"), false)) {
+      AtomicInteger calls = new AtomicInteger();
+      throwsIo(() -> resource(first,proofPolicy,host->{calls.incrementAndGet();return new InetAddress[]{LOOPBACK};},dns,trusted));equal(3,calls.get());equal(1,last.requestCount);
+    }
+    try (LocalServer first = new LocalServer(context, redirect("https://mixed.example.org/artifact"), false)) {
+      AtomicInteger calls = new AtomicInteger();
+      throwsIo(() -> resource(first,proofPolicy,host->{calls.incrementAndGet();return host.equals("mixed.example.org") ? new InetAddress[]{InetAddress.getByAddress(new byte[]{8,8,8,8}),InetAddress.getByAddress(new byte[]{10,0,0,1})}:new InetAddress[]{LOOPBACK};},dns,trusted));equal(2,calls.get());
+    }
+  }
+  private static String redirect(String location) {return "HTTP/1.1 302 Found\r\nLocation: " + location + "\r\nContent-Length: 0\r\n\r\n";}
+  private static byte[] resource(LocalServer server, PublishedHttpsTransport.AddressPolicy policy,
+      PublishedHttpsTransport.HostResolver resolver, ThreadPoolExecutor dns, SSLSocketFactory factory) throws IOException {
+    return PublishedHttpsTransport.getResourceWithTransport("https://napplets.example.org:"+server.port()+"/artifact",policy,()->false,resolver,dns,factory,PROOF_HOSTNAME_VERIFIER);
   }
 
   private static byte[] fetch(LocalServer server, String host, PublishedHttpsTransport.Cancellation cancellation,

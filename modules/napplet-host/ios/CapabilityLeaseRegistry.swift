@@ -15,6 +15,18 @@ final class CapabilityLeaseRegistry: @unchecked Sendable {
   private let now: @Sendable () -> ContinuousClock.Instant
   private var sessions: [String: Session] = [:]
   private var requests: [String: Request] = [:]
+  private var foreground = true
+
+  /// Background permanently invalidates pending work, retaining loaded sessions and replay counters.
+  func setForeground(_ value: Bool) -> [String] {
+    lock.withLock {
+      foreground = value
+      guard !value else { return [] }
+      let revoked = Array(requests.keys)
+      requests.removeAll()
+      return revoked
+    }
+  }
 
   init(now: @escaping @Sendable () -> ContinuousClock.Instant = { ContinuousClock.now }) {
     self.now = now
@@ -44,7 +56,7 @@ final class CapabilityLeaseRegistry: @unchecked Sendable {
     lock.withLock {
       prune()
       guard consumeSequenceLocked(generation, sequence: sequence) else { return nil }
-      guard snapshot.utf8.count <= Self.maxBytes, requests.count < 8,
+      guard foreground, snapshot.utf8.count <= Self.maxBytes, requests.count < 8,
         requests.values.filter({ $0.generation == generation }).count < 4 else { return nil }
       let token = UUID().uuidString.lowercased()
       requests[token] = Request(generation: generation, snapshot: snapshot, expires: now().advanced(by: .seconds(25)))
@@ -73,6 +85,14 @@ final class CapabilityLeaseRegistry: @unchecked Sendable {
       prune()
       guard let request = requests[token] else { return false }
       return request.claimed && sessions[request.generation] != nil
+    }
+  }
+  /// Read-only native borrowing after the one-use claim; this never grants or extends a lease.
+  func borrowedSnapshot(_ token: String) -> String? {
+    lock.withLock {
+      prune()
+      guard let request = requests[token], request.claimed, sessions[request.generation] != nil else { return nil }
+      return request.snapshot
     }
   }
   /// Consumes exactly this request. Delivery must still recheck its generation on the main actor.

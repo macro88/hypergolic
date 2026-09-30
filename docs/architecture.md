@@ -229,3 +229,10 @@ approved suite, source registry, commands, evidence and remaining native work.
 Resolve these before their dependent implementation. Library selection and static
 scanner scores cannot settle them. The seed already specifies useful negative
 tests; assign each to an implementation plan and record target-device evidence.
+
+
+## Resource boundary — Phase 2.3
+
+The granted `resource` domain routes genuine SDK calls through the injected Kehto facade and captured native capability broker. A resource-owned HTTPS operation repeats public DNS/address and TLS checks on each of at most two HTTPS redirects. App-only bounded byte reads feed the trusted resource service; verified Blossom, one-hop public Nostr JSON and data bytes share its MIME/size/lifetime admission. A separate realm-bound one-use transfer pool projects complete Blobs into the SDK without enlarging ordinary JSON messages.
+
+Memory cache lifetime follows the loaded napplet. Trusted native focus/background control pauses Blob media and return requires Play. Download server settings use a dedicated public SQLite store across identities. The [resource profile](resource-access.md) records the owning draft, active SDK facade, exact engineering limits, native evidence requirements and post-Phase-4 Hashtree/SVG gaps. CAP-04 acceptance and physical/published MVP completion remain separate.

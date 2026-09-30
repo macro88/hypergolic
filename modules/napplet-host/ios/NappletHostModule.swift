@@ -7,6 +7,7 @@ public final class NappletHostModule: Module {
   private let relayStreams = RelayStreamBridgeOwner.shared
   deinit {
     publishedHTTPS.revokeAll()
+    ResourceHTTPSBridgeOwner.shared.revokeAll()
     publishedRelay.revokeAll()
     relayStreams.setForeground(false)
     PublishedArtifactTransfer.shared.revokeAll()
@@ -22,15 +23,47 @@ public final class NappletHostModule: Module {
     Name("HypergolicNappletHost")
     Events("onRelayStream", "onRelayLifecycle")
     OnCreate {
+      _ = CapabilityTransport.lifecycle
       RelaySubscriptionTransport.shared.observeLifecycle { snapshot in streamEmitter?.emit(event: "onRelayLifecycle", payload: ["snapshot": snapshot]) }
     }
-    OnDestroy { RelaySubscriptionTransport.shared.observeLifecycle(nil) }
+    OnDestroy {
+      CapabilityTransport.foreground(false)
+      RelaySubscriptionTransport.shared.observeLifecycle(nil)
+    }
     Function("relayLifecycle") { RelaySubscriptionTransport.shared.lifecycle() }
     Function("startRelayStream") { (id: String, token: String, url: String, request: String, subId: String) -> Bool in
       relayStreams.start(id, token: token, url: url, request: request, subId: subId) { event in streamEmitter?.emit(event: "onRelayStream", payload: event.payload) }
     }
     Function("acknowledgeRelayStream") { (id: String, sequence: UInt64) in relayStreams.acknowledge(id, sequence: sequence) }
     Function("cancelRelayStream") { (id: String) in relayStreams.cancel(id) }
+    AsyncFunction("fetchResourceHttps") { (token: String, operationId: String, url: String) async -> String in
+      var result: [String: Any]
+      do {
+        let length = try await ResourceHTTPSBridgeOwner.shared.fetch(operationId, token: token, url: url)
+        result = ["ok": true, "length": length]
+      } catch {
+        let code: String
+        switch error {
+        case ResourceHTTPSBridgeOwner.Failure.policy: code = "blocked-by-policy"
+        case ResourceHTTPSBridgeOwner.Failure.invalidRequest: code = "invalid-request"
+        case ResourceHTTPSBridgeOwner.Failure.quota: code = "quota-exceeded"
+        case ResourceHTTPSBridgeOwner.Failure.timeout: code = "timeout"
+        case PublishedHTTPResponse.Failure.resourcePolicy: code = "blocked-by-policy"
+        case PublishedHTTPResponse.Failure.tooLarge: code = "too-large"
+        case PublishedHTTPResponse.Failure.resourceStatus(let status):
+          code = status == 404 ? "not-found" : ((300...399).contains(status) || status == 401 || status == 403 ? "blocked-by-policy" : "network-error")
+        case PublishedPinnedHTTPS.Failure.privateAddress, PublishedPinnedHTTPS.Failure.invalidURL: code = "blocked-by-policy"
+        case PublishedPinnedHTTPS.Failure.cancelled: code = "timeout"
+        default: code = "network-error"
+        }
+        result = ["ok": false, "error": code]
+      }
+      return String(decoding: (try? JSONSerialization.data(withJSONObject: result)) ?? Data(), as: UTF8.self)
+    }
+    Function("readResourceHttpsChunk") { (token: String, operationId: String, offset: Int) -> String? in
+      try? ResourceHTTPSBridgeOwner.shared.read(operationId, token: token, offset: offset)
+    }
+    Function("cancelResourceHttps") { (operationId: String) in ResourceHTTPSBridgeOwner.shared.cancel(operationId) }
     AsyncFunction("fetchPublishedHttps") { (operationId: String, url: String) async throws -> String in
       try await publishedHTTPS.fetch(operationId: operationId, url: url)
     }

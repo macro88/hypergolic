@@ -1,5 +1,29 @@
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+index 0ec36f0a861a096c6391bdae988ba8243bb3f021..a6bdd59f250582b9bf37cac8704465fc35a222f8 100644
+--- a/dist/index.d.ts
++++ b/dist/index.d.ts
+@@ -350,6 +350,8 @@ interface ShellEnvironment {
+  * ```
+  */
+ interface ShellAdapter {
++    /** Whole-operation host hooks, forwarded without changing existing service semantics. */
++    operationOverrides?: RuntimeAdapter['operationOverrides'];
+     relayPool: RelayPoolHooks;
+     relayConfig: RelayConfigHooks;
+     windowManager: WindowManagerHooks;
+@@ -599,6 +601,10 @@ interface NappletNamespacePreludeOptions {
+      * Mandatory `shell` is injected even when omitted here.
+      */
+     domains: readonly string[];
++    /** Host-only per-operation deadlines in milliseconds; omitted operations remain 30000.
++     * Values must be safe integers from 1 through 2147483647. Never a napplet wire field.
++     */
++    requestTimeoutsMs?: Readonly<Record<string, number>>;
+ }
+ /**
+  * Render the host-owned NIP-5D bootstrap that exposes available NAP domains
 diff --git a/dist/index.js b/dist/index.js
-index 523bcf1..507694c 100644
+index 523bcf16686659726604376dea98363a06f86049..9e51750336af297581df8713a3bcb9b277f1e108 100644
 --- a/dist/index.js
 +++ b/dist/index.js
 @@ -312,6 +312,7 @@ function adaptHooks(shellHooks, deps) {
@@ -58,27 +82,61 @@ index 523bcf1..507694c 100644
        post(outbound);
      });
    }
-diff --git a/dist/index.d.ts b/dist/index.d.ts
-index 0ec36f0..a6bdd59 100644
---- a/dist/index.d.ts
-+++ b/dist/index.d.ts
-@@ -350,6 +350,8 @@ interface ShellEnvironment {
-  * ```
-  */
- interface ShellAdapter {
-+    /** Whole-operation host hooks, forwarded without changing existing service semantics. */
-+    operationOverrides?: RuntimeAdapter['operationOverrides'];
-     relayPool: RelayPoolHooks;
-     relayConfig: RelayConfigHooks;
-     windowManager: WindowManagerHooks;
-@@ -599,6 +601,10 @@ interface NappletNamespacePreludeOptions {
-      * Mandatory `shell` is injected even when omitted here.
-      */
-     domains: readonly string[];
-+    /** Host-only per-operation deadlines in milliseconds; omitted operations remain 30000.
-+     * Values must be safe integers from 1 through 2147483647. Never a napplet wire field.
-+     */
-+    requestTimeoutsMs?: Readonly<Record<string, number>>;
- }
- /**
-  * Render the host-owned NIP-5D bootstrap that exposes available NAP domains
+@@ -2071,18 +2085,36 @@ function nappletNamespacePrelude(domains) {
+   }
+   function makeResource() {
+     const objectUrls = /* @__PURE__ */ new Set();
+-    const bytes = (url) => request({ type: "resource.bytes", url }, "resource.bytes.result", (msg) => msg.blob);
++    let objectUrlEpoch = 0;
++    function resourceRequest(type, fields, map, options) {
++      const signal = options?.signal;
++      if (signal?.aborted) return Promise.reject(new DOMException("Aborted", "AbortError"));
++      const requestId = id();
++      const work = request({ type, id: requestId, ...fields }, `${type}.result`, map);
++      if (!signal) return work;
++      let abort;
++      const cancelled = new Promise((_, reject) => {
++        abort = () => { post({ type: "resource.cancel", id: requestId }); reject(new DOMException("Aborted", "AbortError")); };
++        signal.addEventListener("abort", abort, { once: true });
++        if (signal.aborted) abort();
++      });
++      return Promise.race([work, cancelled]).finally(() => signal.removeEventListener("abort", abort));
++    }
++    const bytes = (url, options) => resourceRequest("resource.bytes", { url }, (msg) => msg.blob, options);
+     return {
+       info: () => request({ type: "resource.info" }, "resource.info.result", (msg) => msg.info),
+       bytes,
+-      bytesMany: (urls) => request({ type: "resource.bytesMany", urls }, "resource.bytesMany.result", (msg) => Array.isArray(msg.items) ? msg.items : []),
++      bytesMany: (urls, options) => resourceRequest("resource.bytesMany", { urls }, (msg) => Array.isArray(msg.items) ? msg.items : [], options),
+       bytesAsObjectURL(url) {
+         let objectUrl = "";
++        let revoked = false;
++        const epoch = objectUrlEpoch;
+         const handle = {
+           get url() {
+             return objectUrl;
+           },
+           revoke() {
++            revoked = true;
+             if (objectUrl) {
+               URL.revokeObjectURL(objectUrl);
+               objectUrls.delete(objectUrl);
+@@ -2090,14 +2122,17 @@ function nappletNamespacePrelude(domains) {
+             }
+           }
+         };
+-        void bytes(url).then((blob) => {
++        const ready = bytes(url).then((blob) => {
++          if (revoked || epoch !== objectUrlEpoch) return;
+           objectUrl = URL.createObjectURL(blob);
+           objectUrls.add(objectUrl);
+         });
++        Object.defineProperty(handle, "ready", { value: ready, enumerable: false });
+         return handle;
+       },
+       hydrateResourceCache: () => void 0,
+       revokeAllObjectURLs() {
++        objectUrlEpoch++;
+         for (const url of objectUrls) URL.revokeObjectURL(url);
+         objectUrls.clear();
+       }
