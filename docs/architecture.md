@@ -9,6 +9,17 @@ The earlier Android-only finish line and iOS deferral are superseded by the user
 correction of 15 September 2026. Public app-store publication remains separate.
 Final React Doctor and aislop scores must both be 100/100 without hiding findings.
 
+## MVP capability scope — 29 September 2026
+
+The MVP scope corrected on 30 September extends through Outbox: relay query/subscriptions, resources,
+uploads, public identity data, external links, intent/inc, notify/config and outbox,
+alongside existing shell/theme/storage and approved publication.
+The [roadmap](../.planning/ROADMAP.md) preserves the accepted order and dependencies;
+the [requirements](../.planning/REQUIREMENTS.md) define CAP-01–CAP-12 and CAP-14 for MVP. Value/zaps (CAP-13)
+and Value Lab move to post-MVP phase 4. Every MVP group
+needs a test napplet and native Android/iOS acceptance. This expands scope without
+claiming implementation or selecting wallet providers or new draft revisions.
+
 ## Implemented
 
 `index.ts` registers `src/App.tsx` with Expo. Both native hosts run verified,
@@ -187,8 +198,9 @@ keeping network reads/writes separate from lookup/manifest discovery. The settin
 service persists edits; selected Network relays reach signing approval and selected
 Lookup relays feed trusted published entry. Live first-open routing now passes
 in public-only Android/iOS fixtures; production identity and live updates remain
-to be proved. Automatic NIP-65 relay-list discovery and routing are deferred
-beyond v1.
+to be proved. Automatic NIP-65 relay-list discovery and routing remain unimplemented and are now
+required by the MVP outbox phase; the 29 September scope decision supersedes the
+previous post-v1 deferral.
 
 Purpose-built test napplets are approved, with embedding first and publication
 under the designated key later. The standalone UX Lab and its browser tests are

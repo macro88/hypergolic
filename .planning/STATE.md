@@ -2,25 +2,36 @@
 gsd_state_version: '1.0'
 status: executing
 progress:
-  total_phases: 3
+  total_phases: 14
   completed_phases: 1
   total_plans: 8
   completed_plans: 2
-  percent: 25
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-14)
+See: .planning/PROJECT.md (scope updated 2026-09-29)
 
 **Core value:** Shell control of identity and privileged operations.
 **Current focus:** Complete v1 native acceptance on Android and iOS. Public relay/Blossom first-open passes on Android API 36, Android API 29/WebView 91 and iOS 26.5 Simulator; the normal Android API 29 app opens and restores the remote guest under its process-owned identity. Embedded signed update and changed-access journeys pass on Android API 36/API 29 and iOS Simulator. API 26/WebView 58 safely refuses guests with an actionable update message. Next prove live published updates, protected identity/signing on a physical iPhone and compatibility with an updated API 26 WebView. Android system PIN/fingerprint deletion and both-platform workspace restoration have scoped native evidence.
 
+## MVP scope checkpoint — 29 September 2026
+
+The 30 September correction defers Value transfers and zaps to post-MVP phase 4. ROADMAP.md now
+includes query, subscriptions, resources, upload, identity data, links, intent/inc,
+notify/config, outbox and final published MVP acceptance. REQUIREMENTS.md tracks
+CAP-01–CAP-12 and CAP-14 for MVP, with CAP-13 deferred to phase 4, and docs/test-napplets.md records the planned fixture groups. This is
+planning only: no new capability, fixture or native acceptance is claimed. Wallet
+provider/rails, consent details and exact new draft profiles remain phase-local
+decisions. Existing native gaps remain open. Metadata plan counts cover the eight
+existing plan files; expansion phase cards are not executable PLAN files. The next
+expansion step is phase 2.1 contract/compatibility research and Feed Lab planning.
+
 ## Current Position
 
-Phase: 2 of 3 (Independent Android and iOS proof / seed phase 1)
+Phase: 2 native foundation; expansion phases 2.1–2.9 and 2.11 required before post-MVP phase 3 and phase 4 Value. The retired 2.10 identifier is left unused. There are 14 roadmap phases including the completed baseline.
 Plan: 02-04 individual signing approval; remaining 02-03 device security and 02-07 acceptance
 Status: Identity/workspace/import/switch and manual backup are implemented; State Lab and lazy restoration work on both platforms. Signing has Android protected-signing/local-wire proof and iOS public-fixture review proof. Public remote first-open works on both platforms, and the normal Android API 29 path restores a connected remote guest. Live remote updates, physical iPhone protected identity/signing and full release acceptance remain open.
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.

@@ -1,4 +1,4 @@
-# Requirements: independent Android and iOS proof
+# Requirements: Hypergolic MVP and independent Android/iOS proof
 
 Status: planned, derived 15 September 2026 from accepted product decisions. Every row remains open unless a final current-state evidence record proves it. The implementation baseline is a static native development screen, standalone UX Lab, supplied logo, and unused relay seed arrays. Historical browser/scaffold evidence is partial only.
 
@@ -8,6 +8,8 @@ The user explicitly corrected platform scope on 15 September 2026: every applica
 native journey below must pass on **both Android and iOS**, with evidence recorded
 separately. An Android pass or shared-code unit test is not iOS proof. Existing
 baseline labels describe the earlier starting point, not current completion.
+
+Current scope: the expansion through Outbox, corrected 30 September, is required in addition to the original foundation. Older implementation-baseline prose is historical.
 
 ## Acceptance matrix
 
@@ -39,7 +41,7 @@ baseline labels describe the earlier starting point, not current completion.
 | LOAD-01 | Settings accepts chosen published link; manifests/signatures/content hashes verified before execute | Valid supported identifier; malformed/wrong-kind/wrong-publisher/missing/tampered/oversized artifacts rejected before code marker; no fallback to unrelated code | missing |
 | LOAD-02 | Any compatible publisher after first-open publisher/access confirmation | Two controlled publishers; cancel prevents execution; unknown/denied/unsupported capability handling; verification not displayed as personal trust | missing |
 | LOAD-03 | Version pin until explicit verified update, respecting unsaved/session rules | Serve old/new valid versions and invalid update; no silent replacement, cancellation keeps current, accepted update storage continuity, revoked pending old requests | missing |
-| RELAY-01 | RocketShell startup network and lookup roles, editable persisted lists | Exact default arrays, distinct roles, first-run seed only, edit/remove/add/restart, invalid URLs, restore defaults only via explicit action; no NIP-65 auto-routing | partial config |
+| RELAY-01 | RocketShell startup network and lookup roles, editable persisted lists | Exact default arrays, distinct roles, first-run seed only, edit/remove/add/restart, invalid URLs, restore defaults only via explicit action; explicit defaults form the baseline; automatic NIP-65 routing is separately required by CAP-12 | partial config |
 | RELAY-02 | Required relay authentication/errors handled | Detect selected service auth requirements; native NIP-42 only if needed and consistent with explicit v1 approval; offline/reject/timeout UI observed | missing |
 | SEC-01 | Trusted bundled Kehto host, verified untrusted sandbox, source-window/native sender binding | Pin selected contracts; native tests forged sibling/frame/main-frame messages, navigation generation/stale sessions, ungranted operation and malformed/oversized envelopes | missing |
 | SEC-02 | No private key, generic native bridge or unrestricted network from napplet | Native malicious fixtures probe parent/native APIs, origin/storage, fetch/XHR/WS/forms/images/navigation/popups/downloads/file/content URLs; external receiver confirms blocked escapes | missing |
@@ -93,9 +95,32 @@ baseline labels describe the earlier starting point, not current completion.
 | BUILD-02 | 02-06 | 02-06 |
 | BUILD-03 | 02-06 | 02-06 |
 
+## Expanded MVP capabilities — confirmed 29 September 2026
+
+The earlier baseline table remains historical. CAP-01–CAP-12 and CAP-14 are required for the
+MVP on Android and iOS; CAP-13 is deferred to post-MVP phase 4; none is marked complete by this planning change. Existing
+phase-2 evidence remains required. Phase 2.11 owns final integration acceptance.
+
+| ID | Requirement and native acceptance evidence | Phase | Status |
+| --- | --- | --- | --- |
+| CAP-01 | Pinned operation profiles and truthful compatibility/admission; unsupported required domains fail before execution; no invented wire fields or full-support claim from domain admission alone | 2.1 and every phase | Open |
+| CAP-02 | Query expected valid events with bounded filters/destinations/results; distinguish empty success from failure; verify EOSE, timeout, denial and revoked owner | 2.1 | Open |
+| CAP-03 | Subscribe/close with caller-owned IDs, bounded buffering, selected reconnect/background behavior and no stale delivery after close/identity change | 2.2 | Open |
+| CAP-04 | Selected resource schemes deliver verified expected bytes/rendering; destination, MIME, size, cancellation, cache and handle lifetime tests | 2.3 | Open |
+| CAP-05 | Selected upload protocols send only approved bytes/destination; independent hash/receipt, cancellation, interruption and unknown-outcome handling | 2.4 | Open |
+| CAP-06 | Selected identity reads return validated profile/relay/public social data with canonical missing/error behavior, freshness and account isolation | 2.5 | Open |
+| CAP-07 | Deliberate permitted external links open through native controls; forbidden schemes, floods, denial and missing handler are tested | 2.6 | Open |
+| CAP-08 | Intent dispatch resolves authorized verified targets and exact payloads; handler choice, absent target, first-open consent and cancellation tested | 2.7 | Open |
+| CAP-09 | INC preserves sender/recipient identity and correlation; forged sender, replay, flood, closed/replaced target and cross-account traffic denied | 2.7 | Open |
+| CAP-10 | Shell-rendered notifications are attributed, bounded and dismissible; focus/action ownership and hostile content tested; no assumed OS push | 2.8 | Open |
+| CAP-11 | Declarative config validates selected schema features, persists by owner, notifies the live app and handles restart/incompatible updates safely | 2.8 | Open |
+| CAP-12 | Outbox resolves and routes using selected NIP-65 cache/fallback rules; independent relay destinations and fixed-before-approval writes verified | 2.9 | Open |
+| CAP-13 | Selected Value rails/provider pass quote/review/send/status/restart reconciliation; approval binding, unknown outcomes, duplicate prevention, credential isolation and recovery verified; distinguish payment from zap receipt | 4 | Deferred — outside MVP |
+| CAP-14 | All MVP groups (excluding Value Lab) pass embedded and verified-published journeys on standalone Android/iOS; current physical-device evidence, real compatibility sample, update/restart/isolation, and React Doctor/aislop 100/100 | 2.11 | Open |
+
 ## Exclusions
 
-External signers, configurable silent-signing policy, catalogue, feeds, DMs, zaps/payments, mandatory profile editing and public app-store publication are later work. Working standalone iOS v1 builds and device validation are required. Hex key import is not required. Unsaved drafts need not survive process termination. The source remote and source push remain owner-controlled.
+External Nostr signers, configurable silent signing, catalogue, dedicated bundled feed/profile/wallet applications, encrypted DMs, OS push and public app-store publication remain later work. Outbox routing remains required for MVP (CAP-12). Value transfers, zaps and Value Lab are deferred to phase 4 (CAP-13) and do not block MVP acceptance. The wallet model, rails and provider are open decisions; general support for all rails is not implied. Working standalone iOS v1 builds and device validation are required. Hex key import is not required. Unsaved drafts need not survive process termination. The source remote and source push remain owner-controlled.
 
 ## Evidence discipline
 

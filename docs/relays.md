@@ -21,8 +21,10 @@ seed settings, not URLs taken from tests or example napplets.
 Hypergolic adopts the endpoint lists as editable local defaults. The implementation
 must seed them only when no saved configuration exists, preserve explicit user edits,
 and use the selected local lists for v1. RocketShell also gives published account
-lists precedence; Hypergolic's automatic NIP-65 relay-list discovery/routing is
-confirmed deferred beyond v1. A lookup relay used to retrieve an explicitly requested
+lists precedence; Hypergolic's automatic NIP-65 relay-list discovery/routing remains
+unimplemented. The 29 September MVP scope now requires it in the outbox phase,
+superseding the earlier post-v1 deferral. The phase must select how discovered lists
+interact with explicit local settings before changing routing. A lookup relay used to retrieve an explicitly requested
 napplet manifest does not itself enable automatic account relay-list discovery.
 
 ## Integration status

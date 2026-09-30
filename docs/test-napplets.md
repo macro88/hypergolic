@@ -1,6 +1,7 @@
 # Test napplets
 
-The approved fixture suite is **UX Lab → State Lab → Approval Lab**. Start with
+The original approved fixture suite is **UX Lab → State Lab → Approval Lab**.
+The 29 September MVP expansion adds the planned groups below. Start with
 multiple loaded UX Lab instances to tune switching, overview, closing and scroll
 conflicts before adding persistence and signing dependencies. Existing napplets
 remain additional compatibility tests. The earlier profile screenshot is a UI
@@ -35,6 +36,32 @@ not been published. Its signed manifest has no server hint, so its Settings
 test route reads only the embedded bytes.
 UX Lab has no network/signing/storage requirement, so its standalone tests do not
 need the relay or a test identity.
+
+## Required MVP fixture expansion — 29 September 2026
+
+These artifacts are planned, not implemented. Value Lab is deferred to phase 4
+and is excluded from MVP acceptance. Phase IDs match the
+[roadmap](../.planning/ROADMAP.md) and acceptance IDs in
+[requirements](../.planning/REQUIREMENTS.md). Existing UX/State/Approval fixtures
+remain regressions and gain relevant cases.
+
+| Fixture | Domains/operations | Phases | Required automated proof |
+| --- | --- | --- | --- |
+| Feed Lab | relay reads/streams, public identity, outbox | 2.1, 2.2, 2.5, 2.9 | Known event sets/EOSE, streaming, teardown, limits, identity isolation and actual routing destinations |
+| Resource Lab | resource, link | 2.3, 2.6 | Exact bytes/rendering, forbidden destinations, cancellation, stale handles and native external opening |
+| Upload Lab | upload and selected dependencies | 2.4 | User approval, exact bytes/hash/destination, independent server receipt, failure and interruption |
+| Routing Lab pair | intent, inc, notify, config | 2.7, 2.8 | Two distinct app identities, handler selection, sender binding, denial/replay, notification bounds and config persistence |
+| Value Lab — deferred, outside MVP | value and selected rail dependencies | 4 | Quote/approval/send/status, fee/recipient binding, duplicate prevention, restart reconciliation and provider recovery |
+
+Build minimal manifest variants so an unsupported optional group does not block
+testing another. Test through public SDK calls and trusted visible shell controls;
+never add privileged fixture bypasses. Use disposable identities and deterministic
+local relay/resource/upload/payment services for faults. Publish the same verified
+artifact bytes using the existing approved release process, then repeat native
+journeys through ordinary published loading. Browser mocks prove fixture behavior;
+real provider/device evidence is separately required. Keep source/build/spec/fixture
+hashes and expected/actual independent observations in each result. Value testing
+does not authorize unapproved real transfers. Final integration is phase 2.11.
 
 ## Live public-artifact checkpoint — 25 September 2026
 

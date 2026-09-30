@@ -45,7 +45,7 @@ Dismissal rejects current request and returns to napplet; remaining requests sta
 Settings Open napplet accepts supported published link; compatible publishers allowed after artifact verification and explicit first-open publisher/access confirmation. Pin selected version until verified update explicitly accepted, respecting unsaved/session safeguards.
 
 ### D-14
-Use exact RocketShell network defaults relay.damus.io, nos.lol, bucket.coracle.social and lookup defaults purplepag.es, relay.damus.io, nos.lol, all wss. Lists editable and persisted; preserve user edits. Automatic NIP-65 routing deferred.
+Use exact RocketShell network defaults relay.damus.io, nos.lol, bucket.coracle.social and lookup defaults purplepag.es, relay.damus.io, nos.lol, all wss. Lists editable and persisted; preserve user edits. Automatic NIP-65 routing was deferred in this foundation scope; the 29 September MVP expansion now requires it in phase 2.9. This phase retains explicit local-list behavior until that integration.
 
 ### D-15
 Build UX Lab then State Lab then Approval Lab for automation. Embedded initial testing is allowed; publish the same built bytes under designated project key, test real published retrieval, supplement with compatible existing napplets. Profile screenshot is a UI example, not a required product app.

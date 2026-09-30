@@ -5,6 +5,17 @@ The current first host trace exposes shell/theme only. The same contract must be
 implemented and tested through Android and iOS native adapters; this selection is
 not a claim that privileged capabilities already work.
 
+## Scope update — 29 September 2026
+
+The MVP includes capabilities through Outbox. The 30 September correction defers
+Value transfers and zaps to post-MVP phase 4; see the
+[roadmap](../.planning/ROADMAP.md) and [acceptance requirements](../.planning/REQUIREMENTS.md).
+The selected historical revisions below remain the implementation baseline. New
+profiles require exact owning-spec review before wire changes. In particular,
+outbox routing is now required MVP work while its implementation remains disabled.
+Earlier checkpoint statements below describe their dated scope, not completion of
+the expanded MVP.
+
 ## Owning specifications and supported profile
 
 Checked on 15 September 2026. Pin these exact bytes; do not promote a package type
@@ -15,7 +26,7 @@ or example into protocol authority.
 | SHELL, THEME, IDENTITY | [napplet/naps 5ac0490](https://github.com/napplet/naps/tree/5ac0490461ca6fec2f0d2e45b4835cf9bc08de24/naps) | Existing handshake/theme plus read-only identity |
 | STORAGE | [PR3 f71e84e](https://github.com/napplet/naps/blob/f71e84ebca7474db260346cbfc2d88f41b4e421e/naps/NAP-STORAGE.md) | Explicitly selected draft get/set/remove/keys subset |
 | RELAY | [PR2 0be8abc](https://github.com/napplet/naps/blob/0be8abce18beb46ca37bd4ddd042f58d30b4eedc/naps/NAP-RELAY.md) | Explicitly selected draft query/subscribe/close and individually approved publish |
-| OUTBOX | [PR32 4589a8f](https://github.com/napplet/naps/blob/4589a8f9a16d8aa29b3740e2b3b0cdca11e0976e/naps/NAP-OUTBOX.md) | Reviewed, disabled; automatic NIP-65 routing is deferred |
+| OUTBOX | [PR32 4589a8f](https://github.com/napplet/naps/blob/4589a8f9a16d8aa29b3740e2b3b0cdca11e0976e/naps/NAP-OUTBOX.md) | Reviewed, disabled; required by the 29 September MVP expansion |
 | Relay authentication | [NIP-42 a2494f4](https://github.com/nostr-protocol/nips/blob/a2494f4f81d46684e5814a9bf35e2b1df978f955/42.md) | Separate explicit approval or auth-required denial |
 
 NAP-IDENTITY is read-only; NAP-KEYS describes keyboard bindings. Do not invent
