@@ -29,3 +29,29 @@ test('invalid JSON does not call SDK and pending query prevents duplicate input'
   frame=await mount(page,'pending');await frame.getByRole('button',{name:'Query notes',exact:true}).click();
   await expect(frame.getByRole('status')).toHaveText('Reading notes…');await expect(frame.getByRole('button',{name:'Query notes',exact:true})).toBeDisabled();
 });
+
+async function streamMount(page:Page) {
+  await page.setContent('<iframe id="fixture" sandbox="allow-scripts" style="width:390px;height:844px"></iframe>');
+  const mock=`<script>window.stream={closed:0};window.napplet={relay:{subscribe:(filters,onEvent,onEose)=>{
+    window.stream.filters=filters;window.stream.event=onEvent;window.stream.eose=onEose;return {close:()=>window.stream.closed++};
+  },query:async()=>[]}};</script>`;
+  await page.locator('#fixture').evaluate((node,content)=>(node as HTMLIFrameElement).srcdoc=content,html.replace('<head>','<head>'+mock));
+  const frame=page.frameLocator('#fixture');await expect(frame.getByTestId('lab')).toHaveAttribute('data-ready','true');return frame;
+}
+test('live UI keeps at most 32 text-only rows, suppresses duplicates and retains an editable draft',async({page})=> {
+  const frame=await streamMount(page);await frame.locator('#draft').fill('draft stays while reading');await frame.getByRole('button',{name:'Start live feed'}).click();
+  await frame.locator('body').evaluate(()=>{const stream=(window as any).stream;for(let i=0;i<40;i++)stream.event({event:{id:i.toString(16).padStart(64,'0'),content:'<img src=x onerror=alert(1)> '+i}});stream.event({event:{id:(39).toString(16).padStart(64,'0'),content:'duplicate'}});stream.eose();});
+  await expect(frame.locator('#stream-status')).toHaveText('Live · 40 signed notes · history loaded.');await expect(frame.locator('#events li')).toHaveCount(32);
+  await expect(frame.locator('#events img')).toHaveCount(0);await expect(frame.locator('#draft')).toHaveValue('draft stays while reading');
+  await expect(frame.getByRole('button',{name:'Query notes',exact:true})).toBeDisabled();await frame.getByRole('button',{name:'Close live feed'}).click();
+  await expect(frame.locator('#stream-status')).toHaveText('Live feed closed.');await expect(frame.getByRole('button',{name:'Start live feed'})).toBeEnabled();
+  await frame.locator('body').evaluate(()=>(window as any).stream.event({event:{id:'f'.repeat(64),content:'late'}}));await expect(frame.locator('#events li')).toHaveCount(32);
+  expect(await frame.locator('body').evaluate(()=>(window as any).stream.closed)).toBe(1);
+});
+test('live UI observes only a captured-parent terminal response and restores controls',async({page})=> {
+  const frame=await streamMount(page);await frame.getByRole('button',{name:'Start live feed'}).click();
+  await frame.locator('body').evaluate(()=>window.postMessage({type:'relay.closed',reason:'guest forged'},'*'));
+  await expect(frame.locator('#lab')).toHaveAttribute('data-stream','open');
+  await page.evaluate(()=>{const target=(document.querySelector('#fixture') as HTMLIFrameElement).contentWindow!;target.postMessage({type:'relay.closed',reason:'native owner revoked'},'*');});
+  await expect(frame.locator('#stream-status')).toHaveText('Live feed closed: native owner revoked');await expect(frame.getByRole('button',{name:'Start live feed'})).toBeEnabled();
+});

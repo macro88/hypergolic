@@ -1,3 +1,4 @@
+import {loadNativeRelaySubscriptions} from '../network/native-relay-subscription-port';
 import { finalizeEvent } from 'nostr-tools/pure';
 import { ApprovalService } from './approval-service';
 import { createApprovalOwner } from './approval-owner';
@@ -56,7 +57,8 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
       { service: approvals, destinations: () => relaySettings?.getSettings().networkRelays ?? [] },
       { sqlite: SQLite, source: loadNativePublishedArtifactSource(), native: loadNativePublishedTransferPort(),
         lookupRelays: () => relaySettings?.getSettings().lookupRelays ?? [] },
-      loadNativeRelayQuery(() => relaySettings?.getSettings().networkRelays ?? []));
+      loadNativeRelayQuery(() => relaySettings?.getSettings().networkRelays ?? []),
+      loadNativeRelaySubscriptions(() => relaySettings?.getSettings().networkRelays ?? []));
     return { transition, approvals, relaySettings, runtime };
   } catch {
     try { await relaySettings?.close(); } catch { /* Preserve the workspace failure. */ }

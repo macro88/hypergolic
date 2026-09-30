@@ -13,7 +13,7 @@ and resolve each phase's material policy decisions before generating those files
 - [x] **Phase 1: Development baseline** — phase-zero tooling, scaffold and checks.
 - [ ] **Phase 2: Independent Android and iOS proof** — native foundation and device evidence; full MVP acceptance is phase 2.11.
 - [x] **Phase 2.1: Relay query and compatibility** — M; Feed Lab.
-- [ ] **Phase 2.2: Live relay subscriptions** — L; Feed Lab.
+- [x] **Phase 2.2: Live relay subscriptions** — L; Feed Lab.
 - [ ] **Phase 2.3: Resource access** — L; Resource Lab.
 - [ ] **Phase 2.4: Uploads** — L; Upload Lab.
 - [ ] **Phase 2.5: Public identity data** — M; State Lab and Feed Lab.
@@ -67,7 +67,7 @@ The existing phase directory name remains unchanged to preserve references.
 **Requirements:** CAP-03
 **Fixture:** Feed Lab
 **Work and exit criteria:** Implement session-owned subscribe/close and bounded queues. Select background/reconnect behavior. Verify streams, duplicates, disconnects, flood, close, identity change and stale callback denial.
-**Plans:** Pending owning-contract research and phase-local decisions; no completion claimed.
+**Plans:** [02.2-01](phases/02.2-live-relay-subscriptions/02.2-01-PLAN.md) delivers the SDK/native live tracer and bounded fault proof; [02.2-02](phases/02.2-live-relay-subscriptions/02.2-02-PLAN.md) accepts the confirmed switching/background/reconnect lifecycle. Both plans pass the selected subscription-profile exit: eight real native WSS lifecycle checks and nine diagnostic SDK/native fault cases per platform, plus published read-view retention and full quality/audits. [Verification](phases/02.2-live-relay-subscriptions/02.2-VERIFICATION.md) preserves physical, older-WebView and full published MVP gates.
 
 ### Phase 2.3: Resource access
 

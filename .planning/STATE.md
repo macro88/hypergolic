@@ -3,9 +3,9 @@ gsd_state_version: '1.0'
 status: executing
 progress:
   total_phases: 14
-  completed_phases: 2
-  total_plans: 9
-  completed_plans: 3
+  completed_phases: 3
+  total_plans: 11
+  completed_plans: 5
 ---
 
 # Project State
@@ -104,7 +104,7 @@ remote loading and physical/older-platform acceptance remain open. Full aislop i
 100/100; local React Doctor has zero findings but no externally verified numeric
 score. No source push or remote change.
 
-Continuation (2026-09-23): native publication transport, shared approval UI, protected signing and SDK fixture integration are in progress on the existing branch. Latest usage check: 31% weekly consumed. New unit tests pass; full native signing journeys remain pending. Earlier budget pause is superseded by the user's explicit continuation.
+Continuation (2026-09-23): native publication transport, shared approval UI, protected signing and SDK fixture integration are in progress on the existing branch. Latest usage check: 32% weekly consumed. New unit tests pass; full native signing journeys remain pending. Earlier budget pause is superseded by the user's explicit continuation.
 
 Signing integration checkpoint (2026-09-23): Android now passes visible rejection,
 approved exact publication, relay rejection/auth-required/unknown outcomes, queue
@@ -707,3 +707,38 @@ owner-only. Check live weekly usage between batches and pause at 50% consumed.
 The user confirmed phase-2.2 lifecycle: keep bounded feeds live across switching,
 close connections on background, retain feed/drafts and refresh/deduplicate after
 reconnect. Close/identity/replacement/renderer loss revoke old authority.
+
+
+## Live subscriptions started — 30 September 2026
+
+Phase 2.1 targeted commit is `4f1e426` on the preserved `mobile-revamp` branch,
+local and unpushed. Final quality was verified at React Doctor/aislop 100/100 with
+seven clean complete audits. Phase 2.2 has two executable plans and the confirmed
+lifecycle context. Work proceeds inline under the installed GSD fallback, without
+typed planner/checker guarantees. Current task: 02.2-01 live SDK/native tracer.
+Weekly usage last checked at 29%; pause at 50% consumed.
+
+## Live subscriptions accepted — 30 September 2026
+
+Both phase-2.2 plans pass the selected subscription-profile exit. CAP-03 is
+accepted for the pinned draft; CAP-01 remains ongoing and CAP-14 remains open.
+Final isolated Android/iOS products pass eight actual SDK/native WSS lifecycle
+checks and nine diagnostic frame faults each. Native-first background stops
+sockets, retained drafts survive switching/return and revoked intent never resumes.
+An independent public relay observer verifies stored/live IDs. The normal published
+update fixture retains its accepted verified read view across background on both
+platforms; this is not published Feed Lab stream parity.
+
+Full numeric React Doctor/aislop are 100/100 with zero findings and seven complete
+audits are clean. Both normal Release platforms compile, including unsigned
+iPhoneOS; strict TypeScript, runtime, exports and prebuilds pass. The known Expo
+Doctor patch-pin mismatch remains disclosed. See the phase verification and
+`docs/relay-subscriptions.md` for exact test scope. Installed/source receipts and
+inspected screenshots belong in the canonical private checkpoint.
+
+Current task: finalize the coherent subscription commit. Next roadmap phase: 2.3
+resource access; select its exact draft and trust/size policy before implementation.
+No physical-iPhone, older-WebView or full published MVP completion is claimed.
+Inline installed-GSD fallback was used without typed planner/checker guarantees.
+Latest weekly usage is 32% consumed; pause at 50%. Source push/remote remain
+owner-only. Progress counts accepted executable plans, not overall MVP readiness.

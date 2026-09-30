@@ -4,3 +4,6 @@ export function ensureObjectHasOwn(): void {
   Object.defineProperty(Object, 'hasOwn', { configurable: false, enumerable: false,
     value: (value: object, key: PropertyKey) => Object.prototype.hasOwnProperty.call(value, key) });
 }
+
+// Run before dependency module initialization on WebViews lacking the static API.
+ensureObjectHasOwn();

@@ -1,3 +1,5 @@
+import {createRelaySubscriptionBroker,type NativeRelaySubscriptionPort} from './relay-subscription-broker.ts';
+import {createRelaySubscriptions} from '../network/relay-subscriptions.ts';
 import type { RelayQueryService } from '../network/native-relay-query';
 import type { IdentityTransition } from '../security/identity-transition.ts';
 import type { ShellDatabase } from '../storage/database.ts';
@@ -11,10 +13,10 @@ import { createPublishedSessionCoordinator, type PreparedPublishedSession, type 
 import type { NappletConsentReview } from '../napplets/first-open-consent.ts';
 import type { NativeRegistration } from './capability-protocol.ts';
 
-export interface NativeCapabilityEvent { type: 'capability'; sessionId: string; generation: string; token: string; lane?: 'approval' }
+export interface NativeCapabilityEvent { type: 'capability'; sessionId: string; generation: string; token: string; lane?: 'approval' | 'subscription' }
 export interface RuntimeBinding { readonly configuration: string; receive(event: NativeCapabilityEvent): void; revoke(): void }
 export interface PublishedRuntimeBinding { readonly publishedArtifact: string; receive(event: NativeCapabilityEvent): void; assertApproval(origin: ApprovalOrigin): void; revoke(): void }
-export interface RuntimeNativePort extends NativeCapabilityPort { newInstanceId(): string }
+export interface RuntimeNativePort extends NativeCapabilityPort { newInstanceId(): string; subscriptions?: NativeRelaySubscriptionPort }
 export interface RuntimeOwner {
   open(session: NappletDescriptor): RuntimeBinding;
   descriptor(variant: Exclude<BundledVariant, 'ux-lab'>, number: number): NappletDescriptor;
@@ -30,11 +32,12 @@ export interface RuntimeOwner {
 
 function capabilityReceiver(database: ShellDatabase, native: RuntimeNativePort,
   approvals: Readonly<{ service: ApprovalService; destinations: () => readonly string[] }> | undefined,
-  sessionId: string, configuration: Omit<NativeRegistration, 'generation'>, assertActive: () => void, queries?: RelayQueryService) {
+  sessionId: string, configuration: Omit<NativeRegistration, 'generation'>, assertActive: () => void, queries?: RelayQueryService, subscriptions?: ReturnType<typeof createRelaySubscriptions>) {
   let generation: string | null = null;
   let broker: ReturnType<typeof createCapabilityBroker> | null = null;
+  let streams:ReturnType<typeof createRelaySubscriptionBroker>|null=null;
   return Object.freeze({
-    revoke: () => broker?.revoke(),
+    revoke: () => { broker?.revoke(); streams?.revoke(); },
     assertGeneration: (candidate: string) => { if (generation === null || generation !== candidate) throw new ShellStorageError('REVOKED'); },
     receive(event: NativeCapabilityEvent): void {
       try {
@@ -43,13 +46,16 @@ function capabilityReceiver(database: ShellDatabase, native: RuntimeNativePort,
         identifier(event.token); identifier(event.generation);
         if (generation === null) {
           generation = event.generation;
-          broker = createCapabilityBroker(database, native, { registration: { ...configuration, generation }, assertActive }, queries);
+          const owner={registration:{...configuration,generation},assertActive};
+          if(configuration.domains.includes('relay')&&native.subscriptions&&subscriptions)streams=createRelaySubscriptionBroker(native.subscriptions,subscriptions,owner);
+          broker = createCapabilityBroker(database, native, owner, queries, request=>streams?.close(request));
         }
         if (event.generation !== generation) return;
         if (event.lane === 'approval') {
           if (!configuration.domains.includes('relay')) return;
           approvals?.service.enqueue(event.token, approvals.destinations(), { ...configuration, generation });
-        } else if (event.lane === undefined) void broker!.dispatch(event.token);
+        } else if(event.lane==='subscription')streams?.dispatch(event.token);
+        else if (event.lane === undefined) void broker!.dispatch(event.token);
       } catch { /* Native expiry or teardown ends unclaimed requests. */ }
     },
   });
@@ -58,7 +64,7 @@ function capabilityReceiver(database: ShellDatabase, native: RuntimeNativePort,
 export function createRuntimeOwner(database: ShellDatabase,
   identity: Pick<IdentityTransition, 'getSnapshot' | 'sessionAuthority'>, native: RuntimeNativePort,
   approvals?: Readonly<{ service: ApprovalService; destinations: () => readonly string[] }>,
-  published?: Omit<PublishedSessionDependencies, 'identity' | 'database' | 'newInstanceId'>, queries?: RelayQueryService): RuntimeOwner {
+  published?: Omit<PublishedSessionDependencies, 'identity' | 'database' | 'newInstanceId'>, queries?: RelayQueryService, subscriptions?: ReturnType<typeof createRelaySubscriptions>): RuntimeOwner {
   const coordinator = published ? createPublishedSessionCoordinator({
     ...published, identity, database, newInstanceId: () => native.newInstanceId(),
   }) : null;
@@ -80,7 +86,7 @@ export function createRuntimeOwner(database: ShellDatabase,
       ready.assertActive();
       exactSession(selected);
     };
-    const receiver = capabilityReceiver(database, native, approvals, selected.id, configuration, assertActive, queries);
+    const receiver = capabilityReceiver(database, native, approvals, selected.id, configuration, assertActive, queries, subscriptions);
     const binding: PublishedRuntimeBinding = Object.freeze({
       publishedArtifact: ready.hostInput,
       assertApproval(origin: ApprovalOrigin): void {
@@ -177,7 +183,7 @@ export function createRuntimeOwner(database: ShellDatabase,
           current.version !== descriptor.version || current.source !== descriptor.source || current.title !== descriptor.title) throw new ShellStorageError('REVOKED');
     };
     assertActive();
-    const receiver = capabilityReceiver(database, native, approvals, descriptor.id, configuration, assertActive, queries);
+    const receiver = capabilityReceiver(database, native, approvals, descriptor.id, configuration, assertActive, queries, subscriptions);
     return Object.freeze({ configuration: JSON.stringify(configuration),
       revoke(): void { revoked = true; receiver.revoke(); approvals?.service.close(descriptor.id); },
       receive: receiver.receive,

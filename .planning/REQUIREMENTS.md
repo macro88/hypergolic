@@ -105,7 +105,7 @@ phase-2 evidence remains required. Phase 2.11 owns final integration acceptance.
 | --- | --- | --- | --- |
 | CAP-01 | Pinned operation profiles and truthful compatibility/admission; unsupported required domains fail before execution; no invented wire fields or full-support claim from domain admission alone | 2.1 and every phase | Open |
 | CAP-02 | Query expected valid events with bounded filters/destinations/results; distinguish empty success from failure; verify EOSE, timeout, denial and revoked owner | 2.1 | Accepted selected query profile; final integration remains CAP-14 |
-| CAP-03 | Subscribe/close with caller-owned IDs, bounded buffering, selected reconnect/background behavior and no stale delivery after close/identity change | 2.2 | Open |
+| CAP-03 | Subscribe/close with caller-owned IDs, bounded buffering, selected reconnect/background behavior and no stale delivery after close/identity change | 2.2 | Accepted selected draft profile; both native hosts pass live lifecycle and diagnostic faults. Full published/physical compatibility remains CAP-14 |
 | CAP-04 | Selected resource schemes deliver verified expected bytes/rendering; destination, MIME, size, cancellation, cache and handle lifetime tests | 2.3 | Open |
 | CAP-05 | Selected upload protocols send only approved bytes/destination; independent hash/receipt, cancellation, interruption and unknown-outcome handling | 2.4 | Open |
 | CAP-06 | Selected identity reads return validated profile/relay/public social data with canonical missing/error behavior, freshness and account isolation | 2.5 | Open |

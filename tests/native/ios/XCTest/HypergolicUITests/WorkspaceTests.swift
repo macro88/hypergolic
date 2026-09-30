@@ -25,7 +25,7 @@ final class WorkspaceTests: XCTestCase {
     "approval-review": ["exact-public-review", "reject-denies-sdk", "dismiss-pauses-queue", "background-preserves-pending"],
     "published-host": ["review-exact-signed-fixture", "native-host-connected", "close-returns-to-fixture"],
     "live-published": ["live-native-relay-https", "live-first-open-exact-review", "live-guest-connected"],
-    "published-update": ["public-fixture-and-runtime", "first-open-exact-review", "update-cancel-retains-old", "update-accept-replaces-host", "cold-restart-retains-v2", "rollback-rejected-after-restart", "background-revokes-and-retry-v2"],
+    "published-update": ["public-fixture-and-runtime", "first-open-exact-review", "update-cancel-retains-old", "update-accept-replaces-host", "cold-restart-retains-v2", "rollback-rejected-after-restart", "background-retains-verified-v2"],
     "live-update-v1": ["live-public-fixture", "live-first-open-exact-review", "live-v1-connected"],
     "live-update-v2": ["live-v1-before-update", "live-update-exact-review", "live-decline-retains-v1", "live-accept-renders-v2", "live-cold-restart-retains-v2"],
     "changed-access": ["public-fixture-and-runtime", "first-open-exact-review", "update-review-exact-candidate", "changed-access-decline-retains-v1", "changed-access-accept-replaces-host"],
@@ -734,20 +734,15 @@ final class WorkspaceTests: XCTestCase {
       self.app.state == .runningBackground || self.app.state == .runningBackgroundSuspended
     }
     app.activate()
-    let retry = app.buttons.matching(identifier: "published-retry-" + restartedSessionId).firstMatch
-    let backgroundError = app.staticTexts.matching(NSPredicate(format: "label == %@", "Runtime unavailable: backgrounded")).firstMatch
-    try until("Backgrounded published guest revoked") { retry.exists && backgroundError.exists }
-    let guestWasRevoked = !publishedMarker("update-v2")
-      && app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label != "Runtime connected"
-    capture("published-update-background-revoked")
-    try nativeTap(retry, name: "retry-pinned-update-after-background")
-    try until("Accepted v2 guest reopened after background") {
+    try until("Verified published read view retained after background") {
       self.publishedMarker("update-v2") && !self.publishedMarker("update-v1")
         && self.app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH %@", "runtime-status-")).firstMatch.label == "Runtime connected"
     }
-    record("background-revokes-and-retry-v2", guestWasRevoked,
-      ["revokedGuest": true, "retryOpenedPinnedEvent": newEvent])
-    capture("published-update-retried-v2")
+    let retained = !app.buttons.matching(identifier: "published-retry-" + restartedSessionId).firstMatch.exists
+    record("background-retains-verified-v2", retained,
+      ["retainedSessionId": restartedSessionId, "pinnedEvent": newEvent,
+       "scope": "Loaded read view retention; stream reconnect is tested separately."])
+    capture("published-update-background-retained")
     complete = true
   }
 

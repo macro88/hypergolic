@@ -33,6 +33,7 @@ internal object CapabilityTransport {
   fun revoke(generation: String) {
     // Revoke before dispatching callbacks, navigating or dismantling a renderer.
     leases.revoke(generation)
+    RelaySubscriptionTransport.revoke(generation)
     check(Looper.myLooper() == Looper.getMainLooper())
     val tokens = pending.filterValues { it.generation == generation }.keys.toList()
     for (token in tokens) pending.remove(token)?.reply?.invoke(null)

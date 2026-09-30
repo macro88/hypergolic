@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 // Native-port double only: proves genuine SDK -> Kehto -> native-client wire and DOM delivery.
-for (const mode of ['events', 'empty', 'failure']) test(`Feed Lab canonical ${mode} through genuine Kehto and native request`, async ({ page }) => {
+for (const mode of ['events', 'empty', 'failure','legacy']) test(`Feed Lab canonical ${mode} through genuine Kehto and native request`, async ({ page }) => {
   await page.addInitScript(mode => {
     if (window !== window.top) return;
+    if(mode==='legacy')Object.defineProperty(Object,'hasOwn',{configurable:true,value:undefined});
     const listeners = new Set<(event: {data: string}) => void>();
     (window as any).queryCalls = [];
     (window as any).HypergolicHost = {
@@ -23,5 +24,5 @@ for (const mode of ['events', 'empty', 'failure']) test(`Feed Lab canonical ${mo
   await frame.getByRole('button',{name:'Query notes',exact:true}).click();
   await expect(frame.getByRole('status')).toHaveText(mode === 'failure' ? 'Query failed: relay query failed' : mode === 'empty' ? 'Query completed. No matching notes.' : 'Received 1 signed note.');
   const calls=await page.evaluate(()=> (window as any).queryCalls);expect(calls).toHaveLength(1);expect(calls[0]).toEqual({type:'relay.query',id:expect.any(String),filters:[{kinds:[1],limit:8}]});
-  if(mode==='events')await expect(frame.locator('#events')).toContainText('Native query wire proof');
+  if(mode==='events'||mode==='legacy')await expect(frame.locator('#events')).toContainText('Native query wire proof');
 });

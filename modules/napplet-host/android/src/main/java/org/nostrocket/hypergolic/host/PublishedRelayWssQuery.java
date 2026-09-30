@@ -1,5 +1,8 @@
 package org.nostrocket.hypergolic.host;
 
+import org.nostrocket.hypergolic.host.PublishedRelayWssIo.DeadlineInput;
+import org.nostrocket.hypergolic.host.PublishedRelayWssIo.AbortMonitor;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +41,7 @@ public final class PublishedRelayWssQuery {
   public static final int MAX_TEXT_MESSAGES = 64;
   public static final int MAX_TEXT_BYTES = 2 * 1024 * 1024;
   private static final int CONNECT_TIMEOUT_MS = 5_000;
-  private static final int READ_TIMEOUT_MS = 3_000;
+  static final int READ_TIMEOUT_MS = 3_000;
   private static final int MAX_URL_CHARS = 2_048;
   private static final int MAX_HANDSHAKE_BYTES = PublishedRelayWebSocketHandshake.MAX_HEADER_BYTES;
   private static final byte[] CRLFCRLF = new byte[] {'\r', '\n', '\r', '\n'};
@@ -89,6 +92,64 @@ public final class PublishedRelayWssQuery {
       }
     } finally { abort.close(); }
   }
+  /** Persistent read uses the same vetted DNS, TLS, handshake and frame policy; EOSE ends only admission. */
+  public interface StreamControl extends PublishedHttpsTransport.Cancellation {
+    void attach(Socket socket) throws IOException;
+    void text(String text) throws IOException;
+  }
+  public static void stream(String rawUrl, String request, String subscriptionId,
+      PublishedHttpsTransport.AddressPolicy policy, StreamControl control) throws IOException {
+    PublishedRelayResponseClassifier.validateRequest(request, subscriptionId);
+    RelayUrl relay = parseUrl(rawUrl);
+    if (!policy.isAllowedHost(relay.host)) throw new IOException("Unsafe relay hostname");
+    byte[] requestFrame = PublishedRelayWebSocketClientFrames.textReq(request);
+    Deadline deadline = Deadline.start();
+    AbortMonitor abort = new AbortMonitor(control, deadline);
+    try {
+      InetAddress[] addresses = checkedAddresses(resolve(relay.host, deadline, abort, InetAddress::getAllByName, DNS), policy);
+      try (SSLSocket tls = connect(relay, addresses, policy, abort, deadline, defaultFactory(), HttpsURLConnection.getDefaultHostnameVerifier())) {
+        DeadlineInput input = new DeadlineInput(tls.getInputStream(), tls, deadline);
+        OutputStream output = tls.getOutputStream();
+        byte[] nonce = new byte[16]; RANDOM.nextBytes(nonce);
+        sendHandshake(output, relay, nonce);
+        PublishedRelayWebSocketHandshake.validate(readHandshake(input, abort), nonce);
+        output.write(requestFrame); output.flush();
+        PublishedRelayWebSocketFrames frames = new PublishedRelayWebSocketFrames();
+        PublishedRelayResponseClassifier classifier = new PublishedRelayResponseClassifier(subscriptionId);
+        byte[] buffer = new byte[PublishedRelayWebSocketFrames.MAX_READ];
+        long window = System.nanoTime(); int frameCount = 0, wireBytes = 0;
+        while (true) {
+          abort.check();
+          int count;
+          try { count = input.read(buffer); }
+          catch (SocketTimeoutException idle) { if (deadline.persistent) continue; throw idle; }
+          if (count < 0) throw new IOException("Relay stream closed");
+          long current = System.nanoTime();
+          if (current - window >= 1_000_000_000L) { window = current; frameCount = 0; wireBytes = 0; }
+          wireBytes += count;
+          if (wireBytes > 2 * 1024 * 1024) throw new IOException("Relay stream byte rate exceeded");
+          byte[] chunk = java.util.Arrays.copyOf(buffer, count);
+          List<PublishedRelayWebSocketFrames.Event> batch = frames.feed(chunk);
+          if (batch.size() > 64 - frameCount) throw new IOException("Relay stream frame rate exceeded");
+          frameCount += batch.size();
+          // Validate the full decoded read before any application delivery.
+          for (PublishedRelayWebSocketFrames.Event event : batch) {
+            if ("error".equals(event.type) || "close".equals(event.type)) throw new IOException("Invalid or closed relay stream");
+            if ("text".equals(event.type)) classifier.classify(event.text);
+          }
+          for (PublishedRelayWebSocketFrames.Event event : batch) {
+            abort.check();
+            if ("text".equals(event.type)) {
+              if (classifier.classify(event.text) == TextKind.EOSE) deadline.persistent();
+              control.text(event.text);
+            } else if ("ping".equals(event.type)) { output.write(PublishedRelayWebSocketClientFrames.pong(event.bytes)); output.flush(); }
+          }
+        }
+      }
+    } catch (IllegalArgumentException invalid) { throw new IOException("Invalid relay stream", invalid); }
+    finally { abort.close(); }
+  }
+
   static RelayUrl parseUrl(String raw) throws IOException {
     if (raw == null || raw.length() > MAX_URL_CHARS || raw.indexOf('\\') >= 0) throw invalidUrl();
     for (int i = 0; i < raw.length(); i++) {
@@ -294,10 +355,12 @@ public final class PublishedRelayWssQuery {
     }
   }
 
-  private static final class Deadline {
-    final long expiresAt;
+  static final class Deadline {
+    volatile long expiresAt;
+    volatile boolean persistent;
     private Deadline() { expiresAt = System.nanoTime() + TOTAL_TIMEOUT_MS * 1_000_000L; }
     static Deadline start() { return new Deadline(); }
+    void persistent() { persistent = true; expiresAt = Long.MAX_VALUE; }
     int remainingMs() throws SocketTimeoutException {
       long remaining = expiresAt - System.nanoTime();
       if (remaining <= 0) throw new SocketTimeoutException("Relay query timed out");
@@ -350,61 +413,4 @@ public final class PublishedRelayWssQuery {
     List<String> result() { return Collections.unmodifiableList(new ArrayList<>(messages)); }
   }
 
-  private static final class DeadlineInput extends InputStream {
-    final InputStream delegate;
-    final Socket socket;
-    final Deadline deadline;
-    DeadlineInput(InputStream delegate, Socket socket, Deadline deadline) {
-      this.delegate = delegate; this.socket = socket; this.deadline = deadline;
-    }
-    @Override public int read() throws IOException {
-      socket.setSoTimeout(deadline.timeoutMs(READ_TIMEOUT_MS));
-      return delegate.read();
-    }
-    @Override public int read(byte[] target, int offset, int length) throws IOException {
-      socket.setSoTimeout(deadline.timeoutMs(READ_TIMEOUT_MS));
-      return delegate.read(target, offset, length);
-    }
-  }
-
-  private static final class AbortMonitor implements AutoCloseable {
-    final PublishedHttpsTransport.Cancellation cancellation;
-    final Deadline deadline;
-    volatile Socket socket;
-    volatile boolean stopped;
-    final Thread monitor;
-    AbortMonitor(PublishedHttpsTransport.Cancellation cancellation, Deadline deadline) {
-      this.cancellation = cancellation; this.deadline = deadline;
-      monitor = new Thread(() -> {
-        while (!stopped) {
-          try {
-            if ((cancellation != null && cancellation.isCancelled()) || deadline.expired()) {
-              closeSocket(); return;
-            }
-            Thread.sleep(20L);
-          } catch (InterruptedException stoppedThread) { return; }
-          catch (RuntimeException failure) { closeSocket(); return; }
-        }
-      }, "napplet-wss-cancel");
-      monitor.setDaemon(true);
-      monitor.start();
-    }
-    void setSocket(Socket value) throws IOException { socket = value; check(); }
-    void check() throws IOException {
-      if (deadline.expired()) { closeSocket(); throw new SocketTimeoutException("Relay query timed out"); }
-      if (cancellation != null) {
-        try {
-          if (cancellation.isCancelled()) { closeSocket(); throw new IOException("Relay query cancelled"); }
-        } catch (RuntimeException unavailable) {
-          closeSocket();
-          throw new IOException("Relay cancellation state unavailable", unavailable);
-        }
-      }
-    }
-    void closeSocket() { Socket current = socket; if (current != null) try { current.close(); } catch (IOException ignored) {} }
-    @Override public void close() {
-      stopped = true; monitor.interrupt(); closeSocket();
-      try { monitor.join(100L); } catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); }
-    }
-  }
 }

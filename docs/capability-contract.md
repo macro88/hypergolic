@@ -203,3 +203,13 @@ lease on both platforms. [Relay query](relay-query.md) records the exact NIP/dra
 revisions, filter/result/lifetime bounds, error distinction, native receipts and
 remaining compatibility/fault/published evidence. No full relay-domain conformance
 is claimed.
+
+## Subscription checkpoint — 30 September 2026
+
+The same selected NAP-RELAY draft now connects `relay.subscribe` and `relay.close`
+to persistent native admission and canonical event/EOSE/closed delivery.
+[Live subscriptions](relay-subscriptions.md) records exact revisions, bounds,
+confirmed lifecycle and scoped native evidence. EOSE is nonterminal; background
+pauses socket delivery while retaining logical intent. Explicit close or owner
+revocation is terminal. Encrypted reads and automatic relay authentication are
+unsupported. This does not establish full relay-domain or published MVP parity.

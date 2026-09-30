@@ -13,36 +13,46 @@ import kotlinx.coroutines.withContext
 class NappletHostModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("HypergolicNappletHost")
+    Events("onRelayStream", "onRelayLifecycle")
     OnCreate {
+      RelaySubscriptionTransport.observeLifecycle { snapshot -> sendEvent("onRelayLifecycle", mapOf("snapshot" to snapshot)) }
       val foreground = appContext.runtime.reactContext?.lifecycleState == LifecycleState.RESUMED
       ApprovalTransport.foreground(foreground)
+      RelaySubscriptionTransport.foreground(foreground)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(foreground)
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(foreground)
     }
     OnActivityEntersForeground {
       ApprovalTransport.foreground(true)
+      RelaySubscriptionTransport.foreground(true)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(true)
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(true)
     }
     OnActivityEntersBackground {
       ApprovalTransport.foreground(false)
+      RelaySubscriptionTransport.foreground(false)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(false)
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
       PublishedArtifactTransfer.INSTANCE.revokeAllPublishedArtifacts()
-      NappletHostView.revokePublishedOnBackground()
+      // Verified loaded read views retain their generation; pending transfers are revoked above.
     }
     OnActivityDestroys {
       ApprovalTransport.foreground(false)
+      RelaySubscriptionTransport.foreground(false)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(false)
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
       PublishedArtifactTransfer.INSTANCE.revokeAllPublishedArtifacts()
       NappletHostView.revokePublishedOnBackground()
     }
     OnUserLeavesActivity {
+      RelaySubscriptionTransport.foreground(false)
       PublishedHttpsRequestOwner.INSTANCE.setForeground(false)
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
     }
     OnDestroy {
+      RelaySubscriptionTransport.foreground(false)
+      RelaySubscriptionTransport.revokeAll()
+      RelaySubscriptionTransport.observeLifecycle(null)
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
       PublishedHttpsRequestOwner.INSTANCE.revokeAll()
       PublishedRelayWssRequestOwner.INSTANCE.revokeAll()
@@ -104,6 +114,18 @@ class NappletHostModule : Module() {
     Function("finishApproval") { token: String, response: String? -> ApprovalTransport.finish(token, response) }
     Function("resumeApprovals") { ApprovalTransport.resume() }
     Function("newInstanceId") { java.util.UUID.randomUUID().toString() }
+    Function("relayLifecycle") { RelaySubscriptionTransport.lifecycle() }
+    Function("startRelayStream") { id: String, token: String, url: String, request: String, subId: String ->
+      RelayStreamWssOwner.start(id, token, url, request, subId) { event -> sendEvent("onRelayStream", event) }
+    }
+    Function("acknowledgeRelayStream") { id: String, sequence: Long -> RelayStreamWssOwner.acknowledge(id, sequence) }
+    Function("cancelRelayStream") { id: String -> RelayStreamWssOwner.cancel(id) }
+    Function("takeSubscription") { token: String -> RelaySubscriptionTransport.registry.take(token) }
+    Function("acceptSubscription") { token: String -> RelaySubscriptionTransport.registry.accept(token) }
+    Function("mayDeliverSubscription") { token: String -> RelaySubscriptionTransport.registry.mayDeliver(token) }
+    Function("isSubscriptionActive") { token: String -> RelaySubscriptionTransport.registry.isActive(token) }
+    Function("sendSubscription") { token: String, response: String -> RelaySubscriptionTransport.send(token, response) }
+    Function("closeSubscription") { token: String -> RelaySubscriptionTransport.close(token) }
     Function("takeCapability") { token: String -> CapabilityTransport.leases.take(token) }
     Function("isCapabilityActive") { token: String -> CapabilityTransport.leases.isActive(token) }
     Function("finishCapability") { token: String, response: String? -> CapabilityTransport.finish(token, response) }

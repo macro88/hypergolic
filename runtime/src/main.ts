@@ -1,3 +1,5 @@
+import { ensureObjectHasOwn } from './legacy-webview';
+import { parseRelaySubscribe, parseRelayClose } from '../../src/network/relay-subscription-contract';
 import {
   createShellBridge, injectNappletNamespacePrelude, originRegistry,
   resolveShellEnvironment, type ShellAdapter,
@@ -8,7 +10,6 @@ import { identityResult, parseCapabilityRequest } from '../../src/runtime/capabi
 import { createNativeClient, type NativeHost } from './native-client';
 import { injectPublishedCsp, readPublishedArtifact } from './published-artifact';
 import { ensureSecureRandomUuid } from './secure-random-compat';
-import { ensureObjectHasOwn } from './legacy-webview';
 
 type FailureCode = 'invalid-session' | 'bridge-unavailable' | 'fixture-integrity'
   | 'artifact-integrity' | 'runtime-bootstrap' | 'runtime-timeout' | 'frame-navigation';
@@ -73,6 +74,12 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
   const supported = new Set(artifact.domains);
   const storage = async ({ message, send }: HostOperationContext): Promise<void> => { send({ ...await native.request(message) }); };
   const relayPublish = async ({ message, send }: HostOperationContext): Promise<void> => { send({ ...await native.request(message) }); };
+  const relaySubscribe = ({message,send}:HostOperationContext):void => {
+    const live=captureRecipient();
+    try { native.subscribe(message,response=>{if(live())send({...response});}); }
+    catch { if(live())send({type:'relay.closed',subId:parseRelaySubscribe(message).subId,reason:'relay subscription unavailable'}); }
+  };
+  const relayClose = ({message}:HostOperationContext):void => { native.close(message); };
   const identity = { descriptor: { name: 'identity', version: '1.0.0' },
     handleMessage(_windowId: string, message: NappletMessage, send: (message: NappletMessage) => void): void {
       const live = captureRecipient();
@@ -101,7 +108,7 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
       ...(supported.has('relay') ? { relay: { descriptor: { name: 'relay', version: '1.0.0' }, handleMessage: unavailable } } : {}) },
     ...((supported.has('storage') || supported.has('relay')) ? { operationOverrides: {
       ...(supported.has('storage') ? { 'storage.get': storage, 'storage.set': storage, 'storage.remove': storage, 'storage.keys': storage } : {}),
-      ...(supported.has('relay') ? { 'relay.publish': relayPublish, 'relay.query': relayPublish } : {}),
+      ...(supported.has('relay') ? { 'relay.publish': relayPublish, 'relay.query': relayPublish, 'relay.subscribe': relaySubscribe, 'relay.close': relayClose } : {}),
     } } : {}),
     capabilities: {
       disabledDomains: ['relay', 'identity', 'storage', 'inc', 'keys', 'media', 'notify'].filter(domain => !supported.has(domain)),
@@ -117,6 +124,9 @@ function validEnvelope(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const message = value as Record<string, unknown>;
   const keys = Object.keys(message);
+  if(message.type==='relay.subscribe'||message.type==='relay.close') {
+    try {if(message.type==='relay.subscribe')parseRelaySubscribe(value);else parseRelayClose(value);return true;}catch{return false;}
+  }
   if (message.type === 'shell.ready') return keys.length === 1;
   if (typeof message.type === 'string' && privilegedRequests.has(message.type)) {
     try { return typeof message.id === 'string' && message.id.length > 0 && message.id.length <= 128
@@ -174,7 +184,17 @@ function mount(artifact: RuntimeArtifact): void {
 
   const receive = (event: MessageEvent): void => {
     if (stopped || !event.isTrusted || event.source !== source || frame.contentWindow !== source) return;
-    if (!validEnvelope(event.data)) return;
+    if (!validEnvelope(event.data)) {
+      // A denied subscribe acquires no Kehto/native authority. Reply only to the captured
+      // registered frame with an independently validated caller correlation identifier.
+      if (ready && artifact.domains.includes('relay') && event.data?.type === 'relay.subscribe') {
+        try {
+          const denied = parseRelayClose({type:'relay.close',id:event.data.id,subId:event.data.subId});
+          source.postMessage({type:'relay.closed',subId:denied.subId,reason:'invalid or unsupported relay subscription'}, '*');
+        } catch { /* An invalid correlation identifier has no SDK recipient. */ }
+      }
+      return;
+    }
     if (performance.now() - windowStart > 1000) { operations = 0; windowStart = performance.now(); }
     if (++operations > 64) return;
     // Kehto performs session gating, frozen capability enforcement and theme dispatch.

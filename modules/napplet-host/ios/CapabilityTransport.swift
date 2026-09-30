@@ -103,6 +103,7 @@ enum CapabilityTransport {
   }
   static func revoke(_ generation: String) {
     leases.revoke(generation)
+    RelaySubscriptionTransport.shared.revoke(generation)
     for token in pending.filter({ $0.value.generation == generation }).keys {
       pending.removeValue(forKey: token)?.reply(nil)
     }

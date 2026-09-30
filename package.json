@@ -34,7 +34,8 @@
     "build:tester": "node scripts/build-tester.mjs",
     "test:tester": "node --test tests/build-tester/*.test.mjs",
     "test:relay": "node --experimental-strip-types --test tests/relay/relay-service-wire.test.mjs",
-    "test:query": "node --experimental-strip-types --test tests/network/relay-query.test.ts tests/runtime/relay-query-broker.test.ts"
+    "test:query": "node --experimental-strip-types --test tests/network/relay-query.test.ts tests/runtime/relay-query-broker.test.ts",
+    "test:subscriptions": "node --experimental-strip-types --test tests/network/relay-subscriptions.test.ts"
   },
   "dependencies": {
     "applesauce-core": "6.2.0",

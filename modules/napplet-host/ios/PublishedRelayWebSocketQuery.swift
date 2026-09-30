@@ -112,6 +112,19 @@ enum PublishedRelayWebSocketQuery {
     return operation
   }
 
+  /// Persistent reads reuse the pinned transport. One frame resumes only after native acknowledgement.
+  typealias StreamDelivery = @Sendable (String, @escaping @Sendable () -> Void) -> Void
+  static func stream(_ url: String, subscription: String, subscriptionId: String,
+    delivery: @escaping StreamDelivery, completion: @escaping @Sendable (Result<[String], Error>) -> Void) throws -> Operation {
+    let request = try Request(url)
+    guard Data(subscription.utf8).count <= PublishedRelayWebSocketClientFrames.maxTextBytes else { throw Failure.invalidURL }
+    let operation = Operation(request: request, subscription: subscription,
+      classifyText: { PublishedRelayEnvelope.classify($0, subscriptionId: subscriptionId) }, completion: completion)
+    operation.streamDelivery = delivery
+    operation.start()
+    return operation
+  }
+
 #if HYPERGOLIC_NETWORK_PROOF
   /// Host-only proof seam. The production query cannot choose addresses or trust anchors.
   static func queryForProof(_ url: String, subscription: String,
@@ -131,6 +144,15 @@ enum PublishedRelayWebSocketQuery {
   }
 #endif
 
+  private final class CancellationState: @unchecked Sendable {
+    private let lock = NSLock()
+    private var cancelled = false
+    private var connection: NWConnection?
+    func attach(_ value: NWConnection) -> Bool {
+      lock.withLock { guard !cancelled else { value.cancel(); return false }; connection = value; return true }
+    }
+    func cancel() { lock.withLock { cancelled = true; connection?.cancel(); connection = nil } }
+  }
   final class Operation: @unchecked Sendable {
     private let request: Request
     private let subscription: String
@@ -138,6 +160,7 @@ enum PublishedRelayWebSocketQuery {
     private let completion: @Sendable (Result<[String], Error>) -> Void
     private let queue = DispatchQueue(label: "org.nostrocket.hypergolic.published-relay-wss")
     private let frames = PublishedRelayWebSocketFrames()
+    private let cancellation = CancellationState()
     private var connection: NWConnection?
     private var addresses: VettedAddressCursor<PublishedPinnedHTTPS.Address>?
     private var nonce = Data()
@@ -145,6 +168,14 @@ enum PublishedRelayWebSocketQuery {
     private var total = 0
     private var collector = TextCollector()
     private var ended = false
+    fileprivate var streamDelivery: StreamDelivery?
+    private var streamTexts: [String] = []
+    private var streamBytes = 0
+    private var waiting = false
+    private var streamEOSE = false
+    private var rateStart = ContinuousClock.now
+    private var rateFrames = 0
+    private var rateBytes = 0
 #if HYPERGOLIC_NETWORK_PROOF
     fileprivate var proofAddresses: [PublishedPinnedHTTPS.Address]?
     fileprivate var proofAnchorDER: Data?
@@ -157,7 +188,7 @@ enum PublishedRelayWebSocketQuery {
     }
 
     fileprivate func start() {
-      queue.asyncAfter(deadline: .now() + 10) { self.finish(.failure(Failure.timeout)) }
+      queue.asyncAfter(deadline: .now() + 10) { if self.streamDelivery == nil || !self.streamEOSE { self.finish(.failure(Failure.timeout)) } }
 #if HYPERGOLIC_NETWORK_PROOF
       if let proofAddresses {
         queue.async {
@@ -182,7 +213,7 @@ enum PublishedRelayWebSocketQuery {
       }
     }
 
-    func cancel() { queue.async { self.finish(.failure(Failure.cancelled)) } }
+    func cancel() { cancellation.cancel(); queue.async { self.finish(.failure(Failure.cancelled)) } }
 
     private func connectNext() {
       guard let address = addresses?.next() else { finish(.failure(Failure.connection)); return }
@@ -222,6 +253,7 @@ enum PublishedRelayWebSocketQuery {
       guard let port = NWEndpoint.Port(rawValue: request.port) else { finish(.failure(Failure.invalidURL)); return }
       let connection = NWConnection(host: address.host, port: port, using: parameters)
       self.connection = connection
+      guard cancellation.attach(connection) else { finish(.failure(Failure.cancelled)); return }
       connection.stateUpdateHandler = { [weak self] state in
         guard let self, !self.ended, self.connection === connection else { return }
         switch state {
@@ -270,8 +302,15 @@ enum PublishedRelayWebSocketQuery {
       connection.receive(minimumIncompleteLength: 1, maximumLength: PublishedRelayWebSocketFrames.maxRead) { data, _, complete, error in
         guard !self.ended else { return }
         guard error == nil, !complete, let data, !data.isEmpty else { self.finish(.failure(Failure.connection)); return }
-        self.total += data.count
-        guard self.total <= PublishedRelayWebSocketQuery.maxWireBytes else { self.finish(.failure(Failure.limit)); return }
+        if self.streamDelivery == nil {
+          self.total += data.count
+          guard self.total <= PublishedRelayWebSocketQuery.maxWireBytes else { self.finish(.failure(Failure.limit)); return }
+        } else {
+          let now = ContinuousClock.now
+          if self.rateStart.duration(to: now) >= .seconds(1) { self.rateStart = now; self.rateBytes = 0; self.rateFrames = 0 }
+          self.rateBytes += data.count
+          guard self.rateBytes <= 2 * 1024 * 1024 else { self.finish(.failure(Failure.limit)); return }
+        }
         self.consumeFrames(data)
       }
     }
@@ -291,6 +330,25 @@ enum PublishedRelayWebSocketQuery {
           guard kind != .invalid else { finish(.failure(Failure.frame)); return }
           texts.append((text, kind))
         } catch { finish(.failure(error)); return }
+      }
+      if streamDelivery != nil {
+        rateFrames += events.count
+        guard rateFrames <= 64, streamTexts.count + texts.count <= 64 else { finish(.failure(Failure.limit)); return }
+        let bytes = texts.reduce(0) { $0 + $1.0.utf8.count }
+        guard streamBytes + bytes <= 256 * 1024 else { finish(.failure(Failure.limit)); return }
+        for event in events {
+          switch event {
+          case .ping(let payload):
+            do { connection.send(content: try PublishedRelayWebSocketClientFrames.pong(payload), completion: .contentProcessed { error in if error != nil { self.finish(.failure(Failure.connection)) } }) }
+            catch { finish(.failure(error)); return }
+          case .close, .error: finish(.failure(Failure.closed)); return
+          default: break
+          }
+        }
+        if texts.contains(where: { $0.1 == .eose }) { streamEOSE = true }
+        streamTexts.append(contentsOf: texts.map(\.0)); streamBytes += bytes
+        pumpStream()
+        return
       }
       let sawEOSE: Bool
       do { sawEOSE = try collector.accept(texts) }
@@ -312,9 +370,19 @@ enum PublishedRelayWebSocketQuery {
       receiveFrames()
     }
 
+    private func pumpStream() {
+      guard !ended, !waiting, let streamDelivery else { return }
+      guard !streamTexts.isEmpty else { receiveFrames(); return }
+      let text = streamTexts.removeFirst(); streamBytes -= text.utf8.count; waiting = true
+      streamDelivery(text) { [weak self] in
+        guard let self else { return }
+        self.queue.async { guard !self.ended, self.waiting else { return }; self.waiting = false; self.pumpStream() }
+      }
+    }
+
     private func finish(_ result: Result<[String], Error>) {
       guard !ended else { return }
-      ended = true; connection?.stateUpdateHandler = nil; connection?.cancel(); connection = nil
+      ended = true; connection?.stateUpdateHandler = nil; cancellation.cancel(); connection = nil
       completion(result)
     }
   }

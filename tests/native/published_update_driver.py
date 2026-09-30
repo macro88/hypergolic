@@ -346,26 +346,15 @@ class PublishedUpdateDriver(base.Driver):
                                   PACKAGE + '/org.nostrocket.hypergolic.dev.MainActivity')
         if 'Status: ok' not in foreground:
             raise CheckFailed('Android did not foreground the fixture after backgrounding')
-        retry_id = 'published-retry-' + restarted_session_id
-        _, nodes = self.wait(lambda observed: any(resource_id_suffix(n) == retry_id for n in observed)
-                             and any('Runtime unavailable: backgrounded' in label(n) for n in observed),
-                             'published native host revoked while backgrounded',
-                             expected_error='Runtime unavailable: backgrounded')
-        if guest_marker(nodes, 'update-v2') or any(label(n) == 'Runtime connected' for n in nodes):
-            raise CheckFailed('The backgrounded published guest remained connected')
-        self.capture('10-background-revoked')
-        retry = exactly_one(nodes, lambda n: resource_id_suffix(n) == retry_id,
-                            'retry action scoped to restored published session')
-        self.tap(retry)
         _, nodes = self.wait(lambda observed: guest_marker(observed, 'update-v2')
                              and any(label(n) == 'Runtime connected' for n in observed),
-                             'accepted v2 guest after background retry',
-                             expected_error='Runtime unavailable: backgrounded')
-        if guest_marker(nodes, 'update-v1'):
-            raise CheckFailed('Background retry reopened the old revision')
-        self.check('background-revokes-and-retry-v2',
-                   {'revokedGuest': True, 'retryOpenedPinnedEvent': FIXTURE['newEvent']})
-        self.capture('11-retried-update-v2')
+                             'verified published read view retained after background')
+        if guest_marker(nodes, 'update-v1') or any(resource_id_suffix(n).startswith('published-retry-') for n in nodes):
+            raise CheckFailed('Background changed the accepted native read view')
+        self.check('background-retains-verified-v2',
+                   {'retainedSessionId': restarted_session_id, 'pinnedEvent': FIXTURE['newEvent'],
+                    'host': 'update-v2', 'scope': 'Loaded read view retention; stream reconnect is tested separately.'})
+        self.capture('10-background-retained-v2')
 
         self.result['sourceAfter'] = self.source_snapshot()
         if self.result['sourceAfter'] != self.result['sourceBefore']:

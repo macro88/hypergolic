@@ -145,6 +145,16 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
             return@addWebMessageListener
           }
           if (data.optString("sessionId") != generation) return@addWebMessageListener
+          if (data.optString("type") == "relay-stream-ack") {
+            receiveStreamAck(data)
+            return@addWebMessageListener
+          }
+          if (data.optString("type") == "relay-stream") {
+            receiveSubscription(data) { envelope ->
+              if (live && !disposed && view === webView && view.url == expectedUrl) reply.postMessage(envelope)
+            }
+            return@addWebMessageListener
+          }
           if (data.optString("type") == "capability") {
             receiveCapability(data) { response ->
               if (live && !disposed && view === webView && view.url == expectedUrl) {
@@ -264,6 +274,34 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     val sequence = (number as Number).toLong()
     if (sequence < 0 || sequence > Int.MAX_VALUE) return null
     return publishedReader?.read(sequence.toInt())
+  }
+
+  private fun receiveStreamAck(data: JSONObject) {
+    if (!ready || data.keys().asSequence().toSet() != setOf("type", "sessionId", "sequence", "streamSequence", "delivery")) return
+    val values = listOf("sequence", "streamSequence", "delivery").map { name ->
+      val value = data.opt(name)
+      if (value !is Int && value !is Long) return
+      (value as Number).toLong().takeIf { it in 1..9_007_199_254_740_991L } ?: return
+    }
+    if (!CapabilityTransport.leases.consumeSequence(generation, values[0])) return
+    RelaySubscriptionTransport.acknowledge(generation, values[1], values[2])
+  }
+  private fun receiveSubscription(data: JSONObject, push: (String) -> Unit) {
+    val config = configuration ?: return
+    if (!ready || data.keys().asSequence().toSet() != setOf("type", "sessionId", "sequence", "message")) return
+    val number = data.opt("sequence")
+    if (number !is Int && number !is Long) return
+    val sequence = (number as Number).toLong()
+    if (sequence !in 1..9_007_199_254_740_991L || !CapabilityTransport.leases.consumeSequence(generation, sequence)) return
+    val message = data.opt("message") as? String ?: return
+    val request = runCatching { JSONObject(message) }.getOrNull() ?: return
+    val subId = request.opt("subId") as? String ?: return
+    val id = request.opt("id") as? String ?: return
+    if (!config.allowsRelay || request.optString("type") != "relay.subscribe" ||
+      subId.isEmpty() || subId.toByteArray(Charsets.UTF_8).size > 128 || subId.any { it.code < 32 || it.code == 127 } ||
+      id.isEmpty() || id.toByteArray(Charsets.UTF_8).size > 128 || message.toByteArray(Charsets.UTF_8).size > 16 * 1024) return
+    val token = RelaySubscriptionTransport.admit(generation, sequence, config.request(message), subId, push) ?: return
+    onHostEvent(mapOf("type" to "capability", "lane" to "subscription", "sessionId" to config.sessionId, "generation" to generation, "token" to token))
   }
 
   private fun receiveCapability(data: JSONObject, reply: (String?) -> Unit) {

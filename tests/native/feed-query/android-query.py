@@ -70,14 +70,14 @@ class Journey:
     def filter(self, value):
         nodes = self.nodes()
         fields = [n for n in nodes if n.get('class') == 'android.widget.EditText']
-        if len(fields) != 1:
-            raise RuntimeError('Expected one actual query input')
+        if len(fields) != 2:
+            raise RuntimeError('Expected query filters followed by the editable draft')
         self.tap(fields[0])
         self.nodes()  # Observe after focus/keyboard transition before selection.
         self.input('keycombination', '113', '29')
         self.input('text', shlex.quote(value))
         current = [n for n in self.nodes() if n.get('class') == 'android.widget.EditText']
-        if len(current) != 1 or current[0].get('text') != value:
+        if len(current) != 2 or current[0].get('text') != value:
             raise RuntimeError('Native input did not replace the exact query filters')
         self.input('keyevent', '4')
 

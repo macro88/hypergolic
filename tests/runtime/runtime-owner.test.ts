@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import test, { type TestContext } from 'node:test';
+import {finalizeEvent} from 'nostr-tools/pure';
+import {createRelaySubscriptions} from '../../src/network/relay-subscriptions.ts';
+import type {NativeRelaySubscriptionPort} from '../../src/runtime/relay-subscription-broker.ts';
 import { IdentityTransition } from '../../src/security/identity-transition.ts';
 import { Integrated, pubkey } from '../security/harness.ts';
 import { setup, deferred } from '../storage/harness.ts';
@@ -172,4 +175,37 @@ test('Feed Lab reads use the normal runtime owner and a confirmed identity switc
   assert.equal(await query, null);
   assert.equal(aborted, true);
   assert.equal(JSON.parse(owner.open(descriptor).configuration).user, pubkey(2));
+});
+
+
+test('normal Feed Lab owner preserves streams across focus and revokes paused intent on a confirmed identity change', {timeout:5000}, async t => {
+  const h = await start(t), descriptor = h.owner.descriptor('feed-lab', 7);
+  const workspace = h.transition.getSnapshot().session.workspace;
+  workspace.change(openNapplet(workspace.getSnapshot().workspace, descriptor)); await workspace.flush();
+  const rows = new Map<string,string>(), closed = new Set<string>(), deliveries:unknown[] = [];
+  const native:NativeRelaySubscriptionPort = {
+    take:token=>{const value=rows.get(token)??null;rows.delete(token);return value;}, accept:()=>true,
+    isActive:token=>!closed.has(token),mayDeliver:token=>!closed.has(token),
+    send:(_token,response)=>{deliveries.push(JSON.parse(response));return true;},close:token=>{closed.add(token);},
+  };
+  const calls:{sub:string;frame:(text:string)=>void;stopped:number}[]=[];
+  const manager=createRelaySubscriptions({newInstanceId:()=>h.native.newInstanceId(),
+    open(_id,_url,_request,sub,frame){const call={sub,frame,stopped:0};calls.push(call);return()=>call.stopped++;}},()=>['wss://relay.example.org']);
+  t.after(()=>manager.revokeAll());
+  const owner=createRuntimeOwner(h.database,h.transition,Object.assign(h.native,{subscriptions:native}),undefined,undefined,undefined,manager);
+  const binding=owner.open(descriptor), registration={...JSON.parse(binding.configuration),generation:'real-stream-generation'} as NativeRegistration;
+  rows.set('stream-token',JSON.stringify({registration,request:JSON.stringify({type:'relay.subscribe',id:'subscribe',subId:'caller',filters:[{kinds:[1]}]})}));
+  binding.receive({type:'capability',sessionId:registration.sessionId,generation:registration.generation,token:'stream-token',lane:'subscription'});
+  assert.equal(calls.length,1);
+  const key=new Uint8Array(32);key[31]=1;
+  const event=finalizeEvent({kind:1,created_at:100,content:'normal owner test',tags:[]},key);
+  const frame=(index:number)=>calls[index]!.frame(JSON.stringify(['EVENT',calls[index]!.sub,event]));
+  frame(0);assert.equal(deliveries.length,1);
+  workspace.change(focusNapplet(workspace.getSnapshot().workspace,h.primary.id));await workspace.flush();
+  assert.equal(calls[0]!.stopped,0);
+  manager.setForeground(false);assert.equal(calls[0]!.stopped,1);
+  const change=h.transition.prepareImport('nsec1fixture-2');assert(change);await h.transition.confirm(change);
+  await new Promise(resolve=>setTimeout(resolve,40));assert.ok(closed.has('stream-token'));
+  manager.setForeground(true);assert.equal(calls.length,1);frame(0);assert.equal(deliveries.length,1);
+  assert.equal(JSON.parse(owner.open(descriptor).configuration).user,pubkey(2));
 });

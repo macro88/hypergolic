@@ -31,6 +31,7 @@ export function NappletHost(props: Props) {
 function BundledNappletHost({ session, onHostEvent, ...props }: Props) {
   const runtime = useContext(RuntimeContext);
   const [binding] = useState(() => runtime?.open(session) ?? null);
+  useEffect(() => () => binding?.revoke(), [binding]);
   const receive = useCallback((event: NativeSyntheticEvent<NativeEvent>) => {
     const message = event.nativeEvent;
     if (message.sessionId !== session.id) return;

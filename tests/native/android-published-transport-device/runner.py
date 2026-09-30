@@ -24,6 +24,7 @@ SOURCES = [
     HOST / "PublishedRelayWebSocketFrames.java",
     HOST / "PublishedRelayWebSocketClientFrames.java",
     HOST / "PublishedRelayWssQuery.java",
+    HOST / "PublishedRelayWssIo.java",
     ROOT / "tests/native/android-published-https/PublishedHttpsTlsProof.java",
     ROOT / "tests/native/android-published-wss/PublishedRelayWssTlsProof.java",
 ]

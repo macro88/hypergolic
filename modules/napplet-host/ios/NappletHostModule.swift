@@ -4,16 +4,33 @@ import ExpoModulesCore
 public final class NappletHostModule: Module {
   private let publishedHTTPS = PublishedHTTPSBridgeOwner()
   private let publishedRelay = PublishedRelayBridgeOwner()
+  private let relayStreams = RelayStreamBridgeOwner.shared
   deinit {
     publishedHTTPS.revokeAll()
     publishedRelay.revokeAll()
+    relayStreams.setForeground(false)
     PublishedArtifactTransfer.shared.revokeAll()
   }
 
   public func definition() -> ModuleDefinition {
     let publishedHTTPS = self.publishedHTTPS
     let publishedRelay = self.publishedRelay
+    let relayStreams = self.relayStreams
+    // Matches Expo 57's EventEmitter adapter: this captured identity is used only by emit,
+    // which schedules payload conversion and module lookup on Expo's JavaScriptActor.
+    nonisolated(unsafe) weak let streamEmitter = self
     Name("HypergolicNappletHost")
+    Events("onRelayStream", "onRelayLifecycle")
+    OnCreate {
+      RelaySubscriptionTransport.shared.observeLifecycle { snapshot in streamEmitter?.emit(event: "onRelayLifecycle", payload: ["snapshot": snapshot]) }
+    }
+    OnDestroy { RelaySubscriptionTransport.shared.observeLifecycle(nil) }
+    Function("relayLifecycle") { RelaySubscriptionTransport.shared.lifecycle() }
+    Function("startRelayStream") { (id: String, token: String, url: String, request: String, subId: String) -> Bool in
+      relayStreams.start(id, token: token, url: url, request: request, subId: subId) { event in streamEmitter?.emit(event: "onRelayStream", payload: event.payload) }
+    }
+    Function("acknowledgeRelayStream") { (id: String, sequence: UInt64) in relayStreams.acknowledge(id, sequence: sequence) }
+    Function("cancelRelayStream") { (id: String) in relayStreams.cancel(id) }
     AsyncFunction("fetchPublishedHttps") { (operationId: String, url: String) async throws -> String in
       try await publishedHTTPS.fetch(operationId: operationId, url: url)
     }
@@ -31,6 +48,12 @@ public final class NappletHostModule: Module {
     }
     Function("revokeAllPublishedRelay") { publishedRelay.revokeAll() }
     Function("newInstanceId") { UUID().uuidString.lowercased() }
+    Function("takeSubscription") { (token: String) -> String? in RelaySubscriptionTransport.shared.registry.take(token) }
+    Function("acceptSubscription") { (token: String) -> Bool in RelaySubscriptionTransport.shared.registry.accept(token) }
+    Function("mayDeliverSubscription") { (token: String) -> Bool in RelaySubscriptionTransport.shared.registry.mayDeliver(token) }
+    Function("isSubscriptionActive") { (token: String) -> Bool in RelaySubscriptionTransport.shared.registry.isActive(token) }
+    Function("sendSubscription") { (token: String, response: String) -> Int in RelaySubscriptionTransport.shared.send(token, response: response) }
+    Function("closeSubscription") { (token: String) in RelaySubscriptionTransport.shared.close(token) }
     Function("takeCapability") { (token: String) -> String? in CapabilityTransport.leases.take(token) }
     Function("isCapabilityActive") { (token: String) -> Bool in CapabilityTransport.leases.isActive(token) }
     Function("finishCapability") { (token: String, response: String?) in CapabilityTransport.finish(token, response: response) }

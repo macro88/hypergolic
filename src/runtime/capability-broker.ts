@@ -39,7 +39,7 @@ async function operate(storage: StringStorage, request: CapabilityRequest): Prom
   }
 }
 /** One broker per registered native view. It is never passed into the WebView. */
-export function createCapabilityBroker(database: ShellDatabase, native: NativeCapabilityPort, owner: CapabilityOwner, queries?: RelayQueryService) {
+export function createCapabilityBroker(database: ShellDatabase, native: NativeCapabilityPort, owner: CapabilityOwner, queries?: RelayQueryService, closeRelay?: (request:unknown)=>void) {
   const registration = decodeNativeRegistration(owner.registration);
   const expected = JSON.stringify(registration);
   const seen = new Set<string>();
@@ -62,6 +62,10 @@ export function createCapabilityBroker(database: ShellDatabase, native: NativeCa
         const captured = decodeNativeRequest(raw);
         if (JSON.stringify(captured.registration) !== expected) return;
         assertActive(token);
+        if (captured.request && typeof captured.request === 'object' && 'type' in captured.request && captured.request.type === 'relay.close') {
+          if (registration.domains.includes('relay')) closeRelay?.(captured.request);
+          return;
+        }
         let request: CapabilityRequest;
         try { request = parseCapabilityRequest(captured.request); }
         catch {

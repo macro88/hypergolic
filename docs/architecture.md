@@ -31,8 +31,11 @@ reserved fixture namespaces. Their presence does not establish publisher trust.
 
 The [relay query adapter](relay-query.md) mediates bounded historical reads through
 the native lease and app-only WSS transport. Feed Lab has isolated native Android
-and iOS Simulator query/lifecycle evidence. Live streams, broader relay operations
-and full published compatibility remain open.
+and iOS Simulator query/lifecycle evidence. The selected [live subscription
+profile](relay-subscriptions.md) now passes eight actual native WSS lifecycle
+checks and nine diagnostic SDK/native fault cases on each platform. Switching
+retains loaded feeds; background cancels sockets and foreground refreshes bounded
+reads. Broader relay operations and full published compatibility remain open.
 
 The shell enters through a native identity vault; Android protected entry and
 public identity continuity have native evidence, while iOS protected storage needs

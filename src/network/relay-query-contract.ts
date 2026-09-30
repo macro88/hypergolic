@@ -16,7 +16,7 @@ function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value) || Object.getPrototypeOf(value) !== Object.prototype) return fail();
   const descriptors = Object.getOwnPropertyDescriptors(value);
   if (Reflect.ownKeys(value).length !== Object.keys(descriptors).length ||
-      Object.values(descriptors).some(field => !Object.hasOwn(field, 'value'))) return fail();
+      Object.values(descriptors).some(field => !Object.prototype.hasOwnProperty.call(field, 'value'))) return fail();
   return value as Record<string, unknown>;
 }
 function dense(value: unknown, max: number): unknown[] {
@@ -25,7 +25,7 @@ function dense(value: unknown, max: number): unknown[] {
   const output: unknown[] = [];
   for (let index = 0; index < value.length; index++) {
     const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
-    if (!descriptor || !Object.hasOwn(descriptor, 'value')) return fail();
+    if (!descriptor || !Object.prototype.hasOwnProperty.call(descriptor, 'value')) return fail();
     output.push(descriptor.value);
   }
   return output;
@@ -64,7 +64,7 @@ export function parseQueryFilters(input: unknown): readonly QueryFilter[] {
 }
 export function parseRelayQuery(value: unknown): RelayQueryRequest {
   const data = record(value);
-  if (data.type !== 'relay.query' || Object.keys(data).length !== 3 || !Object.hasOwn(data, 'filters')) return fail();
+  if (data.type !== 'relay.query' || Object.keys(data).length !== 3 || !Object.prototype.hasOwnProperty.call(data, 'filters')) return fail();
   return Object.freeze({ type: 'relay.query', id: text(data.id, 128), filters: parseQueryFilters(data.filters) });
 }
 export function queryMatches(event: NostrEvent, filter: QueryFilter): boolean {

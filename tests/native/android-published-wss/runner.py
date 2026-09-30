@@ -15,6 +15,7 @@ SOURCES = [
     HOST / "PublishedRelayWebSocketFrames.java",
     HOST / "PublishedRelayWebSocketClientFrames.java",
     HOST / "PublishedRelayWssQuery.java",
+    HOST / "PublishedRelayWssIo.java",
     HOST / "PublishedRelayResponseClassifier.java",
     HOST / "PublishedRelayWssRequestOwner.java",
     Path(__file__).with_name("PublishedRelayWssQueryProof.java"),

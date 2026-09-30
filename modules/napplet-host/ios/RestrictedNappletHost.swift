@@ -17,7 +17,6 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   private var configurationSource: String?
   private var publishedSource: String?
   private var publishedReader: PublishedArtifactReadOwner?
-  private var backgroundObserver: NSObjectProtocol?
   private var sessionId: String?
   private var expectedURL: URL?
   private var webView: WKWebView?
@@ -35,10 +34,6 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     super.init(frame: .zero)
     clipsToBounds = true
     backgroundColor = UIColor(red: 18/255, green: 14/255, blue: 10/255, alpha: 1)
-  }
-
-  isolated deinit {
-    if let backgroundObserver { NotificationCenter.default.removeObserver(backgroundObserver) }
   }
 
   @available(*, unavailable)
@@ -106,11 +101,8 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     publishedReader = PublishedArtifactReadOwner(claimed: claimed,
       domains: publishedConfiguration?.domains ?? ["theme"])
     publishedSource = raw
-    backgroundObserver = NotificationCenter.default.addObserver(
-      forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main
-    ) { [weak self] _ in
-      MainActor.assumeIsolated { self?.fail("backgrounded") }
-    }
+    // Loaded verified read views survive suspension. Native stream/approval/transfer
+    // owners independently stop network work and sensitive authority on inactivity.
     startSession(input.claims.sessionId)
   }
 
@@ -311,6 +303,17 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       receiveArtifactRead(value, textLength: text.utf8.count, reply: reply)
       return
     }
+    if value["type"] as? String == "relay-stream-ack" {
+      receiveStreamAck(value)
+      reply(nil, nil)
+      return
+    }
+    if value["type"] as? String == "relay-stream" {
+      receiveSubscription(value)
+      // Admission uses WebKit's reply exactly once. Persistent pushes use the captured content world.
+      reply(nil, nil)
+      return
+    }
     if value["type"] as? String == "capability" {
       receiveCapability(value, reply: reply)
       return
@@ -347,6 +350,44 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
         return
       }
     reply(response, nil)
+  }
+
+  private func streamInteger(_ value: Any?) -> UInt64? {
+    guard let number = value as? NSNumber, CFGetTypeID(number) != CFBooleanGetTypeID(),
+      number.doubleValue.isFinite, number.doubleValue >= 1, number.doubleValue <= 9_007_199_254_740_991,
+      number.doubleValue.rounded(.towardZero) == number.doubleValue else { return nil }
+    return number.uint64Value
+  }
+  private func receiveStreamAck(_ value: [String: Any]) {
+    guard ready, Set(value.keys) == Set(["type", "sessionId", "sequence", "streamSequence", "delivery"]),
+      let sequence = streamInteger(value["sequence"]), let stream = streamInteger(value["streamSequence"]),
+      let delivery = streamInteger(value["delivery"]),
+      CapabilityTransport.leases.consumeSequence(generation, sequence: sequence) else { return }
+    RelaySubscriptionTransport.shared.acknowledge(generation, streamSequence: stream, delivery: delivery)
+  }
+  private func receiveSubscription(_ value: [String: Any]) {
+    guard ready, let configuration, configuration.domains.contains("relay"),
+      Set(value.keys) == Set(["type", "sessionId", "sequence", "message"]),
+      let counter = streamInteger(value["sequence"]),
+      CapabilityTransport.leases.consumeSequence(generation, sequence: counter),
+      let message = value["message"] as? String, message.utf8.count <= 16 * 1024,
+      let request = try? JSONSerialization.jsonObject(with: Data(message.utf8)) as? [String: Any],
+      request["type"] as? String == "relay.subscribe", let subId = request["subId"] as? String,
+      (1...128).contains(subId.utf8.count), !subId.utf8.contains(where: { $0 < 32 || $0 == 127 }),
+      let id = request["id"] as? String, (1...128).contains(id.utf8.count),
+      let snapshot = try? configuration.request(message), let capturedView = webView, let capturedURL = expectedURL else { return }
+    RelaySubscriptionTransport.shared.foreground(UIApplication.shared.applicationState == .active)
+    guard let token = RelaySubscriptionTransport.shared.admit(generation, sequence: counter, snapshot: snapshot, subId: subId,
+      push: { [weak self, weak capturedView] envelope in
+        guard let self, let capturedView, self.webView === capturedView, self.live, !self.disposed,
+          capturedView.url?.absoluteString == capturedURL.absoluteString else { return }
+        let script = "window.postMessage({type:'hypergolic.native-response',message:" + self.jsString(envelope) + "}, '*')"
+        capturedView.evaluateJavaScript(script, in: nil, in: self.bridgeWorld) { [weak self] result in
+          if case .failure = result { self?.fail("renderer-stopped") }
+        }
+      }) else { return }
+    onEvent?(["type": "capability", "lane": "subscription", "sessionId": configuration.sessionId,
+      "generation": generation, "token": token])
   }
 
   private func receiveCapability(_ value: [String: Any],
@@ -403,8 +444,6 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     live = false
     publishedReader?.clear()
     publishedReader = nil
-    if let backgroundObserver { NotificationCenter.default.removeObserver(backgroundObserver) }
-    backgroundObserver = nil
     ApprovalTransport.revoke(generation)
     CapabilityTransport.revoke(generation)
     deadline?.cancel()

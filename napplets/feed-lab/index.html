@@ -2,7 +2,10 @@
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Feed Lab</title></head>
 <body><main id="lab" data-testid="lab"><p class="eyebrow">Hypergolic fixture</p><h1>Feed Lab</h1>
 <p>Read signed notes through your shell’s relays.</p>
-<label for="filters">Query filters</label><textarea id="filters" spellcheck="false" rows="4">[{"kinds":[1],"limit":8}]</textarea>
+<label for="filters">Note filters</label><textarea id="filters" spellcheck="false" rows="4">[{"kinds":[1],"limit":8}]</textarea>
 <div class="actions"><button id="query" type="button">Query notes</button><button id="empty" type="button">Query empty sample</button></div>
+<div class="actions"><button id="subscribe" type="button">Start live feed</button><button id="close" type="button" disabled>Close live feed</button></div>
+<p id="stream-status" aria-live="polite">Live feed closed.</p>
+<label for="draft">Your draft</label><textarea id="draft" spellcheck="false" rows="2" placeholder="Write here while reading…"></textarea>
 <p id="status" role="status" aria-live="polite">Connecting to shell…</p><ol id="events" aria-label="Query results"></ol>
 </main><script type="module" src="/src/main.ts"></script></body></html>
