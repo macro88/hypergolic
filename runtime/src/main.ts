@@ -101,7 +101,7 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
       ...(supported.has('relay') ? { relay: { descriptor: { name: 'relay', version: '1.0.0' }, handleMessage: unavailable } } : {}) },
     ...((supported.has('storage') || supported.has('relay')) ? { operationOverrides: {
       ...(supported.has('storage') ? { 'storage.get': storage, 'storage.set': storage, 'storage.remove': storage, 'storage.keys': storage } : {}),
-      ...(supported.has('relay') ? { 'relay.publish': relayPublish } : {}),
+      ...(supported.has('relay') ? { 'relay.publish': relayPublish, 'relay.query': relayPublish } : {}),
     } } : {}),
     capabilities: {
       disabledDomains: ['relay', 'identity', 'storage', 'inc', 'keys', 'media', 'notify'].filter(domain => !supported.has(domain)),
@@ -112,7 +112,7 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
 
 const privilegedRequests = new Set(['identity.getPublicKey', 'identity.getRelays', 'identity.getProfile',
   'identity.getFollows', 'identity.getMutes', 'identity.getBlocked', 'identity.getList',
-  'identity.getZaps', 'identity.getBadges', 'storage.get', 'storage.set', 'storage.remove', 'storage.keys']);
+  'identity.getZaps', 'identity.getBadges', 'storage.get', 'storage.set', 'storage.remove', 'storage.keys', 'relay.query']);
 function validEnvelope(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const message = value as Record<string, unknown>;

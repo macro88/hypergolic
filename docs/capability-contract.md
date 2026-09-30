@@ -75,7 +75,7 @@ There is no storage.clear, dirty flag, transaction or migration wire operation.
 | Relay request | Canonical shape/lifecycle |
 | --- | --- |
 | relay.publish | id,event:{kind,content,tags,created_at}; result id,ok,event?,eventId?,error? |
-| relay.query | id,filters[]; result id,events:RelayEventResult[],error? |
+| relay.query | id,filters[]; success result id,events:RelayEventResult[]; failure result id,error (events absent) |
 | relay.subscribe | id,subId,filters[],relay?; relay.event(subId,result), relay.eose(subId), relay.closed(subId,reason?) |
 | relay.close | id,subId; revoke only this session's subscription |
 | relay.publishEncrypted | Recognize canonical request, return its .result with ok:false,error:publish denied |
@@ -195,3 +195,11 @@ and revocable Applesauce publication adapter. These tests do not enable relay
 access in the native host or satisfy the required native journeys above. Existing
 capability deadlines are unchanged until the native admission and reply adapters
 are connected together.
+
+## Query checkpoint — 30 September 2026
+
+The selected `relay.query` profile is now connected through the ordinary native
+lease on both platforms. [Relay query](relay-query.md) records the exact NIP/draft
+revisions, filter/result/lifetime bounds, error distinction, native receipts and
+remaining compatibility/fault/published evidence. No full relay-domain conformance
+is claimed.

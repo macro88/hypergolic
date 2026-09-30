@@ -189,6 +189,7 @@ export function IdentitySettings({ openBundledTest, openStateLab, openPublished,
       <Text accessibilityRole="header" style={styles.title}>Bundled test napplets</Text>
       <Action title="Open UX Lab" testID="settings-open-ux-lab" onPress={openBundledTest} subdued />
       {runtime && <>
+        <Action title="Open Feed Lab" testID="settings-open-feed-lab" onPress={() => openStateLab('feed-lab')} subdued />
         <Action title="Open Approval Lab" testID="settings-open-approval-lab" onPress={() => openStateLab('approval-lab')} subdued />
         <Action title="Open State Lab" testID="settings-open-state-lab" onPress={() => openStateLab('state-lab')} subdued />
         <Action title="Open State Lab Peer" testID="settings-open-state-lab-peer" onPress={() => openStateLab('state-lab-peer')} subdued />

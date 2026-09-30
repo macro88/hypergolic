@@ -23,11 +23,16 @@ claiming implementation or selecting wallet providers or new draft revisions.
 ## Implemented
 
 `index.ts` registers `src/App.tsx` with Expo. Both native hosts run verified,
-bundled UX Lab and State Lab artifacts through the restricted Kehto view. The
+bundled UX Lab, State Lab and Feed Lab artifacts through the restricted Kehto view. The
 [identity/storage integration](native-capabilities.md) connects the genuine SDK to
 a process-owned identity authority and SQLite; the original UX Lab retains only
 theme access. State Lab and its peer are unsigned, embedded test artifacts with
 reserved fixture namespaces. Their presence does not establish publisher trust.
+
+The [relay query adapter](relay-query.md) mediates bounded historical reads through
+the native lease and app-only WSS transport. Feed Lab has isolated native Android
+and iOS Simulator query/lifecycle evidence. Live streams, broader relay operations
+and full published compatibility remain open.
 
 The shell enters through a native identity vault; Android protected entry and
 public identity continuity have native evidence, while iOS protected storage needs

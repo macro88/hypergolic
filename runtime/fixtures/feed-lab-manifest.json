@@ -1,0 +1,26 @@
+{
+  "kind": 35129,
+  "created_at": 1790735333,
+  "tags": [
+    [
+      "d",
+      "feed-lab"
+    ],
+    [
+      "path",
+      "/index.html",
+      "bd65c09350ad0c2ddb0580760a38b167f8648066613fef23899443148fee7960"
+    ],
+    [
+      "x",
+      "70aa80f8b309073b568b5b0a45df2ec2e4fee654f953696376c320afb136b928",
+      "aggregate"
+    ],
+    [
+      "requires",
+      "relay"
+    ]
+  ],
+  "content": "",
+  "aggregateHash": "70aa80f8b309073b568b5b0a45df2ec2e4fee654f953696376c320afb136b928"
+}

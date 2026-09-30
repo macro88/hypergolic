@@ -3,9 +3,9 @@ gsd_state_version: '1.0'
 status: executing
 progress:
   total_phases: 14
-  completed_phases: 1
-  total_plans: 8
-  completed_plans: 2
+  completed_phases: 2
+  total_plans: 9
+  completed_plans: 3
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (scope updated 2026-09-29)
 The 30 September correction defers Value transfers and zaps to post-MVP phase 4. ROADMAP.md now
 includes query, subscriptions, resources, upload, identity data, links, intent/inc,
 notify/config, outbox and final published MVP acceptance. REQUIREMENTS.md tracks
-CAP-01–CAP-12 and CAP-14 for MVP, with CAP-13 deferred to phase 4, and docs/test-napplets.md records the planned fixture groups. This is
-planning only: no new capability, fixture or native acceptance is claimed. Wallet
+CAP-01–CAP-12 and CAP-14 for MVP, with CAP-13 deferred to phase 4, and docs/test-napplets.md records the planned fixture groups. The roadmap
+checkpoint was planning only. The subsequent phase-2.1 query build below records
+its distinct implementation and scoped native evidence. Wallet
 provider/rails, consent details and exact new draft profiles remain phase-local
-decisions. Existing native gaps remain open. Metadata plan counts cover the eight
-existing plan files; expansion phase cards are not executable PLAN files. The next
-expansion step is phase 2.1 contract/compatibility research and Feed Lab planning.
+decisions. Existing native gaps remain open. Metadata plan counts now include the phase-2.1 executable query plan. Other
+expansion cards are not executable PLAN files.
 
 ## Current Position
 
@@ -51,7 +51,7 @@ See `docs/architecture.md` for confirmed requirements and unresolved policy.
 ### Blockers/Concerns
 
 First theme-only native contract is selected. Validate privileged adapters and delivery contracts before their dependent work. Preserve Expo 57.0.20 despite the existing Doctor patch-version mismatch. Source remote/push remains owner-only.
-Current budget (2026-09-28): the user authorized continuation until 60% weekly usage remains (40% consumed), then pause for approval. Check account usage after each small batch. Keep source remote configuration and push owner-only.
+Current budget (2026-09-30): the user authorized the build until weekly usage reaches 50% consumed, then pause. Check account usage after each small batch. This supersedes earlier budget limits. Keep source remote configuration and push owner-only.
 Android emulator and iPhone Simulator scaffold checks are verified. Physical-iPhone signing and execution remain untested; native security acceptance is still open.
 See `docs/phase-zero.md` for actual checks and artifacts.
 
@@ -682,3 +682,28 @@ visible loading text and distinguishes malformed input from retrieval failure.
 This fixes the silent failure and identifies the compatibility limit; it does
 not make the external napplet executable. No signing or broader capability
 support was added. Physical Android/iOS verification of the new UI remains open.
+
+
+## Query build checkpoint — 30 September 2026
+
+Phase 2.1's selected query-profile exit is accepted. Bounded `relay.query`, genuine
+Feed Lab, native admission, trusted Network relay selection, event verification
+and revocable broker delivery are implemented. Both isolated standalone platforms
+pass live public-event/empty/denial/reopen/restart checks and the ten-case diagnostic
+SDK/native lease fault matrix. Native Java/Swift lease proofs each pass 100
+assertions; a normal runtime-owner test confirms real identity-transition query
+cancellation. Installed products match their Release builds. Relevant tests,
+exports and native builds pass; final 100/100 quality and seven clean audits are
+rerun after patching newly indexed tooling advisories. Expo/application pins and
+the intentional Expo Doctor mismatch remain unchanged.
+
+CAP-02 is accepted for the selected profile. CAP-01 remains ongoing across phases;
+normal-app full query UI, verified-published parity, real/older-WebView compatibility
+and physical integration remain CAP-14/phase-2.11 gates. Foundation/live-update gaps
+remain open. See docs/relay-query.md and the phase summary. Create the authorized
+targeted query commit, then continue phase 2.2. Source push/remote changes remain
+owner-only. Check live weekly usage between batches and pause at 50% consumed.
+
+The user confirmed phase-2.2 lifecycle: keep bounded feeds live across switching,
+close connections on background, retain feed/drafts and refresh/deduplicate after
+reconnect. Close/identity/replacement/renderer loss revoke old authority.

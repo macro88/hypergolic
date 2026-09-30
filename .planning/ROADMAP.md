@@ -12,7 +12,7 @@ and resolve each phase's material policy decisions before generating those files
 
 - [x] **Phase 1: Development baseline** — phase-zero tooling, scaffold and checks.
 - [ ] **Phase 2: Independent Android and iOS proof** — native foundation and device evidence; full MVP acceptance is phase 2.11.
-- [ ] **Phase 2.1: Relay query and compatibility** — M; Feed Lab.
+- [x] **Phase 2.1: Relay query and compatibility** — M; Feed Lab.
 - [ ] **Phase 2.2: Live relay subscriptions** — L; Feed Lab.
 - [ ] **Phase 2.3: Resource access** — L; Resource Lab.
 - [ ] **Phase 2.4: Uploads** — L; Upload Lab.
@@ -57,7 +57,7 @@ The existing phase directory name remains unchanged to preserve references.
 **Requirements:** CAP-01, CAP-02
 **Fixture:** Feed Lab
 **Work and exit criteria:** Define the selected operation profile; implement bounded query/EOSE, validation, limits, cancellation and canonical errors. Verify known and empty results, invalid events and revoked ownership on both native hosts.
-**Plans:** Pending owning-contract research and phase-local decisions; no completion claimed.
+**Plans:** [02.1-01](phases/02.1-relay-query-and-compatibility/02.1-01-PLAN.md) implements the bounded query tracer. The selected query-profile exit passes on both native hosts, including the diagnostic SDK/lease fault matrix. Final published/physical/real-napplet integration remains phase 2.11. See [checkpoint](phases/02.1-relay-query-and-compatibility/02.1-01-SUMMARY.md).
 
 ### Phase 2.2: Live relay subscriptions
 

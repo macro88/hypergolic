@@ -148,3 +148,28 @@ test('each admitted signing request snapshots the current trusted network relay 
   }
   assert.deepEqual(captured, [['wss://first.example.org'], ['wss://changed.example.org']]);
 });
+
+test('Feed Lab reads use the normal runtime owner and a confirmed identity switch aborts pending delivery', {timeout:5000}, async t => {
+  const h = await start(t), descriptor = h.owner.descriptor('feed-lab', 1);
+  const workspace = h.transition.getSnapshot().session.workspace;
+  workspace.change(openNapplet(workspace.getSnapshot().workspace, descriptor)); await workspace.flush();
+  let pending = false, aborted = false;
+  const entered = deferred();
+  const owner = createRuntimeOwner(h.database, h.transition, h.native, undefined, undefined, {
+    async query(_filters, signal, assertActive) {
+      assertActive();
+      if (!pending) return [];
+      entered.resolve();
+      return new Promise(resolve => signal.addEventListener('abort', () => { aborted = true; resolve([]); }, {once:true}));
+    },
+  });
+  const binding = owner.open(descriptor);
+  assert.deepEqual(await h.invoke(binding, {type:'relay.query',filters:[{kinds:[1]}]}), {type:'relay.query.result',id:'1',events:[]});
+  pending = true;
+  const query = h.invoke(binding, {type:'relay.query',filters:[{kinds:[1]}]});
+  await entered.promise;
+  const change = h.transition.prepareImport('nsec1fixture-2'); assert(change); await h.transition.confirm(change);
+  assert.equal(await query, null);
+  assert.equal(aborted, true);
+  assert.equal(JSON.parse(owner.open(descriptor).configuration).user, pubkey(2));
+});

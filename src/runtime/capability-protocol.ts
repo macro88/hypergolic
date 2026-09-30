@@ -1,4 +1,5 @@
 import { identifier, publicKey, revision, text, utf8Bytes } from '../storage/codec.ts';
+import { parseRelayQuery, type RelayQueryRequest } from '../network/relay-query-contract.ts';
 import { LIMITS, type Scope } from '../storage/ports.ts';
 
 export const CAPABILITY_LIMITS = Object.freeze({ messageBytes: 2 * 1024 * 1024, sessionRequests: 1024 });
@@ -9,14 +10,14 @@ export const IDENTITY_OPERATIONS = ['identity.getPublicKey', 'identity.getRelays
 export const STORAGE_OPERATIONS = ['storage.get', 'storage.set', 'storage.remove', 'storage.keys'] as const;
 export type IdentityOperation = typeof IDENTITY_OPERATIONS[number];
 export type StorageOperation = typeof STORAGE_OPERATIONS[number];
-export type CapabilityOperation = IdentityOperation | StorageOperation;
+export type CapabilityOperation = IdentityOperation | StorageOperation | 'relay.query';
 export interface NativeRegistration {
   readonly sessionId: string; readonly generation: string; readonly epoch: number;
   readonly user: string; readonly publisher: string; readonly appId: string;
   readonly version: string; readonly instanceId: string;
   readonly fixture: string; readonly domains: readonly string[];
 }
-export type CapabilityRequest = Readonly<{ type: IdentityOperation; id: string; listType?: string }>
+export type CapabilityRequest = RelayQueryRequest | Readonly<{ type: IdentityOperation; id: string; listType?: string }>
   | Readonly<{ type: StorageOperation; id: string; key?: string; value?: string; scope: Scope }>;
 export type CapabilityReply = Readonly<Record<string, unknown> & { type: string; id: string }>;
 export class CapabilityRequestError extends Error {
@@ -46,6 +47,7 @@ export function decodeNativeRegistration(value: unknown): NativeRegistration {
 }
 export function parseCapabilityRequest(value: unknown): CapabilityRequest {
   const data = record(value);
+  if (data.type === 'relay.query') return parseRelayQuery(data);
   const id = text(data.id, 128);
   const type = data.type;
   if (IDENTITY_OPERATIONS.includes(type as IdentityOperation)) {
@@ -73,6 +75,13 @@ export function storageFailure(value: unknown, error: string): CapabilityReply |
     const data = record(value);
     if (!STORAGE_OPERATIONS.includes(data.type as StorageOperation)) return null;
     return Object.freeze({ type: `${data.type}.result`, id: text(data.id, 128), error });
+  } catch { return null; }
+}
+export function queryFailure(value: unknown, error: string): CapabilityReply | null {
+  try {
+    const data = record(value);
+    if (data.type !== 'relay.query') return null;
+    return Object.freeze({ type: 'relay.query.result', id: text(data.id, 128), error });
   } catch { return null; }
 }
 export function identityResult(request: CapabilityRequest, user: string): CapabilityReply {

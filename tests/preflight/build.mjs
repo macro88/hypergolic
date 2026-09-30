@@ -20,6 +20,7 @@ const mocks = {
  'test:fixture': fixture,
  'expo': `import {fixture,store,actions} from 'test:fixture'; export function requireNativeModule(name) { fixture.calls.push('module:'+name); if(name==='HypergolicIdentityStore'&&!fixture.missingStore) return store; if(name==='HypergolicIdentityActions') return actions; throw Error('TEST: module unavailable'); }`,
  'react-native': `import {forbidden} from 'test:fixture'; export const Platform={OS:'ios'}; export const View='View',Text='Text',ActivityIndicator='ActivityIndicator',Modal='Modal'; export const StyleSheet={create:value=>value};`,
+ 'expo-crypto': `import {forbidden} from 'test:fixture'; export const CryptoDigestAlgorithm={SHA256:'SHA-256'}; export const digest=()=>forbidden('artifact-digest');`,
  'expo-sqlite': `import {forbidden} from 'test:fixture'; export const openDatabaseAsync=()=>forbidden('open-sqlite');`,
  'expo-secure-store': `import {forbidden} from 'test:fixture'; export const isAvailableAsync=()=>forbidden('secure-store');`,
  'expo-image': `export const Image='Image';`,

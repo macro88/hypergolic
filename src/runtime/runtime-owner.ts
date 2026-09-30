@@ -1,3 +1,4 @@
+import type { RelayQueryService } from '../network/native-relay-query';
 import type { IdentityTransition } from '../security/identity-transition.ts';
 import type { ShellDatabase } from '../storage/database.ts';
 import { ShellStorageError } from '../storage/ports.ts';
@@ -29,7 +30,7 @@ export interface RuntimeOwner {
 
 function capabilityReceiver(database: ShellDatabase, native: RuntimeNativePort,
   approvals: Readonly<{ service: ApprovalService; destinations: () => readonly string[] }> | undefined,
-  sessionId: string, configuration: Omit<NativeRegistration, 'generation'>, assertActive: () => void) {
+  sessionId: string, configuration: Omit<NativeRegistration, 'generation'>, assertActive: () => void, queries?: RelayQueryService) {
   let generation: string | null = null;
   let broker: ReturnType<typeof createCapabilityBroker> | null = null;
   return Object.freeze({
@@ -42,7 +43,7 @@ function capabilityReceiver(database: ShellDatabase, native: RuntimeNativePort,
         identifier(event.token); identifier(event.generation);
         if (generation === null) {
           generation = event.generation;
-          broker = createCapabilityBroker(database, native, { registration: { ...configuration, generation }, assertActive });
+          broker = createCapabilityBroker(database, native, { registration: { ...configuration, generation }, assertActive }, queries);
         }
         if (event.generation !== generation) return;
         if (event.lane === 'approval') {
@@ -57,7 +58,7 @@ function capabilityReceiver(database: ShellDatabase, native: RuntimeNativePort,
 export function createRuntimeOwner(database: ShellDatabase,
   identity: Pick<IdentityTransition, 'getSnapshot' | 'sessionAuthority'>, native: RuntimeNativePort,
   approvals?: Readonly<{ service: ApprovalService; destinations: () => readonly string[] }>,
-  published?: Omit<PublishedSessionDependencies, 'identity' | 'database' | 'newInstanceId'>): RuntimeOwner {
+  published?: Omit<PublishedSessionDependencies, 'identity' | 'database' | 'newInstanceId'>, queries?: RelayQueryService): RuntimeOwner {
   const coordinator = published ? createPublishedSessionCoordinator({
     ...published, identity, database, newInstanceId: () => native.newInstanceId(),
   }) : null;
@@ -79,7 +80,7 @@ export function createRuntimeOwner(database: ShellDatabase,
       ready.assertActive();
       exactSession(selected);
     };
-    const receiver = capabilityReceiver(database, native, approvals, selected.id, configuration, assertActive);
+    const receiver = capabilityReceiver(database, native, approvals, selected.id, configuration, assertActive, queries);
     const binding: PublishedRuntimeBinding = Object.freeze({
       publishedArtifact: ready.hostInput,
       assertApproval(origin: ApprovalOrigin): void {
@@ -176,7 +177,7 @@ export function createRuntimeOwner(database: ShellDatabase,
           current.version !== descriptor.version || current.source !== descriptor.source || current.title !== descriptor.title) throw new ShellStorageError('REVOKED');
     };
     assertActive();
-    const receiver = capabilityReceiver(database, native, approvals, descriptor.id, configuration, assertActive);
+    const receiver = capabilityReceiver(database, native, approvals, descriptor.id, configuration, assertActive, queries);
     return Object.freeze({ configuration: JSON.stringify(configuration),
       revoke(): void { revoked = true; receiver.revoke(); approvals?.service.close(descriptor.id); },
       receive: receiver.receive,

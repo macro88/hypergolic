@@ -38,13 +38,14 @@ new publication requests before signing. The signing approval path snapshots the
 current Network list when a request is admitted; it no longer holds the startup
 defaults for the process lifetime.
 
-Lookup selections feed the published-napplet transport adapter, but that adapter
-is not yet connected to app entry or native execution. Network reads and profile
-discovery remain unimplemented. Editing/persistence have unit and SQLite
-close/reopen evidence, not Android/iOS settings-UI journey proof. The public
-endpoint availability, authentication requirements and write acceptance have not
-been established by adopting these values. Every v1 event update still requires
-explicit shell confirmation before signing/publication.
+Lookup selections feed the connected published-napplet transport adapter.
+[Bounded historical queries](relay-query.md) snapshot the current Network list and
+use native WSS; public profile discovery remains unimplemented. Query fixtures
+have isolated native evidence on Android API 36 and iOS Simulator. Editing and
+persistence retain unit/SQLite evidence; a complete settings-UI journey is still
+separate. Availability, AUTH and write acceptance cannot be inferred from adopting
+endpoint defaults. Every event update still requires explicit shell confirmation
+before signing/publication.
 
 The controlled test relay remains separate from these public defaults. Fixture
 publisher/signing details and concrete release relay/Blossom targets still need

@@ -35,6 +35,7 @@ struct CapabilityConfiguration {
     case "ux-lab": expected = ["theme"]
     case "state-lab", "state-lab-peer": expected = ["identity", "storage", "theme"]
     case "approval-lab": expected = ["identity", "relay", "theme"]
+    case "feed-lab": expected = ["relay", "theme"]
     case "published":
       expected = Set(domains)
       guard domains.count <= 4,

@@ -1,8 +1,9 @@
+import type { RelayQueryService } from '../network/native-relay-query.ts';
 import type { ShellDatabase } from '../storage/database.ts';
 import { ShellStorageError, type StringStorage } from '../storage/ports.ts';
 import { utf8Bytes } from '../storage/codec.ts';
 import { CAPABILITY_LIMITS, decodeNativeRegistration, decodeNativeRequest, identityResult,
-  parseCapabilityRequest, storageFailure, type CapabilityReply, type CapabilityRequest,
+  parseCapabilityRequest, storageFailure, queryFailure, type CapabilityReply, type CapabilityRequest,
   type NativeRegistration } from './capability-protocol.ts';
 
 /** Native module only. take is single-use and returns a native-held immutable snapshot.
@@ -38,17 +39,18 @@ async function operate(storage: StringStorage, request: CapabilityRequest): Prom
   }
 }
 /** One broker per registered native view. It is never passed into the WebView. */
-export function createCapabilityBroker(database: ShellDatabase, native: NativeCapabilityPort, owner: CapabilityOwner) {
+export function createCapabilityBroker(database: ShellDatabase, native: NativeCapabilityPort, owner: CapabilityOwner, queries?: RelayQueryService) {
   const registration = decodeNativeRegistration(owner.registration);
   const expected = JSON.stringify(registration);
   const seen = new Set<string>();
   let disposed = false;
+  const pending = new Set<AbortController>();
   const assertActive = (token: string): void => {
     if (disposed || !native.isActive(token)) throw new ShellStorageError('REVOKED');
     owner.assertActive();
   };
   return Object.freeze({
-    revoke: () => { disposed = true; seen.clear(); },
+    revoke: () => { disposed = true; seen.clear(); for (const query of pending) query.abort(); pending.clear(); },
     async dispatch(token: string): Promise<void> {
       let response: string | null = null;
       let claimed = false;
@@ -63,21 +65,35 @@ export function createCapabilityBroker(database: ShellDatabase, native: NativeCa
         let request: CapabilityRequest;
         try { request = parseCapabilityRequest(captured.request); }
         catch {
-          const failure = storageFailure(captured.request, 'invalid storage request');
-          if (failure && registration.domains.includes('storage')) response = JSON.stringify(failure);
+          const failure = registration.domains.includes('relay') ? queryFailure(captured.request, 'invalid relay query') : null;
+          const storage = registration.domains.includes('storage') ? storageFailure(captured.request, 'invalid storage request') : null;
+          if (failure || storage) response = JSON.stringify(failure ?? storage);
           return;
         }
         const domain = request.type.split('.')[0]!;
         if (!registration.domains.includes(domain)) return;
         const correlation = JSON.stringify([request.type, request.id]);
         if (seen.has(correlation) || seen.size >= CAPABILITY_LIMITS.sessionRequests) {
-          const failure = storageFailure(request, 'request already used or session limit reached');
+          const failure = queryFailure(request, 'request already used or session limit reached') ?? storageFailure(request, 'request already used or session limit reached');
           if (failure) response = JSON.stringify(failure);
           return;
         }
         seen.add(correlation);
         let result: CapabilityReply;
-        if (domain === 'identity') result = identityResult(request, registration.user);
+        if (request.type === 'relay.query') {
+          if (!queries || pending.size >= 2) result = queryFailure(request, 'relay query unavailable or busy')!;
+          else {
+            const controller = new AbortController();
+            pending.add(controller);
+            // Native expiry/background can precede the React Native lifecycle mirror.
+            const watcher = setInterval(() => { try { assertActive(token); } catch { controller.abort(); } }, 25);
+            try { result = { type: 'relay.query.result', id: request.id,
+              events: await queries.query(request.filters, controller.signal, () => assertActive(token)) }; }
+            catch { result = queryFailure(request, 'relay query failed')!; }
+            finally { clearInterval(watcher); pending.delete(controller); }
+          }
+        }
+        else if (domain === 'identity') result = identityResult(request, registration.user);
         else {
           const binding = database.bindStorage({ user: registration.user, publisher: registration.publisher,
             appId: registration.appId, version: registration.version, instanceId: registration.instanceId,
