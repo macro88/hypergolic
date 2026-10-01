@@ -6,16 +6,18 @@ struct PublishedHTTPResponse {
   static let maximumHeaderBytes = 16 * 1024
   static let maximumFramingBytes = 64 * 1024
   static let maximumBodyBytes = 2 * 1024 * 1024
+  static let maximumUploadBodyBytes = 32 * 1024
   static let maximumResourceBodyBytes = 10 * 1024 * 1024
 
-  enum Failure: Error { case invalidResponse, tooLarge, resourceStatus(Int), resourcePolicy, resourceRedirect(String) }
+  enum Failure: Error { case invalidResponse, tooLarge, resourceStatus(Int), resourcePolicy, resourceRedirect(String), uploadStatus(Int), uploadPolicy }
 
   let status: Int
   let headers: [String: String]
   let body: Data
 
-  static func parse(_ wire: Data, maximumBodyBytes: Int = maximumBodyBytes, resourceProfile: Bool = false) throws -> PublishedHTTPResponse {
-    guard (1...(resourceProfile ? Self.maximumResourceBodyBytes : Self.maximumBodyBytes)).contains(maximumBodyBytes),
+  static func parse(_ wire: Data, maximumBodyBytes: Int = maximumBodyBytes, resourceProfile: Bool = false, uploadProfile: Bool = false) throws -> PublishedHTTPResponse {
+    guard !(resourceProfile && uploadProfile), !uploadProfile || maximumBodyBytes <= Self.maximumUploadBodyBytes,
+          (1...(resourceProfile ? Self.maximumResourceBodyBytes : Self.maximumBodyBytes)).contains(maximumBodyBytes),
           wire.count <= maximumBodyBytes + maximumHeaderBytes + maximumFramingBytes else { throw Failure.tooLarge }
     let separator = Data([13, 10, 13, 10])
     guard let boundary = wire.range(of: separator), boundary.lowerBound <= maximumHeaderBytes else { throw Failure.invalidResponse }
@@ -37,7 +39,7 @@ struct PublishedHTTPResponse {
       let value = String(line[line.index(after: colon)...]).trimmingCharacters(in: .whitespaces)
       guard !name.isEmpty, name.utf8.allSatisfy({ byte in
         (byte >= 97 && byte <= 122) || (byte >= 48 && byte <= 57) || byte == 45
-      }), (!headers.keys.contains(name) || resourceProfile && !singular.contains(name)), !value.contains("\r"), !value.contains("\n")
+      }), (!headers.keys.contains(name) || (resourceProfile || uploadProfile) && !singular.contains(name)), !value.contains("\r"), !value.contains("\n")
       else { throw Failure.invalidResponse }
       // Resource headers never enter the SDK; repeated informational values have no authority.
       if headers[name] == nil { headers[name] = value }
@@ -46,7 +48,9 @@ struct PublishedHTTPResponse {
       guard let location = headers["location"], !location.isEmpty, location.utf8.count <= 8192 else { throw Failure.resourcePolicy }
       throw Failure.resourceRedirect(location)
     }
-    guard status == 200 else {
+    if uploadProfile && (300...399).contains(status) { throw Failure.uploadPolicy }
+    guard status == 200 || uploadProfile && status == 201 else {
+      if uploadProfile { throw Failure.uploadStatus(status) }
       if resourceProfile { throw Failure.resourceStatus(status) }
       throw Failure.invalidResponse
     }
@@ -104,13 +108,16 @@ final class PublishedHTTPResponseAccumulator {
   private var wire = Data()
   private let maximumBodyBytes: Int
   private let resourceProfile: Bool
+  private let uploadProfile: Bool
 
-  init(maximumBodyBytes: Int, resourceProfile: Bool = false) throws {
-    guard (1...(resourceProfile ? PublishedHTTPResponse.maximumResourceBodyBytes : PublishedHTTPResponse.maximumBodyBytes)).contains(maximumBodyBytes) else {
+  init(maximumBodyBytes: Int, resourceProfile: Bool = false, uploadProfile: Bool = false) throws {
+    guard !(resourceProfile && uploadProfile), !uploadProfile || maximumBodyBytes <= PublishedHTTPResponse.maximumUploadBodyBytes,
+          (1...(resourceProfile ? PublishedHTTPResponse.maximumResourceBodyBytes : PublishedHTTPResponse.maximumBodyBytes)).contains(maximumBodyBytes) else {
       throw PublishedHTTPResponse.Failure.tooLarge
     }
     self.maximumBodyBytes = maximumBodyBytes
     self.resourceProfile = resourceProfile
+    self.uploadProfile = uploadProfile
   }
 
   func append(_ chunk: Data) throws {
@@ -120,8 +127,9 @@ final class PublishedHTTPResponseAccumulator {
     let separator = Data([13, 10, 13, 10])
     if let boundary = wire.range(of: separator) {
       guard boundary.lowerBound <= PublishedHTTPResponse.maximumHeaderBytes else { throw PublishedHTTPResponse.Failure.tooLarge }
-      if resourceProfile, wire.count >= 12, let status = Int(String(decoding: wire[9..<12], as: UTF8.self)), status != 200 {
-        _ = try PublishedHTTPResponse.parse(wire, maximumBodyBytes: maximumBodyBytes, resourceProfile: true)
+      if wire.count >= 12, let status = Int(String(decoding: wire[9..<12], as: UTF8.self)),
+        (resourceProfile && status != 200 || uploadProfile && status != 200 && status != 201) {
+        _ = try PublishedHTTPResponse.parse(wire, maximumBodyBytes: maximumBodyBytes, resourceProfile: resourceProfile, uploadProfile: uploadProfile)
       }
     } else if wire.count > PublishedHTTPResponse.maximumHeaderBytes + separator.count {
       throw PublishedHTTPResponse.Failure.tooLarge
@@ -130,6 +138,6 @@ final class PublishedHTTPResponseAccumulator {
 
   func finish() throws -> PublishedHTTPResponse {
     defer { wire.removeAll(keepingCapacity: false) }
-    return try PublishedHTTPResponse.parse(wire, maximumBodyBytes: maximumBodyBytes, resourceProfile: resourceProfile)
+    return try PublishedHTTPResponse.parse(wire, maximumBodyBytes: maximumBodyBytes, resourceProfile: resourceProfile, uploadProfile: uploadProfile)
   }
 }

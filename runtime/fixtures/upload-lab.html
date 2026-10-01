@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en"><head><meta name="description" content="Per-file upload review and exact-byte fixture."><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Upload Lab</title>  <script type="module" crossorigin>function requireNapplet() {
+  const w = window;
+  if (!w.napplet) {
+    throw new Error("window.napplet is unavailable -- runtime did not inject the napplet namespace");
+  }
+  return w.napplet;
+}
+function requireDomain(domain) {
+  const napplet = requireNapplet();
+  const value = napplet[domain];
+  if (!value) {
+    throw new Error(
+      `window.napplet.${String(domain)} is unavailable -- runtime did not inject this domain`
+    );
+  }
+  return value;
+}
+var upload = {
+  /**
+   * Inspect upload rails and coarse runtime policy limits.
+   * @returns Promise resolving to advisory upload info.
+   */
+  info() {
+    return requireDomain("upload").info();
+  },
+  /**
+   * Upload bytes through the shell's storage pipeline.
+   * @param request  The upload request (Blob/ArrayBuffer bytes + intent)
+   * @returns Promise resolving to the initial upload result
+   */
+  upload(request2) {
+    return requireDomain("upload").upload(request2);
+  },
+  /**
+   * Get the latest known status for a prior upload.
+   * @param uploadId  The shell-generated upload id
+   * @returns Promise resolving to the latest status
+   */
+  status(uploadId2) {
+    return requireDomain("upload").status(uploadId2);
+  },
+  /**
+   * Register for shell-pushed upload status updates.
+   * @param handler  Called with each new UploadStatus
+   * @returns A Subscription with `close()` to stop listening
+   */
+  onStatus(handler) {
+    return requireDomain("upload").onStatus(handler);
+  }
+};
+function element(id) {
+  const value = document.getElementById(id);
+  if (!value) throw Error("Missing upload control");
+  return value;
+}
+const request = element("request"), inspect = element("inspect"), status = element("status"), receipt = element("receipt");
+let uploadId = null, busy = false;
+const encoded = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAADklEQVR4nGP4z8DwHwQBEPgD/U6VwW8AAAAASUVORK5CYII=";
+const bytes = Uint8Array.from(atob(encoded), (character) => character.charCodeAt(0));
+element("preview").src = "data:image/png;base64," + encoded;
+function render(value) {
+  receipt.textContent = JSON.stringify(value, null, 2);
+}
+request.addEventListener("click", () => {
+  if (busy) return;
+  busy = true;
+  request.disabled = true;
+  status.textContent = "Waiting for trusted review…";
+  void upload.upload({ data: new Blob([bytes], { type: "image/png" }), filename: "two-pixels.png", caption: "Generated red and green PNG", noTransform: true, metadata: { fixture: "upload-lab" } }).then((value) => {
+    uploadId = value.uploadId;
+    render(value);
+    status.textContent = "Upload pending approval.";
+  }).catch((error) => {
+    status.textContent = error instanceof Error ? error.message : "Upload request failed.";
+  }).finally(() => {
+    busy = false;
+    request.disabled = false;
+  });
+});
+inspect.addEventListener("click", () => {
+  if (uploadId) void upload.status(uploadId).then(render).catch(() => {
+    status.textContent = "Upload status unavailable.";
+  });
+});
+let subscription = null;
+try {
+  subscription = upload.onStatus((value) => {
+    render(value);
+    status.textContent = "Upload " + value.status + ".";
+  });
+} catch {
+  status.textContent = "Upload status notifications are unavailable in this host.";
+}
+window.addEventListener("pagehide", () => {
+  subscription?.close();
+  bytes.fill(0);
+}, { once: true });
+status.textContent = "Ready to request a PNG upload.";
+</script>
+  <style>html { color-scheme: dark; background: #140f0b; color: #f3efeb; font: 16px system-ui, sans-serif; }
+body { margin: 0; } main { padding: 24px; display: grid; gap: 16px; } h1, p { margin: 0; } p { line-height: 1.5; }
+img { max-width: 100%; image-rendering: pixelated; } button { min-height: 48px; padding: 12px 18px; border: 1px solid #654637; border-radius: 12px; background: #34251d; color: #e8805d; font: inherit; } button:disabled { opacity: .5; } button:focus-visible { outline: 3px solid #e8805d; outline-offset: 3px; } pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; }
+</style>
+</head>
+<body><main><h1>Upload Lab</h1><p>A generated photo with two pixels. Each request opens a separate trusted review.</p><img id="preview" alt="Generated red and green pixels" width="240" height="120"><button id="request" type="button">Request PNG upload</button><button id="inspect" type="button">Read upload status</button><p id="status" role="status"></p><pre id="receipt"></pre></main></body></html>

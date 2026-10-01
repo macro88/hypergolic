@@ -1,3 +1,4 @@
+import { captureUploadResult } from '../../src/uploads/upload-contract';
 import { parseRelaySubscribe, parseRelayClose } from '../../src/network/relay-subscription-contract';
 import { verifyQueryEvent } from '../../src/network/relay-query-contract';
 import type { QueryFilter } from '../../src/network/relay-query-contract';
@@ -57,11 +58,43 @@ function receiveOrdinary(envelope:{sequence:number;response:unknown},pending:Map
   } catch { request.reject(); }
   finally { pending.delete(envelope.sequence); window.clearTimeout(request.timer); }
 }
+type UploadState = {uploadId: string; delivery: number; bytesSent: number; onStatus(message: NappletMessage): void};
+interface NativeReceiveState {generation: string; pending: Map<number, PendingRequest>; streams: Map<number, StreamState>; uploads: Map<number, UploadState>;
+  stopStream(counter: number, notify: boolean): void; acknowledge(envelope: StreamEnvelope): void}
+function receiveNative(raw: unknown, state: NativeReceiveState): void {
+  const {generation, pending, streams, uploads, stopStream, acknowledge} = state;
+    if (typeof raw !== 'string' || new TextEncoder().encode(raw).length > maxBytes) return;
+    try {
+      const envelope = JSON.parse(raw);
+      if(receiveControl(envelope,generation,streams,stopStream))return;
+      if (envelope?.type === 'capability.upload' && Object.keys(envelope).length === 5 && envelope.sessionId === generation) {
+        const upload = uploads.get(envelope.sequence);
+        if (!upload || !Number.isSafeInteger(envelope.delivery) || envelope.delivery !== upload.delivery + 1 ||
+          typeof envelope.response !== 'string' || new TextEncoder().encode(envelope.response).length > 32 * 1024) return;
+        const message = JSON.parse(envelope.response);
+        if (!message || Object.keys(message).length !== 2 || message.type !== 'upload.status.changed') return;
+        const status = captureUploadResult(message.status, upload.uploadId);
+        if (status.bytesSent !== undefined && status.bytesSent < upload.bytesSent) return;
+        upload.delivery = envelope.delivery; upload.bytesSent = status.bytesSent ?? upload.bytesSent;
+        if (['complete', 'failed', 'cancelled'].includes(status.status)) uploads.delete(envelope.sequence);
+        upload.onStatus({type: 'upload.status.changed', status} as NappletMessage); return;
+      }
+      if (!envelope || Object.keys(envelope).length !== (envelope.type==='capability.stream'?5:4) || !['capability.result','capability.stream'].includes(envelope.type) ||
+          envelope.sessionId !== generation || !Number.isSafeInteger(envelope.sequence)) return;
+      if(envelope.type==='capability.stream') {
+        receiveStream(envelope,streams,stopStream,acknowledge);
+        return;
+      }
+      receiveOrdinary(envelope,pending);
+    } catch { /* An invalid native response has no destination or authority. */ }
+}
+
 /** Trusted top document only. A response never selects its destination window. */
 export function createNativeClient(native: NativeHost, generation: string, options: NativeClientOptions = {}) {
   let sequence = 0, disposed = false;
   const pending = new Map<number, PendingRequest>();
   const streams = new Map<number, StreamState>();
+  const uploads = new Map<number, UploadState>();
   const callerIds = new Set<string>();
   const closeNative = (subId:string,id?:string):void => {
     if(disposed || sequence >= Number.MAX_SAFE_INTEGER)return;
@@ -78,20 +111,8 @@ export function createNativeClient(native: NativeHost, generation: string, optio
     if(sequence>=Number.MAX_SAFE_INTEGER)throw new Error('Native sequence exhausted');
     native.postMessage(JSON.stringify({type:'relay-stream-ack',sessionId:generation,sequence:++sequence,streamSequence:envelope.sequence,delivery:envelope.delivery}));
   };
-  const receive = (raw: unknown): void => {
-    if (disposed || typeof raw !== 'string' || new TextEncoder().encode(raw).length > maxBytes) return;
-    try {
-      const envelope = JSON.parse(raw);
-      if(receiveControl(envelope,generation,streams,stopStream))return;
-      if (!envelope || Object.keys(envelope).length !== (envelope.type==='capability.stream'?5:4) || !['capability.result','capability.stream'].includes(envelope.type) ||
-          envelope.sessionId !== generation || !Number.isSafeInteger(envelope.sequence)) return;
-      if(envelope.type==='capability.stream') {
-        receiveStream(envelope,streams,stopStream,acknowledge);
-        return;
-      }
-      receiveOrdinary(envelope,pending);
-    } catch { /* An invalid native response has no destination or authority. */ }
-  };
+  const receiving: NativeReceiveState = {generation, pending, streams, uploads, stopStream, acknowledge};
+  const receive = (raw: unknown): void => {if (!disposed) receiveNative(raw, receiving);};
   const android = (event: { data: unknown }): void => receive(event.data);
   const ios = (event: MessageEvent): void => {
     if (event.isTrusted && event.source === window && event.data?.type === 'hypergolic.native-response' &&
@@ -114,20 +135,26 @@ export function createNativeClient(native: NativeHost, generation: string, optio
       const request=parseRelayClose(message);
       for(const [counter,stream] of streams)if(stream.subId===request.subId){stopStream(counter,false,request.id);return;}
     },
-    request(message: NappletMessage): Promise<NappletMessage> {
+    request(message: NappletMessage, upload?: Readonly<{uploadId: string; onStatus(message: NappletMessage): void}>): Promise<NappletMessage> {
       if (disposed || pending.size >= 4 || sequence >= Number.MAX_SAFE_INTEGER || !('id' in message) || typeof message.id !== 'string') {
         return Promise.reject(new Error('Native capability unavailable'));
       }
+      if (upload && (message.type !== 'upload.__seal' || uploads.size >= 2 || typeof upload.uploadId !== 'string' ||
+        upload.uploadId.length === 0 || upload.uploadId.length > 128)) return Promise.reject(new Error('Native upload unavailable'));
       const id = message.id;
       const counter = sequence + 1;
       const encoded = JSON.stringify({ type: 'capability', sessionId: generation, sequence: counter, message: JSON.stringify(message) });
       if (new TextEncoder().encode(encoded).length > maxBytes) return Promise.reject(new Error('Native request too large'));
       sequence = counter;
       return new Promise((resolve, rejectPromise) => {
-        const reject = (): void => rejectPromise(new Error('Native capability unavailable'));
+        const reject = (): void => { uploads.delete(counter); rejectPromise(new Error('Native capability unavailable')); };
+        if (upload) uploads.set(counter, {uploadId: upload.uploadId, delivery: 0, bytesSent: 0, onStatus: upload.onStatus});
         const timeout = options.requestTimeoutsMs?.[message.type] ?? ordinaryTimeoutMs;
         const timer = window.setTimeout(() => { pending.delete(counter); reject(); }, timeout);
-        pending.set(counter, { type: message.type, id, timer, resolve, reject });
+        pending.set(counter, { type: message.type, id, timer, resolve: response => {
+          if (upload && !('result' in response)) uploads.delete(counter);
+          resolve(response);
+        }, reject });
         try { native.postMessage(encoded); }
         catch { pending.delete(counter); window.clearTimeout(timer); reject(); }
       });
@@ -139,7 +166,7 @@ export function createNativeClient(native: NativeHost, generation: string, optio
       for (const request of pending.values()) { window.clearTimeout(request.timer); request.reject(); }
       pending.clear();
       for(const stream of streams.values())window.clearTimeout(stream.timer);
-      streams.clear();callerIds.clear();
+      streams.clear();callerIds.clear();uploads.clear();
     },
   });
 }

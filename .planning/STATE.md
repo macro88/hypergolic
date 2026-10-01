@@ -3,15 +3,15 @@ gsd_state_version: "1.0"
 current_phase: "2.4"
 current_phase_name: Uploads
 status: executing
-last_updated: "2026-10-01T01:25:14.316Z"
-last_activity: 2026-09-15
-last_activity_desc: "Android fingerprint deletion passes four OS-callback checks on the current isolated APK. Three consecutive clean iOS launches pass exact review, explicit unavailable-auth denial and cancelled-review live-state retention. Both rebuilt platforms pass three State Lab close/reopen checks. Eager startup sometimes left iOS without identity; lazy restoration now starts only the focused napplet and retains visited views. Failed startup/ADB-offline runs remain recorded. TypeScript, 25 shell tests and 50 native-driver tests pass; aislop 100/100, local React Doctor zero findings/no external numeric score. See docs/identity-storage.md and docs/workspace-storage.md. Pausing this budgeted continuation at the final checkpoint; latest weekly usage 43%, below the 45% stopping margin. No source push or remote change. Next: authenticated manual backup, older Android action compatibility, physical iPhone security proof, signing approvals and verified remote loading."
-state_head: f06fdeb9b5f4898c53f0102e615798b6d4dbbd0d
+stopped_at: Plan 02.4-01 selected native PNG profile passed and sealed; continuing 02.4-02 picker/photo preparation. Weekly consumption 45%; pause at 50%.
+last_updated: "2026-10-01T04:56:48.622Z"
+last_activity: 2026-10-01
+state_head: 6826b930f37117706661b28f63c4bf1d279dae0c
 progress:
   total_phases: 14
   completed_phases: 0
   total_plans: 18
-  completed_plans: 8
+  completed_plans: 9
   percent: 0
 ---
 
@@ -22,7 +22,7 @@ progress:
 See: .planning/PROJECT.md (scope updated 2026-09-29)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Complete v1 native acceptance on Android and iOS. Public relay/Blossom first-open passes on Android API 36, Android API 29/WebView 91 and iOS 26.5 Simulator; the normal Android API 29 app opens and restores the remote guest under its process-owned identity. Embedded signed update and changed-access journeys pass on Android API 36/API 29 and iOS Simulator. API 26/WebView 58 safely refuses guests with an actionable update message. Next prove live published updates, protected identity/signing on a physical iPhone and compatibility with an updated API 26 WebView. Android system PIN/fingerprint deletion and both-platform workspace restoration have scoped native evidence.
+**Current focus:** Phase 2.4 — Uploads
 
 ## MVP scope checkpoint — 29 September 2026
 
@@ -38,9 +38,9 @@ expansion cards are not executable PLAN files.
 
 ## Current Position
 
-Phase: 2.4 (Uploads) — READY TO EXECUTE
-Plan: 02-04 individual signing approval; remaining 02-03 device security and 02-07 acceptance
-Status: Identity/workspace/import/switch and manual backup are implemented; State Lab and lazy restoration work on both platforms. Signing has Android protected-signing/local-wire proof and iOS public-fixture review proof. Public remote first-open works on both platforms, and the normal Android API 29 path restores a connected remote guest. Live remote updates, physical iPhone protected identity/signing and full release acceptance remain open.
+Phase: 2.4 (Uploads) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
 Previous native action checkpoint: 2026-09-15 — Added the Android native deletion authority with 95 owning JVM assertions and the protected-record/erase reader with 89 actual Android assertions. Existing SDK records are unchanged; disposable data alone was erased. The actual Release app and separate instrumentation APK build and their installed bytes match. The production deletion path remains denied pending native context/lifecycle and system-prompt integration; authentication in the record probe is a double. See docs/identity-storage.md.
@@ -76,7 +76,7 @@ See `docs/phase-zero.md` for actual checks and artifacts.
 
 Targeted follow-up: iOS native erase/transport failures remain READBACK_FAILED even when subsequent reads return absence. Four new regressions pass; security is 295/295, bootstrap 13/13, storage 80/80, TypeScript and iOS export pass. Aislop remains 100/100 and local React Doctor has no findings.
 
-Last activity: 2026-09-15 — Android fingerprint deletion passes four OS-callback checks on the current isolated APK. Three consecutive clean iOS launches pass exact review, explicit unavailable-auth denial and cancelled-review live-state retention. Both rebuilt platforms pass three State Lab close/reopen checks. Eager startup sometimes left iOS without identity; lazy restoration now starts only the focused napplet and retains visited views. Failed startup/ADB-offline runs remain recorded. TypeScript, 25 shell tests and 50 native-driver tests pass; aislop 100/100, local React Doctor zero findings/no external numeric score. See docs/identity-storage.md and docs/workspace-storage.md. Pausing this budgeted continuation at the final checkpoint; latest weekly usage 43%, below the 45% stopping margin. No source push or remote change. Next: authenticated manual backup, older Android action compatibility, physical iPhone security proof, signing approvals and verified remote loading.
+Last activity: 2026-10-01
 
 Current continuation (2026-09-22): authenticated manual backup is in progress. User approved native iOS reveal with an explicit screenshot warning: public APIs cannot prevent screenshots; hide on recording/mirroring, inactivity/background and app-switcher snapshots. Fresh device authentication remains mandatory. Android uses a native FLAG_SECURE panel. No secret is returned to the shared backup UI. Native execution evidence is pending; no v1 completion claim.
 
@@ -743,3 +743,9 @@ Three executable plans cover SDK/native HTTPS tracer, schemes/bulk/cache/setting
 Phase 2.3 checkpoint: the first genuine SDK/native HTTPS image tracer passed five checks on each selected Android/iOS Simulator profile. The loaded PNG hash, MIME and decoded dimensions match independently downloaded bytes. Portable intermediate receipts are retained in the private shared knowledge store. This is not final-source acceptance: resource cancellation/revocation, schemes/bulk/cache/settings and media playback/lifecycle remain open. Browser cancellation and SDK object URL ownership checks are being extended.
 
 Phase 2.3 completion — 30 September 2026: all three resource plans pass the selected bounded profile. Android passes 25 actual SDK/native checks; iOS passes all five resource suites. Independent exact bytes, image/video/audio rendering, schemes/bulk/cache/settings and seven controlled cancellation/revocation cases per host are recorded in 02.3-VERIFICATION.md. A real native background lease bug is fixed on both platforms, with 107 owning registry assertions each. CAP-04 is scoped accepted; CAP-01/CAP-14 and physical/older/full-published gates remain open. Full numeric quality and eight audits must be sealed against this final source before the targeted local commit. Next phase is 2.4 uploads; its rail/provider/consent/unknown-outcome decisions are pending. Weekly usage is 38% consumed; pause at 50%. Source push/remotes remain owner-only.
+
+## Session
+
+**Last session:** 2026-10-01T04:56:48.562Z
+**Stopped at:** Plan 02.4-01 selected native PNG profile passed and sealed; continuing 02.4-02 picker/photo preparation. Weekly consumption 45%; pause at 50%.
+**Resume file:** .planning/phases/02.4-uploads/02.4-02-PLAN.md

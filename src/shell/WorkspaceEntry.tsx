@@ -5,14 +5,15 @@ import type { WorkspaceController } from '../storage/workspace-controller';
 import type { ShellIdentity } from './Header';
 import { Shell, type SettingsActions } from './Shell';
 import { ApprovalWorkspace } from './ApprovalWorkspace';
+import type { UploadService } from '../uploads/upload-service';
 import type { ApprovalService } from '../security/approval-service';
 import { colors } from './theme';
 
-interface Props { identity: ShellIdentity; controller: WorkspaceController; blocked?: boolean; settingsComponent?: ComponentType<SettingsActions>; approvals?: ApprovalService; epoch: number }
-export function WorkspaceEntry({ identity, controller, blocked, settingsComponent, approvals, epoch }: Props) {
+interface Props { identity: ShellIdentity; controller: WorkspaceController; blocked?: boolean; settingsComponent?: ComponentType<SettingsActions>; approvals?: ApprovalService; uploads?: UploadService; epoch: number }
+export function WorkspaceEntry({ identity, controller, blocked, settingsComponent, approvals, uploads, epoch }: Props) {
   const state = useSyncExternalStore(controller.subscribe, controller.getSnapshot);
   return <View style={styles.screen} collapsable={false} testID={state.saving ? 'workspace-saving' : 'workspace-saved'}>
-    {approvals ? <ApprovalWorkspace service={approvals} epoch={epoch} identity={identity} blocked={blocked} settingsComponent={settingsComponent} workspace={state.workspace} onWorkspaceChange={controller.change} />
+    {approvals ? <ApprovalWorkspace service={approvals} uploads={uploads} epoch={epoch} identity={identity} blocked={blocked} settingsComponent={settingsComponent} workspace={state.workspace} onWorkspaceChange={controller.change} />
       : <Shell identity={identity} blocked={blocked} settingsComponent={settingsComponent} workspace={state.workspace} onWorkspaceChange={controller.change} />}
     <Modal visible={state.error !== null} animationType="none" onRequestClose={() => undefined}>
       <SafeAreaProvider><SafeAreaView style={styles.problem}>

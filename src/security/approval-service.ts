@@ -104,7 +104,7 @@ export class ApprovalService {
       if (expectedOrigin && Object.keys(captureOrigin(expectedOrigin)).some(key => taken.origin[key as keyof ApprovalOrigin] !== expectedOrigin[key as keyof ApprovalOrigin])) denied();
       this.owner.assertActive(taken.origin);
       const event = captureEventSnapshot(taken.event, taken.origin.user, destinationsFromTrustedConfig);
-      if (event.event.kind === 22242 || this.entries.length >= GLOBAL || this.entries.filter(entry => entry.origin.sessionId === taken!.origin.sessionId).length >= PER_SESSION) denied();
+      if (event.event.kind === 22242 || event.event.kind === 24242 || this.entries.length >= GLOBAL || this.entries.filter(entry => entry.origin.sessionId === taken!.origin.sessionId).length >= PER_SESSION) denied();
       if (nextPresentationId >= Number.MAX_SAFE_INTEGER) denied();
       this.entries.push({ requestId: taken.requestId, id: `approval_${++nextPresentationId}`, origin: captureOrigin(taken.origin), event, lease: taken.lease, controller: null });
       this.publish(); return true;

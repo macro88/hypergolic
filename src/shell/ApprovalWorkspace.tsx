@@ -1,3 +1,6 @@
+import type { UploadService } from '../uploads/upload-service.ts';
+import { UploadProvider } from './UploadContext';
+import { UploadWorkspace, useUploadPresentation } from './UploadWorkspace';
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { AppState, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { ApprovalItem, ApprovalService } from '../security/approval-service.ts';
@@ -8,7 +11,7 @@ import { colors } from './theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { RelayOutcome } from '../network/relay-service';
 
-type Props = Omit<ShellProps, 'pendingApprovals' | 'onBeforeClose'> & { service: ApprovalService; epoch: number };
+type Props = Omit<ShellProps, 'pendingApprovals' | 'onBeforeClose'> & { service: ApprovalService; uploads?: UploadService; epoch: number };
 
 function publicationStatus(results: readonly RelayOutcome[]): string {
   const accepted = results.filter(result => result.status === 'accepted').length;
@@ -18,11 +21,12 @@ function publicationStatus(results: readonly RelayOutcome[]): string {
 }
 
 /** Joins trusted presentation to the native-authoritative queue without blocking the guest host. */
-export function ApprovalWorkspace({ service, epoch, workspace, ...shell }: Props) {
+export function ApprovalWorkspace({ service, uploads, epoch, workspace, ...shell }: Props) {
   const insets = useSafeAreaInsets();
   const subscribe = useCallback((listener: () => void) => service.subscribe(listener), [service]);
   const getSnapshot = useCallback(() => service.getSnapshot(), [service]);
   const snapshot = useSyncExternalStore(subscribe, getSnapshot);
+  const uploadSnapshot = useUploadPresentation(uploads, epoch);
   const [held, setHeld] = useState<ApprovalItem | null>(null);
   const [busy, setBusy] = useState(false);
   const [outcome, setOutcome] = useState<string | null>(null);
@@ -39,15 +43,16 @@ export function ApprovalWorkspace({ service, epoch, workspace, ...shell }: Props
     return () => clearInterval(timer);
   }, [service, snapshot.pending]);
   const title = workspace?.sessions.find(session => session.id === shown?.origin.sessionId)?.title ?? 'Napplet';
-  return <ApprovalProvider value={service}>
-    <Shell {...shell} workspace={workspace} pendingApprovals={new Set(snapshot.pendingSessionIds)}
-      onBeforeClose={session => service.close(session.id)} />
+  return <ApprovalProvider value={service}><UploadProvider value={uploads ?? null}>
+    <Shell {...shell} workspace={workspace} pendingApprovals={new Set([...snapshot.pendingSessionIds, ...uploadSnapshot.pendingSessionIds])}
+      onBeforeClose={session => {service.close(session.id); uploads?.close(session.id);}} />
     {snapshot.reviewPaused && snapshot.pending > 0 && snapshot.focusedSessionId !== null && <View pointerEvents="box-none" style={[styles.resumeArea, { paddingBottom: Math.max(24, insets.bottom + 12) }]}><Pressable testID="approval-resume" accessibilityRole="button" onPress={() => service.resume()} style={styles.resume}><Text style={styles.resumeText}>Resume approvals</Text></Pressable></View>}
     {outcome && !shown && snapshot.focusedSessionId !== null && <Pressable testID="approval-outcome" accessibilityRole="button" accessibilityLabel={`${outcome} Dismiss status`} onPress={() => setOutcome(null)} style={styles.outcome}><Text accessibilityLiveRegion="polite" style={styles.outcomeText}>{outcome}</Text></Pressable>}
+    <UploadWorkspace service={uploads} snapshot={uploadSnapshot} workspace={workspace} blocked={Boolean(shown || shell.blocked)} />
     <ApprovalSheet item={shown} nappletTitle={title} busy={busy} error={null}
       onApprove={id => { if (busy || snapshot.current?.id !== id) return; setHeld(snapshot.current); setBusy(true); setOutcome(null); void service.approve(id).then(results => setOutcome(publicationStatus(results))).catch(() => setOutcome('Approval was not completed.')).finally(() => { setHeld(null); setBusy(false); }); }}
       onReject={id => { if (!busy) service.reject(id); }} onDismiss={id => { if (!busy) service.dismiss(id); }} />
-  </ApprovalProvider>;
+  </UploadProvider></ApprovalProvider>;
 }
 
 const styles = StyleSheet.create({

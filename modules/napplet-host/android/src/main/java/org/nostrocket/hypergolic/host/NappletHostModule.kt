@@ -13,10 +13,12 @@ import kotlinx.coroutines.withContext
 class NappletHostModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("HypergolicNappletHost")
-    Events("onRelayStream", "onRelayLifecycle")
+    Events("onRelayStream", "onRelayLifecycle", "onUploadProgress")
     OnCreate {
+      UploadTransport.observeProgress { event -> sendEvent("onUploadProgress", event) }
       RelaySubscriptionTransport.observeLifecycle { snapshot -> sendEvent("onRelayLifecycle", mapOf("snapshot" to snapshot)) }
       val foreground = appContext.runtime.reactContext?.lifecycleState == LifecycleState.RESUMED
+      UploadTransport.foreground(foreground)
       CapabilityTransport.foreground(foreground)
       NappletHostView.setMediaForeground(foreground)
       ApprovalTransport.foreground(foreground)
@@ -26,6 +28,7 @@ class NappletHostModule : Module() {
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(foreground)
     }
     OnActivityEntersForeground {
+      UploadTransport.foreground(true)
       CapabilityTransport.foreground(true)
       NappletHostView.setMediaForeground(true)
       ApprovalTransport.foreground(true)
@@ -35,6 +38,7 @@ class NappletHostModule : Module() {
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(true)
     }
     OnActivityEntersBackground {
+      UploadTransport.foreground(false)
       CapabilityTransport.foreground(false)
       NappletHostView.setMediaForeground(false)
       ApprovalTransport.foreground(false)
@@ -46,6 +50,7 @@ class NappletHostModule : Module() {
       // Verified loaded read views retain their generation; pending transfers are revoked above.
     }
     OnActivityDestroys {
+      UploadTransport.foreground(false)
       CapabilityTransport.foreground(false)
       NappletHostView.setMediaForeground(false)
       ApprovalTransport.foreground(false)
@@ -57,6 +62,7 @@ class NappletHostModule : Module() {
       NappletHostView.revokePublishedOnBackground()
     }
     OnUserLeavesActivity {
+      UploadTransport.foreground(false)
       CapabilityTransport.foreground(false)
       NappletHostView.setMediaForeground(false)
       RelaySubscriptionTransport.foreground(false)
@@ -65,6 +71,8 @@ class NappletHostModule : Module() {
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
     }
     OnDestroy {
+      UploadTransport.observeProgress(null)
+      UploadTransport.foreground(false)
       CapabilityTransport.foreground(false)
       RelaySubscriptionTransport.foreground(false)
       RelaySubscriptionTransport.revokeAll()
@@ -73,6 +81,22 @@ class NappletHostModule : Module() {
       PublishedHttpsRequestOwner.INSTANCE.revokeAll()
       ResourceHttpsRequestOwner.INSTANCE.revokeAll()
       PublishedRelayWssRequestOwner.INSTANCE.revokeAll()
+    }
+    Function("configureUploadProof") { anchor: String -> UploadTransport.configureProof(anchor) }
+    Function("configureUploadServer") { server: String? -> UploadTransport.configure(server) }
+    Function("takeUpload") { token: String -> UploadTransport.take(token) }
+    Function("isUploadLive") { token: String -> UploadTransport.leases.isLive(token) }
+    Function("mayReviewUpload") { token: String -> UploadTransport.leases.mayReview(token) }
+    Function("readUploadPreview") { token: String, offset: Int -> UploadTransport.leases.preview(token, offset)?.let { Base64.encodeToString(it, Base64.NO_WRAP) } }
+    Function("approveUpload") { token: String -> UploadTransport.leases.approve(token) }
+    Function("isUploadApproved") { token: String -> UploadTransport.leases.isApproved(token) }
+    Function("claimUploadSigning") { token: String -> UploadTransport.leases.claimSigning(token) }
+    Function("wasUploadDispatched") { token: String -> UploadTransport.leases.wasDispatched(token) }
+    Function("cancelUpload") { token: String -> UploadTransport.cancel(token) }
+    Function("finishUpload") { token: String, result: String -> UploadTransport.finish(token, result) }
+    AsyncFunction("putUpload") Coroutine { token: String, credential: String ->
+      try { withContext(Dispatchers.IO) { UploadTransport.put(token, credential) } }
+      catch (error: kotlinx.coroutines.CancellationException) { UploadTransport.cancel(token); throw error }
     }
     AsyncFunction("fetchResourceHttps") Coroutine { token: String, operationId: String, url: String ->
       val generation = ResourceCapability.admission(token)

@@ -57,7 +57,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     guard active != isActive else { return }
     active = isActive
     updateMediaPlayback()
-    if configuration != nil { ApprovalTransport.setFocused(generation, active: isActive) }
+    if configuration != nil { ApprovalTransport.setFocused(generation, active: isActive); UploadTransport.focus(generation, active: isActive) }
     // Dismiss only this retained view's editor; keep its loaded document and position.
     if !isActive { webView?.endEditing(true) }
   }
@@ -150,6 +150,8 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
           CapabilityTransport.leases.revoke(generation)
           fail("capability-unavailable"); return
         }
+        guard UploadTransport.register(generation, config: configuration) else { fail("upload-unavailable"); return }
+        UploadTransport.focus(generation, active: active)
         // React props may set focus before configuration; replay the current native view state.
         ApprovalTransport.setFocused(generation, active: active)
       }
@@ -428,6 +430,25 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       guard let bytes = try? JSONSerialization.data(withJSONObject: result) else { reply(nil, "Capability rejected"); return }
       reply(String(decoding: bytes, as: UTF8.self), nil)
     }
+    if let request = try? UploadWire.object(message, limit: 400 * 1024),
+      let type = request["type"] as? String, type.hasPrefix("upload.") {
+      guard configuration.domains.contains("upload"), CapabilityTransport.leases.consumeSequence(generation, sequence: counter),
+        let capturedView = webView, let capturedURL = expectedURL else { respond(nil); return }
+      let result = UploadTransport.receive(generation, sequence: counter, raw: message,
+        push: { [weak self, weak capturedView] envelope in
+          guard let self, let capturedView, self.webView === capturedView, self.live, !self.disposed,
+            capturedView.url?.absoluteString == capturedURL.absoluteString else { return }
+          let script = "window.postMessage({type:'hypergolic.native-response',message:" + self.jsString(envelope) + "}, '*')"
+          capturedView.evaluateJavaScript(script, in: nil, in: self.bridgeWorld) { [weak self] result in
+            if case .failure = result { self?.fail("renderer-stopped") }
+          }
+        }, onReview: { [weak self] token in
+          guard let self, self.live, !self.disposed else { return }
+          self.onEvent?(["type": "capability", "lane": "upload", "sessionId": configuration.sessionId, "generation": self.generation, "token": token])
+        })
+      respond(result)
+      return
+    }
     let approval = configuration.approvalWireId(message)
     if approval.recognized {
       guard CapabilityTransport.leases.consumeSequence(generation, sequence: counter),
@@ -452,6 +473,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   private func fail(_ code: String) {
     guard !disposed else { return }
     live = false
+    UploadTransport.revoke(generation)
     ApprovalTransport.revoke(generation)
     CapabilityTransport.leases.revoke(generation)
     emit("error", code: code)
@@ -466,6 +488,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     live = false
     publishedReader?.clear()
     publishedReader = nil
+    UploadTransport.revoke(generation)
     ApprovalTransport.revoke(generation)
     CapabilityTransport.revoke(generation)
     deadline?.cancel()

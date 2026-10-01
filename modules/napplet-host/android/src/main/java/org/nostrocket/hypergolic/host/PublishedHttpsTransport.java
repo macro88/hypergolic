@@ -195,7 +195,7 @@ public final class PublishedHttpsTransport {
     return resolved.clone();
   }
 
-  private static SSLSocket openPinnedTls(String host, int port, AddressPolicy policy, AbortMonitor abort,
+  static SSLSocket openPinnedTls(String host, int port, AddressPolicy policy, AbortMonitor abort,
       Deadline deadline, HostResolver resolver, ThreadPoolExecutor executor, SSLSocketFactory socketFactory,
       HostnameVerifier hostnameVerifier)
       throws IOException {
@@ -273,7 +273,7 @@ public final class PublishedHttpsTransport {
 
   interface HostResolver { InetAddress[] resolve(String hostname) throws IOException; }
 
-  private static SSLSocketFactory defaultSocketFactory() throws IOException {
+  static SSLSocketFactory defaultSocketFactory() throws IOException {
     try { return SSLContext.getDefault().getSocketFactory(); }
     catch (GeneralSecurityException error) { throw new IOException("Default TLS is unavailable", error); }
   }
@@ -348,7 +348,7 @@ public final class PublishedHttpsTransport {
     }
   }
 
-  private static final class DeadlineInputStream extends FilterInputStream {
+  static final class DeadlineInputStream extends FilterInputStream {
     private final Socket socket;
     private final Deadline deadline;
     DeadlineInputStream(InputStream input, Socket socket, Deadline deadline) {
@@ -370,7 +370,7 @@ public final class PublishedHttpsTransport {
     HeaderBlock(String text, int size) { this.text = text; this.size = size; }
   }
 
-  private static final class AbortMonitor implements AutoCloseable {
+  static final class AbortMonitor implements AutoCloseable {
     private volatile boolean stopped;
     private volatile Socket socket;
     private final Cancellation cancellation;

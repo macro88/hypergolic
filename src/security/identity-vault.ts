@@ -1,4 +1,5 @@
 import { validateSignedEvent, type VerifiedSignedEvent } from './signed-event.ts';
+import { uploadSigningSnapshot, type UploadSnapshot } from '../uploads/upload-snapshot.ts';
 import type { EventSnapshot } from './event-snapshot.ts';
 import type { EffectAuthority } from './approval-service.ts';
 import { database, fields, freezeInventory, integer, inventory, MAX_IDENTITIES, nextInventory, opaqueId, pubkey, record, same, sameSecret, VaultError, wipeReturned, type DatabaseRecord, type Inventory, type Pending, type SecretRecord, type StagedSecret, type VaultSnapshot } from './identity-vault-model.ts';
@@ -329,9 +330,20 @@ export class IdentityVault {
   }
   /** Signs only an immutable, approved snapshot with the currently selected protected identity. */
   async signApproved(snapshot: EventSnapshot, authority: EffectAuthority, signer: ApprovedEventSigner): Promise<VerifiedSignedEvent> {
+    if (snapshot.event.kind === 22242 || snapshot.event.kind === 24242) throw new VaultError('AUTHORIZATION_DENIED');
+    return this.signCaptured(snapshot, authority, signer);
+  }
+  /** Blossom credentials require an owning reviewed upload, never the ordinary relay signing lane. */
+  async signApprovedUpload(snapshot: UploadSnapshot, authority: EffectAuthority, signer: ApprovedEventSigner): Promise<VerifiedSignedEvent> {
+    let event: EventSnapshot;
+    try { event = uploadSigningSnapshot(snapshot); }
+    catch { throw new VaultError('AUTHORIZATION_DENIED'); }
+    return this.signCaptured(event, authority, signer);
+  }
+  private async signCaptured(snapshot: EventSnapshot, authority: EffectAuthority, signer: ApprovedEventSigner): Promise<VerifiedSignedEvent> {
     const expected = this.snapshot();
     return this.serial(() => this.guarded(async () => {
-      if (snapshot.event.kind === 22242 || snapshot.selectedPubkey !== expected.selectedPubkey || typeof signer !== 'function') throw new VaultError('AUTHORIZATION_DENIED');
+      if (snapshot.selectedPubkey !== expected.selectedPubkey || typeof signer !== 'function') throw new VaultError('AUTHORIZATION_DENIED');
       this.assertSigningAuthority(authority);
       if (this.usedAuthorities.has(authority)) throw new VaultError('AUTHORIZATION_DENIED');
       this.usedAuthorities.add(authority);

@@ -27,10 +27,26 @@ final class PublishedHttpsResponseReader {
     final String location;
     ResourceRedirect(String location) { super("Resource HTTPS redirect"); this.location = location; }
   }
+  static final class UploadResponse {
+    final int status;
+    final byte[] body;
+    UploadResponse(int status, byte[] body) { this.status = status; this.body = body; }
+  }
+  static final class UploadStatus extends IOException {
+    private static final long serialVersionUID = 1L;
+    final int status;
+    UploadStatus(int status) { super("Upload response status " + status); this.status = status; }
+  }
+  static UploadResponse readUpload(InputStream input, PublishedHttpsTransport.Cancellation cancellation) throws IOException {
+    return readProfile(input, cancellation, 32 * 1024, true);
+  }
   static byte[] read(InputStream input, PublishedHttpsTransport.Cancellation cancellation) throws IOException {
     return readBounded(input, cancellation, PublishedHttpsTransport.MAX_BODY_BYTES);
   }
   static byte[] readBounded(InputStream input, PublishedHttpsTransport.Cancellation cancellation, int maximumBytes) throws IOException {
+    return readProfile(input, cancellation, maximumBytes, false).body;
+  }
+  private static UploadResponse readProfile(InputStream input, PublishedHttpsTransport.Cancellation cancellation, int maximumBytes, boolean uploadProfile) throws IOException {
     if (maximumBytes < 1 || maximumBytes > 10 * 1024 * 1024) throw new ResourceFailure("too-large", "Invalid HTTPS body limit");
     HeaderBlock block = readHeaders(input, PublishedHttpsTransport.MAX_RESPONSE_HEADER_BYTES);
     String[] lines = block.text.split("\r\n", -1);
@@ -42,16 +58,18 @@ final class PublishedHttpsResponseReader {
       if ((c < 0x20 && c != '\t') || c == 0x7f) throw new IOException("Malformed HTTPS status line");
     }
     int status = Integer.parseInt(lines[0].substring(9, 12));
-    if (maximumBytes > PublishedHttpsTransport.MAX_BODY_BYTES &&
+    if (!uploadProfile && maximumBytes > PublishedHttpsTransport.MAX_BODY_BYTES &&
         (status == 301 || status == 302 || status == 303 || status == 307 || status == 308)) {
       String location = uniqueHeader(parseHeaders(lines), "location");
       if (location == null || location.isEmpty() || location.length() > 8192) throw new ResourceFailure("blocked-by-policy", "Invalid resource redirect");
       throw new ResourceRedirect(location);
     }
     if (status >= 300 && status < 400) throw new ResourceFailure("blocked-by-policy", "HTTPS redirects are not followed");
-    if (status != 200) throw new ResourceFailure(status == 404 ? "not-found" : status == 401 || status == 403 ? "blocked-by-policy" : "network-error", "HTTPS response status " + status);
+    if (uploadProfile && status != 200 && status != 201) throw new UploadStatus(status);
+    if (!uploadProfile && status != 200) throw new ResourceFailure(status == 404 ? "not-found" : status == 401 || status == 403 ? "blocked-by-policy" : "network-error", "HTTPS response status " + status);
     Map<String, List<String>> headers = parseHeaders(lines);
-    boolean resourceProfile = maximumBytes > PublishedHttpsTransport.MAX_BODY_BYTES;
+    boolean resourceProfile = uploadProfile || maximumBytes > PublishedHttpsTransport.MAX_BODY_BYTES;
+    if (uploadProfile && uniqueHeader(headers, "location") != null) throw new ResourceFailure("blocked-by-policy", "Upload Location headers are not followed");
     if (resourceProfile) uniqueHeader(headers, "connection");
     String encoding = resourceProfile ? uniqueHeader(headers, "content-encoding") : singleHeader(headers, "content-encoding");
     if (encoding != null && !"identity".equalsIgnoreCase(encoding.trim())) {
@@ -62,14 +80,14 @@ final class PublishedHttpsResponseReader {
     if (transferEncoding != null && contentLength != null) throw new IOException("Ambiguous HTTPS body framing");
     if (transferEncoding != null) {
       if (!"chunked".equalsIgnoreCase(transferEncoding.trim())) throw new IOException("Unsupported HTTPS transfer encoding");
-      return readChunked(input, block.size, cancellation, maximumBytes);
+      return new UploadResponse(status, readChunked(input, block.size, cancellation, maximumBytes));
     }
     if (contentLength != null) {
       long length = parseLength(contentLength);
       if (length > maximumBytes) throw new ResourceFailure("too-large", "HTTPS response exceeds its byte limit");
-      return readExact(input, (int) length, cancellation);
+      return new UploadResponse(status, readExact(input, (int) length, cancellation));
     }
-    return readUntilEof(input, cancellation, maximumBytes);
+    return new UploadResponse(status, readUntilEof(input, cancellation, maximumBytes));
   }
 
   private static HeaderBlock readHeaders(InputStream input, int maximumBytes) throws IOException {

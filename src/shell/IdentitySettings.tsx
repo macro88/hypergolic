@@ -1,3 +1,4 @@
+import { UploadSettings } from './UploadSettings';
 import { ResourceSettings } from './ResourceSettings';
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { ActivityIndicator, AppState, Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -113,7 +114,7 @@ function PublishedNappletSettings({ available, openPublished, publishedSessions,
   </>;
 }
 export function IdentitySettings({ openBundledTest, openStateLab, openPublished, publishedSessions, checkPublishedUpdate }: SettingsActions) {
-  const { transition, formatNpub, runtime, actions, relaySettings, resourceSettings } = useIdentityOwner();
+  const { transition, formatNpub, runtime, actions, relaySettings, resourceSettings, uploadSettings } = useIdentityOwner();
   const state = useSyncExternalStore(transition.subscribe, transition.getSnapshot);
   const [importing, setImporting] = useState(false);
   const [deletion, setDeletion] = useState<DeletionReview | null>(null);
@@ -184,6 +185,7 @@ export function IdentitySettings({ openBundledTest, openStateLab, openPublished,
       <Action title="Import identity" testID="settings-import-identity" onPress={() => setImporting(true)} />
       <RelaySettings service={relaySettings} />
       <ResourceSettings service={resourceSettings} />
+      <UploadSettings service={uploadSettings ?? null} />
       {runtime && <>
         <Text accessibilityRole="header" style={styles.title}>Signed host test</Text>
         <Action title="Inspect signed test napplet" testID="settings-inspect-signed-test" onPress={() => setSignedLab(true)} subdued />

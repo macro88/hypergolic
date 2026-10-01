@@ -1,9 +1,14 @@
+import { requireNativeModule } from 'expo';
+import { digest, CryptoDigestAlgorithm } from 'expo-crypto';
+import { UploadService } from '../uploads/upload-service';
+import { loadNativeUploadPort } from '../uploads/native-upload-port';
+import { openNativeUploadSettings, type NativeUploadSettings, type UploadConfigurationModule } from '../uploads/upload-settings-native';
 import { loadNativeResourceHost } from '../resources/native-resource-port';
 import { openNativeResourceSettings, type NativeResourceSettings } from '../resources/resource-settings-native';
 import {loadNativeRelaySubscriptions} from '../network/native-relay-subscription-port';
 import { finalizeEvent } from 'nostr-tools/pure';
 import { ApprovalService } from './approval-service';
-import { createApprovalOwner } from './approval-owner';
+import { createApprovalOwner, createUploadOwner } from './approval-owner';
 import { loadNativeApprovalPort } from '../runtime/native-approval-port';
 import { loadNativeRelayQuery } from '../network/native-relay-query-port';
 import { publishEvent } from '../network/relay-service';
@@ -31,6 +36,8 @@ export interface TrustedIdentityOwner {
   readonly actions?: IdentityActions;
   readonly runtime?: RuntimeOwner;
   readonly approvals?: ApprovalService;
+  readonly uploads?: UploadService;
+  readonly uploadSettings?: NativeUploadSettings | null;
   readonly relaySettings: NativeRelaySettings | null;
   readonly resourceSettings: NativeResourceSettings | null;
   readonly formatNpub: typeof formatNpub;
@@ -38,13 +45,15 @@ export interface TrustedIdentityOwner {
 export class WorkspaceStartupError extends Error {
   constructor() { super('Workspace could not be opened'); this.name = 'WorkspaceStartupError'; }
 }
-async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<{ transition: IdentityTransition; runtime: RuntimeOwner; approvals: ApprovalService; relaySettings: NativeRelaySettings | null; resourceSettings: NativeResourceSettings | null }> {
+async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<{ transition: IdentityTransition; runtime: RuntimeOwner; approvals: ApprovalService; relaySettings: NativeRelaySettings | null; resourceSettings: NativeResourceSettings | null; uploadSettings: NativeUploadSettings | null; uploads: UploadService }> {
   const database = await openShellDatabase(SQLite, platform).catch(() => { throw new WorkspaceStartupError(); });
   let relaySettings: NativeRelaySettings | null = null;
   let resourceSettings: NativeResourceSettings | null = null;
+  let uploadSettings: NativeUploadSettings | null = null;
   try {
     try { relaySettings = await openNativeRelaySettings(SQLite, platform); } catch { relaySettings = null; }
     try { resourceSettings = await openNativeResourceSettings(SQLite); } catch { resourceSettings = null; }
+    try { uploadSettings = await openNativeUploadSettings(SQLite, requireNativeModule<UploadConfigurationModule>('HypergolicNappletHost')); } catch { uploadSettings = null; }
     const queries = loadNativeRelayQuery(() => relaySettings?.getSettings().networkRelays ?? []);
     const transition = await IdentityTransition.open({ vault, database, publicKeyFromNsec, seed: initialTestWorkspace, assertAvailable: assertWorkspaceAvailability });
     let runtime: RuntimeOwner | null = null;
@@ -59,15 +68,27 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
       }),
       publishEvent,
     });
+    const uploads = new UploadService(loadNativeUploadPort(), createUploadOwner(transition, origin => {
+      if (!runtime) throw new Error('APPROVAL_DENIED');
+      runtime.assertPublishedUpload(origin);
+    }), {
+      sha256: async bytes => Array.from(new Uint8Array(await digest(CryptoDigestAlgorithm.SHA256, bytes)), byte => byte.toString(16).padStart(2, '0')).join(''),
+      nowSeconds: () => Math.floor(Date.now() / 1000),
+      sign: (snapshot, execution) => vault.signApprovedUpload(snapshot, execution, (event, secret) => {
+        const signed = finalizeEvent(event, secret);
+        return {id: signed.id, pubkey: signed.pubkey, created_at: signed.created_at, kind: signed.kind, content: signed.content, tags: signed.tags, sig: signed.sig};
+      }),
+    });
     runtime = createRuntimeOwner(database, transition, loadNativeCapabilityPort(),
       { service: approvals, destinations: () => relaySettings?.getSettings().networkRelays ?? [] },
       { sqlite: SQLite, source: loadNativePublishedArtifactSource(), native: loadNativePublishedTransferPort(),
         lookupRelays: () => relaySettings?.getSettings().lookupRelays ?? [] },
       queries,
       loadNativeRelaySubscriptions(() => relaySettings?.getSettings().networkRelays ?? []),
-      loadNativeResourceHost(() => resourceSettings?.servers() ?? [], queries));
-    return { transition, approvals, relaySettings, resourceSettings, runtime };
+      loadNativeResourceHost(() => resourceSettings?.servers() ?? [], queries), uploads);
+    return { transition, approvals, relaySettings, resourceSettings, uploadSettings, uploads, runtime };
   } catch {
+    try { await uploadSettings?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await resourceSettings?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await relaySettings?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await database.close(); } catch { /* Preserve the workspace failure. */ }

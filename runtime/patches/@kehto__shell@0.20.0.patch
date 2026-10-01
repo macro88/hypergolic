@@ -23,7 +23,7 @@ index 0ec36f0a861a096c6391bdae988ba8243bb3f021..a6bdd59f250582b9bf37cac8704465fc
  /**
   * Render the host-owned NIP-5D bootstrap that exposes available NAP domains
 diff --git a/dist/index.js b/dist/index.js
-index 523bcf16686659726604376dea98363a06f86049..9e51750336af297581df8713a3bcb9b277f1e108 100644
+index 523bcf16686659726604376dea98363a06f86049..f2265984bbd1ee7c8e939dc5f4f88046fe58e204 100644
 --- a/dist/index.js
 +++ b/dist/index.js
 @@ -312,6 +312,7 @@ function adaptHooks(shellHooks, deps) {
@@ -34,7 +34,15 @@ index 523bcf16686659726604376dea98363a06f86049..9e51750336af297581df8713a3bcb9b2
      getConfigOverrides: shellHooks.getConfigOverrides
    };
  }
-@@ -1265,7 +1266,15 @@ function scriptJson(value) {
+@@ -1032,6 +1033,7 @@ function isServiceDomainLive(hooks, domain) {
+     case "outbox":
+       return Boolean(hooks.relayPool);
+     case "upload":
++      if (["upload.info", "upload.upload", "upload.status"].every((type) => typeof hooks.operationOverrides?.[type] === "function")) return true;
+       return hooks.upload?.getUploader() !== null && hooks.upload?.getUploader() !== void 0;
+     case "intent":
+       return hooks.intent?.isAvailable() === true;
+@@ -1265,7 +1267,15 @@ function scriptJson(value) {
  }
  function renderNappletNamespacePrelude(options) {
    const domains = uniqueBareDomains(["shell", ...options.domains]);
@@ -51,7 +59,7 @@ index 523bcf16686659726604376dea98363a06f86049..9e51750336af297581df8713a3bcb9b2
  }
  function injectNappletNamespacePrelude(html, options) {
    const prelude = renderNappletNamespacePrelude(options);
-@@ -1281,13 +1290,18 @@ function injectNappletNamespacePrelude(html, options) {
+@@ -1281,13 +1291,18 @@ function injectNappletNamespacePrelude(html, options) {
    }
    return `${prelude}${html}`;
  }
@@ -73,7 +81,7 @@ index 523bcf16686659726604376dea98363a06f86049..9e51750336af297581df8713a3bcb9b2
    }
    function post(message) {
      target.parent.postMessage(message, "*");
-@@ -1326,7 +1340,7 @@ function nappletNamespacePrelude(domains) {
+@@ -1326,7 +1341,7 @@ function nappletNamespacePrelude(domains) {
        const timer = setTimeout(() => {
          off();
          reject(new Error(`${message.type} timed out`));
@@ -82,7 +90,7 @@ index 523bcf16686659726604376dea98363a06f86049..9e51750336af297581df8713a3bcb9b2
        post(outbound);
      });
    }
-@@ -2071,18 +2085,36 @@ function nappletNamespacePrelude(domains) {
+@@ -2071,18 +2086,36 @@ function nappletNamespacePrelude(domains) {
    }
    function makeResource() {
      const objectUrls = /* @__PURE__ */ new Set();
@@ -121,7 +129,7 @@ index 523bcf16686659726604376dea98363a06f86049..9e51750336af297581df8713a3bcb9b2
              if (objectUrl) {
                URL.revokeObjectURL(objectUrl);
                objectUrls.delete(objectUrl);
-@@ -2090,14 +2122,17 @@ function nappletNamespacePrelude(domains) {
+@@ -2090,14 +2123,17 @@ function nappletNamespacePrelude(domains) {
              }
            }
          };

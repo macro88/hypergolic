@@ -10,7 +10,8 @@
     "src/**/*.tsx",
     "tests/native/published-update-fixtures/**/*.tsx",
     "tests/native/feed-query/**/*.tsx",
-    "tests/native/feed-subscription/**/*.tsx"
+    "tests/native/feed-subscription/**/*.tsx",
+    "tests/native/upload/**/*.tsx"
   ],
   "exclude": [
     "src/**/*.test.ts"

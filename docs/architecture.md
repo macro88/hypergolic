@@ -20,6 +20,10 @@ and Value Lab move to post-MVP phase 4. Every MVP group
 needs a test napplet and native Android/iOS acceptance. This expands scope without
 claiming implementation or selecting wallet providers or new draft revisions.
 
+The [upload phase](upload-access.md) is in progress: native body/approval/PUT owners,
+trusted review and settings, and a genuine SDK Upload Lab are being integrated.
+Published upload admission and CAP-05 remain open pending native acceptance.
+
 ## Implemented
 
 `index.ts` registers `src/App.tsx` with Expo. Both native hosts run verified,

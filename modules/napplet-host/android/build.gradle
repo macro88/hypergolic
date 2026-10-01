@@ -8,7 +8,11 @@ version = '0.0.0'
 expoModule { canBePublished false }
 android {
   namespace 'org.nostrocket.hypergolic.host'
-  defaultConfig { versionCode 1; versionName '0.0.0' }
+  buildFeatures { buildConfig true }
+  defaultConfig {
+    versionCode 1; versionName '0.0.0'
+    buildConfigField 'boolean', 'UPLOAD_NETWORK_PROOF', providers.gradleProperty('hypergolicUploadProof').getOrElse('false') == 'true' ? 'true' : 'false'
+  }
 }
 dependencies {
   implementation 'androidx.webkit:webkit:1.17.0'

@@ -1,0 +1,26 @@
+{
+  "kind": 35129,
+  "created_at": 1790827448,
+  "tags": [
+    [
+      "d",
+      "upload-lab"
+    ],
+    [
+      "path",
+      "/index.html",
+      "be2e4edc38b67685463d9b4b67141f0091ae4cbf9908ed7d253766f1ea355846"
+    ],
+    [
+      "x",
+      "9a178b339cd904e472b7185196d117682a474f79937b6dae93a789adde564467",
+      "aggregate"
+    ],
+    [
+      "requires",
+      "upload"
+    ]
+  ],
+  "content": "",
+  "aggregateHash": "9a178b339cd904e472b7185196d117682a474f79937b6dae93a789adde564467"
+}

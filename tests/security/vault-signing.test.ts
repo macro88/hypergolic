@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { finalizeEvent, getPublicKey } from 'nostr-tools/pure';
+import { createHash } from 'node:crypto';
+import { captureUploadSnapshot, type UploadSnapshot } from '../../src/uploads/upload-snapshot.ts';
+import { captureUploadAuthorization } from '../../src/uploads/upload-authorization.ts';
 import { captureEventSnapshot } from '../../src/security/event-snapshot.ts';
 import { IdentityVault, VaultError, type DatabaseRecord, type EncryptedSecrets, type Inventory, type SecretRecord, type StagedSecret } from '../../src/security/identity-vault.ts';
 
@@ -181,4 +184,75 @@ test('ordinary signing rejects NIP-42 authentication events', async () => {
   const state = await vault.open();
   const auth = captureEventSnapshot({ kind: 22242, content: '', tags: [['challenge', 'x']], created_at: 1 }, state.selectedPubkey, ['wss://relay.example.org']);
   await assert.rejects(vault.signApproved(auth, authority(), () => undefined), (error: unknown) => error instanceof VaultError && error.code === 'AUTHORIZATION_DENIED');
+});
+
+
+const upload = (selectedPubkey: string) => captureUploadSnapshot(new Uint8Array([1, 2, 3]), selectedPubkey,
+  'https://files.example.org', 'application/octet-stream', 1,
+  async bytes => createHash('sha256').update(bytes).digest('hex'));
+const plainSigner = (event: Parameters<typeof finalizeEvent>[0], key: Uint8Array) => JSON.parse(JSON.stringify(finalizeEvent(event, key)));
+
+test('ordinary signing cannot mint a Blossom upload credential', async () => {
+  const { vault } = fixture();
+  const state = await vault.open(), snapshot = await upload(state.selectedPubkey);
+  const event = captureEventSnapshot({...snapshot.authorization, tags: snapshot.authorization.tags.map(tag => [...tag])},
+    state.selectedPubkey, ['wss://relay.example.org']);
+  await assert.rejects(vault.signApproved(event, authority(), () => { throw new Error('must not sign'); }),
+    (error: unknown) => error instanceof VaultError && error.code === 'AUTHORIZATION_DENIED');
+  assert.equal(vault.getSnapshot().selectedPubkey, state.selectedPubkey);
+});
+
+test('the protected upload signer binds the selected identity, body hash and destination and wipes keys', async () => {
+  const { vault, returned } = fixture();
+  const state = await vault.open(), snapshot = await upload(state.selectedPubkey), grant = authority();
+  let observed: Uint8Array | null = null;
+  const signed = await vault.signApprovedUpload(snapshot, grant, (event, key) => { observed = key; return plainSigner(event, key); });
+  const credential = captureUploadAuthorization(snapshot, signed, 2);
+  assert.equal(credential.event.pubkey, state.selectedPubkey);
+  assert.deepEqual(credential.event.tags, snapshot.authorization.tags);
+  assert.equal(credential.event.content, 'Upload reviewed file to https://files.example.org');
+  assert(observed !== null);
+  assert((observed as Uint8Array).every(byte => byte === 0));
+  assert(returned.every(key => key.every(byte => byte === 0)));
+  await assert.rejects(vault.signApprovedUpload(snapshot, grant, plainSigner),
+    (error: unknown) => error instanceof VaultError && error.code === 'AUTHORIZATION_DENIED');
+});
+
+test('copied or forged upload snapshots cannot reach protected secrets', async () => {
+  const { vault, setReadSecret } = fixture();
+  const state = await vault.open(), snapshot = await upload(state.selectedPubkey);
+  setReadSecret(async () => { throw new Error('must not read a secret'); });
+  for (const input of [{...snapshot}, {...snapshot, destination: 'https://other.example.org'},
+    {...snapshot, authorization: {...snapshot.authorization, kind: 1}}, null]) {
+    await assert.rejects(vault.signApprovedUpload(input as UploadSnapshot, authority(), plainSigner),
+      (error: unknown) => error instanceof VaultError && error.code === 'AUTHORIZATION_DENIED');
+  }
+  assert.equal(vault.getSnapshot().selectedPubkey, state.selectedPubkey);
+});
+
+test('revocation while an upload secret is being read prevents credential creation', async () => {
+  const { vault, keys, returned, setReadSecret } = fixture();
+  const state = await vault.open(), snapshot = await upload(state.selectedPubkey);
+  const entered = deferred<void>(), release = deferred<SecretRecord | null>();
+  setReadSecret(async () => { entered.resolve(); return release.promise; });
+  const active = {value: true};
+  const pending = vault.signApprovedUpload(snapshot, authority(active), () => { throw new Error('must not sign'); });
+  await entered.promise; active.value = false;
+  const key = clone(keys.get(state.selectedPubkey)!);
+  returned.push(key.secretKey); release.resolve(key);
+  await assert.rejects(pending, (error: unknown) => error instanceof VaultError && error.code === 'AUTHORIZATION_DENIED');
+  assert(returned.every(key => key.every(byte => byte === 0)));
+});
+
+test('queued identity changes invalidate a call-time upload signer', async () => {
+  const { vault, keys, setReadSecret } = fixture();
+  const original = await vault.open(), imported = await vault.importNsec('nsec1fixture-3');
+  await vault.select(original.selectedPubkey);
+  const snapshot = await upload(original.selectedPubkey), entered = deferred<void>(), release = deferred<SecretRecord | null>();
+  setReadSecret(async () => { entered.resolve(); return release.promise; });
+  const change = vault.select(imported.selectedPubkey);
+  const stale = vault.signApprovedUpload(snapshot, authority(), () => { throw new Error('must not sign'); });
+  await entered.promise; release.resolve(clone(keys.get(imported.selectedPubkey)!));
+  await change;
+  await assert.rejects(stale, (error: unknown) => error instanceof VaultError && error.code === 'AUTHORIZATION_DENIED');
 });

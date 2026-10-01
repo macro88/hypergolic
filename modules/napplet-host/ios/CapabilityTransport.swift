@@ -19,6 +19,7 @@ final class CapabilityLifecycle: @unchecked Sendable {
 /// React Native owns this immutable configuration. Requests cannot supply namespace fields.
 struct CapabilityConfiguration {
   let snapshot: String
+  let user: String
   let sessionId: String
   let fixture: String
   let domains: Set<String>
@@ -50,6 +51,7 @@ struct CapabilityConfiguration {
     case "ux-lab": expected = ["theme"]
     case "state-lab", "state-lab-peer": expected = ["identity", "storage", "theme"]
     case "approval-lab": expected = ["identity", "relay", "theme"]
+    case "upload-lab": expected = ["upload", "theme"]
     case "resource-lab": expected = ["resource", "theme"]
     case "feed-lab": expected = ["relay", "theme"]
     case "published":
@@ -63,6 +65,7 @@ struct CapabilityConfiguration {
     if fixture != "published" && Set(domains) != expected { throw Invalid.configuration }
     value["generation"] = generation
     self.snapshot = String(decoding: try JSONSerialization.data(withJSONObject: value), as: UTF8.self)
+    self.user = value["user"] as! String
     self.sessionId = sessionId
     self.fixture = fixture
     self.domains = expected
@@ -96,6 +99,7 @@ enum CapabilityTransport {
   nonisolated static let leases = CapabilityLeaseRegistry()
   nonisolated static let lifecycle = CapabilityLifecycle()
   nonisolated static func foreground(_ value: Bool) {
+    UploadTransport.foreground(value)
     let revoked = leases.setForeground(value)
     Task { @MainActor in
       for token in revoked { pending.removeValue(forKey: token)?.reply(nil) }

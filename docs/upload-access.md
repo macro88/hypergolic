@@ -1,0 +1,120 @@
+# Upload access — implementation in progress
+
+Phase 2.4 selects the [NAP upload draft at a7cc174](https://github.com/napplet/naps/blob/a7cc17463cbf5d9cb87884b31071bc4fc826034c/naps/NAP-UPLOAD.md)
+and [Blossom at b5bd280](https://github.com/hzrd149/blossom/tree/b5bd2801d1763aa635fc8fea7a76597e0eb18990).
+The public operations are `upload.info`, `upload.upload` and `upload.status`, with
+`upload.status.changed` notifications. Blossom is the selected rail; NIP-96 is
+rejected. Published upload admission remains disabled while native acceptance is
+in progress. The unsigned bundled Upload Lab is a separate reviewed fixture.
+
+## Confirmed product decisions
+
+The shell has one editable default upload server in trusted Settings. The first
+engineering default is `https://blossom.nostr.build`; each review names the captured
+destination. The selected provider enforces the authorization's server scope in
+the retained read-only HEAD comparison. That observation is not evidence of PUT,
+retention or universal free attachments. The [operator's service description](https://blossom.nostr.build/)
+distinguishes free image/audio/video uploads from paid formats and larger files.
+Download configuration remains independent, and uploads have no automatic fallback.
+
+Every upload needs separate approval of its requesting napplet, publisher, selected
+identity, actual file preview, output type, size, SHA-256 and destination. Approval
+is one-use. Photos must have embedded personal metadata removed before review;
+other attachments retain their bytes with a metadata warning. Failed preparation
+must not silently upload the original. Orientation and color must remain correct.
+The system photo/file picker is accepted: only selected files become readable by
+the requester, including when an upload is declined. Picker implementation and
+photo-format acceptance are still pending.
+
+Approved uploads continue when switching between loaded napplets while the app is
+in the foreground. Trusted progress and Cancel remain available. Background,
+requester close/replacement, renderer loss and identity changes revoke authority.
+Cancel does not promise deletion of a server copy. An uncertain dispatched outcome
+must be reconciled at the same destination/hash before a freshly approved retry;
+the durable recovery/reconciliation slice is still pending.
+
+## Current implementation boundary
+
+`src/uploads` contains the strict request contract, immutable byte snapshot,
+protected upload-signing projection, per-file coordinator, native port and private
+SQLite settings. The ordinary relay approval lane rejects kind 24242. The upload
+lane signs only a factory-created upload snapshot under a live native approval;
+the shared verifier checks the complete Schnorr signature and exact event.
+Native credential parsers independently check the captured identity, purpose,
+hash, server, event ID and time, but do not independently verify Schnorr signatures.
+
+The genuine SDK sends Blob/ArrayBuffer data to the trusted Kehto adapter. That
+adapter copies intrinsic bytes before asynchronous work, then uses an ordered
+private begin/chunk/seal lane. Native code captures the origin, body and destination,
+computes SHA-256, and retains opaque review/grant handles. Private tokens and
+credentials never enter public SDK results. Metadata, caption, filename and
+`noTransform` survive the adapter boundaries without becoming network authority.
+
+The first native preparation profile accepts already metadata-free, noninterlaced
+8-bit RGB/RGBA PNGs, bounded to 4,194,304 pixels and 4096 pixels per dimension.
+It checks CRCs, chunk ordering, color declarations, zlib output size and row filters;
+iOS also uses ImageIO decoding. The bytes are unchanged. EXIF, text, ICC, animation,
+unknown chunks and other photo formats currently fail closed. This is the first
+tracer profile, not acceptance of the full photo sanitization requirement.
+
+Native owners allow one request per realm and two per process, with a 10 MiB file
+bound, 256 KiB carrier chunks, a ten-minute review lifetime and a sixty-second
+approved transfer lifetime. These are engineering bounds for this phase. Native
+monotonic clock regression revokes authority. Authorization remains strictly past
+and unexpired even if the wall clock moves backward.
+
+Both native hosts and Expo modules now have the private byte/review/PUT methods.
+Original renderer recipients are captured for status delivery; WebKit's initial
+reply handler is used once and progress uses a separate captured-world delivery.
+The PUT owner vets the complete DNS answer, connects to a numeric public address,
+checks platform TLS trust/hostname, and sends the reviewed exact body without
+redirects or retry. Body progress means bytes accepted by the local socket, not
+server confirmation. Only an exact native-validated receipt can produce completion.
+Post-dispatch lost, invalid or stale results remain uncertain.
+
+The isolated QA build has a compile-gated loopback TLS seam for exactly
+`https://files.example.com:19943` with a disposable anchor. Android requires
+`-PhypergolicUploadProof=true`; iOS requires `HYPERGOLIC_NETWORK_PROOF`.
+Ordinary builds reject proof configuration. The isolated entry uses a disposable
+signer and does not establish protected-device identity acceptance.
+
+## Evidence and remaining work
+
+Run `pnpm run test:uploads`, `pnpm run test:uploads:native` and
+`pnpm run test:uploads:tls`. The [owning proof scope](../tests/native/upload-authority/README.md)
+separates shared controlled ports, native ownership logic, actual isolated raw TLS
+transfers and SDK/native UI journeys. TypeScript and the complete Chromium/WebKit
+runtime suite cover the shared carrier. A successful Android/iOS build confirms
+compilation, not file-picker, preview, approval or server-byte acceptance.
+
+Phase 2.4 remains open. Complete the SDK/native PNG review/rejection/approval journey
+with independent stored bytes on both hosts, then the system picker, supported
+photo sanitation/orientation/color, unchanged audio/video/documents, uncertain
+reconciliation, published admission and final quality/native acceptance. Final
+React Doctor and aislop scores must both be 100/100 on the final source.
+
+## First native tracer acceptance
+
+The initial metadata-free 2×1 PNG completes the genuine SDK → Kehto → native
+review → scoped signing → pinned raw PUT → original SDK receipt path on Android
+API 36 and iOS 26.5 Simulator. Native Reject produces zero new TLS connections or
+requests. One fresh approval produces one independently observed 71-byte stored
+file with SHA-256 `5a852fbaaaecaf4cd14c01e150c7f881c5c5894b0a1e3c53be7e007c58374ee6`;
+the separate server process verifies the complete Schnorr signature, selected
+public disposable identity, destination/hash scope and short lifetime. Both
+journeys pass cold launch, with source/build/installed product seals and inspected
+review/confirmation screenshots. The iOS fixture uses native entropy initialization.
+
+Native finish now revokes the grant synchronously before delivering its declared
+terminal outcome, preventing a competing cancellation receipt. Shared metadata
+recapture accepts safely copied JSON records while preserving accessor, inherited
+object, depth and size rejection. The review holds a stable decoded preview and
+exposes its actual outcome text to accessibility.
+
+The associated checks pass: shared upload 44, protected security 349 plus bootstrap
+13, capability owner 50, native authority 485, raw TLS 26 and genuine browser SDK
+runtime 154. Both ordinary production JS exports pass. Full React Doctor and aislop
+reach 100/100 with nine dependency audits. Native fixtures establish the selected
+first-PNG path with disposable signing; they do not establish protected physical
+device identity, picker/photo-format/media acceptance, durable reconciliation or
+published admission. CAP-05 remains open until the remaining phase plans pass.

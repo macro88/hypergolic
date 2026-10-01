@@ -3,8 +3,8 @@ import type { ApprovalOrigin, TrustedApprovalOwner } from './approval-service.ts
 import { resolveBundledSession } from '../shell/fixtures.ts';
 
 /** Resolve persisted descriptors through the same trusted catalogue as native registration. */
-export function createApprovalOwner(identity: Pick<IdentityTransition, 'getSnapshot' | 'sessionAuthority'>,
-  assertPublished?: (origin: ApprovalOrigin) => void): TrustedApprovalOwner {
+function createCapabilityOwner(identity: Pick<IdentityTransition, 'getSnapshot' | 'sessionAuthority'>,
+  domain: 'relay' | 'upload', assertPublished?: (origin: ApprovalOrigin) => void): TrustedApprovalOwner {
   return Object.freeze({ assertActive(origin: ApprovalOrigin) {
     const authority = identity.sessionAuthority();
     authority.assertActive();
@@ -17,7 +17,16 @@ export function createApprovalOwner(identity: Pick<IdentityTransition, 'getSnaps
       return;
     }
     const catalog = resolveBundledSession(session);
-    if (!catalog.domains.includes('relay') || catalog.publisher !== origin.publisher || catalog.appId !== origin.appId ||
+    if (!catalog.domains.includes(domain) || catalog.publisher !== origin.publisher || catalog.appId !== origin.appId ||
         catalog.version !== origin.version || catalog.instanceId !== origin.instanceId) throw new Error('APPROVAL_DENIED');
   } });
+}
+
+export function createApprovalOwner(identity: Pick<IdentityTransition, 'getSnapshot' | 'sessionAuthority'>,
+  assertPublished?: (origin: ApprovalOrigin) => void): TrustedApprovalOwner {
+  return createCapabilityOwner(identity, 'relay', assertPublished);
+}
+export function createUploadOwner(identity: Pick<IdentityTransition, 'getSnapshot' | 'sessionAuthority'>,
+  assertPublished?: (origin: ApprovalOrigin) => void): TrustedApprovalOwner {
+  return createCapabilityOwner(identity, 'upload', assertPublished);
 }

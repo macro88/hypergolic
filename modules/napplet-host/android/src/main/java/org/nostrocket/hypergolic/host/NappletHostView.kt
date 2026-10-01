@@ -156,7 +156,9 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
             return@addWebMessageListener
           }
           if (data.optString("type") == "capability") {
-            receiveCapability(data) { response ->
+            receiveCapability(data, { envelope ->
+              if (live && !disposed && view === webView && view.url == expectedUrl) reply.postMessage(envelope)
+            }) { response ->
               if (live && !disposed && view === webView && view.url == expectedUrl) {
                 val result = JSONObject().put("type", "capability.result").put("sessionId", generation)
                   .put("sequence", data.getLong("sequence")).put("response", response ?: JSONObject.NULL)
@@ -183,6 +185,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     this.active = active
     updateMediaPlayback()
     ApprovalTransport.focus(generation, active)
+    UploadTransport.focus(generation, active)
     webView.importantForAccessibility = if (active) View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
       else View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
     if (active || !webView.hasFocus()) return
@@ -239,8 +242,10 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (config != null) {
       if (!CapabilityTransport.leases.register(generation)) { fail("capability-unavailable"); return }
       if (!ApprovalTransport.register(generation)) { fail("approval-unavailable"); return }
+      if (!UploadTransport.register(generation, config)) { fail("upload-unavailable"); return }
       configuration = config
       ApprovalTransport.focus(generation, active)
+    UploadTransport.focus(generation, active)
     }
     published = claims
     publishedSource = raw
@@ -302,7 +307,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     val sequence = (number as Number).toLong()
     if (sequence !in 1..9_007_199_254_740_991L || !CapabilityTransport.leases.consumeSequence(generation, sequence)) return
     val message = data.opt("message") as? String ?: return
-    val request = runCatching { JSONObject(message) }.getOrNull() ?: return
+    val request = runCatching { UploadWire.objectValue(message, CapabilityLeaseRegistry.MAX_BYTES) }.getOrNull() ?: return
     val subId = request.opt("subId") as? String ?: return
     val id = request.opt("id") as? String ?: return
     if (!config.allowsRelay || request.optString("type") != "relay.subscribe" ||
@@ -312,7 +317,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     onHostEvent(mapOf("type" to "capability", "lane" to "subscription", "sessionId" to config.sessionId, "generation" to generation, "token" to token))
   }
 
-  private fun receiveCapability(data: JSONObject, reply: (String?) -> Unit) {
+  private fun receiveCapability(data: JSONObject, push: (String) -> Unit, reply: (String?) -> Unit) {
     val config = configuration ?: return
     if (!ready || data.keys().asSequence().toSet() != setOf("type", "sessionId", "sequence", "message")) return
     val number = data.get("sequence")
@@ -320,7 +325,14 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     val sequence = (number as Number).toLong()
     if (sequence !in 1..9_007_199_254_740_991L) return
     val message = data.getString("message")
-    val request = runCatching { JSONObject(message) }.getOrNull()
+    val request = runCatching { UploadWire.objectValue(message, CapabilityLeaseRegistry.MAX_BYTES) }.getOrNull()
+    if (request?.optString("type")?.startsWith("upload.") == true) {
+      if (!CapabilityTransport.leases.consumeSequence(generation, sequence) || !config.allowsUpload) { reply(null); return }
+      reply(UploadTransport.receive(generation, sequence, message, push) { token ->
+        if (live && !disposed) onHostEvent(mapOf("type" to "capability", "lane" to "upload", "sessionId" to config.sessionId, "generation" to generation, "token" to token))
+      })
+      return
+    }
     if (request?.optString("type") == "relay.publish") {
       if (!CapabilityTransport.leases.consumeSequence(generation, sequence)) { reply(null); return }
       val id = request.opt("id") as? String
@@ -347,6 +359,9 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (configuration != null && !CapabilityTransport.leases.register(generation)) { fail("capability-unavailable"); return }
     if (configuration != null && !ApprovalTransport.register(generation)) { fail("approval-unavailable"); return }
     ApprovalTransport.focus(generation, active)
+    UploadTransport.focus(generation, active)
+    configuration?.let { if (!UploadTransport.register(generation, it)) { fail("upload-unavailable"); return } }
+    UploadTransport.focus(generation, active)
     live = true
     expectedUrl = "$ORIGIN/assets/runtime/index.html?sessionId=$generation"
     configuration?.let { expectedUrl += "&fixture=" + it.fixture }
@@ -363,6 +378,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (disposed) return
     live = false
     publishedReader?.clear()
+    UploadTransport.revoke(generation)
     ApprovalTransport.revoke(generation)
     CapabilityTransport.leases.revoke(generation)
     emit("error", code)
@@ -375,6 +391,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     publishedReader?.clear()
     publishedReader = null
     synchronized(publishedViews) { publishedViews.remove(this) }
+    UploadTransport.revoke(generation)
     ApprovalTransport.revoke(generation)
     CapabilityTransport.revoke(generation)
     if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {

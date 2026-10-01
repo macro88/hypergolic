@@ -28,6 +28,7 @@ and resolve each phase's material policy decisions before generating those files
 ## Phase Details
 
 ### Phase 1: Development baseline
+
 **Goal:** A reproducible native build path and an inspectable engineering baseline.
 **Depends on:** Nothing
 **Plans:** 1 plan
@@ -35,6 +36,7 @@ and resolve each phase's material policy decisions before generating those files
 - [x] 01-01: Set up tools, scaffold, checks and native build evidence.
 
 ### Phase 2: Independent Android and iOS proof
+
 **Goal:** Complete the existing native foundation journey on both Android and iOS with local standalone builds. The expanded MVP additionally requires phases 2.1–2.9 and 2.11.
 **Depends on:** Phase 1 and decisions in `docs/architecture.md`
 **Plans:** 7 plans. Order: 02-01 → 02-07 → 02-02 → 02-03 → 02-04 → 02-05 → 02-06.
@@ -89,6 +91,11 @@ The existing phase directory name remains unchanged to preserve references.
 **Fixture:** Upload Lab
 **Work and exit criteria:** Select upload contract/protocols/provider and consent. Bind exact bytes/hash/destination to approval; implement bounded upload and receipts. Verify cancellation, duplicate attempts, provider failures, identity changes and independently observed server bytes.
 **Plans:** Pending owning-contract research and phase-local decisions; no completion claimed.
+
+- [x] 02.4-01-PLAN.md
+- [ ] 02.4-02-PLAN.md
+- [ ] 02.4-03-PLAN.md
+- [ ] 02.4-04-PLAN.md
 
 ### Phase 2.5: Public identity data
 
@@ -151,6 +158,7 @@ The existing phase directory name remains unchanged to preserve references.
 **Plans:** Pending owning-contract research and phase-local decisions; no completion claimed.
 
 ### Phase 3: External signing
+
 **Goal:** Add Android signer-app and relay-based remote signing without changing napplet authority.
 **Depends on:** Phase 2.11
 **Plans:** TBD

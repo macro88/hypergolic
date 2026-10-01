@@ -109,11 +109,11 @@ test('real Kehto handshake and theme work with top-document DOM storage disabled
     let calls = 0;
     shell.onReady(() => { calls++; });
     return { environment, services: shell.services, theme: shell.supports('theme'),
-      relay: shell.supports('relay'), unknown: shell.supports('made-up'), calls,
+      relay: shell.supports('relay'), upload: shell.supports('upload'), unknown: shell.supports('made-up'), calls,
       domains: Object.keys((window as any).napplet) };
   });
   expect(result).toEqual({ environment: { capabilities: { domains: ['theme'] }, services: ['theme'] },
-    services: ['theme'], theme: true, relay: false, unknown: false, calls: 1, domains: ['shell', 'theme'] });
+    services: ['theme'], theme: true, relay: false, upload: false, unknown: false, calls: 1, domains: ['shell', 'theme'] });
   expect((await messages(frame)).filter((m: any) => m.type === 'shell.init')).toHaveLength(1);
   await frame.evaluate(() => {
     parent.postMessage({ type: 'shell.ready' }, '*');
@@ -147,11 +147,13 @@ test('malformed and privileged envelopes are ignored while valid requests still 
       { type: 'theme.get', id: 'x'.repeat(129) }, { type: 'theme.get', id: 'extra', token: 'forged' },
       { type: 'relay.publish', id: 'sign', event: { kind: 1, content: 'deny' } },
       { type: 'storage.set', id: 'write', key: 'x', value: 'y' },
+      { type: 'upload.info', id: 'upload-info' },
+      { type: 'upload.upload', id: 'upload-forged', request: {data: new Blob(['blocked'])} },
       { type: 'shell.supports', id: 'probe' }]) parent.postMessage(message, '*');
     parent.postMessage({ type: 'theme.get', id: 'valid-after-denials' }, '*');
   });
   await expect.poll(async () => (await messages(frame)).some((m: any) => m.id === 'valid-after-denials')).toBe(true);
-  expect((await messages(frame)).filter((m: any) => ['extra', 'sign', 'write', 'probe'].includes(m.id))).toEqual([]);
+  expect((await messages(frame)).filter((m: any) => ['extra', 'sign', 'write', 'probe', 'upload-info', 'upload-forged'].includes(m.id))).toEqual([]);
   expect(await diagnostics(page)).toHaveLength(1);
 });
 

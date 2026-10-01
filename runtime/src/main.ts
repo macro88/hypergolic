@@ -1,3 +1,5 @@
+import { createUploadAdapter } from './upload-adapter';
+import { parseUploadRequest } from '../../src/uploads/upload-contract';
 import { bindResourceMedia, injectResourceMediaGate } from './resource-media';
 import { createResourceAdapter } from './resource-adapter';
 import { ensureObjectHasOwn } from './legacy-webview';
@@ -75,6 +77,7 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
   } });
   const supported = new Set(artifact.domains);
   const resource = createResourceAdapter(native, captureRecipient);
+  const upload = createUploadAdapter(native, captureRecipient);
   const storage = async ({ message, send }: HostOperationContext): Promise<void> => { send({ ...await native.request(message) }); };
   const relayPublish = async ({ message, send }: HostOperationContext): Promise<void> => { send({ ...await native.request(message) }); };
   const relaySubscribe = ({message,send}:HostOperationContext):void => {
@@ -107,16 +110,18 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
     hotkeys: { executeHotkeyFromForward: unavailable },
     workerRelay: { getWorkerRelay: () => null },
     crypto: { verifyEvent: async () => false },
-    services: { theme: theme.handler, ...(supported.has('identity') ? { identity } : {}),
+    services: { theme: theme.handler,
+      ...(supported.has('upload') ? { upload: { descriptor: { name: 'upload', version: '1.0.0' }, handleMessage: unavailable } } : {}), ...(supported.has('identity') ? { identity } : {}),
       ...(supported.has('resource') ? { resource: { descriptor: { name: 'resource', version: '1.0.0' }, handleMessage: unavailable } } : {}),
       ...(supported.has('relay') ? { relay: { descriptor: { name: 'relay', version: '1.0.0' }, handleMessage: unavailable } } : {}) },
-    ...((supported.has('storage') || supported.has('relay') || supported.has('resource')) ? { operationOverrides: {
+    ...((supported.has('storage') || supported.has('relay') || supported.has('resource') || supported.has('upload')) ? { operationOverrides: {
+      ...(supported.has('upload') ? { 'upload.info': upload, 'upload.upload': upload, 'upload.status': upload } : {}),
       ...(supported.has('resource') ? { 'resource.info': resource, 'resource.bytes': resource, 'resource.bytesMany': resource, 'resource.cancel': resource } : {}),
       ...(supported.has('storage') ? { 'storage.get': storage, 'storage.set': storage, 'storage.remove': storage, 'storage.keys': storage } : {}),
       ...(supported.has('relay') ? { 'relay.publish': relayPublish, 'relay.query': relayPublish, 'relay.subscribe': relaySubscribe, 'relay.close': relayClose } : {}),
     } } : {}),
     capabilities: {
-      disabledDomains: ['resource', 'relay', 'identity', 'storage', 'inc', 'keys', 'media', 'notify'].filter(domain => !supported.has(domain)),
+      disabledDomains: ['upload', 'resource', 'relay', 'identity', 'storage', 'inc', 'keys', 'media', 'notify'].filter(domain => !supported.has(domain)),
       resolveEnvironment: () => ({ domains: [...supported], services: ['theme', ...(supported.has('identity') ? ['identity'] : [])] }),
     },
   };
@@ -129,6 +134,9 @@ function validEnvelope(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const message = value as Record<string, unknown>;
   const keys = Object.keys(message);
+  if (typeof message.type === 'string' && message.type.startsWith('upload.')) {
+    try { parseUploadRequest(value); return true; } catch { return false; }
+  }
   if(message.type==='relay.subscribe'||message.type==='relay.close') {
     try {if(message.type==='relay.subscribe')parseRelaySubscribe(value);else parseRelayClose(value);return true;}catch{return false;}
   }

@@ -6,6 +6,7 @@ public final class NappletHostModule: Module {
   private let publishedRelay = PublishedRelayBridgeOwner()
   private let relayStreams = RelayStreamBridgeOwner.shared
   deinit {
+    UploadTransport.foreground(false)
     publishedHTTPS.revokeAll()
     ResourceHTTPSBridgeOwner.shared.revokeAll()
     publishedRelay.revokeAll()
@@ -21,12 +22,14 @@ public final class NappletHostModule: Module {
     // which schedules payload conversion and module lookup on Expo's JavaScriptActor.
     nonisolated(unsafe) weak let streamEmitter = self
     Name("HypergolicNappletHost")
-    Events("onRelayStream", "onRelayLifecycle")
+    Events("onRelayStream", "onRelayLifecycle", "onUploadProgress")
     OnCreate {
+      UploadTransport.observeProgress { event in streamEmitter?.emit(event: "onUploadProgress", payload: ["token": event.token, "bytesSent": event.bytesSent, "bytesTotal": event.bytesTotal]) }
       _ = CapabilityTransport.lifecycle
       RelaySubscriptionTransport.shared.observeLifecycle { snapshot in streamEmitter?.emit(event: "onRelayLifecycle", payload: ["snapshot": snapshot]) }
     }
     OnDestroy {
+      UploadTransport.observeProgress(nil)
       CapabilityTransport.foreground(false)
       RelaySubscriptionTransport.shared.observeLifecycle(nil)
     }
@@ -36,6 +39,19 @@ public final class NappletHostModule: Module {
     }
     Function("acknowledgeRelayStream") { (id: String, sequence: UInt64) in relayStreams.acknowledge(id, sequence: sequence) }
     Function("cancelRelayStream") { (id: String) in relayStreams.cancel(id) }
+    Function("configureUploadProof") { (anchor: String) throws in try UploadTransport.configureProof(anchor) }
+    Function("configureUploadServer") { (server: String?) throws in try UploadTransport.configure(server) }
+    Function("takeUpload") { (token: String) -> String? in UploadTransport.take(token) }
+    Function("isUploadLive") { (token: String) -> Bool in UploadTransport.leases.isLive(token) }
+    Function("mayReviewUpload") { (token: String) -> Bool in UploadTransport.leases.mayReview(token) }
+    Function("readUploadPreview") { (token: String, offset: Int) -> String? in UploadTransport.leases.preview(token, offset: offset)?.base64EncodedString() }
+    Function("approveUpload") { (token: String) -> Bool in UploadTransport.leases.approve(token) }
+    Function("isUploadApproved") { (token: String) -> Bool in UploadTransport.leases.isApproved(token) }
+    Function("claimUploadSigning") { (token: String) -> Bool in UploadTransport.leases.claimSigning(token) }
+    Function("wasUploadDispatched") { (token: String) -> Bool in UploadTransport.leases.wasDispatched(token) }
+    Function("cancelUpload") { (token: String) in UploadTransport.cancel(token) }
+    Function("finishUpload") { (token: String, result: String) in UploadTransport.finish(token, raw: result) }
+    AsyncFunction("putUpload") { (token: String, credential: String) async -> String in await UploadTransport.put(token, credential: credential) }
     AsyncFunction("fetchResourceHttps") { (token: String, operationId: String, url: String) async -> String in
       var result: [String: Any]
       do {

@@ -7,6 +7,8 @@ internal class CapabilityConfiguration(raw: String, generation: String, allowPub
   val snapshot: String
   val sessionId: String
   val fixture: String
+  val allowsUpload: Boolean
+  val user: String
   val allowsRelay: Boolean
   val publisher: String
   val appId: String
@@ -31,6 +33,7 @@ internal class CapabilityConfiguration(raw: String, generation: String, allowPub
       "ux-lab" -> setOf("theme")
       "state-lab", "state-lab-peer" -> setOf("identity", "storage", "theme")
       "approval-lab" -> setOf("identity", "relay", "theme")
+      "upload-lab" -> setOf("upload", "theme")
       "resource-lab" -> setOf("resource", "theme")
       "feed-lab" -> setOf("relay", "theme")
       "published" -> {
@@ -41,6 +44,8 @@ internal class CapabilityConfiguration(raw: String, generation: String, allowPub
       else -> error("Unknown bundled fixture")
     }
     if (fixture != "published") require(granted.toSet() == expected)
+    user = string("user")
+    allowsUpload = "upload" in granted
     allowsRelay = "relay" in granted
     grantedDomains = granted.sorted()
     sessionId = string("sessionId")
