@@ -314,7 +314,45 @@ thumbnail is not used. Source, runtime, fixture and installed-product seals are
 recorded by each journey. These are disposable-identity, controlled-server
 fixtures, not protected-identity, public-provider or physical-device acceptance.
 
-Plan 02 still needs the remaining actual picker recipient faults (close,
-replacement, identity change and renderer loss), plus iOS malformed-file
-selection. Plan 03 owns durable uncertain-outcome reconciliation and Plan 04 owns
+The picker recipient and direct-original checkpoints below extend this evidence.
+Plan 03 owns durable uncertain-outcome reconciliation and Plan 04 owns
 normal/published admission and final acceptance. CAP-05 remains incomplete.
+
+
+## Picker recipient and guest-original checkpoint
+
+The isolated native hosts now exercise close, configuration replacement, identity
+reconfiguration and actual renderer termination while the system picker is pending.
+Old recipients are removed; a fresh opening receives no late file and no upload
+network authority. Android selects from the stale system chooser after revocation.
+iOS dismisses its picker, then verifies the new recipient; an actual malformed
+Exif file selected through Files is also denied. These are controlled native
+configuration faults. Replacement and identity changes reject reuse of an immutable
+host with `session-reuse-blocked`; they do not establish the ordinary workspace
+identity-switch journey or protected signing. Those remain final acceptance gates.
+
+Android terminates its actual WebView renderer through `WebViewRenderProcess`.
+The iOS Simulator proof uses WebKit's private `_killWebContentProcess` test selector
+to terminate the real process and observes the public termination callback. The
+selector is gated by both `HYPERGOLIC_NETWORK_PROOF` and `targetEnvironment(simulator)`.
+An ordinary iOS Release binary excludes that selector and proof fault strings;
+Android's ordinary compiled fault methods are no-ops. This test seam is not a
+production API. Its basis is the upstream
+[WebKit private test header](https://github.com/WebKit/WebKit/blob/main/Source/WebKit/UIProcess/API/Cocoa/WKWebViewPrivate.h).
+
+Upload Lab also embeds explicitly generated public JPEG and oriented Display P3
+HEIC originals with fake camera/date/GPS metadata. Genuine SDK uploads bypass the
+system picker. Both native hosts prove original guest input hashes, native prepared
+PNG review, rejection with zero additional TLS connections, fresh approval, exact
+stored output and original scoped SDK receipt. The independent observer verifies
+full-image orientation/color, metadata removal, body/hash/size and Schnorr signing.
+The prepared hash differs from the original; each platform's PNG encoding may
+differ. Both hosts' JPEG and HEIC review screenshots were visually inspected.
+
+The guest artifact and unsigned manifest must be explicitly rebuilt, reviewed and
+repinned in `runtime/fixtures` and `src/runtime/bundled-catalog.ts` before runtime
+packaging. `runtime:build` validates the staged artifact; it does not rebuild the
+napplet source. Native source/installed-product seals accompany each accepted run.
+These remain disposable-identity controlled-server proofs. Durable recovery, full
+ordinary workspace lifecycle, public-provider and published-napplet acceptance
+remain open.

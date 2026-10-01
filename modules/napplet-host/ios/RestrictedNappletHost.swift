@@ -27,6 +27,9 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   private var loaded = false
   private var initialNavigationAllowed = false
   private var disposed = false
+#if HYPERGOLIC_NETWORK_PROOF
+  private var pickerFaultProof: String?
+#endif
   private var active = true
   private lazy var selectedFilePicker = SelectedFilePicker(live: { [weak self] in self?.maySelectFile() == true })
   private func maySelectFile() -> Bool {
@@ -82,6 +85,40 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
         view.setAllMediaPlaybackSuspended(false, completionHandler: nil)
       }
     }
+  }
+
+  /// Compile-gated fault injection into the actual captured native host lifetime.
+  func armPickerFaultProof(_ action: String) {
+#if HYPERGOLIC_NETWORK_PROOF
+    pickerFaultProof = ["close", "replace", "identity", "renderer"].contains(action) ? action : nil
+#endif
+  }
+  private func schedulePickerFaultProof() {
+#if HYPERGOLIC_NETWORK_PROOF
+    guard let action = pickerFaultProof else {return}; pickerFaultProof = nil
+    Task { @MainActor [weak self] in
+      try? await Task.sleep(for: .seconds(12))
+      guard let self, !self.disposed, self.live else {return}
+      if action == "close" {self.fail("proof-close"); return}
+      if action == "renderer" {
+#if targetEnvironment(simulator)
+        // Upstream WebKit test SPI; compiled only in isolated Simulator proof products.
+        // Invoke the actual process termination, never the termination delegate directly.
+        let selector = NSSelectorFromString("_killWebContentProcess")
+        guard let view = self.webView, view.responds(to: selector) else {self.fail("proof-renderer-unavailable"); return}
+        _ = view.perform(selector)
+#else
+        self.fail("proof-renderer-unavailable")
+#endif
+        return
+      }
+      guard let raw = self.configurationSource, var next = try? UploadWire.object(raw) else {return}
+      if action == "replace" {next["epoch"] = (next["epoch"] as? Int ?? 0) + 1}
+      else {next["user"] = "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"}
+      guard let encoded = try? UploadWire.json(next) else {return}
+      self.startConfiguredSession(encoded)
+    }
+#endif
   }
 
   func startConfiguredSession(_ raw: String) {
@@ -589,6 +626,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     while let current = responder, !(current is UIViewController) {responder = current.next}
     guard let presenter = responder as? UIViewController else {completionHandler(nil); return}
     selectedFilePicker.choose(from: presenter, completion: completionHandler)
+    schedulePickerFaultProof()
   }
 }
 

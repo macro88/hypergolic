@@ -43,3 +43,22 @@ sealed products containing the current fixture and drivers; a successful compile
 or exploratory picker probe alone is not their acceptance result. Broader formats,
 ordinary document selection, revoked picker callbacks and protected signing remain
 outside these selected-PNG journeys.
+
+
+## Guest-original and picker recipient proofs
+
+Add `--originals` to each upload journey for generated public JPEG/HEIC originals
+sent directly through the genuine SDK. These bypass selection and independently
+check native PNG preparation, rejected dispatch counts, approved output pixels,
+metadata, signature and original SDK receipt. Rebuild the napplet artifact,
+explicitly copy its generated HTML and unsigned manifest into `runtime/fixtures`,
+repin the catalogue hashes, then build the runtime before sealing native products.
+
+`android-picker-denials.py --recipient-faults` and
+`ios-picker-denials.py --recipient-faults --fixtures PHOTO_FIXTURE_DIRECTORY`
+exercise the isolated host's timed native close/reconfiguration/renderer faults.
+Android also requires `--fixtures`. The iOS renderer termination uses a
+Simulator-only, proof-gated WebKit private selector. Ordinary native builds exclude
+that operation. Configuration rejection is not ordinary workspace identity-switch
+acceptance. Run these drivers sequentially with all native UI journeys; preserve
+failed attempts separately and inspect exported XCTest screenshots.

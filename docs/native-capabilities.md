@@ -177,3 +177,11 @@ or epoch. Existing storage bindings can remain usable afterward. Any unaccepted
 revision change still fails, and a later identity switch permanently revokes the
 earlier bindings. The shared deletion transition tests cover both boundaries;
 its user-facing native action flow is not yet enabled.
+
+
+The selected phase2.4 photo/file slice now passes both SDK/native hosts; see
+[upload selection and recipient evidence](upload-access.md#picker-recipient-and-guest-original-checkpoint).
+This includes controlled renderer/reconfiguration faults and guest-original photo
+preparation. It does not advance published upload admission or establish ordinary
+workspace identity-switch, durable recovery or protected physical-device parity.
+CAP-05 remains open through plans03–04.

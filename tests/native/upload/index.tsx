@@ -16,11 +16,12 @@ initializeNativeRandom();
 const secret = new Uint8Array(32); secret[31] = 1;
 const configuration = {sessionId: 'upload-fixture', epoch: 1, user: getPublicKey(secret), publisher: 'f'.repeat(64),
   appId: 'upload-lab', version: BUNDLED_FIXTURES['upload-lab'].aggregateHash, instanceId: 'upload-fixture', fixture: 'upload-lab', domains: ['upload', 'theme']};
-type Event = NativeCapabilityEvent | {type: 'ready' | 'error'; sessionId: string};
-const Host = requireNativeView<{configuration: string; active: boolean; style: unknown; onHostEvent(event: NativeSyntheticEvent<Event>): void}>('HypergolicNappletHost');
+type Event = NativeCapabilityEvent | {type: 'ready' | 'error'; sessionId: string; code?: string};
+const Host = requireNativeView<{configuration: string; active: boolean; pickerFaultProof: string; style: unknown; onHostEvent(event: NativeSyntheticEvent<Event>): void}>('HypergolicNappletHost');
 interface Module extends UploadModule {configureUploadServer(server: string | null): void; configureUploadProof(anchor: string): void}
 function Fixture() {
   const [visible, setVisible] = useState(true), [focused, setFocused] = useState(true), [revision, setRevision] = useState(0);
+  const [proofFault, setProofFault] = useState('none');
   const [status, setStatus] = useState('Opening upload fixture…');
   const [owner] = useState(() => {
     const native = requireNativeModule<Module>('HypergolicNappletHost');
@@ -67,18 +68,23 @@ function Fixture() {
     <Text testID="upload-native-status" style={styles.notice}>{status}</Text>
     <Pressable accessibilityRole="button" style={styles.button} onPress={() => {
       if (visible) {owner.close(); setVisible(false); setStatus('Upload Lab closed');}
-      else {owner.reopen(); setRevision(value => value + 1); setFocused(true); setVisible(true);}
+      else {owner.reopen(); setProofFault('none'); setRevision(value => value + 1); setFocused(true); setVisible(true);}
     }}><Text style={styles.label}>{visible ? 'Close Upload Lab' : 'Open Upload Lab'}</Text></Pressable>
     <Pressable accessibilityRole="button" style={styles.button} onPress={() => setFocused(value => !value)}><Text style={styles.label}>{focused ? 'Hide Upload Lab' : 'Show Upload Lab'}</Text></Pressable>
-    {visible && prepared && <Host key={revision} configuration={JSON.stringify(configuration)} active={focused} style={styles.host} onHostEvent={event => {
+    <View style={styles.faults}>{['close', 'replace', 'identity', 'renderer'].map(action =>
+      <Pressable key={action} accessibilityRole="button" style={styles.faultButton} onPress={() => {setProofFault(action); setStatus('Picker fault armed: ' + action);}}>
+        <Text style={styles.label}>{'Arm picker ' + action}</Text>
+      </Pressable>)}</View>
+    {visible && prepared && <Host key={revision} pickerFaultProof={proofFault} configuration={JSON.stringify(configuration)} active={focused} style={styles.host} onHostEvent={event => {
       const value = event.nativeEvent;
-      if (value.type === 'ready') setStatus('Native host connected'); else if (value.type === 'error') {owner.close(); setStatus('Native host failed');}
+      if (value.type === 'ready') setStatus('Native host connected'); else if (value.type === 'error') {owner.close(); setVisible(false); setStatus('Native host failed: ' + (value.code ?? 'unknown'));}
       else owner.receive(value);
     }} />}
     <UploadWorkspace service={owner.service} snapshot={snapshot} workspace={undefined} blocked={false} />
   </View>;
 }
 const styles = StyleSheet.create({root: {flex: 1, backgroundColor: '#140f0b'}, host: {flex: 1}, notice: {color: '#f3efeb', fontSize: 12, padding: 8, textAlign: 'center'},
+  faults: {flexDirection: 'row', flexWrap: 'wrap'}, faultButton: {width: '50%', minHeight: 48, justifyContent: 'center', alignItems: 'center'},
   button: {minHeight: 48, justifyContent: 'center', alignItems: 'center', backgroundColor: '#34251d'}, label: {color: '#e8805d', fontSize: 16}});
 function Root() {return <SafeAreaProvider><SafeAreaView style={styles.root}><Fixture /></SafeAreaView></SafeAreaProvider>;}
 registerRootComponent(Root);

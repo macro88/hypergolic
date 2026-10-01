@@ -4,7 +4,7 @@ import argparse,json,re,subprocess,xml.etree.ElementTree as ET
 from pathlib import Path
 from evidence import ROOT,sha,sources
 PACKAGE='org.nostrocket.hypergolic.uploadfixture'
-p=argparse.ArgumentParser(description=__doc__)
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--recipient-faults',action='store_true')
 for key in ['serial','apk','build','fixtures','observer','output']:p.add_argument('--'+key,required=True,type=str if key=='serial' else Path)
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=False)
 r={'status':'running','scope':__doc__,'sourceBefore':sources(),'checks':[],'inputs':[]}
@@ -43,29 +43,46 @@ try:
  before=json.loads(a.observer.read_text());r['observerBefore']=before
  adb('shell','mkdir','-p','/sdcard/Download/UploadDenied')
  for name in ['jpeg-orientation-1.jpeg','malformed-exif.jpeg']:adb('push',str(a.fixtures/name),'/sdcard/Download/UploadDenied/'+name)
- adb('shell','am','force-stop',PACKAGE);adb('shell','am','start','-W','-n',PACKAGE+'/org.nostrocket.hypergolic.dev.MainActivity');find('Ready to request a PNG upload.')
- tap('selection');find('Show roots');capture('system-picker-before-cancel')
- for _ in range(8):
-  key('KEYCODE_BACK');_,nodes=tree()
-  if any(n.get('text')=='Native host connected' for n in nodes):break
- no_file('system-cancel')
- open_files();capture('malformed-photo-before-selection');tap('malformed-exif.jpeg');no_file('malformed-photo-denied')
- open_files();capture('pending-picker-before-home');key('KEYCODE_HOME');capture('home');key('KEYCODE_APP_SWITCH')
- _,nodes=tree();cards=[]
- for node in nodes:
-  if node.get('content-desc')=='Hypergolic':
-   x1,y1,x2,y2=map(int,re.findall(r'\d+',node.get('bounds','')))
-   if x2-x1>540:cards.append(node)
- assert len(cards)==1,'Native Recents card not unique';capture('observed-recents-card');tap_node(cards[0],'observed Hypergolic Recents card')
- _,nodes=tree();late=[n for n in nodes if n.get('text')=='jpeg-orientation-1.jpeg']
- if late:
-  assert len(late)==1;capture('stale-picker-return');tap_node(late[0],'stale selected file')
- no_file('home-late-callback-revoked')
- tap('selection');find('Show roots')
- for _ in range(8):
-  key('KEYCODE_BACK');_,nodes=tree()
-  if any(n.get('text')=='Native host connected' for n in nodes):break
- no_file('fresh-picker-after-revocation')
+ if a.recipient_faults:
+  r['scope']='Actual native timed close/configuration replacement/identity rejection and renderer termination while DocumentsUI is pending; QA-only disposable host, not ordinary workspace identity switching.'
+  for action in ['close','replace','identity','renderer']:
+   adb('shell','am','force-stop',PACKAGE);adb('shell','am','start','-W','-n',PACKAGE+'/org.nostrocket.hypergolic.dev.MainActivity');find('Ready to request a PNG upload.')
+   pid=adb('shell','pidof',PACKAGE);r.setdefault('appPids',[]).append({'action':action,'pidBefore':pid})
+   tap('Arm picker '+action);find('Picker fault armed: '+action)
+   open_files();capture(action+'-pending-system-picker')
+   # The native Handler runs after 12 seconds even while React Native is paused.
+   import time
+   time.sleep(14)
+   capture(action+'-stale-picker-after-native-fault');tap('jpeg-orientation-1.jpeg')
+   expected='proof-close' if action=='close' else 'renderer-stopped' if action=='renderer' else 'session-reuse-blocked'
+   find('Native host failed: '+expected);capture(action+'-native-revoked')
+   _,nodes=tree();assert not any(n.get('class')=='android.webkit.WebView' for n in nodes),'Revoked WebView survived'
+   assert adb('shell','pidof',PACKAGE)==pid,'App process died rather than captured host'
+   tap('Open Upload Lab');find('Ready to request a PNG upload.');no_file(action+'-fresh-recipient-no-late-file')
+ else:
+  adb('shell','am','force-stop',PACKAGE);adb('shell','am','start','-W','-n',PACKAGE+'/org.nostrocket.hypergolic.dev.MainActivity');find('Ready to request a PNG upload.')
+  tap('selection');find('Show roots');capture('system-picker-before-cancel')
+  for _ in range(8):
+   key('KEYCODE_BACK');_,nodes=tree()
+   if any(n.get('text')=='Native host connected' for n in nodes):break
+  no_file('system-cancel')
+  open_files();capture('malformed-photo-before-selection');tap('malformed-exif.jpeg');no_file('malformed-photo-denied')
+  open_files();capture('pending-picker-before-home');key('KEYCODE_HOME');capture('home');key('KEYCODE_APP_SWITCH')
+  _,nodes=tree();cards=[]
+  for node in nodes:
+   if node.get('content-desc')=='Hypergolic':
+    x1,y1,x2,y2=map(int,re.findall(r'\d+',node.get('bounds','')))
+    if x2-x1>540:cards.append(node)
+  assert len(cards)==1,'Native Recents card not unique';capture('observed-recents-card');tap_node(cards[0],'observed Hypergolic Recents card')
+  _,nodes=tree();late=[n for n in nodes if n.get('text')=='jpeg-orientation-1.jpeg']
+  if late:
+   assert len(late)==1;capture('stale-picker-return');tap_node(late[0],'stale selected file')
+  no_file('home-late-callback-revoked')
+  tap('selection');find('Show roots')
+  for _ in range(8):
+   key('KEYCODE_BACK');_,nodes=tree()
+   if any(n.get('text')=='Native host connected' for n in nodes):break
+  no_file('fresh-picker-after-revocation')
  r['sourceAfter']=sources();assert r['sourceAfter']==r['sourceBefore'];r['observerAfter']=json.loads(a.observer.read_text());r['status']='passed';print('PASS actual Android picker denials and stale Home callback revocation',flush=True)
 except Exception as error:
  r.update(status='failed',error=str(error))

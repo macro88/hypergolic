@@ -140,6 +140,7 @@ public final class NappletHostModule: Module {
     Function("revokeAllPublishedArtifacts") { PublishedArtifactTransfer.shared.revokeAll() }
     View(NappletHostView.self) {
       Events("onHostEvent")
+      Prop("pickerFaultProof") { (view: NappletHostView, action: String) in view.armPickerFaultProof(action) }
       Prop("active") { (view: NappletHostView, active: Bool) in
         view.setActive(active)
       }

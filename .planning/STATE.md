@@ -2,16 +2,16 @@
 gsd_state_version: "1.0"
 current_phase: "2.4"
 current_phase_name: Uploads
-status: Static photo checkpoint passes both hosts and quality gates. Continue Plan 02 picker recipient faults and iOS malformed selection; plans 03–04 and CAP-05 remain open.
-stopped_at: "Static photo checkpoint: sealed 14 photo journeys per host, iOS Photos HEIC, picker denials and attachment/PNG regressions pass; quality 100/100. Continue remaining Plan 02 recipient faults. Weekly usage 3%, pause at 50%."
-last_updated: "2026-10-01T10:27:06.044Z"
+status: completed
+stopped_at: Plan 02 sealed build6 original/recipient/PNG matrix passes both hosts. Run final quality and targeted commit, capture/sync Notes, then start Plan 03. Usage 4%, continue until 50%.
+last_updated: "2026-10-01T11:56:38.716Z"
 last_activity: 2026-10-01
-state_head: c0ce7b8bba119edf4b88934abc5ee087772347e1
+state_head: 6ae9d36a49cac6eed0c085797cb7e40de7dc388d
 progress:
   total_phases: 14
   completed_phases: 0
   total_plans: 18
-  completed_plans: 9
+  completed_plans: 10
   percent: 0
 ---
 
@@ -40,7 +40,7 @@ expansion cards are not executable PLAN files.
 
 Phase: 2.4 (Uploads) — EXECUTING
 Plan: 2 of 4
-Status: Static photo checkpoint passes both hosts and quality gates. Continue Plan 02 picker recipient faults and iOS malformed selection; plans 03–04 and CAP-05 remain open.
+Status: Plan 02 selected profile native-complete; final quality and targeted commit gate, then Plan 03 durable recovery. Plans 03–04 and CAP-05 remain open.
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
 Previous native action checkpoint: 2026-09-15 — Added the Android native deletion authority with 95 owning JVM assertions and the protected-record/erase reader with 89 actual Android assertions. Existing SDK records are unchanged; disposable data alone was erased. The actual Release app and separate instrumentation APK build and their installed bytes match. The production deletion path remains denied pending native context/lifecycle and system-prompt integration; authentication in the record probe is a double. See docs/identity-storage.md.
@@ -746,9 +746,9 @@ Phase 2.3 completion — 30 September 2026: all three resource plans pass the se
 
 ## Session
 
-**Last session:** 2026-10-01T10:27:05.987Z
-**Stopped at:** Static photo checkpoint: sealed 14 photo journeys per host, iOS Photos HEIC, picker denials and attachment/PNG regressions pass; quality 100/100. Continue remaining Plan 02 recipient faults. Weekly usage 3%, pause at 50%.
-**Resume file:** .planning/phases/02.4-uploads/02.4-02-PLAN.md
+**Last session:** 2026-10-01T11:56:38.650Z
+**Stopped at:** Plan 02 sealed build6 original/recipient/PNG matrix passes both hosts. Run final quality and targeted commit, capture/sync Notes, then start Plan 03. Usage 4%, continue until 50%.
+**Resume file:** .planning/phases/02.4-uploads/02.4-03-PLAN.md
 
 Static photo checkpoint (2026-10-01): native preparation supports bounded static
 JPEG/PNG/WebP/GIF/HEIC with disclosed full-size PNG conversion, exact orientation,

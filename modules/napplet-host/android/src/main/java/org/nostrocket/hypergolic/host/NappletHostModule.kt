@@ -203,6 +203,7 @@ class NappletHostModule : Module() {
     Function("finishCapability") { token: String, response: String? -> CapabilityTransport.finish(token, response) }
     View(NappletHostView::class) {
       Events("onHostEvent")
+      Prop("pickerFaultProof") { view: NappletHostView, action: String -> view.armPickerFaultProof(action) }
       Prop("configuration") { view: NappletHostView, raw: String -> view.startConfiguredSession(raw) }
       Prop("publishedArtifact") { view: NappletHostView, raw: String -> view.startPublishedArtifact(raw) }
       Prop("sessionId") { view: NappletHostView, id: String -> view.startSession(id) }

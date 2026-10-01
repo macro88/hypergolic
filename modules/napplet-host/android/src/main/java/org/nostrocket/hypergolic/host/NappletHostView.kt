@@ -40,6 +40,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   @Volatile private var disposed = false
   @Volatile private var active = false
   private var expectedUrl: String? = null
+  private var pickerFaultProof: String? = null
   private val webView = WebView(context)
   private val assetLoader = WebViewAssetLoader.Builder()
     .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context)).build()
@@ -74,6 +75,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
           callback.onReceiveValue(null); return true
         }
         SelectedFilePicker.choose(appContext.currentActivity, generation, { maySelectFile() }, callback)
+        schedulePickerFaultProof()
         return true
       }
       override fun onCreateWindow(view: WebView?, dialog: Boolean, gesture: Boolean, result: Message?) = false
@@ -206,6 +208,31 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     val playingAllowed = active && mediaForeground
     if (loaded) webView.evaluateJavascript("window.__hypergolicMediaActive?.($playingAllowed)", null)
     if (playingAllowed) webView.onResume() else webView.onPause()
+  }
+
+  /** Compile-gated controlled fault; no guest operation or production behavior. */
+  fun armPickerFaultProof(action: String) {
+    if (!BuildConfig.UPLOAD_NETWORK_PROOF) return
+    pickerFaultProof = action.takeIf { it in setOf("close", "replace", "identity", "renderer") }
+  }
+  private fun schedulePickerFaultProof() {
+    if (!BuildConfig.UPLOAD_NETWORK_PROOF) return
+    val action = pickerFaultProof ?: return
+    pickerFaultProof = null
+    // Native scheduling continues while DocumentsUI owns the foreground Activity.
+    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+      if (disposed || !live) return@postDelayed
+      when (action) {
+        "close" -> fail("proof-close")
+        "renderer" -> if (android.os.Build.VERSION.SDK_INT >= 29 && webView.webViewRenderProcess?.terminate() != true) fail("proof-renderer-unavailable")
+        else -> {
+          val value = JSONObject(configuration?.snapshot ?: return@postDelayed).apply {remove("generation")}
+          if (action == "replace") value.put("epoch", value.getLong("epoch") + 1)
+          else value.put("user", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5")
+          startConfiguredSession(value.toString())
+        }
+      }
+    }, 12_000)
   }
 
   fun startConfiguredSession(raw: String) {

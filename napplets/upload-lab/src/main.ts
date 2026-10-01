@@ -1,5 +1,7 @@
 import { upload } from '@napplet/sdk';
 import './style.css';
+import originalJpeg from './public-synthetic-photo.jpeg?url&inline';
+import originalHeic from './public-synthetic-photo.heic?url&inline';
 function element<T extends HTMLElement>(id: string): T {const value = document.getElementById(id); if (!value) throw Error('Missing upload control'); return value as T;}
 const request = element<HTMLButtonElement>('request'), inspect = element<HTMLButtonElement>('inspect'), status = element('status'), receipt = element('receipt');
 let uploadId: string | null = null, busy = false;
@@ -43,3 +45,22 @@ selectedRequest.addEventListener('click', () => {
     .catch(error => {status.textContent = error instanceof Error ? error.message : 'Upload request failed.';})
     .finally(() => {busy = false; selectedRequest.disabled = selected === null;});
 });
+
+
+// Guest-owned originals deliberately bypass native system selection. Native upload
+// preparation must still remove metadata before its trusted exact-byte review.
+for (const photo of [{kind: 'JPEG', mime: 'image/jpeg', asset: originalJpeg}, {kind: 'HEIC', mime: 'image/heic', asset: originalHeic}]) {
+  const button = element<HTMLButtonElement>('original-' + photo.kind.toLowerCase());
+  button.addEventListener('click', () => {
+    if (busy) return;
+    busy = true; button.disabled = true; status.textContent = 'Waiting for trusted original-photo review…';
+    const data = Uint8Array.from(atob(photo.asset.slice(photo.asset.indexOf(',') + 1)), character => character.charCodeAt(0));
+    void (async () => {
+      const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', data)), byte => byte.toString(16).padStart(2, '0')).join('');
+      element('original-status').textContent = 'Original ' + photo.kind + ' input: ' + data.byteLength + ' bytes; SHA-256: ' + hash;
+      const value = await upload.upload({data: new Blob([data], {type: photo.mime}), filename: 'generated-original.' + photo.kind.toLowerCase(), caption: 'Generated original ' + photo.kind, noTransform: true});
+      uploadId = value.uploadId; render(value); status.textContent = 'Upload pending approval.';
+    })().catch(error => {status.textContent = error instanceof Error ? error.message : 'Original photo request failed.';})
+      .finally(() => {data.fill(0); busy = false; button.disabled = false;});
+  });
+}

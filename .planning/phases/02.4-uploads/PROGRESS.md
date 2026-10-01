@@ -80,3 +80,18 @@ TypeScript pass. Both JS exports and fresh native Release fixture builds pass.
 Plan 02 remains incomplete: broader photo preparation, orientation/color and
 actual picker cancel/revoked-recipient cases remain. Plans 03–04 and CAP-05 stay
 open. No plan 02 SUMMARY is warranted. Source is local on mobile-revamp, no push.
+
+
+## Plan 02 selected profile complete — 1 October 2026
+
+The final build6 products pass direct-original JPEG/P3 HEIC privacy journeys on
+both hosts, four Android recipient faults, four iOS recipient faults plus
+malformed Exif selection, and PNG regressions/cold launch. Older static-photo and
+unchanged-attachment checkpoints retain their scoped evidence. Reconfiguration
+rejection is a native fault proof; ordinary workspace identity switching remains
+open. Real iOS renderer termination uses a Simulator-only proof-gated private
+WebKit selector excluded from ordinary Release. Screenshots and exact archive
+bytes have been checked. Failed exploratory/stale-fixture/teardown-race attempts
+remain diagnostics. The corresponding SUMMARY records native completion and the
+mandatory final quality/commit gate. Plans03–04 and CAP-05 stay open. Usage4%;
+continue to50%, no source push.

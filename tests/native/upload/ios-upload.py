@@ -3,7 +3,7 @@
 import argparse,json,subprocess
 from pathlib import Path
 from evidence import ROOT,sha,sources,product
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--picker',action='store_true');p.add_argument('--attachments',type=Path);p.add_argument('--photos',type=Path);p.add_argument('--cases',type=Path);p.add_argument('--library-photo');p.add_argument('--device',required=True);p.add_argument('--app',type=Path,required=True);p.add_argument('--build',type=Path,required=True);p.add_argument('--observer',type=Path,required=True);p.add_argument('--output',type=Path,required=True);args=p.parse_args()
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--picker',action='store_true');p.add_argument('--originals',action='store_true');p.add_argument('--attachments',type=Path);p.add_argument('--photos',type=Path);p.add_argument('--cases',type=Path);p.add_argument('--library-photo');p.add_argument('--device',required=True);p.add_argument('--app',type=Path,required=True);p.add_argument('--build',type=Path,required=True);p.add_argument('--observer',type=Path,required=True);p.add_argument('--output',type=Path,required=True);args=p.parse_args()
 args.output.mkdir(parents=True,exist_ok=False)
 report={'kind':'hypergolic-ios-upload-observer-v1','status':'running','sourceBefore':sources(),'scope':'Native XCTest plus independent loopback TLS observer. Disposable signing key; no picker, protected identity or public provider acceptance.'}
 try:
@@ -19,6 +19,12 @@ try:
         assert (args.cases or args.library_photo) and not args.attachments and not args.picker
         manifest=json.loads((args.photos/'photos.json').read_text());names=[args.library_photo] if args.library_photo else json.loads(args.cases.read_text());assert len(names)==(1 if args.library_photo else 14)
         items=[next(item for item in manifest['files'] if item['file']==name) for name in names]
+    original_items=json.loads((ROOT/'napplets/upload-lab/src/public-synthetic-photos.json').read_text())['files'] if args.originals else []
+    original_reject=set();original_input=set();original_receipts={}
+    if args.originals:
+        assert not items and not args.picker
+        for item in original_items:assert sha((ROOT/'napplets/upload-lab/src'/item['file']).read_bytes())==item['inputSha256']
+        report['fixtures']=original_items;report['scope']='Actual genuine SDK guest-owned original JPEG/HEIC bypassing picker; native sanitized PNG review/reject/approved exact signed body with independent pixels/metadata. Disposable identity, controlled TLS.'
     prepared_selections={}
     if args.library_photo:
         subprocess.run(['xcrun','simctl','addmedia',args.device,str(args.photos/args.library_photo)],check=True)
@@ -38,13 +44,22 @@ try:
     selected_checks=set();read_checks=set();reject_checks=set()
     installed=Path(subprocess.check_output(['xcrun','simctl','get_app_container',args.device,'org.nostrocket.hypergolic.uploadfixture','app']).decode().strip())
     report['productFiles']=product(args.app);assert report['productFiles']==product(installed),'Installed app differs from supplied product'
-    command=['xcodebuild','test','-project','tests/native/ios/XCTest/HypergolicUITests.xcodeproj','-scheme','HypergolicUITests','-destination','platform=iOS Simulator,id='+args.device,'-only-testing:HypergolicUITests/UploadTests/'+('testSelectedHEICPhotoRejectApprove' if args.library_photo else 'testSelectedPhotosRejectApprove' if is_photo else 'testSelectedAttachmentsRejectApprove' if items else 'testSelectedPhotoRejectApprove' if args.picker else 'testReviewRejectApprove'),'-derivedDataPath',str(args.output/'build'),'-resultBundlePath',str(args.output/'journey.xcresult'),'CODE_SIGNING_ALLOWED=NO']
+    command=['xcodebuild','test','-project','tests/native/ios/XCTest/HypergolicUITests.xcodeproj','-scheme','HypergolicUITests','-destination','platform=iOS Simulator,id='+args.device,'-only-testing:HypergolicUITests/UploadTests/'+('testOriginalPhotosRejectApprove' if args.originals else 'testSelectedHEICPhotoRejectApprove' if args.library_photo else 'testSelectedPhotosRejectApprove' if is_photo else 'testSelectedAttachmentsRejectApprove' if items else 'testSelectedPhotoRejectApprove' if args.picker else 'testReviewRejectApprove'),'-derivedDataPath',str(args.output/'build'),'-resultBundlePath',str(args.output/'journey.xcresult'),'CODE_SIGNING_ALLOWED=NO']
     rejected=False
     with (args.output/'journey.log').open('w') as log:
         process=subprocess.Popen(command,cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,bufsize=1)
         for line in process.stdout:
             log.write(line);log.flush()
-            if is_photo:
+            if args.originals:
+                for index,(item,kind) in enumerate(zip(original_items,['JPEG','HEIC'])):
+                    if 'UPLOAD_ORIGINAL_INPUT:'+kind+':' in line:
+                        assert str(item['size']) in line and item['inputSha256'] in line,'Original guest input mismatch';original_input.add(kind)
+                    if 'UPLOAD_ORIGINAL_REJECT:'+kind in line:
+                        observed=json.loads(args.observer.read_text());assert observed['connections']==baseline['connections']+index and len(observed['requests'])==len(baseline['requests'])+index
+                        original_reject.add(kind);print('Observed zero-network original rejection: '+kind,flush=True)
+                    if 'UPLOAD_ORIGINAL_RECEIPT:'+kind+':' in line:
+                        original_receipts[kind]=json.loads(line.split('UPLOAD_ORIGINAL_RECEIPT:'+kind+':',1)[1])
+            elif is_photo:
                 import re
                 for index,item in enumerate(items):
                     name=f'photo-{index+1:02d}'
@@ -73,11 +88,18 @@ try:
                 print('Observed rejection: zero new TLS connections = '+str(rejected),flush=True)
         code=process.wait()
     assert code==0,'Native XCTest journey failed'
-    assert (len(selected_checks)==len(read_checks)==len(reject_checks)==len(items)) if items else rejected,'Native selected/reject/read checkpoints missing'
+    assert len(original_reject)==len(original_input)==len(original_receipts)==2 if args.originals else (len(selected_checks)==len(read_checks)==len(reject_checks)==len(items)) if items else rejected,'Native owning checkpoints missing'
     observed=json.loads(args.observer.read_text());report['observerAfterApprove']=observed
     requests=observed['requests'][len(baseline['requests']):]
-    assert len(requests)==(len(items) if items else 1) and observed['connections']==baseline['connections']+(len(items) if items else 1) and not observed['errors']
-    if items:
+    count=2 if args.originals else len(items) if items else 1
+    assert len(requests)==count and observed['connections']==baseline['connections']+count and not observed['errors']
+    if args.originals:
+        for request,item,kind in zip(requests,original_items,['JPEG','HEIC']):
+            receipt=original_receipts[kind]
+            assert request['mimeType']=='image/png' and request['sha256']!=item['inputSha256'] and request['signatureVerified'] is True and item['recipe'] in request['photoMatches']
+            assert receipt['status']=='complete' and receipt['sha256']==request['sha256'] and receipt['size']==request['size'] and receipt['mimeType']=='image/png'
+        report['originalReceipts']=original_receipts
+    elif items:
         for index,(request,item) in enumerate(zip(requests,items)):
             selected=prepared_selections[f'photo-{index+1:02d}'] if is_photo else item
             assert request['sha256']==selected['sha256'] and request['size']==selected['size'] and request['mimeType']==('image/png' if is_photo else item['mimeType']) and request['signatureVerified'] is True

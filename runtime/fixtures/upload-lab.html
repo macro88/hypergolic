@@ -49,6 +49,8 @@ var upload = {
     return requireDomain("upload").onStatus(handler);
   }
 };
+const originalJpeg = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4QDURXhpZgAATU0AKgAAAAgABAEPAAIAAAATAAAAPgESAAMAAAABAAEAAAEyAAIAAAAUAAAAUoglAAQAAAABAAAAZgAAAABQdWJsaWMgdGVzdCBjYW1lcmEAADIwMjY6MDE6MDIgMDM6MDQ6MDUAAAQAAQACAAAAAk4AAAAAAgAFAAAAAwAAAJwAAwACAAAAAkUAAAAABAAFAAAAAwAAALQAAAAAAAAAAQAAAAEAAAACAAAAAQAAAAMAAAABAAAABAAAAAEAAAAFAAAAAQAAAAYAAAAB/9sAQwACAQEBAQECAQEBAgICAgIEAwICAgIFBAQDBAYFBgYGBQYGBgcJCAYHCQcGBggLCAkKCgoKCgYICwwLCgwJCgoK/9sAQwECAgICAgIFAwMFCgcGBwoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK/8AAEQgAIABAAwERAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A+V6/ms/24CgAoAKAPuivw8/44woAKACgD4Xr9wP+xwKACgAoA+6K/Dz/AI4woAKACgD8o6/6oD+/AoAKACgD+iyv+Nc/tgKACgAoA/nTr/soP4nCgAoAKAP6LK/41z+2AoAKACgD/9k=";
+const originalHeic = "data:image/heic;base64,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";
 function element(id) {
   const value = document.getElementById(id);
   if (!value) throw Error("Missing upload control");
@@ -134,6 +136,30 @@ selectedRequest.addEventListener("click", () => {
     selectedRequest.disabled = selected === null;
   });
 });
+for (const photo of [{ kind: "JPEG", mime: "image/jpeg", asset: originalJpeg }, { kind: "HEIC", mime: "image/heic", asset: originalHeic }]) {
+  const button = element("original-" + photo.kind.toLowerCase());
+  button.addEventListener("click", () => {
+    if (busy) return;
+    busy = true;
+    button.disabled = true;
+    status.textContent = "Waiting for trusted original-photo review…";
+    const data = Uint8Array.from(atob(photo.asset.slice(photo.asset.indexOf(",") + 1)), (character) => character.charCodeAt(0));
+    void (async () => {
+      const hash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", data)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+      element("original-status").textContent = "Original " + photo.kind + " input: " + data.byteLength + " bytes; SHA-256: " + hash;
+      const value = await upload.upload({ data: new Blob([data], { type: photo.mime }), filename: "generated-original." + photo.kind.toLowerCase(), caption: "Generated original " + photo.kind, noTransform: true });
+      uploadId = value.uploadId;
+      render(value);
+      status.textContent = "Upload pending approval.";
+    })().catch((error) => {
+      status.textContent = error instanceof Error ? error.message : "Original photo request failed.";
+    }).finally(() => {
+      data.fill(0);
+      busy = false;
+      button.disabled = false;
+    });
+  });
+}
 </script>
   <style>html { color-scheme: dark; background: #140f0b; color: #f3efeb; font: 16px system-ui, sans-serif; }
 body { margin: 0; } main { padding: 24px; display: grid; gap: 16px; } h1, p { margin: 0; } p { line-height: 1.5; }
@@ -142,4 +168,4 @@ img { max-width: 100%; image-rendering: pixelated; } button { min-height: 48px; 
 p {overflow-wrap: anywhere;}
 </style>
 </head>
-<body><main><h1>Upload Lab</h1><p>A generated photo with two pixels. Each request opens a separate trusted review.</p><img id="preview" alt="Generated red and green pixels" width="240" height="120"><button id="request" type="button">Request PNG upload</button><label>Select a file<input id="selection" type="file"></label><button id="selected-request" type="button" disabled>Request selected upload</button><button id="selected-read" type="button" disabled>Read selected file</button><p id="selected-status" role="status">No selected file.</p><button id="inspect" type="button">Read upload status</button><p id="status" role="status"></p><pre id="receipt"></pre></main></body></html>
+<body><main><h1>Upload Lab</h1><p>A generated photo with two pixels. Each request opens a separate trusted review.</p><img id="preview" alt="Generated red and green pixels" width="240" height="120"><button id="request" type="button">Request PNG upload</button><label>Select a file<input id="selection" type="file"></label><button id="selected-request" type="button" disabled>Request selected upload</button><button id="selected-read" type="button" disabled>Read selected file</button><p id="selected-status" role="status">No selected file.</p><button id="original-jpeg" type="button">Request original JPEG</button><button id="original-heic" type="button">Request original HEIC</button><p id="original-status" role="status">No original photo requested.</p><button id="inspect" type="button">Read upload status</button><p id="status" role="status"></p><pre id="receipt"></pre></main></body></html>

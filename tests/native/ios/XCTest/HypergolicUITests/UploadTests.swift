@@ -240,6 +240,94 @@ final class UploadTests: XCTestCase {
     XCTAssertEqual(app.buttons["upload-outcome"].label, "Upload confirmed by server."); capture("heic-library-confirmed")
     app.buttons["upload-outcome"].tap()
   }
+  func testOriginalPhotosRejectApprove() throws {
+    continueAfterFailure = false
+    let app = XCUIApplication(bundleIdentifier: "org.nostrocket.hypergolic.uploadfixture")
+    func capture(_ name: String) {
+      let image = XCTAttachment(screenshot: app.screenshot()); image.name = name; image.lifetime = .keepAlways; add(image)
+      let tree = XCTAttachment(string: app.debugDescription); tree.name = name + "-accessibility"; tree.lifetime = .keepAlways; add(tree)
+    }
+    func tapGuest(_ label: String) {
+      let button = app.buttons[label]
+      for _ in 0..<10 {if button.isHittable {break}; app.webViews.firstMatch.swipeDown()}
+      for _ in 0..<10 {if button.isHittable {break}; app.webViews.firstMatch.swipeUp()}
+      XCTAssertTrue(button.isHittable, app.debugDescription);button.tap()
+    }
+    app.terminate(); app.launch()
+    XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30), app.debugDescription)
+    for kind in ["JPEG", "HEIC"] {
+      func review() {
+        tapGuest("Request original " + kind)
+        XCTAssertTrue(app.staticTexts["Approve file upload"].waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(app.images["Exact photo selected for upload"].exists, app.debugDescription)
+        XCTAssertTrue(app.buttons["Approve once"].isEnabled, app.debugDescription); capture(kind + "-trusted-native-prepared-review")
+      }
+      review(); app.buttons["Reject upload"].tap()
+      XCTAssertTrue(app.staticTexts["Upload cancelled."].waitForExistence(timeout: 10), app.debugDescription)
+      print("UPLOAD_ORIGINAL_REJECT:" + kind); fflush(stdout); Thread.sleep(forTimeInterval: 3)
+      app.buttons["upload-outcome"].tap()
+      let input = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Original " + kind + " input:")).firstMatch
+      for _ in 0..<10 {if input.exists {break}; app.webViews.firstMatch.swipeUp()}
+      XCTAssertTrue(input.exists, app.debugDescription);capture(kind + "-original-input-after-reject")
+      print("UPLOAD_ORIGINAL_INPUT:" + kind + ":" + input.label);fflush(stdout)
+      review();app.buttons["Approve once"].tap()
+      XCTAssertTrue(app.staticTexts["Upload complete."].waitForExistence(timeout: 20), app.debugDescription)
+      XCTAssertEqual(app.buttons["upload-outcome"].label, "Upload confirmed by server.");capture(kind + "-confirmed")
+      app.buttons["upload-outcome"].tap();tapGuest("Read upload status")
+      let receipt = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "\"status\": \"complete\"")).firstMatch
+      XCTAssertTrue(receipt.waitForExistence(timeout: 10), app.debugDescription);capture(kind + "-sdk-receipt")
+      print("UPLOAD_ORIGINAL_RECEIPT:" + kind + ":" + receipt.label.replacingOccurrences(of: "\n", with: " "));fflush(stdout)
+    }
+  }
+
+  func testPickerRecipientFaults() throws {
+    continueAfterFailure = false
+    let app = XCUIApplication(bundleIdentifier: "org.nostrocket.hypergolic.uploadfixture")
+    func capture(_ name: String) {
+      let image = XCTAttachment(screenshot: app.screenshot()); image.name = name; image.lifetime = .keepAlways; add(image)
+      let tree = XCTAttachment(string: app.debugDescription); tree.name = name + "-accessibility"; tree.lifetime = .keepAlways; add(tree)
+    }
+    func openFiles() {
+      let select = app.buttons["Select a file"]
+      for _ in 0..<5 {if select.isHittable {break}; app.webViews.firstMatch.swipeUp()}
+      XCTAssertTrue(select.isHittable, app.debugDescription); select.tap()
+      XCTAssertTrue(app.buttons["Choose file"].waitForExistence(timeout: 10), app.debugDescription); app.buttons["Choose file"].tap()
+      XCTAssertTrue(app.buttons["Cancel"].waitForExistence(timeout: 10), app.debugDescription)
+    }
+    func noFile(_ name: String) {
+      XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Selected bytes:")).firstMatch.exists, app.debugDescription)
+      XCTAssertFalse(app.buttons["Request selected upload"].isEnabled, app.debugDescription)
+      capture(name); print("UPLOAD_PICKER_DENIED:" + name); fflush(stdout); Thread.sleep(forTimeInterval: 2)
+    }
+    for action in ["close", "replace", "identity", "renderer"] {
+      app.terminate(); app.launch()
+      XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30), app.debugDescription)
+      app.buttons["Arm picker " + action].tap(); openFiles(); capture(action + "-pending-system-picker")
+      let code = action == "close" ? "proof-close" : action == "renderer" ? "renderer-stopped" : "session-reuse-blocked"
+      XCTAssertTrue(app.staticTexts["Native host failed: " + code].waitForExistence(timeout: 20), app.debugDescription)
+      let removed = [app.webViews.firstMatch, app.buttons["Cancel"]].map {
+        XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: $0)
+      }
+      XCTAssertEqual(XCTWaiter.wait(for: removed, timeout: 5), .completed, app.debugDescription)
+      capture(action + "-native-revoked"); app.buttons["Open Upload Lab"].tap()
+      XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 20), app.debugDescription)
+      noFile(action + "-fresh-recipient-no-late-file")
+    }
+    openFiles()
+    if app.buttons["Browse"].exists {app.buttons["Browse"].tap()}
+    let phone = app.cells.matching(NSPredicate(format: "label CONTAINS %@", "On My iPhone")).firstMatch
+    if phone.exists {phone.tap()}
+    let folder = app.cells.matching(NSPredicate(format: "label BEGINSWITH %@", "Hypergolic")).firstMatch
+    if folder.exists {folder.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: 0.24)).tap()}
+    let file = app.cells.matching(NSPredicate(format: "label BEGINSWITH %@", "photo-00-denied")).firstMatch
+    let listing = app.collectionViews.matching(identifier: "File View").containing(NSPredicate(format: "label BEGINSWITH %@", "photo-")).firstMatch
+    for _ in 0..<16 {if file.exists {break}; XCTAssertTrue(listing.exists, app.debugDescription); listing.swipeDown()}
+    XCTAssertTrue(file.waitForExistence(timeout: 10), app.debugDescription); capture("malformed-photo-before-selection")
+    file.coordinate(withNormalizedOffset: CGVector(dx: 0.18, dy: 0.32)).tap()
+    if app.buttons["OK"].waitForExistence(timeout: 5) {app.buttons["OK"].tap()}
+    XCTAssertTrue(app.buttons["Select a file"].waitForExistence(timeout: 10), app.debugDescription); noFile("malformed-photo-denied")
+  }
+
   func testPickerCancellationAndBackground() throws {
     continueAfterFailure = false
     let app = XCUIApplication(bundleIdentifier: "org.nostrocket.hypergolic.uploadfixture")
