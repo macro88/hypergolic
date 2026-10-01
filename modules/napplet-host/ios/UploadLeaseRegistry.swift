@@ -50,6 +50,7 @@ final class UploadLeaseRegistry: @unchecked Sendable {
       sessions[generation] = Session(generation, registration, handle); return true
     }
   }
+  func isRegistered(_ generation: String) -> Bool { lock.withLock {sessions[generation] != nil} }
   func foreground(_ active: Bool) { lock.withLock { authority.setForeground(active) } }
   func focus(_ generation: String, active: Bool) {
     lock.withLock { guard let session = sessions[generation] else { return }; if active { authority.focus(session.handle) } else { _ = authority.clearFocus(session.handle) } }

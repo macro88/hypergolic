@@ -110,9 +110,9 @@ public final class NativeUploadAuthority {
   public synchronized Review sealPreparedPng(RequestHandle request) {
     prune(); Row row = live(request);
     if (row == null || row.review != null || row.cursor != row.body.length) return null;
-    byte[] prepared = UploadPngProfile.prepare(row.body);
+    byte[] prepared = UploadPngMetadata.prepare(row.body);
     if (prepared == null) { cancel(request); return null; }
-    row.clear(); row.body = prepared; row.mimeType = "image/png";
+    row.clear(); row.body = prepared; row.cursor = prepared.length; row.mimeType = "image/png";
     return seal(request);
   }
   public synchronized boolean contains(RequestHandle request) { prune(); return live(request) != null; }

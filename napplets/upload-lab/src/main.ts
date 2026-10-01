@@ -20,3 +20,26 @@ try {subscription = upload.onStatus(value => {render(value); status.textContent 
 catch {status.textContent = 'Upload status notifications are unavailable in this host.';}
 window.addEventListener('pagehide', () => {subscription?.close(); bytes.fill(0);}, {once: true});
 status.textContent = 'Ready to request a PNG upload.';
+
+const selection = element<HTMLInputElement>('selection'), selectedRequest = element<HTMLButtonElement>('selected-request'), selectedRead = element<HTMLButtonElement>('selected-read'), selectedStatus = element('selected-status');
+let selected: File | null = null;
+async function readSelected(): Promise<void> {
+  if (!selected) return;
+  const data = await selected.arrayBuffer();
+  const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', data)), byte => byte.toString(16).padStart(2, '0')).join('');
+  selectedStatus.textContent = 'Selected bytes: ' + data.byteLength + '; SHA-256: ' + hash + '; type: ' + selected.type + '; name: ' + selected.name + '; relative path: ' + selected.webkitRelativePath;
+}
+selection.addEventListener('change', () => {
+  selected = selection.files?.length === 1 ? selection.files[0]! : null;
+  selectedRequest.disabled = selected === null; selectedRead.disabled = selected === null;
+  if (selected) void readSelected().catch(() => {selectedStatus.textContent = 'Selected file unavailable.';});
+});
+selectedRead.addEventListener('click', () => {void readSelected().catch(() => {selectedStatus.textContent = 'Selected file unavailable.';});});
+selectedRequest.addEventListener('click', () => {
+  if (busy || !selected) return;
+  busy = true; selectedRequest.disabled = true; status.textContent = 'Waiting for trusted review…';
+  void upload.upload({data: selected, filename: selected.name, caption: 'Selected file', noTransform: true})
+    .then(value => {uploadId = value.uploadId; render(value); status.textContent = 'Upload pending approval.';})
+    .catch(error => {status.textContent = error instanceof Error ? error.message : 'Upload request failed.';})
+    .finally(() => {busy = false; selectedRequest.disabled = selected === null;});
+});

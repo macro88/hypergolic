@@ -50,12 +50,36 @@ computes SHA-256, and retains opaque review/grant handles. Private tokens and
 credentials never enter public SDK results. Metadata, caption, filename and
 `noTransform` survive the adapter boundaries without becoming network authority.
 
-The first native preparation profile accepts already metadata-free, noninterlaced
-8-bit RGB/RGBA PNGs, bounded to 4,194,304 pixels and 4096 pixels per dimension.
-It checks CRCs, chunk ordering, color declarations, zlib output size and row filters;
-iOS also uses ImageIO decoding. The bytes are unchanged. EXIF, text, ICC, animation,
-unknown chunks and other photo formats currently fail closed. This is the first
-tracer profile, not acceptance of the full photo sanitization requirement.
+The current preparation profile accepts noninterlaced 8-bit RGB/RGBA PNGs,
+bounded to 4,194,304 pixels and 4096 pixels per dimension. Native code verifies
+container bounds, chunk CRCs and ordering, then removes text, modification-time
+and validated neutral-orientation Exif metadata before hashing/review. Supported
+pixel and color chunks remain byte-identical. Compressed text is discarded without
+inflating it; the unchanged pixel stream is independently checked for decoded size
+and row filters, and iOS also exercises ImageIO. Nonneutral orientation, extra image
+directories, ICC, animation, unknown chunks and other photo formats fail closed.
+This partial preparer does not complete the full photo requirement. The container
+basis is [PNG Third Edition, 24 June 2025](https://www.w3.org/TR/2025/REC-png-3-20250624/).
+
+Both hosts now route a single-file input to the native system picker only for a
+live, focused, upload-enabled generation. Native code copies and prepares bounded
+selected bytes before returning an app-private representation to that original
+input. Android keeps global file/content access disabled and exposes only an
+unexported, UID-checked provider with an exact declared descriptor length. iOS
+uses public document/photo pickers, reads an open-in-place document or selected
+photo representation, and returns a copied private file. Neither returns original
+provider paths or requests whole-library permission. Only the selected PNG
+profile is currently implemented; broader formats and ordinary attachments remain
+pending. A declined upload does not revoke the selection already shared with its
+requesting napplet.
+
+Picker preparation and retained selections are bounded. Close, replacement, focus
+loss and background clear staged representations; callbacks recheck the captured
+generation and native registration. Android's external chooser necessarily suspends
+the parent activity: its outstanding user selection may return on foreground resume
+within the original deadline. Returned or processing selections are cancelled on
+background. This exception creates no upload approval and revives no revoked
+network grants. The full revoked-recipient native journey remains to be verified.
 
 Native owners allow one request per realm and two per process, with a 10 MiB file
 bound, 256 KiB carrier chunks, a ten-minute review lifetime and a sixty-second
@@ -87,9 +111,9 @@ transfers and SDK/native UI journeys. TypeScript and the complete Chromium/WebKi
 runtime suite cover the shared carrier. A successful Android/iOS build confirms
 compilation, not file-picker, preview, approval or server-byte acceptance.
 
-Phase 2.4 remains open. Complete the SDK/native PNG review/rejection/approval journey
-with independent stored bytes on both hosts, then the system picker, supported
-photo sanitation/orientation/color, unchanged audio/video/documents, uncertain
+Phase 2.4 remains open. The first metadata-free SDK/native PNG tracer is accepted.
+Finish selected-file native acceptance and supported photo sanitation/orientation/color,
+unchanged audio/video/documents, uncertain
 reconciliation, published admission and final quality/native acceptance. Final
 React Doctor and aislop scores must both be 100/100 on the final source.
 

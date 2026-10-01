@@ -18,6 +18,7 @@ class NappletHostModule : Module() {
       UploadTransport.observeProgress { event -> sendEvent("onUploadProgress", event) }
       RelaySubscriptionTransport.observeLifecycle { snapshot -> sendEvent("onRelayLifecycle", mapOf("snapshot" to snapshot)) }
       val foreground = appContext.runtime.reactContext?.lifecycleState == LifecycleState.RESUMED
+      SelectedFilePicker.foreground(foreground)
       UploadTransport.foreground(foreground)
       CapabilityTransport.foreground(foreground)
       NappletHostView.setMediaForeground(foreground)
@@ -28,6 +29,7 @@ class NappletHostModule : Module() {
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(foreground)
     }
     OnActivityEntersForeground {
+      SelectedFilePicker.foreground(true)
       UploadTransport.foreground(true)
       CapabilityTransport.foreground(true)
       NappletHostView.setMediaForeground(true)
@@ -38,6 +40,7 @@ class NappletHostModule : Module() {
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(true)
     }
     OnActivityEntersBackground {
+      SelectedFilePicker.foreground(false)
       UploadTransport.foreground(false)
       CapabilityTransport.foreground(false)
       NappletHostView.setMediaForeground(false)
@@ -49,7 +52,10 @@ class NappletHostModule : Module() {
       PublishedArtifactTransfer.INSTANCE.revokeAllPublishedArtifacts()
       // Verified loaded read views retain their generation; pending transfers are revoked above.
     }
+    OnActivityResult { activity, result -> SelectedFilePicker.result(activity, result.requestCode, result.resultCode, result.data) }
     OnActivityDestroys {
+      SelectedFilePicker.cancel()
+      SelectedFilePicker.foreground(false)
       UploadTransport.foreground(false)
       CapabilityTransport.foreground(false)
       NappletHostView.setMediaForeground(false)
@@ -62,6 +68,7 @@ class NappletHostModule : Module() {
       NappletHostView.revokePublishedOnBackground()
     }
     OnUserLeavesActivity {
+      SelectedFilePicker.foreground(false)
       UploadTransport.foreground(false)
       CapabilityTransport.foreground(false)
       NappletHostView.setMediaForeground(false)
@@ -71,7 +78,9 @@ class NappletHostModule : Module() {
       PublishedRelayWssRequestOwner.INSTANCE.setForeground(false)
     }
     OnDestroy {
+      SelectedFilePicker.cancel()
       UploadTransport.observeProgress(null)
+      SelectedFilePicker.foreground(false)
       UploadTransport.foreground(false)
       CapabilityTransport.foreground(false)
       RelaySubscriptionTransport.foreground(false)

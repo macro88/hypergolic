@@ -28,6 +28,10 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   private var initialNavigationAllowed = false
   private var disposed = false
   private var active = true
+  private lazy var selectedFilePicker = SelectedFilePicker(live: { [weak self] in self?.maySelectFile() == true })
+  private func maySelectFile() -> Bool {
+    live && ready && loaded && !disposed && active && configuration?.domains.contains("upload") == true && UploadTransport.leases.isRegistered(generation)
+  }
 
   init(onWebViewCreated: (@MainActor (WKWebView) -> Void)? = nil) {
     self.onWebViewCreated = onWebViewCreated
@@ -56,13 +60,14 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   func setActive(_ isActive: Bool) {
     guard active != isActive else { return }
     active = isActive
+    if !isActive {selectedFilePicker.cancel()}
     updateMediaPlayback()
     if configuration != nil { ApprovalTransport.setFocused(generation, active: isActive); UploadTransport.focus(generation, active: isActive) }
     // Dismiss only this retained view's editor; keep its loaded document and position.
     if !isActive { webView?.endEditing(true) }
   }
 
-  @objc private func mediaBackground() { updateMediaPlayback(foreground: false) }
+  @objc private func mediaBackground() { selectedFilePicker.background(); updateMediaPlayback(foreground: false) }
   @objc private func mediaForeground() { updateMediaPlayback(foreground: true) }
   private func updateMediaPlayback(foreground: Bool? = nil) {
     guard let view = webView, !disposed else { return }
@@ -483,6 +488,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   func destroySession() {
     guard !disposed else { return }
     disposed = true
+    selectedFilePicker.cancel()
     NotificationCenter.default.removeObserver(self)
     webView?.setAllMediaPlaybackSuspended(true, completionHandler: nil)
     live = false
@@ -576,7 +582,14 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
                initiatedByFrame frame: WKFrameInfo, decisionHandler: @escaping @MainActor @Sendable (WKPermissionDecision) -> Void) { decisionHandler(.deny) }
   @available(iOS 18.4, *)
   func webView(_ view: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters,
-               initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping @MainActor @Sendable ([URL]?) -> Void) { completionHandler(nil) }
+               initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping @MainActor @Sendable ([URL]?) -> Void) {
+    guard view === webView, maySelectFile(), !frame.isMainFrame, !parameters.allowsDirectories, !parameters.allowsMultipleSelection,
+      ["about:srcdoc", "about:blank"].contains(frame.request.url?.absoluteString ?? "") else { completionHandler(nil); return }
+    var responder: UIResponder? = self
+    while let current = responder, !(current is UIViewController) {responder = current.next}
+    guard let presenter = responder as? UIViewController else {completionHandler(nil); return}
+    selectedFilePicker.choose(from: presenter, completion: completionHandler)
+  }
 }
 
 @MainActor

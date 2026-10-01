@@ -20,3 +20,28 @@ Android/iOS journeys. Plans 03–04 cover durable uncertainty reconciliation, fu
 lifecycle/fault acceptance and final published admission/quality. CAP-05 remains
 open and the phase remains in progress. Weekly consumption last observed 45%;
 pause at 50%. Source changes are local on the existing branch without source push.
+
+
+## Plan 02 selected-PNG checkpoint — 1 October 2026
+
+The native document picker on Android and photo picker on iOS now hand only a
+prepared, selected PNG to the original file input. The generated 302-byte fixture
+contains actual Exif camera, date and GPS fields plus PNG text. Each genuine
+SDK/native journey observes the exact 71-byte sanitized output before upload,
+rejects with zero new TLS connections, reads the selection after rejection, then
+freshly approves one exact stored upload with independently valid Schnorr signing.
+Final build/source/installed-product seals pass on both hosts; native screenshots
+of review and post-rejection guest reading have been inspected. These are isolated
+public-disposable-identity journeys, not protected-device or published acceptance.
+
+Native owner assertions now pass 655, raw TLS 26, shared upload 44 and capability
+owners 50; TypeScript and both production JS exports pass. React Doctor and aislop
+are both 100/100 with all nine audits on the selected-PNG implementation. Fixture
+input names remain generic; final trusted caller UX is still reviewed in plan 04.
+
+Plan 02 remains incomplete: JPEG/WebP/GIF/HEIC, nonneutral orientation and color,
+ordinary audio/video/document attachment handoff/review/upload, native picker
+cancel/revoked-recipient cases and broader sanitation evidence are still required.
+Plans 03–04 also remain open. Android's external picker may return a fresh selected
+file on foreground resume; it revives no prior upload approval or network grant.
+Weekly usage last observed 48%, with the authorized pause at 50%.

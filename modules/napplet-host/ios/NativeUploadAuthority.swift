@@ -122,10 +122,10 @@ final class NativeUploadAuthority: @unchecked Sendable {
   func sealPreparedPng(_ request: Request) -> Review? {
     lock.withLock {
       prune(); guard let row = live(request), row.review == nil, row.cursor == row.body.count else { return nil }
-      guard let prepared = UploadPngProfile.prepare(row.body) else {
+      guard let prepared = UploadPngMetadata.prepare(row.body) else {
         requests.removeValue(forKey: ObjectIdentifier(request))?.clear(); return nil
       }
-      row.body = prepared; row.mimeType = "image/png"
+      row.clear(); row.body = prepared; row.cursor = prepared.count; row.mimeType = "image/png"
       let review = Review(row); row.review = review; return review
     }
   }

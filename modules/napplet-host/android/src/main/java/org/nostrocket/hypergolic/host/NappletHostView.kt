@@ -29,16 +29,16 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   private val onHostEvent by EventDispatcher()
   override val shouldUseAndroidLayout = true
   private var sessionId: String? = null
-  private var configuration: CapabilityConfiguration? = null
+  @Volatile private var configuration: CapabilityConfiguration? = null
   private var published: PublishedClaims? = null
   private var publishedSource: String? = null
   private var publishedReader: PublishedArtifactReadOwner? = null
   private val generation = UUID.randomUUID().toString()
-  private var live = false
-  private var loaded = false
-  private var ready = false
-  private var disposed = false
-  private var active = false
+  @Volatile private var live = false
+  @Volatile private var loaded = false
+  @Volatile private var ready = false
+  @Volatile private var disposed = false
+  @Volatile private var active = false
   private var expectedUrl: String? = null
   private val webView = WebView(context)
   private val assetLoader = WebViewAssetLoader.Builder()
@@ -69,7 +69,12 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
         callback?.invoke(origin, false, false)
       }
       override fun onShowFileChooser(view: WebView?, callback: ValueCallback<Array<Uri>>?, params: FileChooserParams?): Boolean {
-        callback?.onReceiveValue(null); return true
+        if (callback == null) return true
+        if (view !== webView || params == null || params.mode != FileChooserParams.MODE_OPEN || params.isCaptureEnabled || !maySelectFile()) {
+          callback.onReceiveValue(null); return true
+        }
+        SelectedFilePicker.choose(appContext.currentActivity, generation, { maySelectFile() }, callback)
+        return true
       }
       override fun onCreateWindow(view: WebView?, dialog: Boolean, gesture: Boolean, result: Message?) = false
       override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
@@ -183,6 +188,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   fun setActive(active: Boolean) {
     if (disposed || this.active == active) return
     this.active = active
+    if (!active) SelectedFilePicker.revoke(generation)
     updateMediaPlayback()
     ApprovalTransport.focus(generation, active)
     UploadTransport.focus(generation, active)
@@ -374,10 +380,14 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (code != null) payload["code"] = code
     onHostEvent(payload)
   }
+  private fun maySelectFile(): Boolean = live && loaded && ready && !disposed && active &&
+    configuration?.allowsUpload == true && UploadTransport.leases.isRegistered(generation)
+
   private fun fail(code: String) {
     if (disposed) return
     live = false
     publishedReader?.clear()
+    SelectedFilePicker.revoke(generation)
     UploadTransport.revoke(generation)
     ApprovalTransport.revoke(generation)
     CapabilityTransport.leases.revoke(generation)
@@ -391,6 +401,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     publishedReader?.clear()
     publishedReader = null
     synchronized(publishedViews) { publishedViews.remove(this) }
+    SelectedFilePicker.revoke(generation)
     UploadTransport.revoke(generation)
     ApprovalTransport.revoke(generation)
     CapabilityTransport.revoke(generation)

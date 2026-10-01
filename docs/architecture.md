@@ -21,8 +21,10 @@ needs a test napplet and native Android/iOS acceptance. This expands scope witho
 claiming implementation or selecting wallet providers or new draft revisions.
 
 The [upload phase](upload-access.md) is in progress: native body/approval/PUT owners,
-trusted review and settings, and a genuine SDK Upload Lab are being integrated.
-Published upload admission and CAP-05 remain open pending native acceptance.
+trusted review and settings, and genuine SDK Upload Lab PNG journeys pass on both
+native hosts. Selected PNG metadata is removed before guest handoff and upload
+review. Broader photo formats, attachments, revoked picker callbacks, reconciliation
+and published upload admission remain open; CAP-05 is incomplete.
 
 ## Implemented
 

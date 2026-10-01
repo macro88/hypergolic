@@ -59,6 +59,7 @@ final class UploadLeaseRegistry {
     var handle = authority.register(generation, identity); if (handle == null) return false;
     sessions.put(generation, new Session(generation, registration, handle)); return true;
   }
+  synchronized boolean isRegistered(String generation) { return sessions.containsKey(generation); }
   synchronized void foreground(boolean active) { authority.setForeground(active); }
   synchronized void focus(String generation, boolean active) {
     Session session = sessions.get(generation); if (session == null) return;

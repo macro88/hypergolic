@@ -44,4 +44,44 @@ final class UploadTests: XCTestCase {
     let attachment = XCTAttachment(data: try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys]), uniformTypeIdentifier: "public.json")
     attachment.name = "upload-native-report"; attachment.lifetime = .keepAlways; add(attachment)
   }
+  func testSelectedPhotoRejectApprove() throws {
+    continueAfterFailure = false
+    let app = XCUIApplication(bundleIdentifier: "org.nostrocket.hypergolic.uploadfixture")
+    let hash = "5a852fbaaaecaf4cd14c01e150c7f881c5c5894b0a1e3c53be7e007c58374ee6"
+    func capture(_ name: String) {
+      let image = XCTAttachment(screenshot: app.screenshot()); image.name = name; image.lifetime = .keepAlways; add(image)
+      let tree = XCTAttachment(string: app.debugDescription); tree.name = name + "-accessibility"; tree.lifetime = .keepAlways; add(tree)
+    }
+    func selected() -> XCUIElement {app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Selected bytes: 71; SHA-256: " + hash)).firstMatch}
+    func tap(_ element: XCUIElement) {
+      for _ in 0..<4 {if element.isHittable {break}; app.webViews.firstMatch.swipeUp()}
+      XCTAssertTrue(element.isHittable, app.debugDescription); element.tap()
+    }
+    func review() {
+      tap(app.buttons["Request selected upload"])
+      XCTAssertTrue(app.staticTexts["Approve file upload"].waitForExistence(timeout: 15), app.debugDescription)
+      XCTAssertTrue(app.images["Exact photo selected for upload"].exists, app.debugDescription)
+      XCTAssertTrue(app.buttons["Approve once"].isEnabled, app.debugDescription); capture("picker-trusted-review")
+    }
+    app.terminate(); app.launch()
+    XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30), app.debugDescription)
+    tap(app.buttons["Select a PNG file"])
+    XCTAssertTrue(app.buttons["Choose photo"].waitForExistence(timeout: 10), app.debugDescription)
+    app.buttons["Choose photo"].tap()
+    let photo = app.images.matching(NSPredicate(format: "label CONTAINS %@", "Private fixture location/date/device")).firstMatch
+    XCTAssertTrue(photo.waitForExistence(timeout: 10), app.debugDescription); capture("system-photo-selection")
+    // Photos exposes this remote grid image without a hittability flag; use its observed native bounds.
+    photo.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+    XCTAssertTrue(selected().waitForExistence(timeout: 15), app.debugDescription)
+    XCTAssertTrue(selected().label.contains("type: image/png")); XCTAssertTrue(selected().label.hasSuffix("relative path:")); capture("sanitized-guest-handoff")
+    review(); app.buttons["Reject upload"].tap()
+    XCTAssertTrue(app.staticTexts["Upload cancelled."].waitForExistence(timeout: 10), app.debugDescription)
+    print("UPLOAD_PICKER_REJECT_CHECKPOINT"); fflush(stdout); Thread.sleep(forTimeInterval: 3)
+    app.buttons["upload-outcome"].tap(); tap(app.buttons["Read selected file"])
+    XCTAssertTrue(selected().waitForExistence(timeout: 10), app.debugDescription); capture("guest-read-after-rejection")
+    review(); app.buttons["Approve once"].tap()
+    XCTAssertTrue(app.staticTexts["Upload complete."].waitForExistence(timeout: 20), app.debugDescription)
+    XCTAssertEqual(app.buttons["upload-outcome"].label, "Upload confirmed by server."); capture("selected-upload-confirmed")
+  }
+
 }

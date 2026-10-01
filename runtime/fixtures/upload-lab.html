@@ -97,10 +97,49 @@ window.addEventListener("pagehide", () => {
   bytes.fill(0);
 }, { once: true });
 status.textContent = "Ready to request a PNG upload.";
+const selection = element("selection"), selectedRequest = element("selected-request"), selectedRead = element("selected-read"), selectedStatus = element("selected-status");
+let selected = null;
+async function readSelected() {
+  if (!selected) return;
+  const data = await selected.arrayBuffer();
+  const hash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", data)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  selectedStatus.textContent = "Selected bytes: " + data.byteLength + "; SHA-256: " + hash + "; type: " + selected.type + "; name: " + selected.name + "; relative path: " + selected.webkitRelativePath;
+}
+selection.addEventListener("change", () => {
+  selected = selection.files?.length === 1 ? selection.files[0] : null;
+  selectedRequest.disabled = selected === null;
+  selectedRead.disabled = selected === null;
+  if (selected) void readSelected().catch(() => {
+    selectedStatus.textContent = "Selected file unavailable.";
+  });
+});
+selectedRead.addEventListener("click", () => {
+  void readSelected().catch(() => {
+    selectedStatus.textContent = "Selected file unavailable.";
+  });
+});
+selectedRequest.addEventListener("click", () => {
+  if (busy || !selected) return;
+  busy = true;
+  selectedRequest.disabled = true;
+  status.textContent = "Waiting for trusted review…";
+  void upload.upload({ data: selected, filename: selected.name, caption: "Selected file", noTransform: true }).then((value) => {
+    uploadId = value.uploadId;
+    render(value);
+    status.textContent = "Upload pending approval.";
+  }).catch((error) => {
+    status.textContent = error instanceof Error ? error.message : "Upload request failed.";
+  }).finally(() => {
+    busy = false;
+    selectedRequest.disabled = selected === null;
+  });
+});
 </script>
   <style>html { color-scheme: dark; background: #140f0b; color: #f3efeb; font: 16px system-ui, sans-serif; }
 body { margin: 0; } main { padding: 24px; display: grid; gap: 16px; } h1, p { margin: 0; } p { line-height: 1.5; }
 img { max-width: 100%; image-rendering: pixelated; } button { min-height: 48px; padding: 12px 18px; border: 1px solid #654637; border-radius: 12px; background: #34251d; color: #e8805d; font: inherit; } button:disabled { opacity: .5; } button:focus-visible { outline: 3px solid #e8805d; outline-offset: 3px; } pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; }
+
+p {overflow-wrap: anywhere;}
 </style>
 </head>
-<body><main><h1>Upload Lab</h1><p>A generated photo with two pixels. Each request opens a separate trusted review.</p><img id="preview" alt="Generated red and green pixels" width="240" height="120"><button id="request" type="button">Request PNG upload</button><button id="inspect" type="button">Read upload status</button><p id="status" role="status"></p><pre id="receipt"></pre></main></body></html>
+<body><main><h1>Upload Lab</h1><p>A generated photo with two pixels. Each request opens a separate trusted review.</p><img id="preview" alt="Generated red and green pixels" width="240" height="120"><button id="request" type="button">Request PNG upload</button><label>Select a PNG file<input id="selection" type="file" accept="image/png"></label><button id="selected-request" type="button" disabled>Request selected upload</button><button id="selected-read" type="button" disabled>Read selected file</button><p id="selected-status" role="status">No selected file.</p><button id="inspect" type="button">Read upload status</button><p id="status" role="status"></p><pre id="receipt"></pre></main></body></html>

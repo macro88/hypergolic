@@ -23,3 +23,23 @@ python3 tests/native/upload/ios-upload.py --device SIMULATOR_UUID \
 Run the two journeys sequentially: each compares independent connection/request counts before review, immediately after native Reject, and after one approved PUT. Each requires actual SDK receipt and cold launch. Android records screenshots/accessibility XML and installed APK equality; iOS uses the existing XCTest project and checks installed app files. Export and inspect XCTest screenshots separately before claiming visual review. Avoid concurrent UIAutomator commands during the Android driver.
 
 The initial tracer accepts only its bounded, independently checked metadata-free PNG. It establishes neither system picker nor arbitrary photo sanitation, attachments, protected physical-device identity, uncertainty reconciliation or published upload acceptance. Those remain subsequent phase slices.
+
+
+## Selected PNG journeys in progress
+
+`python3 tests/native/upload/create-selected-png.py --output <outside-source>/selected-photo.png`
+creates a generated 302-byte photo with Exif orientation 1, camera, date, GPS
+latitude fields and PNG text. Its independently known sanitized output is the
+same 71-byte red/green tracer. Add the seed to the iOS Simulator using
+`xcrun simctl addmedia <device> <seed>` before its photo-picker journey.
+
+`android-picker.py` takes the same Android build/APK/observer/serial/output arguments
+as the first tracer plus `--seed <generated-photo.png>`. It copies the seed to the
+emulator's controlled Download/UploadLab directory and selects it through actual
+DocumentsUI inputs. `ios-upload.py --picker` runs the native photo-picker case.
+Both verify selected sanitized bytes, trusted review, zero network after rejection,
+guest read after rejection and exactly one approved TLS upload. They require fresh
+sealed products containing the current fixture and drivers; a successful compile
+or exploratory picker probe alone is not their acceptance result. Broader formats,
+ordinary document selection, revoked picker callbacks and protected signing remain
+outside these selected-PNG journeys.
