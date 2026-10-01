@@ -23,8 +23,8 @@ is one-use. Photos must have embedded personal metadata removed before review;
 other attachments retain their bytes with a metadata warning. Failed preparation
 must not silently upload the original. Orientation and color must remain correct.
 The system photo/file picker is accepted: only selected files become readable by
-the requester, including when an upload is declined. Picker implementation and
-photo-format acceptance are still pending.
+the requester, including when an upload is declined. The selected-PNG picker journey is verified on both native hosts; broader
+photo-format acceptance is still pending.
 
 Approved uploads continue when switching between loaded napplets while the app is
 in the foreground. Trusted progress and Cancel remain available. Background,
@@ -142,3 +142,29 @@ reach 100/100 with nine dependency audits. Native fixtures establish the selecte
 first-PNG path with disposable signing; they do not establish protected physical
 device identity, picker/photo-format/media acceptance, durable reconciliation or
 published admission. CAP-05 remains open until the remaining phase plans pass.
+
+## Exif parser foundation
+
+Java and Swift now have a bounded, read-only TIFF/Exif directory validator for
+the remaining photo work. It reports only the primary image orientation (1–8),
+validates referenced Exif/GPS/interoperability and thumbnail directories, and
+rejects invalid offsets, duplicate tags, cycles, truncation and excess resources.
+Limits are 256 KiB of metadata, 32 directories, 128 entries per directory and
+1,024 entries overall. Independent recipes exercise both byte orders, all eight
+primary orientations, a differently oriented real JPEG thumbnail, actual GPS/date
+fields and exact resource boundaries. Java and Swift each pass 1,127 assertions;
+the existing native upload/PNG/registry suite remains 655 passing assertions.
+
+This helper is not connected to the preparer or picker yet. It does not rotate,
+recode, remove metadata from a returned image, validate thumbnail pixels or prove
+color preservation. Accepted native products still establish only the previous
+selected-PNG checkpoint; no broader format admission changes here.
+
+The directory/orientation basis is the published
+[CIPA DC-008-2012 Exif specification](https://www.cipa.jp/std/documents/e/DC-008-2012_E.pdf),
+sections 4.5 and 4.6. ColorSpace and Gamma carry rendering information, so the
+future photo preparer must preserve their meaning rather than discard them as
+personal metadata. CIPA now lists
+[Exif 3.1, DC-008-Translation-2026](https://www.cipa.jp/e/std/std-sec.html); this
+checkpoint does not claim full current-standard conformance. Remaining work must
+verify format-specific orientation/color behavior through both native journeys.

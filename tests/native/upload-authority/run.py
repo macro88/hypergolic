@@ -8,6 +8,7 @@ import zlib
 import subprocess
 import tempfile
 from png_metadata_fixtures import write_metadata_fixtures
+from exif_fixtures import write_exif_fixtures
 
 ROOT = Path(__file__).resolve().parents[3]
 ANDROID = ROOT / 'modules/napplet-host/android/src/main/java/org/nostrocket/hypergolic/host'
@@ -17,8 +18,8 @@ tokens = json.loads(subprocess.check_output(['node', str(HERE/'credential-fixtur
 with tempfile.TemporaryDirectory(prefix='hypergolic-upload-authority-') as temporary:
     out = Path(temporary)
     subprocess.run(['javac', '-Xlint:all', '-Werror', '-d', str(out),
-                    *[str(ANDROID / (name + '.java')) for name in ['UploadJsonBounds', 'UploadLeaseRegistry', 'UploadPngProfile', 'UploadPngMetadata', 'NativeUploadAuthority', 'NativeBlossomPermit', 'PublishedHttpsTransport', 'PublishedHttpsResponseReader']],
-                    str(HERE / 'UploadJsonBoundsProof.java'), str(HERE / 'UploadRegistryProof.java'), str(HERE / 'UploadPngProof.java'), str(HERE / 'UploadAuthorityProof.java'), str(HERE / 'UploadResponseProof.java'), str(HERE/'NativePermitProof.java')], check=True)
+                    *[str(ANDROID / (name + '.java')) for name in ['UploadJsonBounds', 'UploadLeaseRegistry', 'UploadPngProfile', 'UploadExifMetadata', 'UploadPngMetadata', 'NativeUploadAuthority', 'NativeBlossomPermit', 'PublishedHttpsTransport', 'PublishedHttpsResponseReader']],
+                    str(HERE / 'UploadJsonBoundsProof.java'), str(HERE / 'UploadRegistryProof.java'), str(HERE / 'UploadPngProof.java'), str(HERE / 'UploadExifProof.java'), str(HERE / 'UploadAuthorityProof.java'), str(HERE / 'UploadResponseProof.java'), str(HERE/'NativePermitProof.java')], check=True)
     subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadJsonBoundsProof'], check=True)
     subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadAuthorityProof'], check=True)
     subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadResponseProof'], check=True)
@@ -65,6 +66,12 @@ with tempfile.TemporaryDirectory(prefix='hypergolic-upload-authority-') as tempo
                 ('after-end',png(suffix=b'extra'),False), ('jpeg',b'\xff\xd8JPEG',False)]
     write_metadata_fixtures(out, png, png_chunk, good)
     for name,data,_ in fixtures: (out/(name+'.png')).write_bytes(data)
+    subprocess.run(['/usr/bin/sips', '-s', 'format', 'jpeg', str(out/'valid.png'), '--out', str(out/'thumbnail.jpg')], check=True, stdout=subprocess.DEVNULL)
+    write_exif_fixtures(out, (out/'thumbnail.jpg').read_bytes())
+    subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadExifProof', str(out)], check=True)
+    subprocess.run(['swiftc', '-swift-version', '6', '-warnings-as-errors', '-module-cache-path', str(out/'swift-cache'),
+                    str(IOS/'UploadExifMetadata.swift'), str(HERE/'UploadExifProof.swift'), '-o', str(out/'swift-exif-proof')], check=True)
+    subprocess.run([str(out/'swift-exif-proof'), str(out)], check=True)
     (out/'png-cases.json').write_text(json.dumps([{'name':name,'accepted':expected} for name,_,expected in fixtures]))
     subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadPngProof', str(out)], check=True)
     subprocess.run(['swiftc', '-swift-version', '6', '-warnings-as-errors', '-module-cache-path', str(out/'swift-cache'),

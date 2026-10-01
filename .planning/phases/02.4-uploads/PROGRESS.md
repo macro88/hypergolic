@@ -45,3 +45,16 @@ cancel/revoked-recipient cases and broader sanitation evidence are still require
 Plans 03–04 also remain open. Android's external picker may return a fresh selected
 file on foreground resume; it revives no prior upload approval or network grant.
 Weekly usage last observed 48%, with the authorized pause at 50%.
+
+
+## Exif foundation checkpoint — 1 October 2026
+
+A standalone Java/Swift TIFF/Exif parser now validates bounded referenced
+directories and returns primary orientation independently of thumbnail orientation.
+Each language passes 1,127 assertions; existing native upload assertions remain
+655 passing. The helper is not wired into preparation or picker admission, so
+photo-format acceptance and plan 02 completion have not advanced. Native selected
+PNG evidence belongs to its previous sealed source. Full React Doctor and aislop are 100/100 with nine dependency audits; the Swift
+helper also typechecks against the iOS Simulator SDK. Weekly usage reached 50%
+and the build is paused at the user-requested limit. Next is format-specific preparation with explicit orientation
+and color preservation, then fresh Android/iOS SDK/picker/approval/byte evidence.
