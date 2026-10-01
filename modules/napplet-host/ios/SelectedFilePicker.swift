@@ -31,7 +31,7 @@ final class SelectedFilePicker: NSObject, UIDocumentPickerDelegate, PHPickerView
       presenter.presentedViewController == nil else { completion(nil); return }
     clearSelection(); self.presenter = presenter; self.completion = completion; Self.current = self
     deadline = ProcessInfo.processInfo.systemUptime + 600
-    let menu = UIAlertController(title: "Share a selected file", message: "The requesting napplet can read the selected file. Photos are prepared before sharing. Uploading requires a separate approval.", preferredStyle: .alert)
+    let menu = UIAlertController(title: "Share a selected file", message: "The requesting napplet can read the selected file. Supported photos are prepared as PNG without resizing before sharing. Uploading requires a separate approval.", preferredStyle: .alert)
     menu.addAction(UIAlertAction(title: "Choose photo", style: .default) { [weak self] _ in self?.afterMenu { $0.photos() } })
     menu.addAction(UIAlertAction(title: "Choose file", style: .default) { [weak self] _ in self?.afterMenu { $0.files() } })
     menu.addAction(UIAlertAction(title: "Cancel", style: .cancel) { [weak self] _ in self?.finish(nil) })
@@ -106,14 +106,14 @@ final class SelectedFilePicker: NSObject, UIDocumentPickerDelegate, PHPickerView
       }
     } catch { return nil }
     // Failed photos never become unchanged attachments.
-    return UploadFileProfile.prepare(original)
+    return UploadPhotoPreparation.prepare(original)
   }
   private func deliver(_ data: UploadFileProfile.Prepared?) {
     guard permitted() else {finish(nil); return}
     guard let data else {
       finish(nil)
       if let presenter, presenter.presentedViewController == nil {
-        let error = UIAlertController(title: "File could not be prepared", message: "No file was shared. Select a supported photo within the file size limit.", preferredStyle: .alert)
+        let error = UIAlertController(title: "File could not be prepared", message: "No file was shared. Select a supported file within the file size limit.", preferredStyle: .alert)
         error.addAction(UIAlertAction(title: "OK", style: .default)); presenter.present(error, animated: true)
       }
       return

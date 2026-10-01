@@ -68,6 +68,7 @@ class NappletHostModule : Module() {
       NappletHostView.revokePublishedOnBackground()
     }
     OnUserLeavesActivity {
+      SelectedFilePicker.cancel()
       SelectedFilePicker.foreground(false)
       UploadTransport.foreground(false)
       CapabilityTransport.foreground(false)

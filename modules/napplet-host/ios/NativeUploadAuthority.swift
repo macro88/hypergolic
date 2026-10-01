@@ -56,6 +56,7 @@ final class NativeUploadAuthority: @unchecked Sendable {
   private let lock = NSLock()
   private let owner = UUID()
   private let clock: @Sendable () -> Int64
+  private let prepare: @Sendable (Data) -> UploadFileProfile.Prepared?
   private var sessions: [String: Session] = [:]
   private var requests: [ObjectIdentifier: Row] = [:]
   private var focused: Session?
@@ -63,7 +64,7 @@ final class NativeUploadAuthority: @unchecked Sendable {
   private var clockFailed = false
   private var lastTime: Int64 = -1
 
-  init(clock: @escaping @Sendable () -> Int64) { self.clock = clock }
+  init(clock: @escaping @Sendable () -> Int64, prepare: @escaping @Sendable (Data) -> UploadFileProfile.Prepared? = UploadFileProfile.prepare) { self.clock = clock; self.prepare = prepare }
   func register(_ generation: String, identity: String) -> Session? {
     lock.withLock {
       prune()
@@ -124,7 +125,7 @@ final class NativeUploadAuthority: @unchecked Sendable {
   func sealPreparedFile(_ request: Request) -> Review? {
     lock.withLock {
       prune(); guard let row = live(request), row.review == nil, row.cursor == row.body.count else { return nil }
-      guard let result = UploadFileProfile.prepare(row.body) else {
+      guard let result = prepare(row.body) else {
         requests.removeValue(forKey: ObjectIdentifier(request))?.clear(); return nil
       }
       row.clear(); row.body = result.bytes; row.cursor = result.bytes.count; row.mimeType = result.mimeType; row.metadataPolicy = result.metadataPolicy

@@ -13,3 +13,4 @@ dist/
 .aislop/history.jsonl
 .aislop/agent/
 .DS_Store
+__pycache__/

@@ -136,4 +136,146 @@ final class UploadTests: XCTestCase {
     }
   }
 
+  func testSelectedPhotosRejectApprove() throws {
+    continueAfterFailure = false
+    let app = XCUIApplication(bundleIdentifier: "org.nostrocket.hypergolic.uploadfixture")
+    func capture(_ name: String) {
+      let image = XCTAttachment(screenshot: app.screenshot()); image.name = name; image.lifetime = .keepAlways; add(image)
+      let tree = XCTAttachment(string: app.debugDescription); tree.name = name + "-accessibility"; tree.lifetime = .keepAlways; add(tree)
+    }
+    func tapGuest(_ element: XCUIElement) {
+      for _ in 0..<5 {if element.isHittable {break}; app.webViews.firstMatch.swipeUp()}
+      XCTAssertTrue(element.isHittable, app.debugDescription); element.tap()
+    }
+    func named(_ value: String) -> XCUIElement {app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", value)).firstMatch}
+    app.terminate(); app.launch()
+    XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30), app.debugDescription)
+    for index in 1...14 {
+      let ext = String(format: "photo-%02d", index)
+      tapGuest(app.buttons["Select a file"])
+      XCTAssertTrue(app.buttons["Choose file"].waitForExistence(timeout: 10), app.debugDescription); app.buttons["Choose file"].tap()
+      XCTAssertTrue(app.navigationBars.firstMatch.waitForExistence(timeout: 10), app.debugDescription)
+      if app.buttons["Browse"].exists {app.buttons["Browse"].tap()}
+      if named("On My iPhone").exists {named("On My iPhone").tap()}
+      let container = app.cells["Hypergolic, Container"]
+      if container.waitForExistence(timeout: 3) {container.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap()}
+      let folder = app.cells["UploadPhotos, Folder"]
+      if folder.waitForExistence(timeout: 3) {
+        // Tap the observed folder icon area; the title label is not its open control.
+        folder.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap()
+      }
+      let file = app.cells.matching(NSPredicate(format: "label BEGINSWITH %@", ext)).firstMatch
+      func activeList() throws -> XCUIElement {
+        // Bind the live query to this folder's observed photo cells, not a transient index.
+        let lists = app.collectionViews.matching(identifier: "File View").containing(NSPredicate(format: "label BEGINSWITH %@", "photo-"))
+        XCTAssertTrue(lists.firstMatch.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertEqual(lists.count, 1, app.debugDescription); return lists.firstMatch
+      }
+      if !file.exists || !file.isHittable {
+        // Files restores its prior viewport, including after cold app launch.
+        let first = app.cells.matching(NSPredicate(format: "label BEGINSWITH %@", "photo-01,")).firstMatch
+        for _ in 0..<8 {if first.exists && first.isHittable {break}; try activeList().swipeDown()}
+      }
+      for _ in 0..<8 {if file.exists && file.isHittable {break}; try activeList().swipeUp()}
+      XCTAssertTrue(file.waitForExistence(timeout: 10), app.debugDescription)
+      XCTAssertTrue(file.isHittable, app.debugDescription); capture(ext + "-system-file-selection")
+      file.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap()
+      let selected = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Selected bytes:")).firstMatch
+      XCTAssertTrue(selected.waitForExistence(timeout: 15), app.debugDescription)
+      print("UPLOAD_PHOTO_SELECTED:" + ext + ":" + selected.label); fflush(stdout); capture(ext + "-guest-handoff")
+      func review() {
+        tapGuest(app.buttons["Request selected upload"])
+        XCTAssertTrue(app.staticTexts["Approve file upload"].waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(app.images["Exact photo selected for upload"].exists, app.debugDescription)
+        XCTAssertTrue(app.buttons["Approve once"].isEnabled, app.debugDescription); capture(ext + "-trusted-file-review")
+      }
+      review(); app.buttons["Reject upload"].tap()
+      XCTAssertTrue(app.staticTexts["Upload cancelled."].waitForExistence(timeout: 10), app.debugDescription)
+      print("UPLOAD_PHOTO_REJECT:" + ext); fflush(stdout); Thread.sleep(forTimeInterval: 3)
+      app.buttons["upload-outcome"].tap(); tapGuest(app.buttons["Read selected file"])
+      XCTAssertTrue(selected.waitForExistence(timeout: 10), app.debugDescription)
+      print("UPLOAD_PHOTO_READ:" + ext + ":" + selected.label); fflush(stdout); capture(ext + "-guest-read-after-rejection")
+      review(); app.buttons["Approve once"].tap()
+      XCTAssertTrue(app.staticTexts["Upload complete."].waitForExistence(timeout: 20), app.debugDescription)
+      XCTAssertEqual(app.buttons["upload-outcome"].label, "Upload confirmed by server."); capture(ext + "-confirmed")
+      app.buttons["upload-outcome"].tap()
+    }
+  }
+
+  func testSelectedHEICPhotoRejectApprove() throws {
+    continueAfterFailure = false
+    let app = XCUIApplication(bundleIdentifier: "org.nostrocket.hypergolic.uploadfixture")
+    func capture(_ name: String) {
+      let image = XCTAttachment(screenshot: app.screenshot()); image.name = name; image.lifetime = .keepAlways; add(image)
+      let tree = XCTAttachment(string: app.debugDescription); tree.name = name + "-accessibility"; tree.lifetime = .keepAlways; add(tree)
+    }
+    func tapGuest(_ element: XCUIElement) {
+      for _ in 0..<5 {if element.isHittable {break}; app.webViews.firstMatch.swipeUp()}
+      XCTAssertTrue(element.isHittable, app.debugDescription); element.tap()
+    }
+    app.terminate(); app.launch()
+    XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30), app.debugDescription)
+    tapGuest(app.buttons["Select a file"])
+    XCTAssertTrue(app.buttons["Choose photo"].waitForExistence(timeout: 10), app.debugDescription); app.buttons["Choose photo"].tap()
+    let photo = app.images.matching(NSPredicate(format: "label CONTAINS %@", "Public photo picker HEIC proof")).firstMatch
+    XCTAssertTrue(photo.waitForExistence(timeout: 10), app.debugDescription); capture("heic-library-selection")
+    photo.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+    let selected = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Selected bytes:")).firstMatch
+    XCTAssertTrue(selected.waitForExistence(timeout: 15), app.debugDescription)
+    print("UPLOAD_PHOTO_SELECTED:photo-01:" + selected.label); fflush(stdout); capture("heic-library-guest-handoff")
+    func review() {
+      tapGuest(app.buttons["Request selected upload"])
+      XCTAssertTrue(app.staticTexts["Approve file upload"].waitForExistence(timeout: 15), app.debugDescription)
+      XCTAssertTrue(app.images["Exact photo selected for upload"].exists, app.debugDescription)
+      XCTAssertTrue(app.buttons["Approve once"].isEnabled, app.debugDescription); capture("heic-library-trusted-review")
+    }
+    review(); app.buttons["Reject upload"].tap()
+    XCTAssertTrue(app.staticTexts["Upload cancelled."].waitForExistence(timeout: 10), app.debugDescription)
+    print("UPLOAD_PHOTO_REJECT:photo-01"); fflush(stdout); Thread.sleep(forTimeInterval: 3)
+    app.buttons["upload-outcome"].tap(); tapGuest(app.buttons["Read selected file"])
+    XCTAssertTrue(selected.waitForExistence(timeout: 10), app.debugDescription)
+    print("UPLOAD_PHOTO_READ:photo-01:" + selected.label); fflush(stdout); capture("heic-library-read-after-reject")
+    review(); app.buttons["Approve once"].tap()
+    XCTAssertTrue(app.staticTexts["Upload complete."].waitForExistence(timeout: 20), app.debugDescription)
+    XCTAssertEqual(app.buttons["upload-outcome"].label, "Upload confirmed by server."); capture("heic-library-confirmed")
+    app.buttons["upload-outcome"].tap()
+  }
+  func testPickerCancellationAndBackground() throws {
+    continueAfterFailure = false
+    let app = XCUIApplication(bundleIdentifier: "org.nostrocket.hypergolic.uploadfixture")
+    func capture(_ name: String) {
+      let image = XCTAttachment(screenshot: app.screenshot()); image.name = name; image.lifetime = .keepAlways; add(image)
+      let tree = XCTAttachment(string: app.debugDescription); tree.name = name + "-accessibility"; tree.lifetime = .keepAlways; add(tree)
+    }
+    func openMenu() {
+      let select = app.buttons["Select a file"]
+      for _ in 0..<5 {if select.isHittable {break}; app.webViews.firstMatch.swipeUp()}
+      XCTAssertTrue(select.isHittable, app.debugDescription); select.tap()
+      XCTAssertTrue(app.buttons["Choose photo"].waitForExistence(timeout: 10), app.debugDescription)
+    }
+    func noFile(_ name: String) {
+      XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Selected bytes:")).firstMatch.exists, app.debugDescription)
+      XCTAssertFalse(app.buttons["Request selected upload"].isEnabled, app.debugDescription)
+      capture(name); print("UPLOAD_PICKER_DENIED:" + name); fflush(stdout); Thread.sleep(forTimeInterval: 2)
+    }
+    app.terminate(); app.launch()
+    XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30), app.debugDescription)
+    openMenu(); app.buttons["Cancel"].tap(); noFile("menu-cancel")
+    openMenu(); app.buttons["Choose photo"].tap()
+    XCTAssertTrue(app.buttons["Cancel"].waitForExistence(timeout: 10), app.debugDescription); app.buttons["Cancel"].tap(); noFile("photo-cancel")
+    openMenu(); app.buttons["Choose file"].tap()
+    XCTAssertTrue(app.buttons["Cancel"].waitForExistence(timeout: 10), app.debugDescription); app.buttons["Cancel"].tap(); noFile("file-cancel")
+    openMenu(); app.buttons["Choose photo"].tap()
+    XCTAssertTrue(app.buttons["Cancel"].waitForExistence(timeout: 10), app.debugDescription); capture("photo-before-background")
+    XCUIDevice.shared.press(.home); Thread.sleep(forTimeInterval: 2); app.activate()
+    XCTAssertTrue(app.buttons["Select a file"].waitForExistence(timeout: 10), app.debugDescription)
+    XCTAssertFalse(app.buttons["Choose photo"].exists, app.debugDescription); noFile("photo-background-revoked")
+    openMenu(); app.buttons["Choose file"].tap()
+    XCTAssertTrue(app.buttons["Cancel"].waitForExistence(timeout: 10), app.debugDescription); capture("file-before-background")
+    XCUIDevice.shared.press(.home); Thread.sleep(forTimeInterval: 2); app.activate()
+    XCTAssertTrue(app.buttons["Select a file"].waitForExistence(timeout: 10), app.debugDescription)
+    XCTAssertFalse(app.buttons["Choose file"].exists, app.debugDescription); noFile("file-background-revoked")
+    openMenu(); app.buttons["Cancel"].tap(); noFile("fresh-menu-after-revocation")
+  }
+
 }

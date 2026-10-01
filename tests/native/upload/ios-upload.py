@@ -3,7 +3,7 @@
 import argparse,json,subprocess
 from pathlib import Path
 from evidence import ROOT,sha,sources,product
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--picker',action='store_true');p.add_argument('--attachments',type=Path);p.add_argument('--device',required=True);p.add_argument('--app',type=Path,required=True);p.add_argument('--build',type=Path,required=True);p.add_argument('--observer',type=Path,required=True);p.add_argument('--output',type=Path,required=True);args=p.parse_args()
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--picker',action='store_true');p.add_argument('--attachments',type=Path);p.add_argument('--photos',type=Path);p.add_argument('--cases',type=Path);p.add_argument('--library-photo');p.add_argument('--device',required=True);p.add_argument('--app',type=Path,required=True);p.add_argument('--build',type=Path,required=True);p.add_argument('--observer',type=Path,required=True);p.add_argument('--output',type=Path,required=True);args=p.parse_args()
 args.output.mkdir(parents=True,exist_ok=False)
 report={'kind':'hypergolic-ios-upload-observer-v1','status':'running','sourceBefore':sources(),'scope':'Native XCTest plus independent loopback TLS observer. Disposable signing key; no picker, protected identity or public provider acceptance.'}
 try:
@@ -13,24 +13,50 @@ try:
     assert build['productFiles']==product(args.app),'Supplied app differs from sealed build'
     report['buildManifestSha256']=sha(args.build.read_bytes())
     baseline=json.loads(args.observer.read_text());report['observerBefore']=baseline
+    is_photo=bool(args.photos)
     items=json.loads((args.attachments/'attachments.json').read_text())['files'] if args.attachments else []
-    if items:
+    if is_photo:
+        assert (args.cases or args.library_photo) and not args.attachments and not args.picker
+        manifest=json.loads((args.photos/'photos.json').read_text());names=[args.library_photo] if args.library_photo else json.loads(args.cases.read_text());assert len(names)==(1 if args.library_photo else 14)
+        items=[next(item for item in manifest['files'] if item['file']==name) for name in names]
+    prepared_selections={}
+    if args.library_photo:
+        subprocess.run(['xcrun','simctl','addmedia',args.device,str(args.photos/args.library_photo)],check=True)
+        report['fixtures']=items
+    if items and not args.library_photo:
         data=Path(subprocess.check_output(['xcrun','simctl','get_app_container',args.device,'org.nostrocket.hypergolic.uploadfixture','data']).decode().strip())
-        directory=data/'Documents/UploadLab';directory.mkdir(parents=True,exist_ok=True)
-        for item in items:
-            body=(args.attachments/item['file']).read_bytes();assert sha(body)==item['sha256'] and len(body)==item['size']
-            (directory/('proof-'+item['file'].rsplit('.',1)[1]+'.'+item['file'].rsplit('.',1)[1])).write_bytes(body)
+        directory=data/('Documents/UploadPhotos' if is_photo else 'Documents/UploadLab');directory.mkdir(parents=True,exist_ok=True)
+        for index,item in enumerate(items):
+            body=((args.photos if is_photo else args.attachments)/item['file']).read_bytes()
+            assert sha(body)==(item['inputSha256'] if is_photo else item['sha256'])
+            if not is_photo:assert len(body)==item['size']
+            extension=item['file'].rsplit('.',1)[1]
+            filename=f'photo-{index+1:02d}.'+extension if is_photo else 'proof-'+extension+'.'+extension
+            (directory/filename).write_bytes(body)
         report['fixtures']=items;report['scope']='Actual iOS document selection of unchanged WAV/MP4/PDF/ZIP/text with exact guest bytes, native reject/read/review/approve and independent signed TLS uploads; no protected or published acceptance.'
+    if is_photo:report['scope']='Actual selected photo preparation/decoded review/reject/read/exact signed TLS with independent orientation/color/metadata; disposable signer, no protected or published acceptance.'
     selected_checks=set();read_checks=set();reject_checks=set()
     installed=Path(subprocess.check_output(['xcrun','simctl','get_app_container',args.device,'org.nostrocket.hypergolic.uploadfixture','app']).decode().strip())
     report['productFiles']=product(args.app);assert report['productFiles']==product(installed),'Installed app differs from supplied product'
-    command=['xcodebuild','test','-project','tests/native/ios/XCTest/HypergolicUITests.xcodeproj','-scheme','HypergolicUITests','-destination','platform=iOS Simulator,id='+args.device,'-only-testing:HypergolicUITests/UploadTests/'+('testSelectedAttachmentsRejectApprove' if items else 'testSelectedPhotoRejectApprove' if args.picker else 'testReviewRejectApprove'),'-derivedDataPath',str(args.output/'build'),'-resultBundlePath',str(args.output/'journey.xcresult'),'CODE_SIGNING_ALLOWED=NO']
+    command=['xcodebuild','test','-project','tests/native/ios/XCTest/HypergolicUITests.xcodeproj','-scheme','HypergolicUITests','-destination','platform=iOS Simulator,id='+args.device,'-only-testing:HypergolicUITests/UploadTests/'+('testSelectedHEICPhotoRejectApprove' if args.library_photo else 'testSelectedPhotosRejectApprove' if is_photo else 'testSelectedAttachmentsRejectApprove' if items else 'testSelectedPhotoRejectApprove' if args.picker else 'testReviewRejectApprove'),'-derivedDataPath',str(args.output/'build'),'-resultBundlePath',str(args.output/'journey.xcresult'),'CODE_SIGNING_ALLOWED=NO']
     rejected=False
     with (args.output/'journey.log').open('w') as log:
         process=subprocess.Popen(command,cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,bufsize=1)
         for line in process.stdout:
             log.write(line);log.flush()
-            if items:
+            if is_photo:
+                import re
+                for index,item in enumerate(items):
+                    name=f'photo-{index+1:02d}'
+                    if 'UPLOAD_PHOTO_SELECTED:'+name+':' in line or 'UPLOAD_PHOTO_READ:'+name+':' in line:
+                        match=re.search(r'Selected bytes: (\d+); SHA-256: ([0-9a-f]{64}); type: image/png;',line);assert match,line
+                        selected={'size':int(match.group(1)),'sha256':match.group(2)}
+                        if 'UPLOAD_PHOTO_SELECTED:'+name+':' in line:prepared_selections[name]=selected;selected_checks.add(name)
+                        else:assert selected==prepared_selections[name];read_checks.add(name)
+                    if 'UPLOAD_PHOTO_REJECT:'+name in line:
+                        observed=json.loads(args.observer.read_text());assert observed['connections']==baseline['connections']+index and len(observed['requests'])==len(baseline['requests'])+index
+                        reject_checks.add(name);print('Observed zero-network photo rejection: '+name,flush=True)
+            elif items:
                 for item in items:
                     ext=item['file'].rsplit('.',1)[1];expected='Selected bytes: '+str(item['size'])+'; SHA-256: '+item['sha256']
                     if 'UPLOAD_ATTACHMENT_SELECTED:'+ext+':' in line:
@@ -52,7 +78,11 @@ try:
     requests=observed['requests'][len(baseline['requests']):]
     assert len(requests)==(len(items) if items else 1) and observed['connections']==baseline['connections']+(len(items) if items else 1) and not observed['errors']
     if items:
-        for request,item in zip(requests,items):assert request['sha256']==item['sha256'] and request['size']==item['size'] and request['mimeType']==item['mimeType'] and request['signatureVerified'] is True
+        for index,(request,item) in enumerate(zip(requests,items)):
+            selected=prepared_selections[f'photo-{index+1:02d}'] if is_photo else item
+            assert request['sha256']==selected['sha256'] and request['size']==selected['size'] and request['mimeType']==('image/png' if is_photo else item['mimeType']) and request['signatureVerified'] is True
+            if is_photo:assert item['file'] in request['photoMatches']
+        if is_photo:report['preparedSelections']=prepared_selections;report['scope']='Actual selected photo preparation/decoded review/reject/read/exact signed TLS with independent orientation/color/metadata. Disposable signer, no protected or published acceptance.'
     else:assert requests[0]['sha256']=='5a852fbaaaecaf4cd14c01e150c7f881c5c5894b0a1e3c53be7e007c58374ee6' and requests[0]['size']==71 and requests[0]['signatureVerified'] is True
     assert product(installed)==report['productFiles'],'Installed product changed during journey'
     report['sourceAfter']=sources();assert report['sourceBefore']==report['sourceAfter'],'Source changed during native journey'

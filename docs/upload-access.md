@@ -156,10 +156,9 @@ primary orientations, a differently oriented real JPEG thumbnail, actual GPS/dat
 fields and exact resource boundaries. Java and Swift each pass 1,127 assertions;
 the existing native upload/PNG/registry suite remains 655 passing assertions.
 
-This helper is not connected to the preparer or picker yet. It does not rotate,
-recode, remove metadata from a returned image, validate thumbnail pixels or prove
-color preservation. Accepted native products still establish only the previous
-selected-PNG checkpoint; no broader format admission changes here.
+The later photo preparer below connects this validator before decoding JPEG,
+PNG and WebP metadata. The parser itself does not rotate images, validate
+thumbnail pixels or prove decoded color preservation.
 
 The directory/orientation basis is the published
 [CIPA DC-008-2012 Exif specification](https://www.cipa.jp/std/documents/e/DC-008-2012_E.pdf),
@@ -232,3 +231,90 @@ requires fresh products. Files grid title taps may only edit names; native tests
 use the observed icon area of the identified folder/container/file cell. Export
 XCTest screenshots and inspect actual review/selection/receipt images. Keep
 failed diagnostics separate from accepted results and omit private TLS keys.
+
+
+## Static photo preparation checkpoint
+
+Native preparation now handles bounded static JPEG, PNG, WebP, GIF and HEIC.
+Supported photos become lossless PNG without resizing, retaining displayed
+orientation and decoded color. Selection discloses the PNG conversion; review
+shows the decoded prepared image and its output MIME, size and SHA-256. The
+same native preparer owns arbitrary guest photo bytes before upload approval.
+Failed preparation shares no original and never falls through to an unchanged
+attachment.
+
+The recoding profile is canonical sRGB or Display P3, dimensions at most
+4,096 per side and 4,194,304 pixels total, with input/output at most 10 MiB.
+Animated/partial images, HDR gain maps, unsupported color spaces and malformed
+bounded containers/Exif are rejected. The ImageIO recoding path accepts 8-bit
+components. Existing eligible PNGs keep their original rendering chunks/pixels
+while removing nonrendering metadata. Other photos use complete native decodes
+and fresh PNG output with canonical rendering profiles; original custom ICC,
+Exif, text and timestamps are not carried forward.
+
+Independent fixtures include all eight JPEG/PNG/WebP orientations, a static GIF,
+sRGB/P3 HEIC, P3 PNG, a real differently oriented embedded JPEG thumbnail and
+actual camera/date/GPS metadata. Both codec probes pass
+72 admission/idempotence/rejection checks. Separate Pillow verification checks
+all 31 prepared images for complete-image orientation, dimensions, color and
+metadata removal. A second comparison against a separate complete native decode
+of each original confirms maximum RGBA channel error at most one. The Android
+probe uses real API 36 codecs under the shell UID; the ImageIO probe runs on
+macOS. These probes complement the selected SDK/native UI journeys described below;
+the macOS probe is not iOS device acceptance.
+
+Android ImageDecoder ignores PNG eXIf orientation on the selected host. The
+preparer validates and removes that Exif before decoding, then applies exact
+rotation/mirroring to decoded pixels. ImageIO also uses complete image decoding
+and exact pixel-group permutation rather than thumbnail transformation. This
+preserves edge pixels and avoids resampling HEIC when orienting it. Tiny 64×32
+maximum-quality HEIC fixture encoding fails the emulator's Goldfish HEVC decoder;
+realistic 512×256 quality-0.85 fixtures pass. Unsupported decode failures remain
+truthful and never send the original.
+
+Generate and verify retained fixtures outside source with `create-photos.py`,
+`create-heic.swift`, `verify-photo.py` and `verify-codec-preservation.py`. The
+observer's `--photo-dir` independently verifies approved prepared PNG bodies
+against those fixture recipes. Keep actual picker cancellation, revoked recipients,
+protected identity and published acceptance distinct from codec proof.
+
+
+The picker-lifetime review reproduced a real Android gap: an outstanding
+DocumentsUI chooser could deliver a new selection after Home and return. The
+native guard now watches its own task visibility on API 32+, screen interaction
+and bounded system leave/lock broadcasts; all resulting callbacks are cancelled
+and cannot revive upload approval. The deliberate launch into the external
+system chooser uses `FLAG_ACTIVITY_NO_USER_ACTION`. Fresh sealed products pass positive selection and denial regressions on the
+selected Android API 36 host. Older/OEM behavior remains unverified.
+
+The Android API basis is the official [TaskInfo.isVisible reference](https://developer.android.com/reference/android/app/TaskInfo#isVisible),
+[Intent.FLAG_ACTIVITY_NO_USER_ACTION reference](https://developer.android.com/reference/android/content/Intent#FLAG_ACTIVITY_NO_USER_ACTION)
+and system broadcast definitions. `ACTION_CLOSE_SYSTEM_DIALOGS` is deprecated
+for third-party sending on Android 12; this path only receives system leave events
+and uses the task visibility guard on the selected API 36 host. The two compiler
+deprecation warnings are disclosed; older/OEM picker acceptance remains a
+separate compatibility gate.
+
+
+Fresh Android and iOS Simulator Release fixtures each pass 14 real Files picker
+photo journeys: eight JPEG orientations, oriented PNG/WebP, static GIF, P3 HEIC,
+P3 PNG and a JPEG with a differently oriented embedded thumbnail. Each journey
+shares only sanitized PNG, rejects an upload with zero additional TLS dispatch,
+reads the selected bytes after rejection, then freshly approves an upload whose
+exact signed body/hash/size the controlled server independently verifies. iOS
+also passes the actual Photos-library picker journey for oriented P3 HEIC.
+
+The same final products pass four actual Android picker denials (system cancel,
+malformed photo, Home/late callback and fresh picker), and six iOS picker denials
+(menu/photo/file cancellation, photo/file background and fresh menu). No file or
+network authority is granted in those denied cases. Screenshots of both hosts'
+P3 HEIC and embedded-thumbnail reviews, and the iOS library review, were visually
+inspected: the full primary image is correctly oriented; the unrelated embedded
+thumbnail is not used. Source, runtime, fixture and installed-product seals are
+recorded by each journey. These are disposable-identity, controlled-server
+fixtures, not protected-identity, public-provider or physical-device acceptance.
+
+Plan 02 still needs the remaining actual picker recipient faults (close,
+replacement, identity change and renderer loss), plus iOS malformed-file
+selection. Plan 03 owns durable uncertain-outcome reconciliation and Plan 04 owns
+normal/published admission and final acceptance. CAP-05 remains incomplete.

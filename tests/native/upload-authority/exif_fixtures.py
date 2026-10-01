@@ -2,39 +2,43 @@
 import struct
 
 
+def exif_profile(thumbnail, order='<', rotation=1, thumbnail_rotation=6):
+    # Directory layout and pointed-to data are independently assembled in this fixture.
+    directories = {
+        'main': [(274,3,1,rotation),(271,2,0,b'Private camera\0'),(34665,4,1,'exif'),(34853,4,1,'gps')],
+        'exif': [(36867,2,0,b'2026:01:02 03:04:05\0'),(40965,4,1,'interop')],
+        'interop': [(1,2,4,b'R98\0')],
+        'gps': [(1,2,2,b'N\0'),(2,5,3,struct.pack(order+'IIIIII',1,1,2,1,3,1))],
+        'thumbnail': [(274,3,1,thumbnail_rotation),(513,4,1,'jpeg'),(514,4,1,len(thumbnail))],
+    }
+    offsets = {}; cursor = 8
+    for name, entries in directories.items():offsets[name] = cursor;cursor += 2+12*len(entries)+4
+    payload = b''; tables = []
+    for name, entries in directories.items():
+        encoded = []
+        for tag, kind, count, value in entries:
+            if isinstance(value, bytes):
+                count = count or len(value)
+                if len(value) <= 4:slot = value.ljust(4,b'\0')
+                else:slot = struct.pack(order+'I',cursor+len(payload));payload += value
+            elif isinstance(value, str):slot = value
+            elif kind == 3:slot = struct.pack(order+'H',value)+bytes(2)
+            else:slot = struct.pack(order+'I',value)
+            encoded.append((tag,kind,count,slot))
+        tables.append((name,encoded))
+    offsets['jpeg'] = cursor+len(payload)
+    body = (b'II' if order == '<' else b'MM')+struct.pack(order+'HI',42,8)
+    for name, entries in tables:
+        body += struct.pack(order+'H',len(entries))
+        for tag,kind,count,slot in entries:
+            body += struct.pack(order+'HHI',tag,kind,count)+(struct.pack(order+'I',offsets[slot]) if isinstance(slot,str) else slot)
+        body += struct.pack(order+'I',offsets['thumbnail'] if name == 'main' else 0)
+    return body+payload+thumbnail
+
+
 def write_exif_fixtures(out, thumbnail):
     def profile(order='<', rotation=1, thumbnail_rotation=6):
-        # Directory layout and pointed-to data are independently assembled in this fixture.
-        directories = {
-            'main': [(274,3,1,rotation),(271,2,0,b'Private camera\0'),(34665,4,1,'exif'),(34853,4,1,'gps')],
-            'exif': [(36867,2,0,b'2026:01:02 03:04:05\0'),(40965,4,1,'interop')],
-            'interop': [(1,2,4,b'R98\0')],
-            'gps': [(1,2,2,b'N\0'),(2,5,3,struct.pack(order+'IIIIII',1,1,2,1,3,1))],
-            'thumbnail': [(274,3,1,thumbnail_rotation),(513,4,1,'jpeg'),(514,4,1,len(thumbnail))],
-        }
-        offsets = {}; cursor = 8
-        for name, entries in directories.items():offsets[name] = cursor;cursor += 2+12*len(entries)+4
-        payload = b''; tables = []
-        for name, entries in directories.items():
-            encoded = []
-            for tag, kind, count, value in entries:
-                if isinstance(value, bytes):
-                    count = count or len(value)
-                    if len(value) <= 4:slot = value.ljust(4,b'\0')
-                    else:slot = struct.pack(order+'I',cursor+len(payload));payload += value
-                elif isinstance(value, str):slot = value
-                elif kind == 3:slot = struct.pack(order+'H',value)+bytes(2)
-                else:slot = struct.pack(order+'I',value)
-                encoded.append((tag,kind,count,slot))
-            tables.append((name,encoded))
-        offsets['jpeg'] = cursor+len(payload)
-        body = (b'II' if order == '<' else b'MM')+struct.pack(order+'HI',42,8)
-        for name, entries in tables:
-            body += struct.pack(order+'H',len(entries))
-            for tag,kind,count,slot in entries:
-                body += struct.pack(order+'HHI',tag,kind,count)+(struct.pack(order+'I',offsets[slot]) if isinstance(slot,str) else slot)
-            body += struct.pack(order+'I',offsets['thumbnail'] if name == 'main' else 0)
-        return body+payload+thumbnail
+        return exif_profile(thumbnail, order, rotation, thumbnail_rotation)
 
     cases=[]
     def add(name,data,expected):

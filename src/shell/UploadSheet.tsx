@@ -52,7 +52,7 @@ function Review({item, title, onApprove, onReject}: Omit<Props, 'item'> & {item:
         <Text style={styles.label}>Upload to</Text><Text testID="upload-review-destination" selectable style={styles.mono}>{item.review.destination}</Text>
         <Text style={styles.detail}>{item.filename || 'Selected file'}{'\n'}{item.review.mimeType} · {item.review.size.toLocaleString()} bytes</Text>
         {item.caption !== '' && <Text selectable style={styles.detail}>Caption requested by napplet: {item.caption}</Text>}
-        <Text style={styles.detail}>{item.review.metadataPolicy === 'photo-stripped' ? 'This reviewed photo contains no embedded personal metadata. Its pixels, size and color information have been preserved.' : 'This attachment is unchanged. Embedded metadata may still be included.'}</Text>
+        <Text style={styles.detail}>{item.review.metadataPolicy === 'photo-stripped' ? 'Prepared PNG photo with no embedded personal metadata. Supported photos are converted to PNG when needed, without resizing. Displayed orientation and color are preserved.' : 'This attachment is unchanged. Embedded metadata may still be included.'}</Text>
         <Text style={styles.detail}>Approval sends this file using your selected identity. Cancelling after transfer starts may leave a copy on the server.</Text>
         <Text style={styles.label}>Reviewed SHA-256</Text><Text testID="upload-review-hash" selectable style={styles.mono}>{item.review.sha256}</Text>
       </ScrollView>

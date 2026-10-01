@@ -17,6 +17,7 @@ HERE = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser()
 parser.add_argument('--output', required=True)
 parser.add_argument('--expected-dir', type=Path)
+parser.add_argument('--photo-dir', type=Path)
 args = parser.parse_args()
 out = Path(args.output).resolve()
 out.mkdir(parents=True, exist_ok=False)
@@ -28,6 +29,11 @@ if args.expected_dir:
         data = (args.expected_dir/item['file']).read_bytes()
         assert hashlib.sha256(data).hexdigest() == item['sha256'] and len(data) == item['size']
         expected_files[item['sha256']] = (data, item['mimeType'], item['file'].rsplit('.',1)[1])
+photos = json.loads((args.photo_dir/'photos.json').read_text()) if args.photo_dir else None
+if photos:
+    import importlib.util
+    photo_spec = importlib.util.spec_from_file_location('independent_photo_verifier', HERE/'verify-photo.py')
+    photo_verifier = importlib.util.module_from_spec(photo_spec);photo_spec.loader.exec_module(photo_verifier)
 key, pem, der = out/'server.key', out/'server.pem', out/'anchor.der'
 subprocess.run(['openssl','req','-x509','-newkey','rsa:2048','-nodes','-days','1','-keyout',str(key),'-out',str(pem),
                 '-subj','/CN=files.example.com','-addext','subjectAltName=DNS:files.example.com',
@@ -57,18 +63,30 @@ def serve(raw):
             head,body=bytes(wire).split(b'\r\n\r\n',1)
             lines=head.decode('ascii').split('\r\n');assert lines[0]=='PUT /upload HTTP/1.1'
             headers=dict(line.split(': ',1) for line in lines[1:]);assert len(headers)==len(lines)-1
-            hash_value=headers['X-SHA-256'];expected_body,mime,extension=expected_files[hash_value]
-            size=int(headers['Content-Length']);assert size==len(expected_body)
+            hash_value=headers['X-SHA-256'];known=expected_files.get(hash_value)
+            size=int(headers['Content-Length']);assert 1<=size<=10*1024*1024
+            assert known or photos
+            expected_body,mime,extension=known if known else (None,'image/png','png')
+            if known:assert size==len(expected_body)
             while len(body)<size:
                 data=peer.recv(min(8192,size-len(body)))
                 if not data:raise AssertionError('Incomplete body')
                 body+=data
-            assert body==expected_body and hashlib.sha256(body).hexdigest()==hash_value and headers['Content-Type']==mime
+            assert (expected_body is None or body==expected_body) and hashlib.sha256(body).hexdigest()==hash_value and headers['Content-Type']==mime
+            matches=[]
+            if not known:
+                for item in photos['files']:
+                    try:
+                        photo_verifier.verify(body,args.photo_dir/(item['file']+'.expected.png'),item['gamut'],photos['metadataNeedles'],8 if item['file'].endswith('.heic') else 4);matches.append(item['file'])
+                    except AssertionError:pass
+                assert matches,'Stored photo differs from independent orientation/color/metadata recipes'
             credential={'authorization':headers['Authorization'],'sha256':hash_value,'size':size}
             verified=json.loads(subprocess.check_output(['node',str(HERE/'verify-authorization.mjs')],input=json.dumps(credential),text=True,cwd=ROOT,stderr=subprocess.DEVNULL))
             with lock:
                 (out/f'stored-{len(observed["requests"])+1}.{extension}').write_bytes(body)
-                verified['mimeType']=mime;observed['requests'].append(verified);save()
+                verified['mimeType']=mime
+                if matches:verified['photoMatches']=matches
+                observed['requests'].append(verified);save()
             time.sleep(2) # Retains a visible in-flight progress interval before server confirmation.
             descriptor=json.dumps({'url':f'https://files.example.com:19943/{hash_value}.{extension}','sha256':hash_value,'size':size,'type':mime,'uploaded':int(time.time())}).encode()
             peer.sendall(b'HTTP/1.1 201 Created\r\nContent-Type: application/json\r\nContent-Length: '+str(len(descriptor)).encode()+b'\r\nConnection: close\r\n\r\n'+descriptor)

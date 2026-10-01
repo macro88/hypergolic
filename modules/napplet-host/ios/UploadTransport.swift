@@ -5,7 +5,7 @@ import Network
 
 /// Native admission and captured WebKit recipient. Initial reply handlers are never reused for progress.
 @MainActor enum UploadTransport {
-  nonisolated static let leases = UploadLeaseRegistry(clock: { Int64(ProcessInfo.processInfo.systemUptime * 1000) })
+  nonisolated static let leases = UploadLeaseRegistry(clock: { Int64(ProcessInfo.processInfo.systemUptime * 1000) }, prepare: UploadPhotoPreparation.prepare)
   private final class Store: @unchecked Sendable {
     let lock = NSLock()
     var server: String?

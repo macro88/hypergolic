@@ -42,7 +42,7 @@ final class UploadLeaseRegistry: @unchecked Sendable {
   private var rows: [String: Row] = [:]
   private var dispatchedHistory: [String: Bool] = [:]
   private var historyOrder: [String] = []
-  init(clock: @escaping @Sendable () -> Int64) { authority = NativeUploadAuthority(clock: clock) }
+  init(clock: @escaping @Sendable () -> Int64, prepare: @escaping @Sendable (Data) -> UploadFileProfile.Prepared? = UploadFileProfile.prepare) { authority = NativeUploadAuthority(clock: clock, prepare: prepare) }
   func register(_ generation: String, identity: String, registration: String, granted: Bool) -> Bool {
     lock.withLock {
       guard granted, registration.utf8.count <= 8192, sessions[generation] == nil,

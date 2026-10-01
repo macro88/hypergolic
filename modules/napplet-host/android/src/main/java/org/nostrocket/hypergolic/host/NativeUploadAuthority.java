@@ -54,13 +54,15 @@ public final class NativeUploadAuthority {
     void clear() { Arrays.fill(body, (byte) 0); }
   }
   private final LongSupplier clock;
+  private final java.util.function.Function<byte[], UploadFileProfile.Prepared> prepare;
   private final Map<String, SessionHandle> sessions = new HashMap<>();
   private final Map<RequestHandle, Row> requests = new HashMap<>();
   private SessionHandle focused;
   private boolean foreground, clockFailed;
   private long lastTime = -1;
 
-  public NativeUploadAuthority(LongSupplier clock) { this.clock = clock; }
+  public NativeUploadAuthority(LongSupplier clock) { this(clock, UploadFileProfile::prepare); }
+  NativeUploadAuthority(LongSupplier clock, java.util.function.Function<byte[], UploadFileProfile.Prepared> prepare) { this.clock = clock; this.prepare = prepare; }
   public synchronized SessionHandle register(String generation, String identity) {
     prune();
     if (clockFailed || generation == null || !generation.matches("[A-Za-z0-9_-]{1,80}") ||
@@ -111,7 +113,7 @@ public final class NativeUploadAuthority {
   public synchronized Review sealPreparedFile(RequestHandle request) {
     prune(); Row row = live(request);
     if (row == null || row.review != null || row.cursor != row.body.length) return null;
-    UploadFileProfile.Prepared result = UploadFileProfile.prepare(row.body);
+    UploadFileProfile.Prepared result = prepare.apply(row.body);
     byte[] prepared = result == null ? null : result.bytes();
     if (prepared == null) { cancel(request); return null; }
     row.clear(); row.body = prepared; row.cursor = prepared.length; row.mimeType = result.mimeType(); row.metadataPolicy = result.metadataPolicy();

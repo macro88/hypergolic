@@ -53,7 +53,8 @@ final class UploadLeaseRegistry {
   private final Map<String, Session> sessions = new HashMap<>();
   private final Map<String, Row> rows = new HashMap<>();
   private final LinkedHashMap<String, Boolean> dispatchedHistory = new LinkedHashMap<>();
-  UploadLeaseRegistry(LongSupplier clock) { authority = new NativeUploadAuthority(clock); }
+  UploadLeaseRegistry(LongSupplier clock) { this(clock, UploadFileProfile::prepare); }
+  UploadLeaseRegistry(LongSupplier clock, java.util.function.Function<byte[], UploadFileProfile.Prepared> prepare) { authority = new NativeUploadAuthority(clock, prepare); }
   synchronized boolean register(String generation, String identity, String registration, boolean granted) {
     if (!granted || registration == null || registration.length() > 8192 || sessions.containsKey(generation)) return false;
     var handle = authority.register(generation, identity); if (handle == null) return false;

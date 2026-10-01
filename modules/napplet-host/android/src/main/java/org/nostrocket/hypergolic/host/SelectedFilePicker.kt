@@ -2,6 +2,12 @@ package org.nostrocket.hypergolic.host
 
 import android.app.Activity
 import android.content.Intent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.IntentFilter
+import android.app.ActivityManager
+import android.os.Build
+import android.os.PowerManager
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -22,6 +28,7 @@ internal object SelectedFilePicker {
     val stream = AtomicReference<java.io.InputStream?>()
     var awaitingSystem = true
     var result: Uri? = null
+    var receiver: BroadcastReceiver? = null
   }
   private val reading = AtomicBoolean(false)
   private var pending: Pending? = null
@@ -30,12 +37,14 @@ internal object SelectedFilePicker {
     if (activity == null || !foreground || !live() || pending != null || reading.get()) { callback.onReceiveValue(null); return }
     val entry = Pending(activity, generation, live, callback, SystemClock.elapsedRealtime() + 600_000)
     pending = entry
+    if (!bindLifetime(entry)) { cancel(); return }
     main.postDelayed({ if (pending === entry) cancel() }, 600_000)
     try {
       // Avoid guest-supplied chooser intents, cameras, directories and persistent grants.
+      android.widget.Toast.makeText(activity, "Supported photos are prepared as PNG without resizing. Uploading needs separate approval.", android.widget.Toast.LENGTH_LONG).show()
       activity.startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE); type = "*/*"; putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NO_USER_ACTION)
       }, CODE)
     } catch (_: Exception) { cancel() }
   }
@@ -68,8 +77,44 @@ internal object SelectedFilePicker {
   fun cancel() {
     val entry = pending; pending = null
     entry?.cancelled = true
+    entry?.let { unbindLifetime(it) }
     try {entry?.stream?.getAndSet(null)?.close()} catch (_: Exception) {}
     entry?.callback?.onReceiveValue(null)
+  }
+  private fun bindLifetime(entry: Pending): Boolean {
+    val context = entry.activity.applicationContext
+    val receiver = object : BroadcastReceiver() {
+      override fun onReceive(context: Context?, intent: Intent?) {
+        if (pending === entry && intent?.action in setOf(Intent.ACTION_CLOSE_SYSTEM_DIALOGS, Intent.ACTION_SCREEN_OFF)) cancel()
+      }
+    }
+    return try {
+      val filter = IntentFilter().apply {addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS); addAction(Intent.ACTION_SCREEN_OFF)}
+      if (Build.VERSION.SDK_INT >= 33) context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
+      else context.registerReceiver(receiver, filter)
+      entry.receiver = receiver
+      watchTask(entry)
+      true
+    } catch (_: Exception) {false}
+  }
+  private fun unbindLifetime(entry: Pending) {
+    val receiver = entry.receiver ?: return; entry.receiver = null
+    try {entry.activity.applicationContext.unregisterReceiver(receiver)} catch (_: Exception) {}
+  }
+  private fun watchTask(entry: Pending) {
+    main.postDelayed({
+      if (pending !== entry || !entry.awaitingSystem) return@postDelayed
+      try {
+        val power = entry.activity.getSystemService(PowerManager::class.java)
+        if (power == null || !power.isInteractive) {cancel(); return@postDelayed}
+        if (Build.VERSION.SDK_INT >= 32) {
+          val manager = entry.activity.getSystemService(ActivityManager::class.java)
+          val task = manager?.appTasks?.map {it.taskInfo}?.singleOrNull {it.taskId == entry.activity.taskId}
+          if (task == null || !task.isVisible) {cancel(); return@postDelayed}
+        }
+        watchTask(entry)
+      } catch (_: Exception) {cancel()}
+    }, 200)
   }
   private fun prepare(entry: Pending) {
     val uri = entry.result ?: return
@@ -94,12 +139,12 @@ internal object SelectedFilePicker {
         }
         val bytes = original ?: throw IllegalArgumentException()
         // Failed photos never become unchanged attachments.
-        val prepared = UploadFileProfile.prepare(bytes) ?: throw IllegalArgumentException()
+        val prepared = UploadPhotoPreparation.prepare(bytes) ?: throw IllegalArgumentException()
         main.post {
           try {
             if (pending !== entry || !foreground || !entry.live() || SystemClock.elapsedRealtime() >= entry.deadline) return@post
             val output = SelectedFileProvider.stage(entry.activity, entry.generation, prepared.bytes(), prepared.mimeType(), entry.live)
-            pending = null; entry.callback.onReceiveValue(output?.let {arrayOf(it)})
+            pending = null; unbindLifetime(entry); entry.callback.onReceiveValue(output?.let {arrayOf(it)})
           } finally {prepared.bytes().fill(0)}
         }
       } catch (_: Exception) { main.post {

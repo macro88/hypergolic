@@ -2,11 +2,11 @@
 gsd_state_version: "1.0"
 current_phase: "2.4"
 current_phase_name: Uploads
-status: executing
-stopped_at: Attachment checkpoint passes both hosts; final-source selected-PNG regressions and quality running; continue broader photos and picker lifetime cases. Weekly usage 1%, pause at 50%.
-last_updated: "2026-10-01T07:43:46.253Z"
+status: Static photo checkpoint passes both hosts and quality gates. Continue Plan 02 picker recipient faults and iOS malformed selection; plans 03–04 and CAP-05 remain open.
+stopped_at: "Static photo checkpoint: sealed 14 photo journeys per host, iOS Photos HEIC, picker denials and attachment/PNG regressions pass; quality 100/100. Continue remaining Plan 02 recipient faults. Weekly usage 3%, pause at 50%."
+last_updated: "2026-10-01T10:27:06.044Z"
 last_activity: 2026-10-01
-state_head: 65902b8ce436f0e93995d0f6c2a872c8c9176dec
+state_head: c0ce7b8bba119edf4b88934abc5ee087772347e1
 progress:
   total_phases: 14
   completed_phases: 0
@@ -40,7 +40,7 @@ expansion cards are not executable PLAN files.
 
 Phase: 2.4 (Uploads) — EXECUTING
 Plan: 2 of 4
-Status: In progress: bounded unchanged attachment journeys pass both hosts; plan 02 photos and revoked-picker acceptance remain open; usage reset, pause at 50%
+Status: Static photo checkpoint passes both hosts and quality gates. Continue Plan 02 picker recipient faults and iOS malformed selection; plans 03–04 and CAP-05 remain open.
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
 Previous native action checkpoint: 2026-09-15 — Added the Android native deletion authority with 95 owning JVM assertions and the protected-record/erase reader with 89 actual Android assertions. Existing SDK records are unchanged; disposable data alone was erased. The actual Release app and separate instrumentation APK build and their installed bytes match. The production deletion path remains denied pending native context/lifecycle and system-prompt integration; authentication in the record probe is a double. See docs/identity-storage.md.
@@ -746,6 +746,20 @@ Phase 2.3 completion — 30 September 2026: all three resource plans pass the se
 
 ## Session
 
-**Last session:** 2026-10-01T07:43:46.189Z
-**Stopped at:** Attachment checkpoint passes both hosts; final-source selected-PNG regressions and quality running; continue broader photos and picker lifetime cases. Weekly usage 1%, pause at 50%.
+**Last session:** 2026-10-01T10:27:05.987Z
+**Stopped at:** Static photo checkpoint: sealed 14 photo journeys per host, iOS Photos HEIC, picker denials and attachment/PNG regressions pass; quality 100/100. Continue remaining Plan 02 recipient faults. Weekly usage 3%, pause at 50%.
 **Resume file:** .planning/phases/02.4-uploads/02.4-02-PLAN.md
+
+Static photo checkpoint (2026-10-01): native preparation supports bounded static
+JPEG/PNG/WebP/GIF/HEIC with disclosed full-size PNG conversion, exact orientation,
+canonical sRGB/Display P3 and fail-closed malformed/animated/HDR cases. Native
+Android codec and macOS ImageIO probes each pass 72 checks; independent verification
+covers 31 full images and direct decoded-pixel preservation within one RGBA channel
+value. Fresh sealed Android/iOS products each pass 14 SDK/Files photo journeys;
+iOS Photos-library oriented P3 HEIC also passes. Actual cancellation/background
+checks pass (Android four, iOS six), including the reproduced and fixed Android
+Home/return stale callback. Attachment/PNG regressions pass both final native products. React Doctor and
+aislop each reach 100/100, with nine dependency audits passing; the final state
+is rechecked before the targeted local commit. Plan 02 recipient faults and iOS malformed
+selection remain open; plans 03–04 and CAP-05 remain incomplete. Weekly usage 3%
+consumed; continue until the requested 50% pause limit. No source push.

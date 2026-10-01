@@ -8,7 +8,7 @@ import org.json.JSONObject
 
 /** Native byte admission, original recipient and progress ownership. Expo sees lookup tokens only. */
 internal object UploadTransport {
-  val leases = UploadLeaseRegistry(SystemClock::elapsedRealtime)
+  val leases = UploadLeaseRegistry(SystemClock::elapsedRealtime, UploadPhotoPreparation::prepare)
   private val main = Handler(Looper.getMainLooper())
   private data class Pending(val generation: String, val uploadId: String, val sequence: Long,
     val review: NativeUploadAuthority.Review, val push: (String) -> Unit, var delivery: Long = 0, var sent: Int = 0)
