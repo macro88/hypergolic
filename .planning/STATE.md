@@ -1,15 +1,16 @@
 ---
 gsd_state_version: "1.0"
-current_phase: 2
+current_phase: "2.4"
+current_phase_name: Uploads
 status: executing
-last_updated: "2026-10-01T01:17:12.331Z"
+last_updated: "2026-10-01T01:25:14.316Z"
 last_activity: 2026-09-15
 last_activity_desc: "Android fingerprint deletion passes four OS-callback checks on the current isolated APK. Three consecutive clean iOS launches pass exact review, explicit unavailable-auth denial and cancelled-review live-state retention. Both rebuilt platforms pass three State Lab close/reopen checks. Eager startup sometimes left iOS without identity; lazy restoration now starts only the focused napplet and retains visited views. Failed startup/ADB-offline runs remain recorded. TypeScript, 25 shell tests and 50 native-driver tests pass; aislop 100/100, local React Doctor zero findings/no external numeric score. See docs/identity-storage.md and docs/workspace-storage.md. Pausing this budgeted continuation at the final checkpoint; latest weekly usage 43%, below the 45% stopping margin. No source push or remote change. Next: authenticated manual backup, older Android action compatibility, physical iPhone security proof, signing approvals and verified remote loading."
-state_head: 1979dbc3be9f952ff74e825ee592a816213e233f
+state_head: f06fdeb9b5f4898c53f0102e615798b6d4dbbd0d
 progress:
   total_phases: 14
   completed_phases: 0
-  total_plans: 14
+  total_plans: 18
   completed_plans: 8
   percent: 0
 ---
@@ -37,7 +38,7 @@ expansion cards are not executable PLAN files.
 
 ## Current Position
 
-Phase: 2 native foundation; expansion phases 2.1–2.9 and 2.11 required before post-MVP phase 3 and phase 4 Value. The retired 2.10 identifier is left unused. There are 14 roadmap phases including the completed baseline.
+Phase: 2.4 (Uploads) — READY TO EXECUTE
 Plan: 02-04 individual signing approval; remaining 02-03 device security and 02-07 acceptance
 Status: Identity/workspace/import/switch and manual backup are implemented; State Lab and lazy restoration work on both platforms. Signing has Android protected-signing/local-wire proof and iOS public-fixture review proof. Public remote first-open works on both platforms, and the normal Android API 29 path restores a connected remote guest. Live remote updates, physical iPhone protected identity/signing and full release acceptance remain open.
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
