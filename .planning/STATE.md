@@ -1,11 +1,17 @@
 ---
-gsd_state_version: '1.0'
+gsd_state_version: "1.0"
+current_phase: 2
 status: executing
+last_updated: "2026-10-01T01:17:12.331Z"
+last_activity: 2026-09-15
+last_activity_desc: "Android fingerprint deletion passes four OS-callback checks on the current isolated APK. Three consecutive clean iOS launches pass exact review, explicit unavailable-auth denial and cancelled-review live-state retention. Both rebuilt platforms pass three State Lab close/reopen checks. Eager startup sometimes left iOS without identity; lazy restoration now starts only the focused napplet and retains visited views. Failed startup/ADB-offline runs remain recorded. TypeScript, 25 shell tests and 50 native-driver tests pass; aislop 100/100, local React Doctor zero findings/no external numeric score. See docs/identity-storage.md and docs/workspace-storage.md. Pausing this budgeted continuation at the final checkpoint; latest weekly usage 43%, below the 45% stopping margin. No source push or remote change. Next: authenticated manual backup, older Android action compatibility, physical iPhone security proof, signing approvals and verified remote loading."
+state_head: 1979dbc3be9f952ff74e825ee592a816213e233f
 progress:
   total_phases: 14
-  completed_phases: 4
-  total_plans: 11
+  completed_phases: 0
+  total_plans: 14
   completed_plans: 8
+  percent: 0
 ---
 
 # Project State
@@ -48,6 +54,8 @@ Previous environment checkpoint: 2026-09-12 — local iOS development setup comp
 
 See `docs/architecture.md` for confirmed requirements and unresolved policy.
 
+- [Phase 2.4]: Upload interview complete: Blossom only; one editable default; approve each upload; strip photo metadata before review; selected-file picker; foreground switching continues approved uploads; uncertain outcomes require reconciliation before fresh approved retry. — Exact-byte and destination authority, usable first-run attachment flow, and bounded foreground lifetime; see 02.4-CONTEXT.md. Weekly usage capped at 50%; source push remains owner-controlled.
+
 ### Blockers/Concerns
 
 First theme-only native contract is selected. Validate privileged adapters and delivery contracts before their dependent work. Preserve Expo 57.0.20 despite the existing Doctor patch-version mismatch. Source remote/push remains owner-only.
@@ -84,7 +92,6 @@ immutable event verification and revocable publication. Current weekly usage at
 this checkpoint: 14% consumed; continue only below the requested 25% pause point.
 No source push or remote change. See docs/identity-storage.md.
 
-
 Signing foundation checkpoint (2026-09-22): added separate Android/iOS native
 approval lifetime cores, a shared presentation queue, immutable NIP-01 event
 capture, independent signature verification and a revocable Applesauce relay
@@ -93,7 +100,6 @@ signer, review sheet, relay capability or publication route is enabled yet.
 Plan 02-04 remains in progress. See docs/signing-approval.md and
 .planning/phases/02-independent-android-proof/02-04-PROGRESS.md for exact scope,
 commands and missing integration. No source push or remote change.
-
 
 Budget pause (2026-09-22): latest weekly usage 24% consumed / 76% remaining.
 Stopping before the 25% limit; no further implementation until approval. Backup
@@ -125,7 +131,6 @@ fresh authentication, with two saved identities retained. The only fix was the
 scoped System UI test observation; production backup code is unchanged. See
 `docs/identity-storage.md`. Latest weekly usage check: 46% consumed.
 
-
 Continuation checkpoint (2026-09-23): stopping at 47% weekly consumed, leaving
 headroom below the requested 50% limit instead of starting another implementation
 batch. Signing integration and the normal-entry/PIN acceptance above are complete
@@ -134,7 +139,6 @@ remote napplet resolution and artifact validation (02-05); physical iPhone
 protected signing/capture and older Android acceptance remain open. External
 React Doctor scoring still awaits permission; its local scan has zero findings.
 No source push or remote change. Continue only after the user authorizes it.
-
 
 Published verification and relay-settings continuation (2026-09-23): kind-35129
 coordinate resolution, signed manifest/HTML verification, exact event pinning,
@@ -272,7 +276,6 @@ This does not prove protected production identity, functional filesystem, live
 update retrieval, physical iPhone security or older Android. Source remote/push
 remains owner-only.
 
-
 Older-WebView checkpoint (2026-09-25): Android API 29/WebView 91 now passes the
 public-only live relay/Blossom first-open path (three source/APK-bound driver
 checks) and the normal Release app retains the same public npub and connected
@@ -289,7 +292,6 @@ updates, protected remote path, physical iPhone and API 26 guest compatibility
 remain open. Source remote/push remains owner-only; requested usage pause is 90%
 weekly consumed.
 
-
 Normal remote-open checkpoint (2026-09-25): the final normal Android API 29
 Release APK opened the external public `file-browser` naddr under its
 process-owned identity after exact publisher/event/`theme` consent. The native
@@ -299,7 +301,6 @@ exercise secret readback or signing and does not prove physical-device identity
 security. Live published updates, iPhone protected path, and API 26 modern
 WebView support remain open. No source push or remote change.
 
-
 Normal API 29 State Lab checkpoint (2026-09-25): the same Release APK and
 WebView 91 connected bundled State Lab to the selected public identity. The
 actual native storage broker confirmed a disposable Write and Read; after a
@@ -307,7 +308,6 @@ force-stop and cold launch, Read returned the saved value again. This manual
 emulator observation exercises Kehto's older-WebView operation path, but does
 not establish remote storage grants, signing, or physical-device security.
 Source remote/push remains owner-only.
-
 
 Android API 29 signed-update compatibility (2026-09-25): the final Release
 fixture on WebView 91 passes the embedded unchanged-access and changed-access
@@ -318,14 +318,12 @@ current-event row before its unchanged strict review assertions; its initial
 viewport-only failure is preserved. These are embedded signed fixtures, not
 public relay update retrieval. Source remote/push remains owner-only.
 
-
 API 26 unsupported-WebView status (2026-09-25): the shell now presents an
 actionable Android System WebView update message for the native
 `webview-update-required` refusal. The host still refuses guest execution;
 other runtime statuses retain their existing labels. A fresh signed normal Release APK on API 26/WebView 58 showed the exact
 message after an in-place install while retaining the same selected public
 npub. The native host still refused guest execution.
-
 
 Final-runtime iOS update regression (2026-09-25): a fresh isolated iPhone
 17 Pro iOS 26.5 Simulator Release fixture with trusted host asset SHA-256
@@ -337,7 +335,6 @@ recorded unchanged source snapshots. This does not prove live public relay
 updates or protected identity on a physical iPhone. `build:tester --check`
 requires external `HYPERGOLIC_KEYSTORE_PATH` in this session, so no new
 signed tester package was produced. Source remote/push remains owner-only.
-
 
 Final quality gate snapshot (2026-09-25): React Doctor numeric score
 **100/100** and aislop **100/100** on final source; TypeScript and 27 shell
@@ -410,7 +407,6 @@ tester keystore is unavailable in this session, so no new signed tester APK was
 produced; this does not establish distribution or device acceptance. Current
 React Doctor and aislop scores remain 100/100 after this packaging change.
 
-
 Refactored update-path native regression (2026-09-28): extracted the process-owned
 published session/update preparation and shell settings/gesture/close helpers
 without changing contracts. The final refactored source passes TypeScript, 27
@@ -435,7 +431,6 @@ revisions, and no signing/key material; they do not prove the live relay/Blossom
 update path or physical-iPhone protected identity. The QA publisher choice
 remains pending before public publication. Source remote/push remains owner-only.
 
-
 Launcher icon checkpoint (2026-09-28): Expo now packages the user's preserved
 four-point spark as an opaque 1024-pixel iOS/legacy icon and a transparent
 Android adaptive foreground with themed monochrome variant. The supplied
@@ -453,7 +448,6 @@ The generated Android Gradle package edit was restored byte-identically.
 TypeScript, 12 tester packaging tests and React Doctor numeric **100/100** pass.
 This icon work does not close public live updates, physical-iPhone security or
 the network-audit approval gap. Source remote/push remains owner-only.
-
 
 Native transport hardening checkpoint (2026-09-28): Android HTTPS DNS now uses
 a bounded worker so cancellation and the 30-second overall deadline can return
@@ -495,7 +489,6 @@ native probe. Both failed receipts are retained for diagnosis. This is not a
 both-platform live first-open regression pass and cannot replace the pending
 owned QA release or physical-iPhone acceptance. React Doctor remains 100/100;
 source remote/push remains owner-only.
-
 
 Unpublished live-update harness preflight (2026-09-28): the QA upload path now
 rejects a private key that does not match the signed handoff publisher before
@@ -667,7 +660,6 @@ inspected; build manifest, source/harness seals and captures are in the
 private Notes checkpoint. WebView 58 still refuses guest execution and
 backup/deletion authentication remains unavailable below API 30.
 
-
 External napplet open diagnosis (2026-09-28): the supplied public kind-35129
 `naddr` decodes to a valid coordinate, but its TLV field ordering differs from
 `nostr-tools` re-encoding. The app rejected it before network lookup, causing an
@@ -682,7 +674,6 @@ visible loading text and distinguishes malformed input from retrieval failure.
 This fixes the silent failure and identifies the compatibility limit; it does
 not make the external napplet executable. No signing or broader capability
 support was added. Physical Android/iOS verification of the new UI remains open.
-
 
 ## Query build checkpoint — 30 September 2026
 
@@ -707,7 +698,6 @@ owner-only. Check live weekly usage between batches and pause at 50% consumed.
 The user confirmed phase-2.2 lifecycle: keep bounded feeds live across switching,
 close connections on background, retain feed/drafts and refresh/deduplicate after
 reconnect. Close/identity/replacement/renderer loss revoke old authority.
-
 
 ## Live subscriptions started — 30 September 2026
 
@@ -743,15 +733,12 @@ Inline installed-GSD fallback was used without typed planner/checker guarantees.
 Latest weekly usage is 32% consumed; pause at 50%. Source push/remote remain
 owner-only. Progress counts accepted executable plans, not overall MVP readiness.
 
-
 ## Resource access started — 30 September 2026
 
 Phase 2.2 coherent commit is `9054465`, local/unpushed. Phase 2.3 product interview is complete: bounded HTTPS/verified Blossom/one-hop Nostr/data, memory-only loaded caches, any public HTTPS after resource grant, editable default download servers, bounded audio/video and pause on switching/background with manual Play after return. Hashtree/SVG gaps follow Phase 4. Streaming/large files remain distinct unresolved work.
 
 Three executable plans cover SDK/native HTTPS tracer, schemes/bulk/cache/settings and playback/native acceptance. Work runs inline under the installed GSD Codex fallback, without typed planner/checker guarantees. Current task: 02.3-01 resource ownership/byte carrier and actual image tracer. NAP-RESOURCE candidate head `8c0645d32ceb159bc3e8bcec1107a92862b7e86a` is selected for this explicitly declared bounded profile; no full-domain conformance or resource native acceptance is claimed. Latest weekly usage: 35% consumed; pause at 50%. Source push/remotes remain owner-only.
 
-
 Phase 2.3 checkpoint: the first genuine SDK/native HTTPS image tracer passed five checks on each selected Android/iOS Simulator profile. The loaded PNG hash, MIME and decoded dimensions match independently downloaded bytes. Portable intermediate receipts are retained in the private shared knowledge store. This is not final-source acceptance: resource cancellation/revocation, schemes/bulk/cache/settings and media playback/lifecycle remain open. Browser cancellation and SDK object URL ownership checks are being extended.
-
 
 Phase 2.3 completion — 30 September 2026: all three resource plans pass the selected bounded profile. Android passes 25 actual SDK/native checks; iOS passes all five resource suites. Independent exact bytes, image/video/audio rendering, schemes/bulk/cache/settings and seven controlled cancellation/revocation cases per host are recorded in 02.3-VERIFICATION.md. A real native background lease bug is fixed on both platforms, with 107 owning registry assertions each. CAP-04 is scoped accepted; CAP-01/CAP-14 and physical/older/full-published gates remain open. Full numeric quality and eight audits must be sealed against this final source before the targeted local commit. Next phase is 2.4 uploads; its rail/provider/consent/unknown-outcome decisions are pending. Weekly usage is 38% consumed; pause at 50%. Source push/remotes remain owner-only.
