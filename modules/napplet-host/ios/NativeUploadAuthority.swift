@@ -25,10 +25,11 @@ final class NativeUploadAuthority: @unchecked Sendable {
     let identity: String
     let destination: String
     let mimeType: String
+    let metadataPolicy: String
     let sha256: String
     let size: Int
     fileprivate init(_ row: Row) {
-      identity = row.session.identity; destination = row.destination; mimeType = row.mimeType
+      identity = row.session.identity; destination = row.destination; mimeType = row.mimeType; metadataPolicy = row.metadataPolicy
       size = row.body.count; sha256 = SHA256.hash(data: row.body).map { String(format: "%02x", $0) }.joined()
     }
   }
@@ -37,6 +38,7 @@ final class NativeUploadAuthority: @unchecked Sendable {
     let session: Session
     let destination: String
     var mimeType: String
+    var metadataPolicy = "attachment-unchanged"
     var body: Data
     var cursor = 0
     var expires: Int64
@@ -118,14 +120,14 @@ final class NativeUploadAuthority: @unchecked Sendable {
       let review = Review(row); row.review = review; return review
     }
   }
-  /// Native first-PNG preparation happens before hashing/review, independently of the guest MIME.
-  func sealPreparedPng(_ request: Request) -> Review? {
+  /// Native byte preparation happens before hashing/review, independently of the guest MIME.
+  func sealPreparedFile(_ request: Request) -> Review? {
     lock.withLock {
       prune(); guard let row = live(request), row.review == nil, row.cursor == row.body.count else { return nil }
-      guard let prepared = UploadPngMetadata.prepare(row.body) else {
+      guard let result = UploadFileProfile.prepare(row.body) else {
         requests.removeValue(forKey: ObjectIdentifier(request))?.clear(); return nil
       }
-      row.clear(); row.body = prepared; row.cursor = prepared.count; row.mimeType = "image/png"
+      row.clear(); row.body = result.bytes; row.cursor = result.bytes.count; row.mimeType = result.mimeType; row.metadataPolicy = result.metadataPolicy
       let review = Review(row); row.review = review; return review
     }
   }

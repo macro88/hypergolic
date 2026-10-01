@@ -24,17 +24,17 @@ public final class UploadPngProof {
     byte[] bytes = Files.readAllBytes(root.resolve("valid.png"));
     var request = authority.admit(session, bytes.length, "https://files.example.org", "text/plain"); check(authority.append(request, 0, bytes));
     byte[] original = bytes.clone(); Arrays.fill(bytes, (byte)0);
-    var review = authority.sealPreparedPng(request); check(review != null); check("image/png".equals(review.mimeType));
-    check(Arrays.equals(authority.preview(request, review), original)); check(authority.sealPreparedPng(request) == null);
+    var review = authority.sealPreparedFile(request); check(review != null); check("image/png".equals(review.mimeType));
+    check(Arrays.equals(authority.preview(request, review), original)); check(authority.sealPreparedFile(request) == null);
     authority.cancel(request);
     byte[] metadata = Files.readAllBytes(root.resolve("text.png"));
     var denied = authority.admit(session, metadata.length, "https://files.example.org", "image/png"); check(authority.append(denied, 0, metadata));
-    var sanitized = authority.sealPreparedPng(denied); check(sanitized != null); check(Arrays.equals(authority.preview(denied, sanitized), original));
+    var sanitized = authority.sealPreparedFile(denied); check(sanitized != null); check(Arrays.equals(authority.preview(denied, sanitized), original));
     check(sanitized.size == original.length);
     check(sanitized.sha256.equals(java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(original))));
     authority.cancel(denied);
     var stale = authority.admit(session, metadata.length, "https://files.example.org", "image/png"); check(authority.append(stale, 0, metadata));
-    authority.setForeground(false); check(authority.sealPreparedPng(stale) == null); check(!authority.contains(stale));
+    authority.setForeground(false); check(authority.sealPreparedFile(stale) == null); check(!authority.contains(stale));
     System.out.println("{\"language\":\"Java\",\"uploadPngChecks\":"+checks+",\"failed\":0}");
   }
 }

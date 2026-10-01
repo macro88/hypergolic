@@ -21,18 +21,18 @@ import CryptoKit
     var bytes = try Data(contentsOf: root.appendingPathComponent("valid.png")); let original = bytes
     let request = authority.admit(session, length: bytes.count, destination: "https://files.example.org", mimeType: "text/plain")!
     check(authority.append(request, offset: 0, chunk: bytes)); bytes.resetBytes(in: 0..<bytes.count)
-    let review = authority.sealPreparedPng(request); check(review != nil); check(review?.mimeType == "image/png")
-    check(authority.preview(request, expected: review!) == original); check(authority.sealPreparedPng(request) == nil)
+    let review = authority.sealPreparedFile(request); check(review != nil); check(review?.mimeType == "image/png")
+    check(authority.preview(request, expected: review!) == original); check(authority.sealPreparedFile(request) == nil)
     authority.cancel(request)
     let metadata = try Data(contentsOf: root.appendingPathComponent("text.png"))
     let denied = authority.admit(session, length: metadata.count, destination: "https://files.example.org", mimeType: "image/png")!
-    check(authority.append(denied, offset: 0, chunk: metadata)); let sanitized = authority.sealPreparedPng(denied); check(sanitized != nil); check(authority.preview(denied, expected: sanitized!) == original)
+    check(authority.append(denied, offset: 0, chunk: metadata)); let sanitized = authority.sealPreparedFile(denied); check(sanitized != nil); check(authority.preview(denied, expected: sanitized!) == original)
     check(sanitized?.size == original.count)
     check(sanitized?.sha256 == SHA256.hash(data: original).map {String(format: "%02x", $0)}.joined())
     authority.cancel(denied)
     let stale = authority.admit(session, length: metadata.count, destination: "https://files.example.org", mimeType: "image/png")!
     check(authority.append(stale, offset: 0, chunk: metadata)); authority.setForeground(false)
-    check(authority.sealPreparedPng(stale) == nil); check(!authority.contains(stale))
+    check(authority.sealPreparedFile(stale) == nil); check(!authority.contains(stale))
     print("{\"language\":\"Swift\",\"uploadPngChecks\":\(checks),\"failed\":0}")
   }
 }

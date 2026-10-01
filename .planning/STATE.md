@@ -2,11 +2,11 @@
 gsd_state_version: "1.0"
 current_phase: "2.4"
 current_phase_name: Uploads
-status: paused
-stopped_at: Paused at user weekly usage limit 50%. Selected PNG picker accepted at 8727a0d; standalone Exif foundation checks and quality pass. Plan 02 formats/attachments/revocation, plans 03–04 and CAP-05 remain open.
-last_updated: "2026-10-01T06:13:31.970Z"
+status: executing
+stopped_at: Attachment checkpoint passes both hosts; final-source selected-PNG regressions and quality running; continue broader photos and picker lifetime cases. Weekly usage 1%, pause at 50%.
+last_updated: "2026-10-01T07:43:46.253Z"
 last_activity: 2026-10-01
-state_head: 8727a0d1fb585127f6688dfaad60fe72d6f55e09
+state_head: 65902b8ce436f0e93995d0f6c2a872c8c9176dec
 progress:
   total_phases: 14
   completed_phases: 0
@@ -40,7 +40,7 @@ expansion cards are not executable PLAN files.
 
 Phase: 2.4 (Uploads) — EXECUTING
 Plan: 2 of 4
-Status: Paused at weekly usage 50%; plan 02 selected PNG accepted, remaining work pending
+Status: In progress: bounded unchanged attachment journeys pass both hosts; plan 02 photos and revoked-picker acceptance remain open; usage reset, pause at 50%
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
 Previous native action checkpoint: 2026-09-15 — Added the Android native deletion authority with 95 owning JVM assertions and the protected-record/erase reader with 89 actual Android assertions. Existing SDK records are unchanged; disposable data alone was erased. The actual Release app and separate instrumentation APK build and their installed bytes match. The production deletion path remains denied pending native context/lifecycle and system-prompt integration; authentication in the record probe is a double. See docs/identity-storage.md.
@@ -746,6 +746,6 @@ Phase 2.3 completion — 30 September 2026: all three resource plans pass the se
 
 ## Session
 
-**Last session:** 2026-10-01T06:13:31.703Z
-**Stopped at:** Paused at user weekly usage limit 50%. Selected PNG picker accepted at 8727a0d; standalone Exif foundation checks and quality pass. Plan 02 formats/attachments/revocation, plans 03–04 and CAP-05 remain open.
+**Last session:** 2026-10-01T07:43:46.189Z
+**Stopped at:** Attachment checkpoint passes both hosts; final-source selected-PNG regressions and quality running; continue broader photos and picker lifetime cases. Weekly usage 1%, pause at 50%.
 **Resume file:** .planning/phases/02.4-uploads/02.4-02-PLAN.md

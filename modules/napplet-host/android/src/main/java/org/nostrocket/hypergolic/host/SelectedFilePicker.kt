@@ -93,14 +93,14 @@ internal object SelectedFilePicker {
           } finally {buffer.fill(0); entry.stream.compareAndSet(input, null)}
         }
         val bytes = original ?: throw IllegalArgumentException()
-        // Broader image preparation is pending; never hand a failed original photo to a guest.
-        val safe = UploadPngMetadata.prepare(bytes) ?: throw IllegalArgumentException()
+        // Failed photos never become unchanged attachments.
+        val prepared = UploadFileProfile.prepare(bytes) ?: throw IllegalArgumentException()
         main.post {
           try {
             if (pending !== entry || !foreground || !entry.live() || SystemClock.elapsedRealtime() >= entry.deadline) return@post
-            val output = SelectedFileProvider.stage(entry.activity, entry.generation, safe, "image/png", entry.live)
+            val output = SelectedFileProvider.stage(entry.activity, entry.generation, prepared.bytes(), prepared.mimeType(), entry.live)
             pending = null; entry.callback.onReceiveValue(output?.let {arrayOf(it)})
-          } finally {safe.fill(0)}
+          } finally {prepared.bytes().fill(0)}
         }
       } catch (_: Exception) { main.post {
         if (pending === entry) {

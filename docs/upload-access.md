@@ -65,12 +65,13 @@ Both hosts now route a single-file input to the native system picker only for a
 live, focused, upload-enabled generation. Native code copies and prepares bounded
 selected bytes before returning an app-private representation to that original
 input. Android keeps global file/content access disabled and exposes only an
-unexported, UID-checked provider with an exact declared descriptor length. iOS
+unexported, UID-checked provider with an exact declared descriptor length. Its
+opaque URI opens a seekable app-private cache file; two selections, ten-minute
+expiry and 128 descriptor opens per selection bound retention and access. iOS
 uses public document/photo pickers, reads an open-in-place document or selected
 photo representation, and returns a copied private file. Neither returns original
-provider paths or requests whole-library permission. Only the selected PNG
-profile is currently implemented; broader formats and ordinary attachments remain
-pending. A declined upload does not revoke the selection already shared with its
+provider paths or requests whole-library permission. Selected PNGs and bounded WAV/MP4/PDF/ZIP/UTF-8 text are implemented;
+broader photo formats remain pending. Attachments retain their original bytes. A declined upload does not revoke the selection already shared with its
 requesting napplet.
 
 Picker preparation and retained selections are bounded. Close, replacement, focus
@@ -113,7 +114,7 @@ compilation, not file-picker, preview, approval or server-byte acceptance.
 
 Phase 2.4 remains open. The first metadata-free SDK/native PNG tracer is accepted.
 Finish selected-file native acceptance and supported photo sanitation/orientation/color,
-unchanged audio/video/documents, uncertain
+remaining photo and revoked-picker evidence, uncertain
 reconciliation, published admission and final quality/native acceptance. Final
 React Doctor and aislop scores must both be 100/100 on the final source.
 
@@ -168,3 +169,66 @@ personal metadata. CIPA now lists
 [Exif 3.1, DC-008-Translation-2026](https://www.cipa.jp/e/std/std-sec.html); this
 checkpoint does not claim full current-standard conformance. Remaining work must
 verify format-specific orientation/color behavior through both native journeys.
+
+## Bounded attachment checkpoint
+
+The native classifier derives MIME from bytes rather than guest declarations.
+WAV uses bounded RIFF/chunk lengths; MP4 uses bounded recognized-video-brand
+boxes, including small 64-bit boxes; PDF/ZIP use bounded signature recognition;
+plain UTF-8 text is limited to 1 MiB. The general file limit is 10 MiB. These
+checks identify supported containers, not complete document semantics, archive
+safety or playback validity. Failed photo preparation never falls through to an
+unchanged attachment. MP3 recognition exists but has no selected native acceptance
+yet. SVG/XML and unsupported photos remain denied.
+
+Generated real PCM WAV, H.264 MP4, a one-page PDF, ZIP and text pass actual system
+file selection, exact guest reading, trusted review/rejection, continued reading
+after rejection and one freshly approved exact TLS upload on both native hosts.
+Each rejection produces zero new connections or requests. The independent server
+checks MIME, all bytes/hash and complete Schnorr authorization. The WAV comment
+and ZIP metadata remain unchanged. The controlled server proves these attachment
+bytes; it does not establish public-provider acceptance or free PDF/ZIP support.
+
+Trusted attachment inspection currently shows the first 256 bytes in hexadecimal
+plus complete-file MIME, size and SHA-256, caller, publisher, identity, destination
+and metadata warning. It does not render documents or play audio/video. Photo
+approval still waits for an actual decoded image. The larger WAV revealed a real
+Android provider bug: Chromium's metadata probes could occupy pipe writers before
+guest reading. Seekable private files fix that path without returning raw paths
+or enabling global WebView file/content access.
+
+Java/Swift attachment proofs each pass 5,392 assertions, including unchanged
+review/dispatch bytes, MIME spoofing, truncated WAV/MP4, photo-brand rejection and
+background revocation. With the existing authority/PNG/registry and Exif proofs,
+the native suite totals 13,693 assertions. Shared uploads 44, capability owners
+50, raw TLS 26, security 349 plus bootstrap 13 and browser SDK runtime 154 pass.
+TypeScript and both production JS exports pass. Final native products and quality
+reports are retained separately from earlier diagnostic runs. Plan 02 remains
+open for broader photos, orientation/color and actual picker cancellation/revoked
+recipients; plans 03–04 remain open.
+
+## Bounded unchanged attachment journeys
+
+Generate public test data outside source with `create-attachments.py --output
+FRESH_FIXTURE_DIRECTORY`. Its manifest records exact WAV, H.264 MP4, valid PDF,
+ZIP and UTF-8 text bytes. MP4 encoder timestamps vary; use that retained manifest
+for the run. Start the observer with `--expected-dir FRESH_FIXTURE_DIRECTORY`;
+it compares whole bodies/MIME/hashes and verifies real signatures.
+
+Run `android-attachments.py` with the Android picker arguments except replace
+`--seed` with `--fixtures FRESH_FIXTURE_DIRECTORY`. Use the native DocumentsUI
+List view if names fall below the grid viewport; record that observed preflight.
+Run `ios-upload.py --attachments FRESH_FIXTURE_DIRECTORY` with its usual sealed
+iOS arguments. The isolated build temporarily enables Files access to its public
+fixture Documents directory, restoring generated Info.plist in finally. Ordinary
+builds gain no library sharing. Each file must pass selected exact bytes, trusted
+inspection/reject, zero new TLS, guest read after rejection and one approved exact
+stored body with valid signature. Inspection is a bounded hex header plus exact
+whole-file identity, not document rendering or audio/video playback.
+
+Run selected-PNG regressions against the same fresh products. Drivers and source
+must stay frozen during acceptance; a driver edit invalidates source seals and
+requires fresh products. Files grid title taps may only edit names; native tests
+use the observed icon area of the identified folder/container/file cell. Export
+XCTest screenshots and inspect actual review/selection/receipt images. Keep
+failed diagnostics separate from accepted results and omit private TLS keys.

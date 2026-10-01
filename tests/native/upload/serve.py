@@ -16,11 +16,18 @@ ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser()
 parser.add_argument('--output', required=True)
+parser.add_argument('--expected-dir', type=Path)
 args = parser.parse_args()
 out = Path(args.output).resolve()
 out.mkdir(parents=True, exist_ok=False)
 expected = base64.b64decode(re.search(r"const encoded = '([^']+)'", (ROOT/'napplets/upload-lab/src/main.ts').read_text()).group(1))
 expected_hash = hashlib.sha256(expected).hexdigest()
+expected_files = {expected_hash: (expected, 'image/png', 'png')}
+if args.expected_dir:
+    for item in json.loads((args.expected_dir/'attachments.json').read_text())['files']:
+        data = (args.expected_dir/item['file']).read_bytes()
+        assert hashlib.sha256(data).hexdigest() == item['sha256'] and len(data) == item['size']
+        expected_files[item['sha256']] = (data, item['mimeType'], item['file'].rsplit('.',1)[1])
 key, pem, der = out/'server.key', out/'server.pem', out/'anchor.der'
 subprocess.run(['openssl','req','-x509','-newkey','rsa:2048','-nodes','-days','1','-keyout',str(key),'-out',str(pem),
                 '-subj','/CN=files.example.com','-addext','subjectAltName=DNS:files.example.com',
@@ -50,19 +57,20 @@ def serve(raw):
             head,body=bytes(wire).split(b'\r\n\r\n',1)
             lines=head.decode('ascii').split('\r\n');assert lines[0]=='PUT /upload HTTP/1.1'
             headers=dict(line.split(': ',1) for line in lines[1:]);assert len(headers)==len(lines)-1
-            size=int(headers['Content-Length']);assert size==len(expected)
+            hash_value=headers['X-SHA-256'];expected_body,mime,extension=expected_files[hash_value]
+            size=int(headers['Content-Length']);assert size==len(expected_body)
             while len(body)<size:
                 data=peer.recv(min(8192,size-len(body)))
                 if not data:raise AssertionError('Incomplete body')
                 body+=data
-            assert body==expected and headers['X-SHA-256']==expected_hash and headers['Content-Type']=='image/png'
-            credential={'authorization':headers['Authorization'],'sha256':expected_hash,'size':size}
+            assert body==expected_body and hashlib.sha256(body).hexdigest()==hash_value and headers['Content-Type']==mime
+            credential={'authorization':headers['Authorization'],'sha256':hash_value,'size':size}
             verified=json.loads(subprocess.check_output(['node',str(HERE/'verify-authorization.mjs')],input=json.dumps(credential),text=True,cwd=ROOT,stderr=subprocess.DEVNULL))
             with lock:
-                (out/f'stored-{len(observed["requests"])+1}.png').write_bytes(body)
-                observed['requests'].append(verified);save()
+                (out/f'stored-{len(observed["requests"])+1}.{extension}').write_bytes(body)
+                verified['mimeType']=mime;observed['requests'].append(verified);save()
             time.sleep(2) # Retains a visible in-flight progress interval before server confirmation.
-            descriptor=json.dumps({'url':f'https://files.example.com:19943/{expected_hash}.png','sha256':expected_hash,'size':size,'type':'image/png','uploaded':int(time.time())}).encode()
+            descriptor=json.dumps({'url':f'https://files.example.com:19943/{hash_value}.{extension}','sha256':hash_value,'size':size,'type':mime,'uploaded':int(time.time())}).encode()
             peer.sendall(b'HTTP/1.1 201 Created\r\nContent-Type: application/json\r\nContent-Length: '+str(len(descriptor)).encode()+b'\r\nConnection: close\r\n\r\n'+descriptor)
     except Exception as error:
         with lock:observed['errors'].append(type(error).__name__);save()

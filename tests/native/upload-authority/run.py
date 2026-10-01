@@ -18,14 +18,14 @@ tokens = json.loads(subprocess.check_output(['node', str(HERE/'credential-fixtur
 with tempfile.TemporaryDirectory(prefix='hypergolic-upload-authority-') as temporary:
     out = Path(temporary)
     subprocess.run(['javac', '-Xlint:all', '-Werror', '-d', str(out),
-                    *[str(ANDROID / (name + '.java')) for name in ['UploadJsonBounds', 'UploadLeaseRegistry', 'UploadPngProfile', 'UploadExifMetadata', 'UploadPngMetadata', 'NativeUploadAuthority', 'NativeBlossomPermit', 'PublishedHttpsTransport', 'PublishedHttpsResponseReader']],
-                    str(HERE / 'UploadJsonBoundsProof.java'), str(HERE / 'UploadRegistryProof.java'), str(HERE / 'UploadPngProof.java'), str(HERE / 'UploadExifProof.java'), str(HERE / 'UploadAuthorityProof.java'), str(HERE / 'UploadResponseProof.java'), str(HERE/'NativePermitProof.java')], check=True)
+                    *[str(ANDROID / (name + '.java')) for name in ['UploadJsonBounds', 'UploadLeaseRegistry', 'UploadFileProfile', 'UploadPngProfile', 'UploadExifMetadata', 'UploadPngMetadata', 'NativeUploadAuthority', 'NativeBlossomPermit', 'PublishedHttpsTransport', 'PublishedHttpsResponseReader']],
+                    str(HERE / 'UploadJsonBoundsProof.java'), str(HERE / 'UploadRegistryProof.java'), str(HERE / 'UploadPngProof.java'), str(HERE / 'UploadExifProof.java'), str(HERE / 'UploadFileProof.java'), str(HERE / 'UploadAuthorityProof.java'), str(HERE / 'UploadResponseProof.java'), str(HERE/'NativePermitProof.java')], check=True)
     subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadJsonBoundsProof'], check=True)
     subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadAuthorityProof'], check=True)
     subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadResponseProof'], check=True)
     subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.NativePermitProof', *tokens], check=True)
     subprocess.run(['swiftc', '-swift-version', '6', '-warnings-as-errors', '-module-cache-path', str(out/'swift-cache'),
-                    str(IOS/'UploadPngProfile.swift'), str(IOS/'UploadPngMetadata.swift'), str(IOS/'NativeUploadAuthority.swift'), str(HERE/'UploadAuthorityProof.swift'),
+                    str(IOS/'UploadPngProfile.swift'), str(IOS/'UploadPngMetadata.swift'), str(IOS/'UploadFileProfile.swift'), str(IOS/'NativeUploadAuthority.swift'), str(HERE/'UploadAuthorityProof.swift'),
                     '-o', str(out/'swift-proof')], check=True)
     subprocess.run([str(out/'swift-proof')], check=True)
     subprocess.run(['swiftc', '-swift-version', '6', '-warnings-as-errors', '-module-cache-path', str(out/'swift-cache'),
@@ -33,7 +33,7 @@ with tempfile.TemporaryDirectory(prefix='hypergolic-upload-authority-') as tempo
                     '-o', str(out/'swift-response-proof')], check=True)
     subprocess.run([str(out/'swift-response-proof')], check=True)
     subprocess.run(['swiftc', '-swift-version', '6', '-warnings-as-errors', '-module-cache-path', str(out/'swift-cache'),
-                    str(IOS/'UploadPngProfile.swift'), str(IOS/'UploadPngMetadata.swift'), str(IOS/'NativeUploadAuthority.swift'), str(IOS/'NativeBlossomPermit.swift'), str(IOS/'UploadLeaseRegistry.swift'), str(HERE/'NativePermitProof.swift'),
+                    str(IOS/'UploadPngProfile.swift'), str(IOS/'UploadPngMetadata.swift'), str(IOS/'UploadFileProfile.swift'), str(IOS/'NativeUploadAuthority.swift'), str(IOS/'NativeBlossomPermit.swift'), str(IOS/'UploadLeaseRegistry.swift'), str(HERE/'NativePermitProof.swift'),
                     '-o', str(out/'swift-permit-proof')], check=True)
     subprocess.run([str(out/'swift-permit-proof'), *tokens], check=True)
     def png_chunk(name, data):
@@ -75,13 +75,19 @@ with tempfile.TemporaryDirectory(prefix='hypergolic-upload-authority-') as tempo
     (out/'png-cases.json').write_text(json.dumps([{'name':name,'accepted':expected} for name,_,expected in fixtures]))
     subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadPngProof', str(out)], check=True)
     subprocess.run(['swiftc', '-swift-version', '6', '-warnings-as-errors', '-module-cache-path', str(out/'swift-cache'),
-                    str(IOS/'UploadPngProfile.swift'), str(IOS/'UploadPngMetadata.swift'), str(IOS/'NativeUploadAuthority.swift'), str(HERE/'UploadPngProof.swift'),
+                    str(IOS/'UploadPngProfile.swift'), str(IOS/'UploadPngMetadata.swift'), str(IOS/'UploadFileProfile.swift'), str(IOS/'NativeUploadAuthority.swift'), str(HERE/'UploadPngProof.swift'),
                     '-o', str(out/'swift-png-proof')], check=True)
     subprocess.run([str(out/'swift-png-proof'), str(out)], check=True)
     registry_tokens = json.loads(subprocess.check_output(['node', str(HERE/'credential-fixtures.mjs'),
         'https://files.example.com', hashlib.sha256(good).hexdigest()], text=True, cwd=ROOT))
     subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadRegistryProof', str(out), registry_tokens[0], registry_tokens[1]], check=True)
     subprocess.run(['swiftc', '-swift-version', '6', '-warnings-as-errors', '-module-cache-path', str(out/'swift-cache'),
-                    str(IOS/'UploadPngProfile.swift'), str(IOS/'UploadPngMetadata.swift'), str(IOS/'NativeUploadAuthority.swift'), str(IOS/'NativeBlossomPermit.swift'),
+                    str(IOS/'UploadPngProfile.swift'), str(IOS/'UploadPngMetadata.swift'), str(IOS/'UploadFileProfile.swift'), str(IOS/'NativeUploadAuthority.swift'), str(IOS/'NativeBlossomPermit.swift'),
                     str(IOS/'UploadLeaseRegistry.swift'), str(HERE/'UploadRegistryProof.swift'), '-o', str(out/'swift-registry-proof')], check=True)
     subprocess.run([str(out/'swift-registry-proof'), str(out), registry_tokens[0], registry_tokens[1]], check=True)
+
+    subprocess.run(['python3', str(ROOT/'tests/native/upload/create-attachments.py'), '--output', str(out/'attachments')], check=True)
+    subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadFileProof', str(out/'attachments')], check=True)
+    subprocess.run(['swiftc', '-swift-version', '6', '-warnings-as-errors', '-module-cache-path', str(out/'swift-cache'),
+                    str(IOS/'UploadFileProfile.swift'), str(IOS/'UploadPngProfile.swift'), str(IOS/'UploadPngMetadata.swift'), str(IOS/'NativeUploadAuthority.swift'), str(HERE/'UploadFileProof.swift'), '-o', str(out/'swift-file-proof')], check=True)
+    subprocess.run([str(out/'swift-file-proof'), str(out/'attachments')], check=True)

@@ -85,7 +85,7 @@ final class UploadLeaseRegistry {
   }
   synchronized boolean seal(String generation, String token) {
     Row row = owned(generation, token); if (row == null || row.claimed || row.review != null) return false;
-    row.review = authority.sealPreparedPng(row.request); return row.review != null;
+    row.review = authority.sealPreparedFile(row.request); return row.review != null;
   }
   synchronized NativeUploadAuthority.Review sealedReview(String generation, String token) { Row row = owned(generation, token); return row == null ? null : row.review; }
   synchronized Taken take(String token) {

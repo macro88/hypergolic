@@ -29,10 +29,10 @@ public final class NativeUploadAuthority {
   }
   public static final class Review {
     public final String purpose = "blossom-upload";
-    public final String identity, destination, mimeType, sha256;
+    public final String identity, destination, mimeType, sha256, metadataPolicy;
     public final int size;
     private Review(Row row, String hash) {
-      identity = row.session.identity; destination = row.destination; mimeType = row.mimeType;
+      identity = row.session.identity; destination = row.destination; mimeType = row.mimeType; metadataPolicy = row.metadataPolicy;
       sha256 = hash; size = row.body.length;
     }
   }
@@ -40,6 +40,7 @@ public final class NativeUploadAuthority {
     final SessionHandle session;
     final String destination;
     String mimeType;
+    String metadataPolicy = "attachment-unchanged";
     byte[] body;
     int cursor;
     long expires;
@@ -106,13 +107,14 @@ public final class NativeUploadAuthority {
       row.review = new Review(row, hash.toString()); return row.review;
     } catch (NoSuchAlgorithmException failure) { row.clear(); requests.remove(request); return null; }
   }
-  /** Owning first-PNG preparation before hashing/review; guest MIME never classifies the file. */
-  public synchronized Review sealPreparedPng(RequestHandle request) {
+  /** Owning byte preparation before hashing/review; guest MIME never classifies the file. */
+  public synchronized Review sealPreparedFile(RequestHandle request) {
     prune(); Row row = live(request);
     if (row == null || row.review != null || row.cursor != row.body.length) return null;
-    byte[] prepared = UploadPngMetadata.prepare(row.body);
+    UploadFileProfile.Prepared result = UploadFileProfile.prepare(row.body);
+    byte[] prepared = result == null ? null : result.bytes();
     if (prepared == null) { cancel(request); return null; }
-    row.clear(); row.body = prepared; row.cursor = prepared.length; row.mimeType = "image/png";
+    row.clear(); row.body = prepared; row.cursor = prepared.length; row.mimeType = result.mimeType(); row.metadataPolicy = result.metadataPolicy();
     return seal(request);
   }
   public synchronized boolean contains(RequestHandle request) { prune(); return live(request) != null; }

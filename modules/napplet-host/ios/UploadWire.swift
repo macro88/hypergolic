@@ -65,7 +65,7 @@ enum UploadWire {
   }
   static func review(_ value: NativeUploadAuthority.Review) -> [String: Any] {
     ["purpose": "blossom-upload", "identity": value.identity, "destination": value.destination, "sha256": value.sha256,
-      "size": value.size, "mimeType": value.mimeType, "metadataPolicy": "photo-stripped"]
+      "size": value.size, "mimeType": value.mimeType, "metadataPolicy": value.metadataPolicy]
   }
   static func status(_ id: String, _ state: String, error: String? = nil) -> [String: Any] {
     var value: [String: Any] = ["ok": state != "failed" && state != "cancelled", "uploadId": id, "status": state, "rail": "blossom"]

@@ -1,7 +1,7 @@
 /** Reviewed unsigned test artifacts. These records confer no remote publisher trust. */
 export const BUNDLED_FIXTURES = Object.freeze({
   'upload-lab': Object.freeze({title: 'Upload Lab', appId: 'upload-lab',
-    sha256: '20bb2b389c944c2342884eb125b26b80d674f552281111c2434765b3acee2091', aggregateHash: '25fa18e9deec334403d22305a3899dc231f9ff460f20c5f956f5e6fd138002a0', domains: Object.freeze(['upload', 'theme'])}),
+    sha256: '37e486f033d00e4386133bf36ec567cf169364d9c57b2821b2547e0985f7d2f1', aggregateHash: '75c3e9d2b4672e172b57949858d213b4826ae2135618f654367bdeceb210f2bf', domains: Object.freeze(['upload', 'theme'])}),
   'resource-lab': Object.freeze({ title: 'Resource Lab', appId: 'resource-lab',
     sha256: 'af7ae3738898edec2e2db867075bc7ad1a9cae205a8c516c48e8e1fb586815fb', aggregateHash: '4bb5bae7297291698fed042ebd3a65310e0dda28580f614a5d53faed6d81ff38',
     domains: Object.freeze(['resource', 'theme']) }),

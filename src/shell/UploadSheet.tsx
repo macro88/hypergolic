@@ -24,15 +24,28 @@ function preview(item: UploadItem): string | null {
     return 'data:image/png;base64,' + chunks.join('');
   } finally {bytes.fill(0);}
 }
+function inspection(item: UploadItem): string | null {
+  const bytes = item.copyPreview(); if (!bytes) return null;
+  try {
+    return Array.from(bytes.subarray(0, 256), byte => byte.toString(16).padStart(2, '0'))
+      .reduce<string[]>((lines, pair, index) => {const row = Math.floor(index / 16); lines[row] = (lines[row] || '') + (index % 16 ? ' ' : '') + pair; return lines;}, []).join('\n');
+  } finally {bytes.fill(0);}
+}
 function Review({item, title, onApprove, onReject}: Omit<Props, 'item'> & {item: UploadItem}) {
   const insets = useSafeAreaInsets(), [decoded, setDecoded] = useState(false);
   const uri = useMemo(() => item.previewReady ? preview(item) : null, [item]);
+  const header = useMemo(() => item.previewReady && item.review.metadataPolicy === 'attachment-unchanged' ? inspection(item) : null, [item]);
+  const canApprove = item.previewReady && (item.review.metadataPolicy === 'attachment-unchanged' ? header !== null : decoded);
   return <Modal transparent animationType="none" visible onRequestClose={() => onReject(item.id)}>
     <View style={styles.backdrop}><View testID="upload-sheet" accessibilityViewIsModal style={[styles.sheet, {paddingBottom: Math.max(16, insets.bottom)}]}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text accessibilityRole="header" style={styles.title}>Approve file upload</Text>
         {uri ? <Image testID="upload-preview" accessibilityLabel="Exact photo selected for upload" source={{uri}} contentFit="contain" cachePolicy="none" recyclingKey={item.id} style={styles.preview}
-          onLoad={() => setDecoded(true)} onError={() => setDecoded(false)} /> : <Text style={styles.detail}>Preparing reviewed file…</Text>}
+          onLoad={() => setDecoded(true)} onError={() => setDecoded(false)} /> : header !== null ? <View>
+          <Text accessibilityRole="header" style={styles.label}>File inspection</Text>
+          <Text style={styles.detail}>First {Math.min(item.review.size, 256)} bytes in hexadecimal. The reviewed type, size and SHA-256 identify the complete unchanged attachment.</Text>
+          <Text testID="upload-attachment-inspection" selectable style={styles.mono}>{header}</Text>
+        </View> : <Text style={styles.detail}>Preparing reviewed file…</Text>}
         <Text style={styles.label}>Requesting napplet</Text><Text style={styles.detail}>{title}</Text>
         <Text style={styles.label}>Publisher</Text><Text selectable style={styles.mono}>{item.origin.publisher === 'f'.repeat(64) && item.origin.appId === 'upload-lab' ? 'Unsigned bundled fixture' : formatNpub(item.origin.publisher)}</Text>
         <Text style={styles.label}>Selected identity</Text><Text testID="upload-review-identity" selectable style={styles.mono}>{formatNpub(item.review.identity)}</Text>
@@ -44,7 +57,7 @@ function Review({item, title, onApprove, onReject}: Omit<Props, 'item'> & {item:
         <Text style={styles.label}>Reviewed SHA-256</Text><Text testID="upload-review-hash" selectable style={styles.mono}>{item.review.sha256}</Text>
       </ScrollView>
       <View style={styles.actions}>
-        <Pressable testID="upload-approve" accessibilityRole="button" accessibilityState={{disabled: !decoded || !item.previewReady}} disabled={!decoded || !item.previewReady} onPress={() => onApprove(item.id)} style={[styles.approve, (!decoded || !item.previewReady) && styles.disabled]}><Text style={styles.approveText}>Approve once</Text></Pressable>
+        <Pressable testID="upload-approve" accessibilityRole="button" accessibilityState={{disabled: !canApprove}} disabled={!canApprove} onPress={() => onApprove(item.id)} style={[styles.approve, (!canApprove) && styles.disabled]}><Text style={styles.approveText}>Approve once</Text></Pressable>
         <Pressable testID="upload-reject" accessibilityRole="button" onPress={() => onReject(item.id)} style={styles.reject}><Text style={styles.detail}>Reject upload</Text></Pressable>
       </View>
     </View></View>

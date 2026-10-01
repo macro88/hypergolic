@@ -56,7 +56,7 @@ final class SelectedFilePicker: NSObject, UIDocumentPickerDelegate, PHPickerView
   private func files() {
     guard permitted(), let presenter else { finish(nil); return }
     // Open in place: bound our read before creating any app-owned copy; no persistent bookmark.
-    let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.item], asCopy: false)
+    let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.data], asCopy: false)
     picker.allowsMultipleSelection = false; picker.delegate = self
     panel = picker; picker.presentationController?.delegate = self; presenter.present(picker, animated: true)
   }
@@ -89,7 +89,7 @@ final class SelectedFilePicker: NSObject, UIDocumentPickerDelegate, PHPickerView
       Task { @MainActor [weak self] in Self.preparing = false; self?.deliver(data) }
     }
   }
-  private nonisolated static func prepare(_ url: URL) -> Data? {
+  private nonisolated static func prepare(_ url: URL) -> UploadFileProfile.Prepared? {
     guard url.isFileURL else { return nil }
     let scoped = url.startAccessingSecurityScopedResource()
     defer { if scoped { url.stopAccessingSecurityScopedResource() } }
@@ -105,10 +105,10 @@ final class SelectedFilePicker: NSObject, UIDocumentPickerDelegate, PHPickerView
         guard chunk.count <= NativeUploadAuthority.maxBytes - original.count else { return nil }; original.append(chunk)
       }
     } catch { return nil }
-    // Pending broader preparer: unsupported photos fail closed instead of sharing originals.
-    return UploadPngMetadata.prepare(original)
+    // Failed photos never become unchanged attachments.
+    return UploadFileProfile.prepare(original)
   }
-  private func deliver(_ data: Data?) {
+  private func deliver(_ data: UploadFileProfile.Prepared?) {
     guard permitted() else {finish(nil); return}
     guard let data else {
       finish(nil)
@@ -124,8 +124,8 @@ final class SelectedFilePicker: NSObject, UIDocumentPickerDelegate, PHPickerView
       let directory = Self.stagingRoot.appendingPathComponent(id.uuidString, isDirectory: true)
       try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false)
       selectedDirectory = directory; selectionID = id; Self.selections.insert(id)
-      let file = directory.appendingPathComponent("Selected photo.png")
-      try data.write(to: file, options: [.atomic, .completeFileProtection])
+      let file = directory.appendingPathComponent("Selected file." + Self.fileExtension(data.mimeType))
+      try data.bytes.write(to: file, options: [.atomic, .completeFileProtection])
       guard permitted() else { clearSelection(); finish(nil); return }
       finish([file])
       Task { @MainActor [weak self] in
@@ -134,6 +134,9 @@ final class SelectedFilePicker: NSObject, UIDocumentPickerDelegate, PHPickerView
         self.clearSelection()
       }
     } catch {clearSelection(); finish(nil)}
+  }
+  private nonisolated static func fileExtension(_ mime: String) -> String {
+    switch mime {case "image/png": "png"; case "audio/wav": "wav"; case "audio/mpeg": "mp3"; case "video/mp4": "mp4"; case "application/pdf": "pdf"; case "application/zip": "zip"; case "text/plain": "txt"; default: "bin"}
   }
   private func finish(_ urls: [URL]?) {
     let callback = completion; completion = nil; processing = false

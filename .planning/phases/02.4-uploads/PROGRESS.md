@@ -58,3 +58,25 @@ PNG evidence belongs to its previous sealed source. Full React Doctor and aislop
 helper also typechecks against the iOS Simulator SDK. Weekly usage reached 50%
 and the build is paused at the user-requested limit. Next is format-specific preparation with explicit orientation
 and color preservation, then fresh Android/iOS SDK/picker/approval/byte evidence.
+
+
+## Plan 02 unchanged-attachment checkpoint — 1 October 2026
+
+Matt reset usage and authorized continuing to 50% consumption; the first live
+read confirmed 0%, latest 1%. The previous pause is historical. Generated WAV,
+H.264 MP4, PDF, ZIP and UTF-8 text now pass system-file selection, exact guest
+bytes, trusted inspection/rejection, zero network after rejection, continued
+reading and one independently verified exact approved upload on Android and iOS.
+Attachments retain metadata with a warning; inspection is a bounded hex header
+and whole-file identity, not rendering/playback. Native MIME derives from bytes.
+
+Larger selections exposed an actual Android pipe-writer exhaustion on Chromium
+metadata descriptor probes. Staging now uses bounded seekable app-private files
+behind the same UID-checked opaque URI. Native proof totals 13,693 assertions
+(including 2,254 Exif and 10,784 attachment assertions); raw TLS 26, shared uploads
+44, capabilities 50, security/bootstrap 349+13, browser SDK runtime 154 and
+TypeScript pass. Both JS exports and fresh native Release fixture builds pass.
+
+Plan 02 remains incomplete: broader photo preparation, orientation/color and
+actual picker cancel/revoked-recipient cases remain. Plans 03–04 and CAP-05 stay
+open. No plan 02 SUMMARY is warranted. Source is local on mobile-revamp, no push.

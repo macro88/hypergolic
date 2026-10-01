@@ -78,7 +78,7 @@ final class UploadLeaseRegistry: @unchecked Sendable {
   func seal(_ generation: String, token: String) -> Bool {
     lock.withLock {
       guard let row = owned(generation, token), !row.claimed, row.review == nil else { return false }
-      row.review = authority.sealPreparedPng(row.request); return row.review != nil
+      row.review = authority.sealPreparedFile(row.request); return row.review != nil
     }
   }
   func sealedReview(_ generation: String, token: String) -> NativeUploadAuthority.Review? { lock.withLock { owned(generation, token)?.review } }

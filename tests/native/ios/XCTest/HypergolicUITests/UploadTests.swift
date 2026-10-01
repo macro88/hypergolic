@@ -65,7 +65,7 @@ final class UploadTests: XCTestCase {
     }
     app.terminate(); app.launch()
     XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30), app.debugDescription)
-    tap(app.buttons["Select a PNG file"])
+    tap(app.buttons["Select a file"])
     XCTAssertTrue(app.buttons["Choose photo"].waitForExistence(timeout: 10), app.debugDescription)
     app.buttons["Choose photo"].tap()
     let photo = app.images.matching(NSPredicate(format: "label CONTAINS %@", "Private fixture location/date/device")).firstMatch
@@ -82,6 +82,58 @@ final class UploadTests: XCTestCase {
     review(); app.buttons["Approve once"].tap()
     XCTAssertTrue(app.staticTexts["Upload complete."].waitForExistence(timeout: 20), app.debugDescription)
     XCTAssertEqual(app.buttons["upload-outcome"].label, "Upload confirmed by server."); capture("selected-upload-confirmed")
+  }
+
+  func testSelectedAttachmentsRejectApprove() throws {
+    continueAfterFailure = false
+    let app = XCUIApplication(bundleIdentifier: "org.nostrocket.hypergolic.uploadfixture")
+    func capture(_ name: String) {
+      let image = XCTAttachment(screenshot: app.screenshot()); image.name = name; image.lifetime = .keepAlways; add(image)
+      let tree = XCTAttachment(string: app.debugDescription); tree.name = name + "-accessibility"; tree.lifetime = .keepAlways; add(tree)
+    }
+    func tapGuest(_ element: XCUIElement) {
+      for _ in 0..<5 {if element.isHittable {break}; app.webViews.firstMatch.swipeUp()}
+      XCTAssertTrue(element.isHittable, app.debugDescription); element.tap()
+    }
+    func named(_ value: String) -> XCUIElement {app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", value)).firstMatch}
+    app.terminate(); app.launch()
+    XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30), app.debugDescription)
+    for ext in ["wav","mp4","pdf","zip","txt"] {
+      tapGuest(app.buttons["Select a file"])
+      XCTAssertTrue(app.buttons["Choose file"].waitForExistence(timeout: 10), app.debugDescription); app.buttons["Choose file"].tap()
+      XCTAssertTrue(app.navigationBars.firstMatch.waitForExistence(timeout: 10), app.debugDescription)
+      if app.buttons["Browse"].exists {app.buttons["Browse"].tap()}
+      if named("On My iPhone").exists {named("On My iPhone").tap()}
+      let container = app.cells["Hypergolic, Container"]
+      if container.waitForExistence(timeout: 3) {container.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap()}
+      let folder = app.cells["UploadLab, Folder"]
+      if folder.waitForExistence(timeout: 3) {
+        // Tap the observed folder icon area; the title label is not its open control.
+        folder.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap()
+      }
+      let file = app.cells.matching(NSPredicate(format: "label BEGINSWITH %@", "proof-" + ext)).firstMatch
+      XCTAssertTrue(file.waitForExistence(timeout: 10), app.debugDescription); capture(ext + "-system-file-selection")
+      file.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).tap()
+      let selected = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Selected bytes:")).firstMatch
+      XCTAssertTrue(selected.waitForExistence(timeout: 15), app.debugDescription)
+      print("UPLOAD_ATTACHMENT_SELECTED:" + ext + ":" + selected.label); fflush(stdout); capture(ext + "-guest-handoff")
+      func review() {
+        tapGuest(app.buttons["Request selected upload"])
+        XCTAssertTrue(app.staticTexts["Approve file upload"].waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(app.staticTexts["upload-attachment-inspection"].exists, app.debugDescription)
+        XCTAssertTrue(app.buttons["Approve once"].isEnabled, app.debugDescription); capture(ext + "-trusted-file-review")
+      }
+      review(); app.buttons["Reject upload"].tap()
+      XCTAssertTrue(app.staticTexts["Upload cancelled."].waitForExistence(timeout: 10), app.debugDescription)
+      print("UPLOAD_ATTACHMENT_REJECT:" + ext); fflush(stdout); Thread.sleep(forTimeInterval: 3)
+      app.buttons["upload-outcome"].tap(); tapGuest(app.buttons["Read selected file"])
+      XCTAssertTrue(selected.waitForExistence(timeout: 10), app.debugDescription)
+      print("UPLOAD_ATTACHMENT_READ:" + ext + ":" + selected.label); fflush(stdout); capture(ext + "-guest-read-after-rejection")
+      review(); app.buttons["Approve once"].tap()
+      XCTAssertTrue(app.staticTexts["Upload complete."].waitForExistence(timeout: 20), app.debugDescription)
+      XCTAssertEqual(app.buttons["upload-outcome"].label, "Upload confirmed by server."); capture(ext + "-confirmed")
+      app.buttons["upload-outcome"].tap()
+    }
   }
 
 }

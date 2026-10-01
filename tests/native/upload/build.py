@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build isolated upload products with before/after source seals; activate the local toolchains first."""
-import argparse,json,os,shutil,subprocess
+import argparse,json,os,shutil,subprocess,plistlib
 from pathlib import Path
 from evidence import ROOT,sha,sources,product
 PACKAGE='org.nostrocket.hypergolic.uploadfixture'
@@ -25,7 +25,13 @@ try:
         derived=args.reuse_derived.resolve() if args.reuse_derived else args.output/'derived'
         env['ENTRY_FILE']=str(ROOT/'tests/native/upload/index.tsx')
         command=['xcodebuild','-workspace','ios/Hypergolic.xcworkspace','-scheme','Hypergolic','-configuration','Release','-sdk','iphonesimulator','-destination','generic/platform=iOS Simulator','-derivedDataPath',str(derived),'PRODUCT_BUNDLE_IDENTIFIER='+PACKAGE,'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) HYPERGOLIC_NETWORK_PROOF','CODE_SIGNING_ALLOWED=NO'];report['command']=command
-        with (args.output/'build.log').open('w') as log:subprocess.run(command,cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT,check=True)
+        info=ROOT/'ios/Hypergolic/Info.plist';original_info=info.read_bytes()
+        try:
+            # Only the isolated public-file fixture exposes Documents to the system Files UI.
+            values=plistlib.loads(original_info);values['UIFileSharingEnabled']=True;values['LSSupportsOpeningDocumentsInPlace']=True
+            info.write_bytes(plistlib.dumps(values))
+            with (args.output/'build.log').open('w') as log:subprocess.run(command,cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT,check=True)
+        finally:info.write_bytes(original_info)
         report['productFiles']=product(derived/'Build/Products/Release-iphonesimulator/Hypergolic.app')
     report['sourceAfter']=sources();assert report['sourceBefore']==report['sourceAfter'],'Source drifted during packaging'
     report['status']='built';print('PASS isolated '+args.platform+' product and source seal',flush=True)

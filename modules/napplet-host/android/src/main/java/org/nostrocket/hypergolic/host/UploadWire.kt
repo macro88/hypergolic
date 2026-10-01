@@ -64,7 +64,7 @@ internal object UploadWire {
   }
   fun review(value: NativeUploadAuthority.Review): JSONObject = JSONObject().put("purpose", value.purpose)
     .put("identity", value.identity).put("destination", value.destination).put("sha256", value.sha256)
-    .put("size", value.size).put("mimeType", value.mimeType).put("metadataPolicy", "photo-stripped")
+    .put("size", value.size).put("mimeType", value.mimeType).put("metadataPolicy", value.metadataPolicy)
   fun status(id: String, state: String, error: String? = null): JSONObject = JSONObject()
     .put("ok", state != "failed" && state != "cancelled").put("uploadId", id).put("status", state).put("rail", "blossom")
     .also { if (error != null) it.put("error", error) }

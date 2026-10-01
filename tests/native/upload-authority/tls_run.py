@@ -98,11 +98,11 @@ def main():
         out = Path(temporary)
         good_key, good_pem, good_der = certificate(out, 'files.example.com')
         wrong_key, wrong_pem, wrong_der = certificate(out, 'other.example.com')
-        java_names = ['UploadPngProfile', 'UploadPngMetadata', 'NativeUploadAuthority', 'NativeBlossomPermit', 'PublishedHttpsRequestOwner',
+        java_names = ['UploadFileProfile', 'UploadPngProfile', 'UploadPngMetadata', 'NativeUploadAuthority', 'NativeBlossomPermit', 'PublishedHttpsRequestOwner',
                       'PublishedHttpsTransport', 'PublishedHttpsResponseReader', 'PublicAddressPolicy', 'UploadPinnedHttpsTransport']
         subprocess.run(['javac', '-Xlint:all', '-Werror', '-d', str(out),
                         *[str(JAVA / (name + '.java')) for name in java_names], str(HERE/'UploadTLSProof.java')], check=True)
-        swift_names = ['UploadPngProfile', 'UploadPngMetadata', 'NativeUploadAuthority', 'NativeBlossomPermit', 'PublishedHTTPResponse',
+        swift_names = ['UploadFileProfile', 'UploadPngProfile', 'UploadPngMetadata', 'NativeUploadAuthority', 'NativeBlossomPermit', 'PublishedHTTPResponse',
                        'PublishedPinnedHTTPS', 'PublicAddressPolicy', 'UploadPinnedHTTPS']
         subprocess.run(['swiftc', '-swift-version', '6', '-D', 'HYPERGOLIC_NETWORK_PROOF', '-warnings-as-errors',
                         '-module-cache-path', str(out/'swift-cache'), *[str(SWIFT/(name+'.swift')) for name in swift_names],
