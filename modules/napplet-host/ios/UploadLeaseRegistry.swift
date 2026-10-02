@@ -12,6 +12,8 @@ final class UploadLeaseRegistry: @unchecked Sendable {
     let authority: NativeUploadAuthority
     let grant: NativeUploadAuthority.Grant
     let permit: NativeBlossomPermit
+    let registration: String
+    let uploadId: String
   }
   struct Invalid: Sendable { let token: String; let generation: String; let uploadId: String; let dispatched: Bool }
   private final class Session {
@@ -58,7 +60,7 @@ final class UploadLeaseRegistry: @unchecked Sendable {
   func begin(_ generation: String, callerId: String, requestText: String, length: Int, destination: String) -> String? {
     lock.withLock {
       guard let session = sessions[generation], (1...128).contains(callerId.utf8.count), requestText.utf8.count <= 32 * 1024,
-        rows.count < 2, session.callerIds.count < 1024, !session.callerIds.contains(callerId),
+        rows.count < 10, session.callerIds.count < 1024, !session.callerIds.contains(callerId),
         !rows.values.contains(where: {$0.session === session}),
         let request = authority.admit(session.handle, length: length, destination: destination, mimeType: "application/octet-stream") else { return nil }
       let token = UUID().uuidString.lowercased(), row = Row(session, requestText, request)
@@ -113,7 +115,7 @@ final class UploadLeaseRegistry: @unchecked Sendable {
     lock.withLock {
       guard let row = rows[token], approved(token), let grant = row.grant, let review = row.review,
         let permit = NativeBlossomPermit.capture(review, token: credential, now: now) else { return nil }
-      return Transfer(authority: authority, grant: grant, permit: permit)
+      return Transfer(authority: authority, grant: grant, permit: permit, registration: row.session.registration, uploadId: row.uploadId)
     }
   }
   func wasDispatched(_ token: String) -> Bool {

@@ -25,12 +25,12 @@ public final class UploadRegistryProof {
     check(registry.take(token) == null); check(Arrays.equals(registry.preview(token, 0), png)); check(registry.preview(token, 1) == null);
     check(registry.begin("a", "same realm", "request", png.length, SERVER) == null);
     String second = registry.begin("b", "two", "request", png.length, SERVER); check(second != null);
-    check(registry.begin("c", "third", "request", png.length, SERVER) == null);
+    String third = registry.begin("c", "third", "request", png.length, SERVER); check(third != null); check(registry.cancelOwned("c", third)); check(registry.drainInvalid().size() == 1);
     check(registry.approve(token)); check(!registry.approve(token)); check(registry.preview(token, 0) == null);
     check(registry.claimSigning(token)); check(!registry.claimSigning(token));
     registry.focus("b", true); registry.focus("a", false); check(registry.isApproved(token));
     check(registry.transfer(token, args[2], 1001) == null);
-    var transfer = registry.transfer(token, args[1], 1001); check(transfer != null);
+    var transfer = registry.transfer(token, args[1], 1001); check(transfer != null); check(transfer.registration.equals("native origin a") && transfer.uploadId.equals(publicId));
     check(transfer.authority.claimTransfer(transfer.grant)); check(!transfer.authority.claimTransfer(transfer.grant));
     check(Arrays.equals(transfer.authority.dispatch(transfer.grant), png)); check(transfer.authority.dispatch(transfer.grant) == null);
     registry.foreground(false); check(!registry.isLive(token)); check(registry.wasDispatched(token));

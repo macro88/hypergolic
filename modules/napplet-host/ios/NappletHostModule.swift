@@ -41,6 +41,8 @@ public final class NappletHostModule: Module {
     Function("cancelRelayStream") { (id: String) in relayStreams.cancel(id) }
     Function("configureUploadProof") { (anchor: String) throws in try UploadTransport.configureProof(anchor) }
     Function("configureUploadServer") { (server: String?) throws in try UploadTransport.configure(server) }
+    Function("listUploadRecovery") { () -> String in UploadTransport.listRecovery() }
+    AsyncFunction("checkUploadRecovery") { (uploadId: String) async -> String in await UploadTransport.checkRecovery(uploadId) }
     Function("takeUpload") { (token: String) -> String? in UploadTransport.take(token) }
     Function("isUploadLive") { (token: String) -> Bool in UploadTransport.leases.isLive(token) }
     Function("mayReviewUpload") { (token: String) -> Bool in UploadTransport.leases.mayReview(token) }
@@ -141,6 +143,7 @@ public final class NappletHostModule: Module {
     View(NappletHostView.self) {
       Events("onHostEvent")
       Prop("pickerFaultProof") { (view: NappletHostView, action: String) in view.armPickerFaultProof(action) }
+      Prop("uploadFaultProof") { (view: NappletHostView, action: String) in view.armUploadFaultProof(action) }
       Prop("active") { (view: NappletHostView, active: Bool) in
         view.setActive(active)
       }

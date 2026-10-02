@@ -90,7 +90,7 @@ public final class NativeUploadAuthority {
     prune();
     if (clockFailed || !foreground || !registered(session) || length < 0 || length > MAX_BYTES ||
       !validDestination(destination) || mimeType == null || !mimeType.matches("[a-z0-9][a-z0-9!#$&^_.+-]*/[a-z0-9][a-z0-9!#$&^_.+-]*") || mimeType.length() > 128 ||
-      requests.size() >= 2 || requests.values().stream().anyMatch(row -> row.session == session) || lastTime > Long.MAX_VALUE - REVIEW_MS) return null;
+      requests.size() >= 10 || requests.values().stream().filter(row -> row.grant == null).count() >= 8 || requests.values().stream().anyMatch(row -> row.session == session) || lastTime > Long.MAX_VALUE - REVIEW_MS) return null;
     RequestHandle request = new RequestHandle(); requests.put(request, new Row(session, destination, mimeType, length, lastTime + REVIEW_MS)); return request;
   }
   /** Exact offset, private native handle, and bounded copied chunk. No replay or post-seal writes. */
@@ -131,7 +131,7 @@ public final class NativeUploadAuthority {
     Row row = requests.get(request); return Arrays.copyOfRange(row.body, offset, Math.min(row.body.length, offset + CHUNK_BYTES));
   }
   public synchronized Grant approve(RequestHandle request, Review expected) {
-    if (!mayReview(request, expected) || lastTime > Long.MAX_VALUE - TRANSFER_MS) return null;
+    if (!mayReview(request, expected) || requests.values().stream().filter(row -> row.grant != null).count() >= 2 || lastTime > Long.MAX_VALUE - TRANSFER_MS) return null;
     Row row = requests.get(request); row.grant = new Grant(request, this); row.expires = lastTime + TRANSFER_MS; return row.grant;
   }
   public synchronized Review approvedReview(Grant grant) { prune(); Row row = approved(grant); return row == null ? null : row.review; }

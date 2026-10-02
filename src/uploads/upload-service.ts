@@ -1,3 +1,4 @@
+import { UploadRecoveryService, type UploadRecoveryPort } from './upload-recovery.ts';
 import type { ApprovalOrigin, EffectAuthority, TrustedApprovalOwner } from '../security/approval-service.ts';
 import { publicKey, text } from '../storage/codec.ts';
 import { captureUploadAuthorization } from './upload-authorization.ts';
@@ -13,6 +14,7 @@ export type TakenUpload = Readonly<{lease: UploadLease; origin: ApprovalOrigin; 
   filename: string; caption: string; request: Readonly<Omit<UploadPayload, 'data'>>; review: UploadReview}>;
 /** App-only operations. Implementations retain the native review/grant and original guest recipient. */
 export interface UploadNativePort {
+  readonly recovery?: UploadRecoveryPort;
   take(token: string): TakenUpload | null;
   observeProgress?(lease: UploadLease, update: (sent: number, total: number) => void): () => void;
   isLive(lease: UploadLease): boolean;
@@ -27,6 +29,7 @@ export interface UploadNativePort {
   finish(lease: UploadLease, result: UploadResult): void;
 }
 export interface UploadEffects {
+  currentIdentity?(): string | null;
   sha256(bytes: Uint8Array<ArrayBuffer>): Promise<string>;
   sign(snapshot: UploadSnapshot, authority: EffectAuthority): Promise<unknown>;
   nowSeconds(): number;
@@ -55,6 +58,7 @@ function review(value: UploadReview, identity: string): UploadReview {
 
 /** Trusted presentation and protected signing. Native code owns body, review, transport and irreversible revocation. */
 export class UploadService {
+  readonly recovery: UploadRecoveryService | null;
   private entries: Entry[] = [];
   private focused: string | null = null;
   private foregrounded = true;
@@ -67,22 +71,31 @@ export class UploadService {
   private readonly effects: UploadEffects;
   constructor(native: UploadNativePort, owner: TrustedApprovalOwner, effects: UploadEffects) {
     this.native = native; this.owner = owner; this.effects = effects;
+    this.recovery = native.recovery && effects.currentIdentity ? new UploadRecoveryService(native.recovery, effects.currentIdentity) : null;
   }
   getSnapshot = (): UploadPresentation => this.snapshot;
   subscribe(listener: () => void): () => void { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
   private publish(): void {
     let shown: Entry | undefined;
-    if (this.foregrounded && this.focused !== null) shown = this.entries.find(entry => entry.origin.sessionId === this.focused &&
+    if (this.foregrounded && this.focused !== null && this.entries.filter(entry => entry.controller !== null).length < UPLOAD_LIMITS.processConcurrent) shown = this.entries.find(entry => entry.origin.sessionId === this.focused &&
       entry.controller === null && this.safe(() => this.native.mayReview(entry.lease)));
     const previous = this.snapshot.current;
     const current = shown ? previous?.id === shown.id && previous.previewReady === (shown.body !== null) ? previous : Object.freeze({id: shown.id, origin: shown.origin, uploadId: shown.uploadId,
       filename: shown.filename, caption: shown.caption, request: shown.request, review: shown.review, previewReady: shown.body !== null,
       copyPreview: () => this.entries.includes(shown!) && this.safe(() => this.native.mayReview(shown!.lease)) && shown!.body ?
         new Uint8Array(shown!.body) : null}) : null;
-    this.snapshot = Object.freeze({current, pending: this.entries.filter(entry => entry.controller === null).length,
+    const next: UploadPresentation = Object.freeze({current, pending: this.entries.filter(entry => entry.controller === null).length,
       pendingSessionIds: Object.freeze([...new Set(this.entries.filter(entry => entry.controller === null).map(entry => entry.origin.sessionId))]),
       active: Object.freeze(this.entries.filter(entry => entry.controller !== null).map(entry => Object.freeze({id: entry.id, origin: entry.origin, review: entry.review, bytesSent: entry.bytesSent, bytesTotal: entry.review.size}))),
       outcomes: this.outcomes});
+    const previousSnapshot = this.snapshot;
+    if (next.current === previousSnapshot.current && next.pending === previousSnapshot.pending && next.outcomes === previousSnapshot.outcomes &&
+      next.pendingSessionIds.length === previousSnapshot.pendingSessionIds.length && next.pendingSessionIds.every((id, index) => id === previousSnapshot.pendingSessionIds[index]) &&
+      next.active.length === previousSnapshot.active.length && next.active.every((item, index) => {
+        const before = previousSnapshot.active[index];
+        return before?.id === item.id && before.origin === item.origin && before.review === item.review && before.bytesSent === item.bytesSent && before.bytesTotal === item.bytesTotal;
+      })) return;
+    this.snapshot = next;
     for (const listener of this.listeners) try { listener(); } catch { /* Observers have no authority. */ }
   }
   private safe(check: () => boolean): boolean { try { return check(); } catch { return false; } }
@@ -99,7 +112,7 @@ export class UploadService {
     try {
       const captured = origin(taken.origin), anticipated = origin(expected);
       if (Object.keys(captured).some(key => captured[key as keyof ApprovalOrigin] !== anticipated[key as keyof ApprovalOrigin]) ||
-        this.entries.length >= UPLOAD_LIMITS.processConcurrent || this.entries.some(entry => entry.origin.generation === captured.generation) ||
+        this.entries.length >= UPLOAD_LIMITS.pendingReviews + UPLOAD_LIMITS.processConcurrent || this.entries.filter(entry => entry.controller === null).length >= UPLOAD_LIMITS.pendingReviews || this.entries.some(entry => entry.origin.generation === captured.generation) ||
         !Number.isSafeInteger(captured.epoch) || captured.epoch < 0 || nextId >= Number.MAX_SAFE_INTEGER) denied();
       this.owner.assertActive(captured);
       const item = review(taken.review, captured.user);
@@ -150,20 +163,21 @@ export class UploadService {
     this.publish(); void this.prepareCurrent();
   }
   focus(sessionId: string | null): void { this.focused = sessionId; this.publish(); void this.prepareCurrent(); }
-  foreground(): void { this.foregrounded = true; this.refresh(); }
-  background(): void { this.foregrounded = false; for (const entry of this.entries) this.end(entry, 'user cancelled'); this.publish(); }
+  foreground(): void { this.recovery?.foreground(); this.foregrounded = true; this.refresh(); }
+  background(): void { this.recovery?.background(); this.foregrounded = false; for (const entry of this.entries) this.end(entry, 'user cancelled'); this.publish(); }
   close(sessionId: string): void {
     for (const entry of this.entries) if (entry.origin.sessionId === sessionId) this.end(entry, 'user cancelled');
     this.outcomes = Object.freeze(this.outcomes.filter(item => item.origin.sessionId !== sessionId)); this.publish();
   }
   revisionChanged(epoch: number): void {
+    this.recovery?.invalidate();
     for (const entry of this.entries) if (entry.origin.epoch !== epoch) this.end(entry, 'user cancelled');
     this.outcomes = Object.freeze(this.outcomes.filter(item => item.origin.epoch === epoch)); this.publish();
   }
   reject(id: string): void { if (this.snapshot.current?.id === id) this.cancel(id); }
   cancel(id: string): void {
     const entry = this.entries.find(value => value.id === id);
-    if (entry) this.end(entry, 'user cancelled'); this.publish();
+    if (entry) this.end(entry, 'user cancelled'); this.publish(); void this.prepareCurrent();
   }
   dismissOutcome(id: string): void { this.outcomes = Object.freeze(this.outcomes.filter(item => item.id !== id)); this.publish(); }
   private end(entry: Entry, error: UploadErrorCode | null, success?: UploadResult): UploadResult {
@@ -213,6 +227,6 @@ export class UploadService {
       try { dispatched = this.native.wasDispatched(entry.lease); } catch { /* Lost native evidence cannot prove no dispatch. */ }
       const definitive = error instanceof UploadError && ['server rejected', 'file too large', 'quota exceeded'].includes(error.code);
       return this.end(entry, dispatched && !definitive ? 'outcome unknown' : error instanceof UploadError ? error.code : 'upload failed');
-    } finally { this.publish(); }
+    } finally { this.publish(); void this.prepareCurrent(); }
   }
 }

@@ -67,3 +67,32 @@ test('unknown required NAP domains are rejected before a published session is cr
   const artifact = await verifyArtifact(await verifyManifest(coordinate, JSON.parse(JSON.stringify(event))), bytes);
   assert.throws(() => descriptorForPublishedArtifact(artifact, SESSION));
 });
+
+
+test('verified resource/upload grants and the complete selected domain set survive published native input', async t => {
+  const { database } = await setup(t);
+  const bytes = new TextEncoder().encode('<!doctype html><html><head><title>Selected</title></head><body>ok</body></html>');
+  const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), byte => byte.toString(16).padStart(2, '0')).join('');
+  const aggregate = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${hash} /index.html\n`))), byte => byte.toString(16).padStart(2, '0')).join('');
+  const secret = new Uint8Array(32); secret[31] = 35;
+  for (const domains of [['resource'], ['upload'], ['identity','storage','theme','relay','resource','upload']]) {
+    const appId = 'selected-' + domains.join('-');
+    const event = finalizeEvent({kind: 35129, created_at: 1_800_000_000, content: '', tags: [
+      ['d', appId], ['path', '/index.html', hash], ['x', aggregate, 'aggregate'], ...domains.map(domain => ['requires', domain]),
+    ]}, secret);
+    const artifact = await verifyArtifact(await verifyManifest({kind: 35129, pubkey: event.pubkey, identifier: appId, relayHints: []}, JSON.parse(JSON.stringify(event))), bytes);
+    const descriptor = descriptorForPublishedArtifact(artifact, SESSION);
+    const owner = registration({user: USER, publisher: event.pubkey, appId});
+    const control = database.bindApp(owner);
+    await assert.rejects(requestFirstOpenConsent(artifact, owner, control.port, new AbortController().signal, owner.assertActive, async () => false));
+    assert.equal(await control.port.readAccessGrant(), null);
+    const admission = await requestFirstOpenConsent(artifact, owner, control.port, new AbortController().signal, owner.assertActive, async request => {
+      assert.deepEqual(request.domains, [...domains].sort()); return true;
+    });
+    const wire = JSON.parse(publishedHostInput(artifact, admission, descriptor, {user: USER, epoch: 1, assertActive: owner.assertActive}, 'a'.repeat(64)));
+    assert.deepEqual(JSON.parse(wire.configuration).domains, [...domains].sort());
+    assert.equal(JSON.parse(wire.configuration).fixture, 'published');
+    assert.equal(wire.publisher, event.pubkey);
+    control.revoke();
+  }
+});

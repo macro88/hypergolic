@@ -100,7 +100,7 @@ final class NativeUploadAuthority: @unchecked Sendable {
       guard !clockFailed, foreground, registered(session), (0...Self.maxBytes).contains(length),
         Self.validDestination(destination), mimeType.utf8.count <= 128,
         Self.matches(mimeType, "^[a-z0-9][a-z0-9!#$&^_.+-]*/[a-z0-9][a-z0-9!#$&^_.+-]*$"),
-        requests.count < 2, !requests.values.contains(where: { $0.session === session }),
+        requests.count < 10, requests.values.filter({$0.grant == nil}).count < 8, !requests.values.contains(where: { $0.session === session }),
         lastTime <= Int64.max - Self.reviewMS else { return nil }
       let request = Request()
       requests[ObjectIdentifier(request)] = Row(request, session, destination, mimeType, length, lastTime + Self.reviewMS)
@@ -148,7 +148,7 @@ final class NativeUploadAuthority: @unchecked Sendable {
   }
   func approve(_ request: Request, expected: Review) -> Grant? {
     lock.withLock {
-      prune(); guard reviewable(request, expected), lastTime <= Int64.max - Self.transferMS,
+      prune(); guard reviewable(request, expected), requests.values.filter({$0.grant != nil}).count < 2, lastTime <= Int64.max - Self.transferMS,
         let row = live(request) else { return nil }
       let grant = Grant(request, owner); row.grant = grant; row.expires = lastTime + Self.transferMS; return grant
     }

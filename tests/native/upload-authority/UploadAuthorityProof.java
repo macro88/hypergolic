@@ -38,7 +38,7 @@ public final class UploadAuthorityProof {
     byte[] preview = owner.preview(request, review); check(Arrays.equals(preview, body())); preview[0] = 99;
     check(Arrays.equals(owner.preview(request, review), body()));
     var other = owner.admit(b, 1, SERVER, "text/plain"); check(other != null);
-    check(owner.admit(c, 1, SERVER, "text/plain") == null); check(owner.append(other, 0, new byte[]{4}));
+    var third = owner.admit(c, 1, SERVER, "text/plain"); check(third != null); owner.cancel(third); check(owner.append(other, 0, new byte[]{4}));
     var otherReview = owner.seal(other); check(otherReview != null); check(!owner.mayReview(other, otherReview));
     check(owner.approve(request, otherReview) == null);
     owner.focus(b); check(owner.approve(request, review) == null); check(owner.preview(request, review) == null);

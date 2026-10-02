@@ -33,6 +33,26 @@ public final class UploadResponseProof {
       "Content-Length: 2\r\nConnection: close\r\nConnection: close\r\n", "Content-Length: 32769\r\n", "Content-Length: 3\r\n"}) {
       denied(() -> PublishedHttpsResponseReader.readUpload(wire(201, headers, "{}"), () -> false));
     }
+    for (int status : new int[]{400, 413, 429}) {
+      for (String headers : new String[]{"Content-Length: 3\r\n", "Content-Length: 2\r\nContent-Length: 2\r\n",
+        "Content-Length: 2\r\nTransfer-Encoding: chunked\r\n"}) {
+        try { PublishedHttpsResponseReader.readUpload(wire(status, headers, "{}"), () -> false); throw new AssertionError("Invalid error settled"); }
+        catch (PublishedHttpsResponseReader.UploadStatus invalid) { throw new AssertionError("Unframed error became definitive", invalid); }
+        catch (IOException expected) { check(true); }
+      }
+      denied(() -> PublishedHttpsResponseReader.readUpload(wire(status, "Content-Length: 2\r\n", "{}trailing"), () -> false));
+    }
+    for (int status : new int[]{200,404}) {
+      var response = PublishedHttpsResponseReader.readRecovery(wire(status, "Content-Length: 4\r\n", "file"), () -> false, 10485760);
+      check(response.status == status); check(new String(response.body, StandardCharsets.US_ASCII).equals("file"));
+      denied(() -> PublishedHttpsResponseReader.readRecovery(wire(status, "Content-Length: 5\r\n", "file"), () -> false, 10485760));
+      denied(() -> PublishedHttpsResponseReader.readRecovery(wire(status, "Content-Length: 4\r\n", "filetrailing"), () -> false, 10485760));
+      denied(() -> PublishedHttpsResponseReader.readRecovery(wire(status, "Content-Length: 4\r\nTransfer-Encoding: chunked\r\n", "file"), () -> false, 10485760));
+    }
+    for (int status : new int[]{201,401,403,429,500,302}) {
+      denied(() -> PublishedHttpsResponseReader.readRecovery(wire(status, "Content-Length: 0\r\n", ""), () -> false, 10485760));
+    }
+    denied(() -> PublishedHttpsResponseReader.readRecovery(wire(404, "Content-Length: 0\r\n", ""), () -> true, 10485760));
     denied(() -> PublishedHttpsResponseReader.readUpload(wire(201, "Content-Length: 2\r\n", "{}"), () -> true));
     System.out.println("{\"language\":\"Java\",\"uploadResponseChecks\":"+checks+",\"failed\":0}");
   }

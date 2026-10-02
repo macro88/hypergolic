@@ -36,7 +36,7 @@ final class Clock: @unchecked Sendable {
     var preview = owner.preview(request, expected: review)!; check(preview == body); preview[0] = 88
     check(owner.preview(request, expected: review) == body)
     let other = owner.admit(b, length: 1, destination: server, mimeType: "text/plain")!
-    check(owner.admit(c, length: 1, destination: server, mimeType: "text/plain") == nil)
+    let third = owner.admit(c, length: 1, destination: server, mimeType: "text/plain"); check(third != nil); owner.cancel(third!)
     check(owner.append(other, offset: 0, chunk: Data([4]))); let otherReview = owner.seal(other)!
     check(!owner.mayReview(other, expected: otherReview)); check(owner.approve(request, expected: otherReview) == nil)
     owner.focus(b); check(owner.approve(request, expected: review) == nil); check(owner.preview(request, expected: review) == nil)

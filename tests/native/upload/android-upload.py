@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Actual SDK/native review journey checked against a separate TLS observer."""
-import argparse,json,re,subprocess,time,xml.etree.ElementTree as ET
+import argparse,json,os,re,subprocess,time,xml.etree.ElementTree as ET
 from pathlib import Path
 from evidence import ROOT,sha,sources
 PACKAGE='org.nostrocket.hypergolic.uploadfixture'
@@ -13,7 +13,11 @@ class Journey:
         data=subprocess.check_output([str(ROOT/'.tools/android-sdk/platform-tools/adb'),'-s',self.args.serial,*args],timeout=30)
         return data if binary else data.decode().strip()
     def nodes(self):
-        self.adb('shell','uiautomator','dump','--compressed','/data/local/tmp/hg-upload.xml')
+        if os.environ.get('HYPERGOLIC_UPLOAD_UI_DUMP') == 'fast':
+            self.adb('shell','rm','-f','/data/local/tmp/hg-upload.xml')
+            result=self.adb('shell','CLASSPATH=/system/framework/android.test.base.jar:/system/framework/android.test.runner.jar:/system/framework/uiautomator.jar:/data/local/tmp/hg-upload-uia.jar','app_process','/system/bin','com.android.commands.uiautomator.Launcher','runtest','-c','org.nostrocket.hypergolic.proof.FastUiDump','-e','jars','/data/local/tmp/hg-upload-uia.jar')
+            assert 'aborted' not in result and 'INSTRUMENTATION_STATUS_CODE: 0' in result and 'OK (1 test)' in result,'Native UI observer failed'
+        else:self.adb('shell','uiautomator','dump','--compressed','/data/local/tmp/hg-upload.xml')
         self.xml=self.adb('exec-out','cat','/data/local/tmp/hg-upload.xml',binary=True)
         nodes=list(ET.fromstring(self.xml).iter('node'))
         assert any(n.get('package')==PACKAGE for n in nodes),'Upload fixture is not foreground'
@@ -26,7 +30,7 @@ class Journey:
         deadline=time.monotonic()+timeout
         while time.monotonic()<deadline:
             matches=[n for n in self.nodes() if label in (n.get('text'),n.get('content-desc'),n.get('resource-id'))]
-            buttons=[n for n in matches if n.get('clickable')=='true']
+            buttons=[n for n in matches if n.get('clickable')=='true' and self.visible(n)]
             if len(buttons)==1:return buttons[0]
             if len(matches)==1:return matches[0]
             time.sleep(.2)
@@ -43,18 +47,27 @@ class Journey:
     def observer(self):return json.loads(self.args.observer.read_text())
     def check(self,name):self.report['checks'].append(name);print('PASS '+name,flush=True)
     def guest_scroll(self,direction):
-        views=[n for n in self.nodes() if n.get('class')=='android.webkit.WebView' and n.get('text')=='Hypergolic runtime']
+        views=[n for n in self.nodes() if n.get('class')=='android.webkit.WebView' and n.get('text')=='Hypergolic runtime' and self.visible(n)]
         assert len(views)==1,'Guest WebView not uniquely observed'
         x1,y1,x2,y2=map(int,re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',views[0].get('bounds','')).groups())
-        high=y1+int((y2-y1)*.25);low=y1+int((y2-y1)*.8);x=(x1+x2)//2
+        high=y1+int((y2-y1)*.15);low=y1+int((y2-y1)*.45);x=(x1+x2)//2
         args=['swipe',str(x),str(low if direction=='up' else high),str(x),str(high if direction=='up' else low),'400']
         self.report['inputs'].append({'control':'observed guest WebView scroll','input':args});self.adb('shell','input',*args)
     def guest_find(self,label):
+        def exposed(node,nodes):
+            if not self.visible(node):return False
+            x1,y1,x2,y2=map(int,re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',node.get('bounds','')).groups());x=(x1+x2)//2;y=(y1+y2)//2
+            for overlay in nodes:
+                if overlay.get('resource-id') not in ['upload-recovery-open','upload-outcome','upload-progress'] or not self.visible(overlay):continue
+                a,b,c,d=map(int,re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',overlay.get('bounds','')).groups())
+                if a<=x<c and b<=y<d:return False
+            return True
         for direction in ['down','up']:
-            for _ in range(10):
-                if any(self.visible(n) and label in (n.get('text'),n.get('content-desc'),n.get('resource-id')) for n in self.nodes()):return
+            for _ in range(12):
+                nodes=self.nodes()
+                if any(exposed(n,nodes) and label in (n.get('text'),n.get('content-desc'),n.get('resource-id')) for n in nodes):return
                 self.guest_scroll(direction)
-        raise AssertionError('Guest control not observed: '+label)
+        raise AssertionError('Guest control not exposed: '+label)
     def originals(self):
         items=json.loads((ROOT/'napplets/upload-lab/src/public-synthetic-photos.json').read_text())['files']
         self.report['scope']='Actual guest-owned original JPEG/HEIC through genuine SDK, sanitized native review/reject/approved exact signed PNG output; picker bypass and independent orientation/color/metadata verification. Disposable signing, controlled TLS.'

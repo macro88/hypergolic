@@ -20,7 +20,9 @@ final class UploadLeaseRegistry {
     final NativeUploadAuthority authority;
     final NativeUploadAuthority.Grant grant;
     final NativeBlossomPermit permit;
-    Transfer(NativeUploadAuthority authority, NativeUploadAuthority.Grant grant, NativeBlossomPermit permit) {
+    final String registration, uploadId;
+    Transfer(NativeUploadAuthority authority, NativeUploadAuthority.Grant grant, NativeBlossomPermit permit, String registration, String uploadId) {
+      this.registration = registration; this.uploadId = uploadId;
       this.authority = authority; this.grant = grant; this.permit = permit;
     }
   }
@@ -69,7 +71,7 @@ final class UploadLeaseRegistry {
   synchronized String begin(String generation, String callerId, String requestText, int length, String destination) {
     Session session = sessions.get(generation);
     if (session == null || callerId == null || callerId.isEmpty() || callerId.length() > 128 || requestText == null ||
-      requestText.length() > 32 * 1024 || rows.size() >= 2 || session.callerIds.size() >= 1024 ||
+      requestText.length() > 32 * 1024 || rows.size() >= 10 || session.callerIds.size() >= 1024 ||
       session.callerIds.contains(callerId) || rows.values().stream().anyMatch(row -> row.session == session)) return null;
     var request = authority.admit(session.handle, length, destination, "application/octet-stream"); if (request == null) return null;
     String token = UUID.randomUUID().toString();
@@ -113,7 +115,7 @@ final class UploadLeaseRegistry {
   synchronized Transfer transfer(String token, String credential, long now) {
     Row row = rows.get(token); if (row == null || !isApproved(token)) return null;
     var permit = NativeBlossomPermit.capture(row.review, credential, now);
-    return permit == null ? null : new Transfer(authority, row.grant, permit);
+    return permit == null ? null : new Transfer(authority, row.grant, permit, row.session.registration, row.uploadId);
   }
   synchronized boolean wasDispatched(String token) {
     Row row = rows.get(token);

@@ -10,6 +10,11 @@ overrides:
   brace-expansion@5.0.9: 5.0.12
   xcode>uuid: 11.1.1
 
+patchedDependencies:
+  node-forge@1.4.0:
+    hash: 0169a20d1e125a82cafab56e53fa41e0c6caf2148dca29511c251d6411dc632a
+    path: patches/node-forge@1.4.0.patch
+
 importers:
 
   .:
@@ -4159,7 +4164,7 @@ snapshots:
       glob: 13.0.6
       lan-network: 0.2.1
       multitars: 1.0.2
-      node-forge: 1.4.0
+      node-forge: 1.4.0(patch_hash=0169a20d1e125a82cafab56e53fa41e0c6caf2148dca29511c251d6411dc632a)
       npm-package-arg: 11.0.3
       ora: 3.4.0
       picomatch: 4.0.7
@@ -4195,7 +4200,7 @@ snapshots:
 
   '@expo/code-signing-certificates@0.0.6':
     dependencies:
-      node-forge: 1.4.0
+      node-forge: 1.4.0(patch_hash=0169a20d1e125a82cafab56e53fa41e0c6caf2148dca29511c251d6411dc632a)
 
   '@expo/config-plugins@57.0.9(typescript@6.0.3)':
     dependencies:
@@ -6512,7 +6517,7 @@ snapshots:
     dependencies:
       content-type: 2.1.0
 
-  node-forge@1.4.0: {}
+  node-forge@1.4.0(patch_hash=0169a20d1e125a82cafab56e53fa41e0c6caf2148dca29511c251d6411dc632a): {}
 
   node-int64@0.4.0: {}
 

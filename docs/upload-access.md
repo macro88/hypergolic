@@ -1,11 +1,13 @@
-# Upload access — implementation in progress
+# Upload access — selected profile
 
 Phase 2.4 selects the [NAP upload draft at a7cc174](https://github.com/napplet/naps/blob/a7cc17463cbf5d9cb87884b31071bc4fc826034c/naps/NAP-UPLOAD.md)
 and [Blossom at b5bd280](https://github.com/hzrd149/blossom/tree/b5bd2801d1763aa635fc8fea7a76597e0eb18990).
 The public operations are `upload.info`, `upload.upload` and `upload.status`, with
 `upload.status.changed` notifications. Blossom is the selected rail; NIP-96 is
-rejected. Published upload admission remains disabled while native acceptance is
-in progress. The unsigned bundled Upload Lab is a separate reviewed fixture.
+rejected. Verified-published upload admission is implemented through the normal
+shell, first-open consent, persisted grant and native binding. The signed local
+fixture passes both selected hosts; selected acceptance is complete under the documented dependency exception. The
+unsigned bundled Upload Lab remains a separate reviewed fixture.
 
 ## Confirmed product decisions
 
@@ -23,17 +25,17 @@ is one-use. Photos must have embedded personal metadata removed before review;
 other attachments retain their bytes with a metadata warning. Failed preparation
 must not silently upload the original. Orientation and color must remain correct.
 The system photo/file picker is accepted: only selected files become readable by
-the requester, including when an upload is declined. The selected-PNG picker journey is verified on both native hosts; broader
-photo-format acceptance is still pending.
+the requester, including when an upload is declined. The selected static-photo and unchanged-attachment profiles have native picker evidence on both selected hosts; see the checkpoints below.
 
 Approved uploads continue when switching between loaded napplets while the app is
 in the foreground. Trusted progress and Cancel remain available. Background,
 requester close/replacement, renderer loss and identity changes revoke authority.
 Cancel does not promise deletion of a server copy. An uncertain dispatched outcome
 must be reconciled at the same destination/hash before a freshly approved retry;
-the durable recovery/reconciliation slice is still pending.
+the durable recovery/reconciliation slice passes the selected native lifetime and
+fault matrix described below.
 
-## Current implementation boundary
+## Admission and initial tracer
 
 `src/uploads` contains the strict request contract, immutable byte snapshot,
 protected upload-signing projection, per-file coordinator, native port and private
@@ -58,7 +60,7 @@ pixel and color chunks remain byte-identical. Compressed text is discarded witho
 inflating it; the unchanged pixel stream is independently checked for decoded size
 and row filters, and iOS also exercises ImageIO. Nonneutral orientation, extra image
 directories, ICC, animation, unknown chunks and other photo formats fail closed.
-This partial preparer does not complete the full photo requirement. The container
+This describes the initial tracer. The later static-photo checkpoint below adds native orientation/color-preserving PNG preparation from supported JPEG/PNG/WebP/GIF/HEIC originals. The container
 basis is [PNG Third Edition, 24 June 2025](https://www.w3.org/TR/2025/REC-png-3-20250624/).
 
 Both hosts now route a single-file input to the native system picker only for a
@@ -71,7 +73,8 @@ expiry and 128 descriptor opens per selection bound retention and access. iOS
 uses public document/photo pickers, reads an open-in-place document or selected
 photo representation, and returns a copied private file. Neither returns original
 provider paths or requests whole-library permission. Selected PNGs and bounded WAV/MP4/PDF/ZIP/UTF-8 text are implemented;
-broader photo formats remain pending. Attachments retain their original bytes. A declined upload does not revoke the selection already shared with its
+static JPEG/PNG/WebP/GIF/HEIC preparation is covered by the later checkpoint.
+Attachments retain their original bytes. A declined upload does not revoke the selection already shared with its
 requesting napplet.
 
 Picker preparation and retained selections are bounded. Close, replacement, focus
@@ -80,10 +83,11 @@ generation and native registration. Android's external chooser necessarily suspe
 the parent activity: its outstanding user selection may return on foreground resume
 within the original deadline. Returned or processing selections are cancelled on
 background. This exception creates no upload approval and revives no revoked
-network grants. The full revoked-recipient native journey remains to be verified.
+network grants. The selected revoked-recipient journeys pass as described below; ordinary
+workspace identity changes and protected-device parity remain final MVP work.
 
-Native owners allow one request per realm and two per process, with a 10 MiB file
-bound, 256 KiB carrier chunks, a ten-minute review lifetime and a sixty-second
+Native owners allow one request per realm, eight pending/staging requests and
+two approved transfers per process, with a 10 MiB file bound, 256 KiB carrier chunks, a ten-minute review lifetime and a sixty-second
 approved transfer lifetime. These are engineering bounds for this phase. Native
 monotonic clock regression revokes authority. Authorization remains strictly past
 and unexpired even if the wall clock moves backward.
@@ -112,11 +116,12 @@ transfers and SDK/native UI journeys. TypeScript and the complete Chromium/WebKi
 runtime suite cover the shared carrier. A successful Android/iOS build confirms
 compilation, not file-picker, preview, approval or server-byte acceptance.
 
-Phase 2.4 remains open. The first metadata-free SDK/native PNG tracer is accepted.
-Finish selected-file native acceptance and supported photo sanitation/orientation/color,
-remaining photo and revoked-picker evidence, uncertain
-reconciliation, published admission and final quality/native acceptance. Final
-React Doctor and aislop scores must both be 100/100 on the final source.
+The selected native tracer, photo/attachment, recipient, recovery, transfer and
+normal signed-admission journeys pass. Phase 2.4 and CAP-05 are accepted for this
+declared profile under the explicit dependency exception; see [the phase verification](../.planning/phases/02.4-uploads/02.4-VERIFICATION.md).
+The repository requires complete React Doctor and aislop scores of 100/100 and
+clean locked dependency audits. The owner approved a narrow exception for the tested patched advisory on
+2 October 2026. All other quality requirements remain unchanged.
 
 ## First native tracer acceptance
 
@@ -353,6 +358,107 @@ The guest artifact and unsigned manifest must be explicitly rebuilt, reviewed an
 repinned in `runtime/fixtures` and `src/runtime/bundled-catalog.ts` before runtime
 packaging. `runtime:build` validates the staged artifact; it does not rebuild the
 napplet source. Native source/installed-product seals accompany each accepted run.
-These remain disposable-identity controlled-server proofs. Durable recovery, full
-ordinary workspace lifecycle, public-provider and published-napplet acceptance
-remain open.
+These remain disposable-identity controlled-server proofs. Full ordinary workspace lifecycle, public-provider and published-napplet acceptance remain open. The recovery checkpoint below is a separate controlled-server slice.
+
+
+## Recovery and transfer lifetime checkpoint
+
+Before native networking begins, the native owner atomically saves an uncertain
+record containing only the public upload ID, identity, publisher, app ID, captured
+provider, prepared hash, type, size and state. It stores no file body, filename,
+caption, authorization, private key or resumable approval. The checksum and exact
+readback detect damaged or lost writes; storage failure disables admission. The
+store retains at most 32 records and 128 KiB, evicting settled records only.
+
+Android uses private mode-700/mode-600 files under the app's no-backup directory,
+no-follow opens and file/directory sync. iOS uses an excluded Application Support
+directory with complete file protection, exclusive temporary files, full file
+sync, atomic rename and directory sync. Production iOS requires readback of the
+protection attribute. The isolated `HYPERGOLIC_NETWORK_PROOF` Simulator fixture
+permits its observed missing protection attribute; that exception is compiled
+only for the Simulator proof and establishes no physical-device protection.
+
+A dispatched interruption blocks the same identity/provider/hash before another
+review. Trusted recovery reads use a fresh native context and foreground epoch,
+a 60-second deadline, at most two concurrent checks and only `GET /<saved-hash>`
+at the saved provider. They send no authorization, follow no redirects and accept
+only completely framed bounded 200/404 responses. A 200 must match the complete
+saved size and SHA-256; a 404 records current absence, not proof that an older
+request can never finish. Neither result creates a retry approval. Wrong bytes,
+truncation, other statuses, stale ownership and background leave uncertainty.
+
+Active transfers are excluded from interrupted checks, preventing a premature
+absence check while the same attempt is still sending. Confirmed receipts and
+completely framed server rejection settle their native record. Failure before
+body/header dispatch records not-sent; malformed receipts, lost replies and
+revoked dispatched work remain uncertain. Approval never restores after close,
+background, identity change or renderer loss.
+
+The integrated queue separates eight pending/staging reviews from two approved
+transfers, with one request per realm. Trusted progress and Cancel occupy their
+own layout space outside the guest. Both actual native hosts pass 21 transfer
+fault cases and five queue checks each. Android passes 12 recovery checks; iOS
+passes 11 plus independently witnessed lost ACK. They cover cold restart without
+networking, duplicate blocking, fixed-hash fault reads, fresh reviewed approval
+and two-loaded-host navigation with the original SDK receipt. iOS hosts now start
+inactive until explicit trusted focus, so a new hidden peer cannot steal review
+focus. Screenshots, native input/accessibility, disk records, observer counts and
+exact source/products are retained; see the [plan03 summary](../.planning/phases/02.4-uploads/02.4-03-SUMMARY.md).
+
+Transfer matrices precede the later UI/focus refinements; each evidence set names
+its exact sealed build. Refined products pass the affected queue/recovery journeys.
+Failures remain failed. These are disposable-identity local-TLS fixtures, with the
+Simulator protection exception described above. Normal signed admission has the separate checkpoint below. Final selected acceptance is recorded below; broader MVP gates remain open.
+
+
+## Normal signed admission checkpoint — 2 October 2026
+
+The shared producer, Android binding, iOS binding and trusted runtime now agree on
+`identity`, `storage`, `theme`, `relay`, `resource` and `upload`. The old shared
+producer retained four domains, and the runtime retained five; real Android
+first-open testing exposed the runtime rejection. Unknown/duplicate domains and
+missing grants remain denied. Domain admission does not imply every operation is
+implemented. First-open and reopened access disclosures explain selected-file
+reading and separate approval for each upload.
+
+A signed local Upload Lab manifest and exact HTML pass the normal IdentityShell,
+Settings address entry, manifest verification, first-open rejection/acceptance,
+persisted grant, native binding and original SDK upload recipient on Android API36
+and iOS26.5 Simulator. The fixture publisher differs from the disposable signing
+identity. The same path verifies advisory `upload.info` without networking, PNG
+rejection with zero TLS, fresh approved exact PNG bytes and Schnorr authorization,
+system-selected 4MiB WAV reading after rejection, fresh approved exact WAV bytes,
+and cold-restored workspace/cache/grant without automatic networking. Android
+build25 passes nine checks; iOS build26 passes eleven. Patched-tooling build27
+produces byte-identical products on both platforms. Its Android journey27 passes
+nine checks and fresh-state iOS journey28 passes eleven, with matching current
+source and installed-product seals. Original and later receipts remain separate.
+
+The shell reserves progress/outcome space inside its SafeArea footer. Review,
+first-open consent, selected-file confirmation and cold-launch accessibility
+were checked on both native hosts. Full original SDK receipt fields were parsed
+from native accessibility; an offscreen receipt is not claimed as visible pixels.
+This is normal shell integration with controlled signed artifact retrieval, a
+public disposable signing identity and compile-gated local TLS. It does not
+establish public relay/provider retrieval, protected-identity signing, physical
+iOS file protection or the complete ordinary identity-switch journey. Those
+remain distinct Phase2.11 gates.
+
+Final shared uploads51, published adapters96 and genuine Chromium/WebKit runtime158
+regressions pass. Both ordinary JS exports and normal Android arm64/iPhoneOS
+Release compilation pass; iOS compilation is unsigned. Earlier prebuilds pass on
+both platforms after restoring the CocoaPods workspace. The final audit newly
+reports [GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv)
+in Expo's tooling dependency. React Doctor is100/100, aislop98/100, and eight of
+nine lockfile audits pass. The owner-approved tested local dependency patch is locked; its
+registry advisory stays visible. See [dependency remediation](dependency-patches.md).
+
+
+The later ordinary patched-tooling exports and both normal Release compilations
+also pass. The ordinary iPhoneOS executable excludes the actual private QA
+renderer selector. A repeat iOS first-open run27 reused an existing persisted
+grant and therefore correctly showed no new consent; it remains a failed test
+setup. Fresh isolated-fixture installation passes28. The initial cold-launch
+screenshot captures an intermediate layout; a later settled Simulator screenshot
+shows the trusted header/identity and guest, with independently unchanged server
+counts. See the phase verification for all evidence limits.

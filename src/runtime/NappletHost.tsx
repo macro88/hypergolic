@@ -94,6 +94,7 @@ function PublishedNappletHost({ session, onHostEvent, ...props }: Props) {
       <Text accessibilityRole="header" style={styles.heading}>Open this napplet?</Text>
       <Text style={styles.detail}>Publisher</Text><Text selectable style={styles.claim}>{review.publisher}</Text>
       <Text style={styles.detail}>Napplet</Text><Text selectable style={styles.claim}>{review.appId}</Text>
+      {review.domains.includes('upload') && <Text style={styles.detail}>Files you select become readable by this napplet. Every upload needs separate approval of the file, identity and server.</Text>}
       <Text style={styles.detail}>Access: {review.domains.length ? review.domains.join(', ') : 'none'}</Text>
       <Pressable accessibilityRole="button" testID={`published-approve-${session.id}`} onPress={() => decide(true)} style={styles.action}><Text style={styles.actionText}>Allow and open</Text></Pressable>
       <Pressable accessibilityRole="button" testID={`published-reject-${session.id}`} onPress={() => decide(false)} style={styles.action}><Text style={styles.actionText}>Cancel</Text></Pressable>

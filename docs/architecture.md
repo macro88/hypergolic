@@ -20,15 +20,15 @@ and Value Lab move to post-MVP phase 4. Every MVP group
 needs a test napplet and native Android/iOS acceptance. This expands scope without
 claiming implementation or selecting wallet providers or new draft revisions.
 
-The [upload phase](upload-access.md) is in progress: native body/approval/PUT owners,
-trusted review and settings, and genuine SDK Upload Lab PNG journeys pass on both
-native hosts. Selected PNG metadata is removed before guest handoff and upload
-review. Bounded unchanged WAV/MP4/PDF/ZIP/text selection and approved exact uploads
-also pass both native hosts. Static JPEG/PNG/WebP/GIF/HEIC preparation passes independent native codec/pixel
-checks and 14 actual SDK/Files picker journeys per host; iOS also passes Photos
-library HEIC selection. Cancellation and background picker denial pass on both
-selected hosts, including the Android Home/late-callback guard. Remaining
-recipient faults, reconciliation and published upload admission keep CAP-05 incomplete.
+The [upload phase](upload-access.md) passes selected Android/iOS native SDK
+journeys for prepared photos, unchanged attachments, revoked picker recipients,
+approved exact uploads, transfer faults, queues and durable uncertainty recovery.
+Normal shell admission of a locally supplied signed Upload Lab now passes both
+selected hosts, including first-open review, original SDK receipt, selected WAV
+and cold-restored cache/grant. The owner approved a single documented exception for the still-visible Expo
+tooling dependency advisory after its tested locked patch. CAP-05 is accepted
+for this selected profile under that exception. Physical/protected identity, ordinary identity-switch parity and
+public-provider acceptance remain final MVP gates.
 
 Photo preparation stays inside the native picker/upload owner, before any guest
 handoff or trusted review. The shared service verifies output identity and presents
@@ -76,8 +76,9 @@ The NIP-19 decoder accepts valid `naddr` TLV field orderings; re-encoding an
 address must not be used as a byte-for-byte admission rule. Unsupported
 `requires` domains are identified before consent, and Settings names them to
 the user rather than offering access the native host cannot supply. The current
-host admits `identity`, `storage`, `theme`, `relay` and `resource` for verified
-napplets; `upload` currently remains fixture-only pending phase acceptance. A verified napplet that
+host admits `identity`, `storage`, `theme`, `relay`, `resource` and `upload` for
+verified napplets. Upload admission has scoped normal-shell native evidence;
+its selected acceptance uses the documented patched-tooling exception. A verified napplet that
 requires `cvm` or `webrtc` remains incompatible. This follows
 [NIP-19 at revision 0046368](https://github.com/nostr-protocol/nips/blob/0046368a747c5c25ae2bec28bae0e537744c8f10/19.md),
 which defines address TLV fields and does not prescribe their ordering.

@@ -219,7 +219,14 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (!BuildConfig.UPLOAD_NETWORK_PROOF) return
     val action = pickerFaultProof ?: return
     pickerFaultProof = null
-    // Native scheduling continues while DocumentsUI owns the foreground Activity.
+    scheduleHostFaultProof(action, 12_000)
+  }
+  /** Actual native revocation/renderer faults for an already dispatched isolated upload. */
+  fun armUploadFaultProof(action: String) {
+    if (!BuildConfig.UPLOAD_NETWORK_PROOF || action !in setOf("close", "replace", "identity", "renderer")) return
+    scheduleHostFaultProof(action, 2_000)
+  }
+  private fun scheduleHostFaultProof(action: String, delay: Long) {
     android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
       if (disposed || !live) return@postDelayed
       when (action) {
@@ -232,7 +239,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
           startConfiguredSession(value.toString())
         }
       }
-    }, 12_000)
+    }, delay)
   }
 
   fun startConfiguredSession(raw: String) {

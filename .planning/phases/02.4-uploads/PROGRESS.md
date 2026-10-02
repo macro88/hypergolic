@@ -95,3 +95,32 @@ bytes have been checked. Failed exploratory/stale-fixture/teardown-race attempts
 remain diagnostics. The corresponding SUMMARY records native completion and the
 mandatory final quality/commit gate. Plans03–04 and CAP-05 stay open. Usage4%;
 continue to50%, no source push.
+
+
+## Plan04 native completion and dependency gate — 2 October2026
+
+Android25 normal signed journey passes9 checks; iOS26 passes11 and all90 installed
+app files match. Normal Settings review/grant/cache/native binding, real SDK info,
+exact PNG/WAV uploads, selected-file read after decline and cold launch pass.
+Published adapter96/runtime158/upload51 regressions and ordinary builds pass.
+The source producer/runtime allowlists and reserved safe-area footer are fixed.
+
+Final quality discovers the newly reviewed GHSA-86w9-cpqp-85rv: React Doctor100,
+aislop98, eight audits clear/root audit red. A locked local proposed-upstream patch
+passes installed RSA101 (four upstream pending), independent malformed/valid RSA
+and actual Expo certificate APIs. The audit stays visible; owner exception is
+approved specifically for this advisory and resulting score/audit failure. CAP-05/Plan04/Phase2.4 remain open, no source commit or advance yet.
+Post-patch build receipts are separate from original25/26 acceptance. Usage9%,
+continue authorized work to50% after the necessary decision; no source push.
+
+
+## Selected Phase2.4 complete — 2 October2026
+
+All four selected plans pass. Patched-tooling build27 retains identical native
+products, Android27 nine/iOS28 eleven fresh-state signed checks pass, both ordinary
+exports/Release builds pass, and the sole advisory exception is explicitly owner
+approved. Final source review retains ReactDoctor100/aislop98, the visible root
+advisory and eight clean audits; all other checks pass. CAP-05 is accepted for
+this bounded profile. Summary/verification name remaining full-MVP gates and
+failed setup runs. The coherent local commit includes Plan03/04 and the patch;
+no source push. Next is2.5 owning research/product decisions; latest usage9%.

@@ -33,7 +33,7 @@ internal class CapabilityConfiguration(raw: String, generation: String, allowPub
       "ux-lab" -> setOf("theme")
       "state-lab", "state-lab-peer" -> setOf("identity", "storage", "theme")
       "approval-lab" -> setOf("identity", "relay", "theme")
-      "upload-lab" -> setOf("upload", "theme")
+      "upload-lab", "upload-queue-lab" -> setOf("upload", "theme")
       "resource-lab" -> setOf("resource", "theme")
       "feed-lab" -> setOf("relay", "theme")
       "published" -> {

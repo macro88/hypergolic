@@ -37,6 +37,10 @@ object CapabilityConfigurationProof {
     checkProof(CapabilityConfiguration(raw("published", emptyList()), "empty-domains", true).grantedDomains.isEmpty())
     checkProof(CapabilityConfiguration(raw("published", listOf("theme")), "theme-only", true).grantedDomains == listOf("theme"))
 
+    val uploads = CapabilityConfiguration(raw("published", listOf("resource", "upload")), "upload-generation", true)
+    checkProof(uploads.grantedDomains == listOf("resource", "upload") && uploads.allowsUpload)
+    checkProof(CapabilityConfiguration(raw("published", listOf("identity", "storage", "theme", "relay", "resource", "upload")), "all-domains", true).grantedDomains.size == 6)
+    denied(raw("published", listOf("upload", "upload")))
     denied(raw("published", listOf("theme")), published = false)
     denied(raw("published", listOf("theme", "theme")))
     denied(raw("published", listOf("unknown")))

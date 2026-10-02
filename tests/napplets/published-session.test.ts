@@ -1,3 +1,4 @@
+import type { UploadService } from '../../src/uploads/upload-service.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { naddrEncode } from 'nostr-tools/nip19';
@@ -12,7 +13,7 @@ import { createRuntimeOwner } from '../../src/runtime/runtime-owner.ts';
 import { emptyWorkspace, openNapplet, closeNapplet, replacePublishedNapplet } from '../../src/shell/workspace.ts';
 import { NativeLeases } from '../runtime/native-leases.ts';
 import type { IdentityTransition } from '../../src/security/identity-transition.ts';
-import { createApprovalOwner } from '../../src/security/approval-owner.ts';
+import { createApprovalOwner, createUploadOwner } from '../../src/security/approval-owner.ts';
 import type { ApprovalOrigin, ApprovalService } from '../../src/security/approval-service.ts';
 
 const USER = '31'.repeat(32);
@@ -318,4 +319,33 @@ test('changed update access needs a second review before any new native session'
   { code: 'UNSUPPORTED_NAPPLET_CAPABILITIES', domains: ['cvm'] });
   assert.equal(calls.filter(call => call.startsWith('register:')).length, registrations);
   opened.revoke(); accepted.revoke();
+});
+
+
+test('published upload consent feeds the current workspace/native generation and revokes with its binding', async t => {
+  const {database, sqlite} = await setup(t);
+  const html = getEmbeddedTestHtmlBytes(), appId = 'published-upload-test';
+  const event = signedFixture(1_800_000_004, appId, html, ['resource','upload'], new Uint8Array(32).fill(12));
+  let workspace = emptyWorkspace(), offered: ApprovalOrigin | null = null;
+  const identity = {sessionAuthority: () => ({user: USER, epoch: 2, assertActive: () => undefined}),
+    getSnapshot: () => ({session: {epoch: 2, workspace: {getSnapshot: () => ({workspace, error: null})}}})} as unknown as Pick<IdentityTransition, 'sessionAuthority' | 'getSnapshot'>;
+  const leases = Object.assign(new NativeLeases(), native([]));
+  const uploads = {enqueue: (_token: string, origin: ApprovalOrigin) => {offered = origin; return true;}, close: () => undefined} as unknown as UploadService;
+  const owner = createRuntimeOwner(database, identity, leases, undefined,
+    {sqlite, native: leases, lookupRelays: () => ['wss://relay.example.org'], source: {query: async () => [event], readHtml: async () => new Uint8Array(html)}},
+    undefined, undefined, undefined, uploads);
+  const link = naddrEncode({kind: 35129, pubkey: event.pubkey, identifier: appId});
+  await assert.rejects(owner.openPublishedLink(link, new AbortController().signal, async () => false));
+  const descriptor = await owner.openPublishedLink(link, new AbortController().signal, async request => {
+    assert.deepEqual(request.domains, ['resource','upload']); return true;
+  });
+  workspace = openNapplet(workspace, descriptor);
+  const binding = await owner.openPublished(descriptor, new AbortController().signal, async () => {assert.fail('saved exact grant must not review again');});
+  assert.deepEqual(JSON.parse(JSON.parse(binding.publishedArtifact).configuration).domains, ['resource','upload']);
+  binding.receive({type: 'capability', sessionId: descriptor.id, generation: 'native-generation', token: 'upload-token', lane: 'upload'});
+  assert(offered); const origin = offered as ApprovalOrigin;
+  const guard = createUploadOwner(identity, candidate => owner.assertPublishedUpload(candidate));
+  assert.doesNotThrow(() => guard.assertActive(origin));
+  for (const changed of [{...origin, generation: 'foreign'}, {...origin, publisher: 'f'.repeat(64)}, {...origin, appId: 'foreign'}, {...origin, version: 'f'.repeat(64)}, {...origin, instanceId: 'foreign'}, {...origin, user: 'f'.repeat(64)}, {...origin, epoch: 3}]) assert.throws(() => guard.assertActive(changed));
+  binding.revoke(); assert.throws(() => guard.assertActive(origin));
 });

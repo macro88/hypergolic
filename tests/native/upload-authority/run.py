@@ -18,8 +18,25 @@ tokens = json.loads(subprocess.check_output(['node', str(HERE/'credential-fixtur
 with tempfile.TemporaryDirectory(prefix='hypergolic-upload-authority-') as temporary:
     out = Path(temporary)
     subprocess.run(['javac', '-Xlint:all', '-Werror', '-d', str(out),
-                    *[str(ANDROID / (name + '.java')) for name in ['UploadJsonBounds', 'UploadLeaseRegistry', 'UploadFileProfile', 'UploadPngProfile', 'UploadExifMetadata', 'UploadPngMetadata', 'NativeUploadAuthority', 'NativeBlossomPermit', 'PublishedHttpsTransport', 'PublishedHttpsResponseReader']],
-                    str(HERE / 'UploadJsonBoundsProof.java'), str(HERE / 'UploadRegistryProof.java'), str(HERE / 'UploadPngProof.java'), str(HERE / 'UploadExifProof.java'), str(HERE / 'UploadFileProof.java'), str(HERE / 'UploadAuthorityProof.java'), str(HERE / 'UploadResponseProof.java'), str(HERE/'NativePermitProof.java')], check=True)
+                    *[str(ANDROID / (name + '.java')) for name in ['UploadJsonBounds', 'UploadRecoveryLedger', 'UploadRecoveryReadAuthority', 'UploadLeaseRegistry', 'UploadFileProfile', 'UploadPngProfile', 'UploadExifMetadata', 'UploadPngMetadata', 'NativeUploadAuthority', 'NativeBlossomPermit', 'PublishedHttpsTransport', 'PublishedHttpsResponseReader']],
+                    str(HERE / 'UploadQueueProof.java'), str(HERE / 'UploadRecoveryReadProof.java'), str(HERE / 'UploadRecoveryProof.java'), str(HERE / 'UploadJsonBoundsProof.java'), str(HERE / 'UploadRegistryProof.java'), str(HERE / 'UploadPngProof.java'), str(HERE / 'UploadExifProof.java'), str(HERE / 'UploadFileProof.java'), str(HERE / 'UploadAuthorityProof.java'), str(HERE / 'UploadResponseProof.java'), str(HERE/'NativePermitProof.java')], check=True)
+    subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadRecoveryProof', str(out)], check=True)
+    subprocess.run(['swiftc', '-swift-version', '6', '-warnings-as-errors', '-module-cache-path', str(out/'swift-cache'),
+                    str(IOS/'UploadPngProfile.swift'), str(IOS/'UploadPngMetadata.swift'), str(IOS/'UploadFileProfile.swift'), str(IOS/'NativeUploadAuthority.swift'),
+                    str(IOS/'UploadRecoveryLedger.swift'), str(HERE/'UploadRecoveryProof.swift'), '-o', str(out/'swift-recovery-proof')], check=True)
+    subprocess.run([str(out/'swift-recovery-proof'), str(out)], check=True)
+    assert (out/'java-recovery.bin').read_bytes() == (out/'swift-recovery.bin').read_bytes(), 'Recovery codec parity failed'
+    subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadRecoveryProof', str(out), str(out/'swift-recovery.bin')], check=True)
+    subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadRecoveryReadProof'], check=True)
+    subprocess.run(['swiftc', '-swift-version', '6', '-warnings-as-errors', '-module-cache-path', str(out/'swift-cache'),
+                    str(IOS/'UploadPngProfile.swift'), str(IOS/'UploadPngMetadata.swift'), str(IOS/'UploadFileProfile.swift'), str(IOS/'NativeUploadAuthority.swift'),
+                    str(IOS/'UploadRecoveryLedger.swift'), str(IOS/'UploadRecoveryReadAuthority.swift'), str(HERE/'UploadRecoveryReadProof.swift'), '-o', str(out/'swift-recovery-read-proof')], check=True)
+    subprocess.run([str(out/'swift-recovery-read-proof')], check=True)
+    subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadQueueProof'], check=True)
+    subprocess.run(['swiftc', '-swift-version', '6', '-warnings-as-errors', '-module-cache-path', str(out/'swift-cache'),
+                    str(IOS/'UploadPngProfile.swift'), str(IOS/'UploadPngMetadata.swift'), str(IOS/'UploadFileProfile.swift'), str(IOS/'NativeUploadAuthority.swift'),
+                    str(HERE/'UploadQueueProof.swift'), '-o', str(out/'swift-queue-proof')], check=True)
+    subprocess.run([str(out/'swift-queue-proof')], check=True)
     subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadJsonBoundsProof'], check=True)
     subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadAuthorityProof'], check=True)
     subprocess.run(['java', '-cp', str(out), 'org.nostrocket.hypergolic.host.UploadResponseProof'], check=True)

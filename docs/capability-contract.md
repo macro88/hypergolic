@@ -27,6 +27,7 @@ or example into protocol authority.
 | STORAGE | [PR3 f71e84e](https://github.com/napplet/naps/blob/f71e84ebca7474db260346cbfc2d88f41b4e421e/naps/NAP-STORAGE.md) | Explicitly selected draft get/set/remove/keys subset |
 | RELAY | [PR2 0be8abc](https://github.com/napplet/naps/blob/0be8abce18beb46ca37bd4ddd042f58d30b4eedc/naps/NAP-RELAY.md) | Explicitly selected draft query/subscribe/close and individually approved publish |
 | RESOURCE | [PR13 8c0645d](https://github.com/napplet/naps/blob/8c0645d32ceb159bc3e8bcec1107a92862b7e86a/naps/NAP-RESOURCE.md) | Selected bounded info/bytes/bytesMany/cancel profile; [contract and limits](resource-access.md) |
+| UPLOAD | [PR33 a7cc174](https://github.com/napplet/naps/blob/a7cc17463cbf5d9cb87884b31071bc4fc826034c/naps/NAP-UPLOAD.md), [Blossom b5bd280](https://github.com/hzrd149/blossom/tree/b5bd2801d1763aa635fc8fea7a76597e0eb18990) | Selected Blossom info/upload/status/changed profile; per-file approval and metadata-only recovery; [contract and evidence](upload-access.md) |
 | OUTBOX | [PR32 4589a8f](https://github.com/napplet/naps/blob/4589a8f9a16d8aa29b3740e2b3b0cdca11e0976e/naps/NAP-OUTBOX.md) | Reviewed, disabled; required by the 29 September MVP expansion |
 | Relay authentication | [NIP-42 a2494f4](https://github.com/nostr-protocol/nips/blob/a2494f4f81d46684e5814a9bf35e2b1df978f955/42.md) | Separate explicit approval or auth-required denial |
 
@@ -214,3 +215,17 @@ confirmed lifecycle and scoped native evidence. EOSE is nonterminal; background
 pauses socket delivery while retaining logical intent. Explicit close or owner
 revocation is terminal. Encrypted reads and automatic relay authentication are
 unsupported. This does not establish full relay-domain or published MVP parity.
+
+
+## Upload admission checkpoint — 2 October 2026
+
+Shared and native verified-published bindings and the trusted runtime use the same
+six-domain allowlist: identity/storage/theme/relay/resource/upload. Unknown or
+duplicate domains and absent persisted grants remain denied. Admission grants
+selected-file reading but never approve an upload; trusted review binds each
+prepared body/hash/type/size, captured caller/publisher, identity and provider.
+Normal shell journeys with controlled signed retrieval pass both selected native
+hosts. Their disposable signer/local TLS and Simulator protection exception do
+not establish physical/protected/public-provider conformance. Selected Phase2.4
+acceptance uses the owner-approved patched-tooling exception; full-domain
+conformance is not claimed.

@@ -11,7 +11,7 @@ const identity = {
   publisher: '1'.repeat(64), appId: 'published-test', eventId: '2'.repeat(64), version, htmlHash,
 };
 
-type Mode = 'normal' | 'bad-hash' | 'malformed-base64' | 'replayed-sequence' | 'unknown-domain' | 'relay-domain' | 'attributed-head';
+type Mode = 'normal' | 'bad-hash' | 'malformed-base64' | 'replayed-sequence' | 'unknown-domain' | 'relay-domain' | 'attributed-head' | 'upload-domain' | 'all-domains';
 
 async function openPublished(page: Page, mode: Mode = 'normal', extraQuery = '') {
   const artifact = mode === 'attributed-head' ? Buffer.from(html.toString().replace('<head>','<HEAD data-fixture="attribute">')) : html;
@@ -36,7 +36,7 @@ async function openPublished(page: Page, mode: Mode = 'normal', extraQuery = '')
         type: 'artifact.chunk', sessionId: generation,
         sequence: mode === 'replayed-sequence' ? sequence + 1 : sequence,
         base64, byteLength: payload.length, totalBytes: htmlLength,
-        ...claims, domains: mode === 'unknown-domain' ? ['future-domain'] : mode === 'relay-domain' ? ['relay', 'theme'] : ['theme'],
+        ...claims, domains: mode === 'unknown-domain' ? ['future-domain'] : mode === 'relay-domain' ? ['relay', 'theme'] : mode === 'upload-domain' ? ['upload'] : mode === 'all-domains' ? ['identity', 'relay', 'resource', 'storage', 'theme', 'upload'] : ['theme'],
         done: (sequence + 1) * 48 * 1024 >= htmlLength,
       };
       for (const listener of listenerSet) listener({ data: JSON.stringify(envelope) });
@@ -142,3 +142,14 @@ test('trusted media prelude preserves the leading CSP in a valid attributed uppe
   const guest=page.frames().find(frame=>frame.parentFrame()===page.mainFrame())!;
   expect(await guest.evaluate(()=>document.head.firstElementChild?.getAttribute('http-equiv'))).toBe('Content-Security-Policy');
 });
+
+for (const mode of ['upload-domain', 'all-domains'] as const) {
+  test(`published ${mode} preserves native-declared access through artifact verification`, async ({page}) => {
+    await openPublished(page, mode);
+    await expect.poll(() => page.evaluate(() => (window as any).__publishedTest.diagnostics)).toEqual([{type: 'ready', sessionId: generation}]);
+    const guest = page.frames().find(frame => frame.parentFrame() === page.mainFrame())!;
+    await expect.poll(() => guest.evaluate(() => (window as any).napplet.shell.supports('upload'))).toBe(true);
+    expect(await guest.evaluate(() => (window as any).napplet.shell.supports('resource'))).toBe(mode === 'all-domains');
+    expect(await guest.evaluate(() => (window as any).napplet.shell.supports('inc'))).toBe(false);
+  });
+}

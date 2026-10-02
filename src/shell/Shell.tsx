@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ComponentType } from 'react';
+import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import { AccessibilityInfo, BackHandler, Keyboard, Modal, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { cancelAnimation, Easing, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -36,6 +36,7 @@ export interface ShellProps {
   onWorkspaceChange?: (workspace: Workspace) => void;
   identity?: ShellIdentity;
   pendingApprovals?: ReadonlySet<string>;
+  footer?: ReactNode;
   onBeforeClose?: (session: NappletDescriptor) => void;
   onHostEvent?: (event: HostEvent) => void;
   settingsComponent?: ComponentType<SettingsActions>;
@@ -52,7 +53,7 @@ function useReducedMotion(): boolean {
   return reduced;
 }
 
-export function Shell({ blocked = false, initialWorkspace, workspace: controlledWorkspace, onWorkspaceChange, identity, pendingApprovals, onBeforeClose, onHostEvent, settingsComponent: SettingsContent }: ShellProps) {
+export function Shell({ blocked = false, initialWorkspace, workspace: controlledWorkspace, onWorkspaceChange, identity, pendingApprovals, onBeforeClose, onHostEvent, footer, settingsComponent: SettingsContent }: ShellProps) {
   const runtime = useContext(RuntimeContext);
   const [localWorkspace, setLocalWorkspace] = useState(() => initialWorkspace ?? initialTestWorkspace());
   const workspace = controlledWorkspace ?? localWorkspace;
@@ -202,6 +203,7 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
           onHandleStart={() => { setHandleDragging(true); Keyboard.dismiss(); cancelAnimation(position); }}
           onHandleEnd={onHandleEnd} />
       </View>
+      {footer}
       <ClosePrompt title={workspace.sessions.find(session => session.id === closingId)?.title ?? null} onKeepOpen={keepOpen} onClose={confirmClose} onDismiss={() => overview.current?.focusCard(lastCloseId.current)} />
       <ShellSettings settings={settings} blocked={blocked} identity={identity} SettingsContent={SettingsContent}
         publishedSessions={workspace.sessions.filter(session => session.source === 'published')}

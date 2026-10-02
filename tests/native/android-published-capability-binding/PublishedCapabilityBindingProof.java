@@ -27,6 +27,9 @@ public final class PublishedCapabilityBindingProof {
     check(PublishedCapabilityBinding.validDomains(Collections.emptyList()));
     check(PublishedCapabilityBinding.validDomains(Arrays.asList("identity", "storage", "theme", "relay")));
     check(PublishedCapabilityBinding.validDomains(Collections.singletonList("theme")));
+    check(PublishedCapabilityBinding.validDomains(Arrays.asList("resource", "upload")));
+    check(PublishedCapabilityBinding.validDomains(Arrays.asList("identity", "storage", "theme", "relay", "resource", "upload")));
+    check(!PublishedCapabilityBinding.validDomains(Arrays.asList("upload", "upload")));
     check(!PublishedCapabilityBinding.validDomains(Arrays.asList("theme", "theme")));
     check(!PublishedCapabilityBinding.validDomains(Collections.singletonList("unknown")));
     check(!PublishedCapabilityBinding.validDomains(Arrays.asList("identity", "storage", "theme", "relay", "extra")));

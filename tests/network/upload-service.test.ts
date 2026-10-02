@@ -143,9 +143,9 @@ test('mismatched native origin, identity, review hash and unsanitized image neve
   await new Promise<void>(resolve => setImmediate(resolve)); assert.equal(service.getSnapshot().current, null); assert.equal(native.puts, 0);
 });
 
-test('unfocused bytes are not inspected; process and generation bounds reject extra requests', async () => {
+test('unfocused queued bytes are not inspected and duplicate realms remain denied', async () => {
   const native = new Native(); const a = await native.issue('a'), b = await native.issue('b'), c = await native.issue('c');
-  const service = make(native); assert(service.enqueue('a', a.origin)); assert(service.enqueue('b', b.origin)); assert.equal(service.enqueue('c', c.origin), false);
+  const service = make(native); assert(service.enqueue('a', a.origin)); assert(service.enqueue('b', b.origin)); assert(service.enqueue('c', c.origin));
   assert.equal(native.reads, 0); native.focused = 'a'; service.focus('a'); await new Promise<void>(resolve => setImmediate(resolve));
   assert.equal(native.reads, 1); service.reject(service.getSnapshot().current!.id); assert.equal(native.puts, 0);
   const duplicate = await native.issue('d', b.origin); assert.equal(service.enqueue('d', duplicate.origin), false);
@@ -173,4 +173,34 @@ test('failed progress registration does not retain a hidden pending review', asy
   assert.equal(service.enqueue('one', owner('one')), false);
   assert.equal(service.getSnapshot().pending, 0); assert.equal(service.getSnapshot().current, null);
   assert.equal(native.puts, 0); assert.equal(native.cancels, 1);
+});
+
+test('two active transfers coexist with eight waiting reviews and focus cannot mint a third active grant', async () => {
+  const native = new Native(), held = deferred<unknown>(); native.putOverride = () => held.promise;
+  const service = make(native);
+  await native.issue('first'); const first = service.approve(await ready(service, native, 'first'));
+  await new Promise<void>(resolve => setImmediate(resolve));
+  await native.issue('second'); const second = service.approve(await ready(service, native, 'second'));
+  await new Promise<void>(resolve => setImmediate(resolve)); assert.equal(service.getSnapshot().active.length, 2);
+  for (let index = 0; index < 8; index++) {const taken = await native.issue('waiting' + index); assert(service.enqueue('waiting' + index, taken.origin));}
+  const overflow = await native.issue('overflow'); assert.equal(service.enqueue('overflow', overflow.origin), false);
+  native.focused = 'waiting0'; service.focus('waiting0'); assert.equal(service.getSnapshot().pending, 8); assert.equal(service.getSnapshot().current, null);
+  assert.equal(native.puts, 2); service.cancel(service.getSnapshot().active[0]!.id);
+  await new Promise<void>(resolve => setImmediate(resolve)); assert.equal(service.getSnapshot().active.length, 1); assert(service.getSnapshot().current?.previewReady);
+  service.background(); held.resolve(null); await Promise.all([first,second]); assert.equal(service.getSnapshot().pending, 0); assert.equal(service.getSnapshot().active.length, 0);
+});
+
+
+test('unchanged review and active polling retain snapshots without hiding cancellation', async () => {
+  const native = new Native(), taken = await native.issue('stable'), held = deferred<unknown>();
+  native.putOverride = () => held.promise; const service = make(native); const id = await ready(service, native, 'stable');
+  let updates = 0; service.subscribe(() => {updates++;}); const review = service.getSnapshot();
+  for (let count = 0; count < 12; count++) service.refresh();
+  assert.equal(service.getSnapshot(), review); assert.equal(updates, 0);
+  const completion = service.approve(id); await new Promise<void>(resolve => setImmediate(resolve));
+  const active = service.getSnapshot(), before = updates; assert.equal(active.active.length, 1);
+  for (let count = 0; count < 12; count++) service.refresh();
+  assert.equal(service.getSnapshot(), active); assert.equal(updates, before);
+  service.cancel(id); assert.equal(service.getSnapshot().active.length, 0); assert(updates > before);
+  held.resolve(null); await completion; assert.equal(service.getSnapshot().outcomes.at(-1)?.result.error, 'outcome unknown');
 });

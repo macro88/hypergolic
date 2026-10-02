@@ -27,6 +27,12 @@ struct VettedAddressCursor<Address> {
 /// HTTPS fetch over a numeric, vetted endpoint. URLSession cannot bind a DNS result
 /// before connecting, so this owner resolves first and never gives NWConnection a name.
 enum PublishedPinnedHTTPS {
+  private final class RecoveryResolutionSlots: @unchecked Sendable {
+    private let lock = NSLock(); private var count = 0
+    func acquire() -> Bool { lock.withLock { guard count < 2 else { return false }; count += 1; return true } }
+    func release() { lock.withLock { count -= 1 } }
+  }
+  private static let recoveryResolutionSlots = RecoveryResolutionSlots()
   enum Failure: Error { case invalidURL, resolution, privateAddress, connection, cancelled }
 
   struct Request {
@@ -35,8 +41,9 @@ enum PublishedPinnedHTTPS {
     let port: UInt16
     let target: String
     let resourceProfile: Bool
+    let recoveryProfile: Bool
 
-    init(_ input: String, resourceProfile: Bool = false) throws {
+    init(_ input: String, resourceProfile: Bool = false, recoveryProfile: Bool = false) throws {
       guard input.utf8.count <= 8192, !input.contains("\\"),
             let components = URLComponents(string: input), components.scheme == "https",
             components.user == nil, components.password == nil, components.fragment == nil,
@@ -63,12 +70,13 @@ enum PublishedPinnedHTTPS {
       self.host = host
       self.port = UInt16(components.port ?? 443)
       self.target = target
-      self.resourceProfile = resourceProfile
+      guard !(resourceProfile && recoveryProfile) else { throw Failure.invalidURL }
+      self.resourceProfile = resourceProfile; self.recoveryProfile = recoveryProfile
     }
 
     var wire: Data {
       let authority = port == 443 ? host : "\(host):\(port)"
-      return Data("GET \(target) HTTP/1.1\r\nHost: \(authority)\r\nAccept: \(resourceProfile ? "*/*" : "text/html")\r\nAccept-Encoding: identity\r\nConnection: close\r\n\r\n".utf8)
+      return Data("GET \(target) HTTP/1.1\r\nHost: \(authority)\r\nAccept: \((resourceProfile || recoveryProfile) ? "*/*" : "text/html")\r\nAccept-Encoding: identity\r\nConnection: close\r\n\r\n".utf8)
     }
   }
 
@@ -126,6 +134,14 @@ enum PublishedPinnedHTTPS {
     return operation
   }
 
+  /// Separate app-only fixed-hash recovery parser; published/resource policies are unchanged.
+  static func fetchRecovery(_ input: String, active: @escaping @Sendable () -> Bool,
+    completion: @escaping @Sendable (Result<PublishedHTTPResponse, Error>) -> Void) throws -> Operation {
+    let request = try Request(input, recoveryProfile: true)
+    let operation = try Operation(request: request, maximumBodyBytes: NativeUploadAuthority.maxBytes, timeout: 60, active: active, completion: completion)
+    operation.start(); return operation
+  }
+
   /// Separate resource profile; ordinary published fetch keeps its 2 MiB parser and URL policy.
   static func fetchResource(_ input: String,
                             completion: @escaping @Sendable (Result<PublishedHTTPResponse, Error>) -> Void) throws -> Operation {
@@ -139,13 +155,14 @@ enum PublishedPinnedHTTPS {
 #if HYPERGOLIC_NETWORK_PROOF
   /// Host-only proof seam. Production builds never compile address or trust overrides.
   static func fetchForProof(_ input: String, maximumBodyBytes: Int, timeout: TimeInterval = 5,
-                            addresses: [Address], anchorDER: Data?,
+                            addresses: [Address], anchorDER: Data?, recoveryProfile: Bool = false, active: @escaping @Sendable () -> Bool = {true},
                             completion: @escaping @Sendable (Result<PublishedHTTPResponse, Error>) -> Void) throws -> Operation {
-    let request = try Request(input)
-    guard (1...PublishedHTTPResponse.maximumBodyBytes).contains(maximumBodyBytes),
+    let request = try Request(input, recoveryProfile: recoveryProfile)
+    guard (1...(recoveryProfile ? PublishedHTTPResponse.maximumResourceBodyBytes : PublishedHTTPResponse.maximumBodyBytes)).contains(maximumBodyBytes),
           timeout > 0, timeout <= 60, !addresses.isEmpty else { throw Failure.invalidURL }
     let operation = try Operation(request: request, maximumBodyBytes: maximumBodyBytes,
                                   timeout: timeout, completion: completion)
+    operation.setActiveForProof(active)
     operation.proofAddresses = addresses
     operation.proofAnchorDER = anchorDER
     operation.start()
@@ -165,22 +182,32 @@ enum PublishedPinnedHTTPS {
     private var connection: NWConnection?
     private var addresses: VettedAddressCursor<Address>?
     private var ended = false
+    private var active: @Sendable () -> Bool
+    private var recoveryTimer: DispatchSourceTimer?
 #if HYPERGOLIC_NETWORK_PROOF
     fileprivate var proofAddresses: [Address]?
     fileprivate var proofAnchorDER: Data?
 #endif
 
-    fileprivate init(request: Request, maximumBodyBytes: Int, timeout: TimeInterval,
+    fileprivate init(request: Request, maximumBodyBytes: Int, timeout: TimeInterval, active: @escaping @Sendable () -> Bool = {true},
                      completion: @escaping @Sendable (Result<PublishedHTTPResponse, Error>) -> Void) throws {
-      self.request = request
+      self.request = request; self.active = active
       self.maximumBodyBytes = maximumBodyBytes
       self.visited.insert(request.source)
       self.timeout = timeout
       self.completion = completion
-      self.accumulator = try PublishedHTTPResponseAccumulator(maximumBodyBytes: maximumBodyBytes, resourceProfile: request.resourceProfile)
+      self.accumulator = try PublishedHTTPResponseAccumulator(maximumBodyBytes: maximumBodyBytes, resourceProfile: request.resourceProfile, recoveryProfile: request.recoveryProfile)
     }
 
+#if HYPERGOLIC_NETWORK_PROOF
+    fileprivate func setActiveForProof(_ active: @escaping @Sendable () -> Bool) { self.active = active }
+#endif
     fileprivate func start() {
+      if request.recoveryProfile {
+        let timer = DispatchSource.makeTimerSource(queue: queue); recoveryTimer = timer
+        timer.schedule(deadline: .now(), repeating: .milliseconds(25))
+        timer.setEventHandler { [weak self] in guard let self, !self.ended else { return }; if !self.active() { self.finish(.failure(Failure.cancelled)) } }; timer.resume()
+      }
       queue.asyncAfter(deadline: .now() + timeout) { self.finish(.failure(Failure.connection)) }
 #if HYPERGOLIC_NETWORK_PROOF
       if let proofAddresses {
@@ -196,9 +223,13 @@ enum PublishedPinnedHTTPS {
     }
 
     private func resolveCurrent() {
+      guard active() else { finish(.failure(Failure.cancelled)); return }
+      let recovery = request.recoveryProfile
+      guard !recovery || PublishedPinnedHTTPS.recoveryResolutionSlots.acquire() else { finish(.failure(Failure.resolution)); return }
       let host = request.host
       DispatchQueue.global(qos: .utility).async {
         let result = Result { try PublishedPinnedHTTPS.resolve(host) }
+        if recovery { PublishedPinnedHTTPS.recoveryResolutionSlots.release() }
         self.queue.async {
           guard !self.ended else { return }
           switch result {
@@ -214,6 +245,7 @@ enum PublishedPinnedHTTPS {
     func cancel() { queue.async { self.finish(.failure(Failure.cancelled)) } }
 
     private func connectNext() {
+      guard !ended, active() else { finish(.failure(Failure.cancelled)); return }
       guard let address = addresses?.next() else { finish(.failure(Failure.connection)); return }
       connection?.stateUpdateHandler = nil
       connection?.cancel()
@@ -254,6 +286,7 @@ enum PublishedPinnedHTTPS {
         guard let self, !self.ended, self.connection === connection else { return }
         switch state {
         case .ready:
+          guard self.active() else { self.finish(.failure(Failure.cancelled)); return }
           guard self.addresses?.markReady() == true else { return }
           connection.send(content: self.request.wire, completion: .contentProcessed { error in
             if error != nil { self.finish(.failure(Failure.connection)) }
@@ -268,8 +301,10 @@ enum PublishedPinnedHTTPS {
 
     private func receive() {
       guard !ended, let connection else { return }
+      guard active() else { finish(.failure(Failure.cancelled)); return }
       connection.receive(minimumIncompleteLength: 1, maximumLength: 8192) { data, _, complete, error in
         guard !self.ended else { return }
+        guard self.active() else { self.finish(.failure(Failure.cancelled)); return }
         if error != nil { self.finish(.failure(Failure.connection)); return }
         do {
           if let data { try self.accumulator.append(data) }
@@ -298,7 +333,7 @@ enum PublishedPinnedHTTPS {
 
     private func finish(_ result: Result<PublishedHTTPResponse, Error>) {
       guard !ended else { return }
-      ended = true
+      ended = true; recoveryTimer?.cancel(); recoveryTimer = nil
       connection?.stateUpdateHandler = nil
       connection?.cancel()
       connection = nil

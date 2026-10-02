@@ -7,7 +7,7 @@ Value transfers and zaps are deferred to post-MVP phase 4. Preserve phase-1/2 hi
 2.1–2.9 expand the MVP; 2.11 accepts it before phase 3 external signing.
 The retired 2.10 identifier is preserved as a gap to keep existing references stable. Phase cards below
 are planning scope, dependencies and exit criteria; executable GSD PLAN files for
-the expansion have not been generated or verified. Select exact protocol revisions
+the later expansion phases require generation and verification. Select exact protocol revisions
 and resolve each phase's material policy decisions before generating those files.
 
 - [x] **Phase 1: Development baseline** — phase-zero tooling, scaffold and checks.
@@ -15,7 +15,7 @@ and resolve each phase's material policy decisions before generating those files
 - [x] **Phase 2.1: Relay query and compatibility** — M; Feed Lab.
 - [x] **Phase 2.2: Live relay subscriptions** — L; Feed Lab.
 - [x] **Phase 2.3: Resource access** — L; Resource Lab.
-- [ ] **Phase 2.4: Uploads** — L; Upload Lab.
+- [x] **Phase 2.4: Uploads** — L; Upload Lab.
 - [ ] **Phase 2.5: Public identity data** — M; State Lab and Feed Lab.
 - [ ] **Phase 2.6: External links** — S–M; Resource Lab.
 - [ ] **Phase 2.7: Intents and inter-napplet communication** — M + L; Routing Lab pair.
@@ -90,12 +90,12 @@ The existing phase directory name remains unchanged to preserve references.
 **Requirements:** CAP-05
 **Fixture:** Upload Lab
 **Work and exit criteria:** Select upload contract/protocols/provider and consent. Bind exact bytes/hash/destination to approval; implement bounded upload and receipts. Verify cancellation, duplicate attempts, provider failures, identity changes and independently observed server bytes.
-**Plans:** Pending owning-contract research and phase-local decisions; no completion claimed.
+**Plans:** Four executable plans select the pinned draft/Blossom profile and confirmed product decisions. All four plans pass the selected native profile, including normal signed admission, picker/recovery and ordinary builds. CAP-05 is accepted under the owner-approved tested-patch exception for the sole visible tooling advisory; full MVP gates remain2.11. See [verification](phases/02.4-uploads/02.4-VERIFICATION.md).
 
 - [x] 02.4-01-PLAN.md
-- [ ] 02.4-02-PLAN.md
-- [ ] 02.4-03-PLAN.md
-- [ ] 02.4-04-PLAN.md
+- [x] 02.4-02-PLAN.md
+- [x] 02.4-03-PLAN.md
+- [x] 02.4-04-PLAN.md
 
 ### Phase 2.5: Public identity data
 

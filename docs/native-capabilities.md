@@ -179,9 +179,12 @@ earlier bindings. The shared deletion transition tests cover both boundaries;
 its user-facing native action flow is not yet enabled.
 
 
-The selected phase2.4 photo/file slice now passes both SDK/native hosts; see
-[upload selection and recipient evidence](upload-access.md#picker-recipient-and-guest-original-checkpoint).
-This includes controlled renderer/reconfiguration faults and guest-original photo
-preparation. It does not advance published upload admission or establish ordinary
-workspace identity-switch, durable recovery or protected physical-device parity.
-CAP-05 remains open through plans03–04.
+The selected Phase2.4 upload profile passes SDK/native photo/file, revoked
+recipient, transfer/queue/recovery and normal signed-admission journeys on both
+selected hosts; see [upload evidence](upload-access.md). Normal Settings review,
+persisted grant/cache, actual system picker, exact provider bytes and original SDK
+receipt are exercised. The signed fixture is locally supplied and signs uploads
+with a public disposable identity under compile-gated local TLS. Physical iOS
+protection/signing, ordinary workspace identity-switch parity and public-provider
+acceptance remain Phase2.11 gates. CAP-05 is accepted for this declared profile under the owner-approved exception
+for the still-visible patched tooling advisory.

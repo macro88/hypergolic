@@ -64,3 +64,45 @@ for (const photo of [{kind: 'JPEG', mime: 'image/jpeg', asset: originalJpeg}, {k
       .finally(() => {data.fill(0); busy = false; button.disabled = false;});
   });
 }
+
+// Public deterministic attachment gives the native fault driver a bounded streaming interval.
+const largeRequest = element<HTMLButtonElement>('large-request');
+largeRequest.addEventListener('click', () => {
+  if (busy) return;
+  busy = true; largeRequest.disabled = true; status.textContent = 'Waiting for trusted attachment review…';
+  const data = new Uint8Array(4 * 1024 * 1024); data.fill(97);
+  const header = new DataView(data.buffer);
+  const ascii = (offset: number, value: string): void => {for (let index = 0; index < value.length; index++) data[offset + index] = value.charCodeAt(index);};
+  ascii(0, 'RIFF'); header.setUint32(4, data.length - 8, true); ascii(8, 'WAVE'); ascii(12, 'fmt ');
+  header.setUint32(16, 16, true); header.setUint16(20, 1, true); header.setUint16(22, 1, true);
+  header.setUint32(24, 8000, true); header.setUint32(28, 8000, true); header.setUint16(32, 1, true); header.setUint16(34, 8, true);
+  ascii(36, 'data'); header.setUint32(40, data.length - 44, true);
+  void upload.upload({data: new Blob([data], {type: 'audio/wav'}), filename: 'generated-four-megabytes.wav', caption: 'Generated public WAV fixture', noTransform: true})
+    .then(value => {uploadId = value.uploadId; render(value); status.textContent = 'Upload pending approval.';})
+    .catch(error => {status.textContent = error instanceof Error ? error.message : 'Attachment request failed.';})
+    .finally(() => {data.fill(0); busy = false; largeRequest.disabled = false;});
+});
+
+// The reserved unsigned queue artifact opts in through a reviewed body attribute.
+// Requests use the genuine SDK; nothing can publish without a native review.
+if (document.body.dataset.uploadQueue === 'true') {
+  const attachment = new Blob(['Generated public queue fixture.\n'], {type: 'text/plain'});
+  const queued = () => upload.upload({data: attachment, filename: 'generated-queue.txt', noTransform: true});
+  setTimeout(() => {void queued().then(value => {
+    uploadId = value.uploadId; render(value);
+    return queued().then(() => {status.textContent = 'Unexpected second queue admission.';})
+      .catch(error => {status.textContent = 'Queue pending; second request rejected: ' + (error instanceof Error ? error.message : 'unknown');});
+  }).catch(error => {status.textContent = 'Queue request rejected: ' + (error instanceof Error ? error.message : 'unknown');});}, 500);
+}
+
+// Allows a real loaded peer to stage its own SDK request while another is focused.
+element<HTMLButtonElement>('scheduled-request').addEventListener('click', () => {
+  status.textContent = 'PNG request scheduled in fifteen seconds.';
+  setTimeout(() => request.click(), 15000);
+});
+
+// Advisory discovery never authorizes an upload or starts provider networking.
+element<HTMLButtonElement>('info-request').addEventListener('click', () => {
+  void upload.info().then(value => {element('upload-info').textContent = JSON.stringify(value, null, 2);})
+    .catch(() => {element('upload-info').textContent = 'Upload limits unavailable.';});
+});

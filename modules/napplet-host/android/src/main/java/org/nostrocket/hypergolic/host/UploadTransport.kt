@@ -9,7 +9,25 @@ import org.json.JSONObject
 /** Native byte admission, original recipient and progress ownership. Expo sees lookup tokens only. */
 internal object UploadTransport {
   val leases = UploadLeaseRegistry(SystemClock::elapsedRealtime, UploadPhotoPreparation::prepare)
+  private val activeRecovery = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+  private var nativeIdentity: String? = null
+  private val recoveryReads = UploadRecoveryReadAuthority(SystemClock::elapsedRealtime)
   private val main = Handler(Looper.getMainLooper())
+  @Volatile private var recovery: UploadRecoveryLedger? = null
+  private var recoveryOpened = false
+  @Synchronized fun configureRecovery(directory: java.io.File?) {
+    if (recoveryOpened) return
+    recoveryOpened = true
+    recovery = runCatching { UploadRecoveryLedger(UploadRecoveryFileStore(directory)) }.getOrNull()
+  }
+  private fun recoveryLedger(): UploadRecoveryLedger = recovery ?: error("Recovery store unavailable")
+  private fun recoveryEntry(transfer: UploadLeaseRegistry.Transfer): UploadRecoveryLedger.Entry {
+    val registration = UploadWire.objectValue(transfer.registration)
+    val review = transfer.permit.review
+    require(registration.getString("user") == review.identity)
+    return UploadRecoveryLedger.Entry(transfer.uploadId, review.identity, registration.getString("publisher"),
+      registration.getString("appId"), review.destination, review.sha256, review.mimeType, review.size, UploadRecoveryLedger.State.UNKNOWN)
+  }
   private data class Pending(val generation: String, val uploadId: String, val sequence: Long,
     val review: NativeUploadAuthority.Review, val push: (String) -> Unit, var delivery: Long = 0, var sent: Int = 0)
   private val pending = mutableMapOf<String, Pending>()
@@ -46,12 +64,17 @@ internal object UploadTransport {
     if (server != null) require(NativeUploadAuthority.validDestination(server))
     destination = server
   }
-  fun register(generation: String, config: CapabilityConfiguration): Boolean =
-    !config.allowsUpload || leases.register(generation, config.user, config.snapshot, true)
-  fun foreground(value: Boolean) { leases.foreground(value); main.post { sweep() } }
+  fun register(generation: String, config: CapabilityConfiguration): Boolean {
+    if (nativeIdentity != null && nativeIdentity != config.user) { leases.revokeAll(); main.post { sweep() } }
+    nativeIdentity = config.user
+    if (!recoveryReads.register(generation, config.user)) return false
+    if (!config.allowsUpload || leases.register(generation, config.user, config.snapshot, true)) return true
+    recoveryReads.revoke(generation); return false
+  }
+  fun foreground(value: Boolean) { recoveryReads.foreground(value); leases.foreground(value); main.post { sweep() } }
   fun focus(generation: String, value: Boolean) { leases.focus(generation, value); main.post { sweep() } }
   fun revoke(generation: String) {
-    leases.revoke(generation)
+    recoveryReads.revoke(generation); leases.revoke(generation)
     main.post { sweep(); statuses.keys.removeAll { it.first == generation } }
   }
   fun receive(generation: String, sequence: Long, raw: String, push: (String) -> Unit,
@@ -103,6 +126,9 @@ internal object UploadTransport {
           if (!leases.seal(generation, token)) return response.put("error", "unsupported media type").toString()
           val publicId = leases.publicId(generation, token) ?: error("Revoked upload")
           val review = leases.sealedReview(generation, token) ?: error("Revoked upload")
+          if (recoveryLedger().blocks(review.identity, review.destination, review.sha256)) {
+            leases.cancel(token); sweep(); return response.put("error", "recovery required").toString()
+          }
           pending[token] = Pending(generation, publicId, sequence, review, push)
           val status = UploadWire.status(publicId, "pending"); retain(generation, publicId, status)
           // Review notification follows the initial one-use seal reply; status push uses a separate captured recipient.
@@ -121,6 +147,41 @@ internal object UploadTransport {
       if (type == null || id == null) null else JSONObject().put("type", "$type.result").put("id", id).put("error", "policy denied").toString()
     }
   }
+  private fun recoveryRecord(row: UploadRecoveryLedger.Entry): JSONObject = JSONObject()
+    .put("uploadId", row.uploadId()).put("identity", row.identity()).put("publisher", row.publisher()).put("appId", row.appId())
+    .put("destination", row.destination()).put("sha256", row.sha256()).put("mimeType", row.mimeType()).put("size", row.size())
+    .put("state", row.state().name.lowercase(java.util.Locale.ROOT))
+  fun listRecovery(): String {
+    val identity = recoveryReads.identity()
+    return try {
+      val rows = if (identity == null) emptyList() else recoveryLedger().list(identity).filter { !activeRecovery.contains(it.uploadId()) }
+      JSONObject().put("available", identity != null).put("identity", identity ?: JSONObject.NULL)
+        .put("records", JSONArray(rows.map(::recoveryRecord))).toString()
+    } catch (_: Exception) { JSONObject().put("available", false).put("identity", JSONObject.NULL).put("records", JSONArray()).toString() }
+  }
+  fun checkRecovery(uploadId: String): String {
+    var read: UploadRecoveryReadAuthority.Lease? = null
+    return try {
+      val identity = recoveryReads.identity() ?: error("Recovery unavailable")
+      val ledger = recoveryLedger()
+      val record = ledger.list(identity).singleOrNull { it.uploadId() == uploadId && it.state() == UploadRecoveryLedger.State.UNKNOWN } ?: error("Unknown recovery")
+      require(!activeRecovery.contains(record.uploadId()))
+      val captured = recoveryReads.capture(record) ?: error("Recovery unavailable"); read = captured
+      val factory = proofFactory
+      val response = if (BuildConfig.UPLOAD_NETWORK_PROOF && factory != null) {
+        require(record.destination() == "https://files.example.com:19943")
+        val address = java.net.InetAddress.getByAddress(byteArrayOf(127, 0, 0, 1))
+        val policy = object : PublishedHttpsTransport.AddressPolicy {
+          override fun isAllowedHost(host: String) = host == "files.example.com"
+          override fun isAllowedAddress(candidate: java.net.InetAddress) = candidate == address
+        }
+        UploadRecoveryHttps.getWithTransport(recoveryReads, captured, policy, { host -> require(host == "files.example.com"); arrayOf(address) }, proofDns, factory, javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier())
+      } else UploadRecoveryHttps.get(recoveryReads, captured)
+      val state = try { recoveryReads.finish(captured, response.status, response.body, ledger) } finally { response.body.fill(0) }
+      JSONObject().put("uploadId", uploadId).put("state", state.name.lowercase(java.util.Locale.ROOT)).toString()
+    } catch (_: Exception) { JSONObject().put("uploadId", uploadId).put("state", "unknown").toString() }
+    finally { read?.let { recoveryReads.cancel(it) } }
+  }
   fun take(token: String): String? {
     val taken = leases.take(token) ?: return null
     return JSONObject().put("registration", JSONObject(taken.registration)).put("request", taken.request)
@@ -130,22 +191,34 @@ internal object UploadTransport {
   fun put(token: String, credential: String): String {
     val transfer = leases.transfer(token, credential, System.currentTimeMillis() / 1000)
       ?: return JSONObject().put("ok", false).put("error", "policy denied").toString()
+    val ledger: UploadRecoveryLedger
+    val record: UploadRecoveryLedger.Entry
+    try {
+      ledger = recoveryLedger(); record = recoveryEntry(transfer)
+      if (!activeRecovery.add(record.uploadId())) return JSONObject().put("ok", false).put("error", "policy denied").toString()
+      if (!ledger.start(record)) { activeRecovery.remove(record.uploadId()); return JSONObject().put("ok", false).put("error", "recovery required").toString() }
+    } catch (_: Exception) { activeRecovery.remove(transfer.uploadId); return JSONObject().put("ok", false).put("error", "recovery unavailable").toString() }
     return try {
       val response = transfer(transfer) { sent -> main.post { progress(token, sent) } }
-      val publicId = synchronized(completed) { leases.publicIdForApp(token) } ?: error("Revoked upload")
-      val (descriptor, result) = UploadWire.receipt(response.body, transfer.permit.review, publicId)
+      val (descriptor, result) = UploadWire.receipt(response.body, transfer.permit.review, transfer.uploadId)
       require(leases.isApproved(token))
+      require(ledger.settle(record, UploadRecoveryLedger.State.CONFIRMED))
       synchronized(completed) {
         completed[token] = result
         while (completed.size > 2) completed.remove(completed.keys.first())
       }
       JSONObject().put("ok", true).put("descriptor", descriptor).toString()
     } catch (failed: UploadPinnedHttpsTransport.Failure) {
-      JSONObject().put("ok", false).put("error", failed.code).toString()
+      val state = if (!failed.dispatched) UploadRecoveryLedger.State.NOT_SENT else if (failed.code in setOf("server rejected", "file too large", "quota exceeded")) UploadRecoveryLedger.State.REJECTED else null
+      val retained = state == null || runCatching { ledger.settle(record, state) }.getOrDefault(false)
+      JSONObject().put("ok", false).put("error", if (retained) failed.code else "outcome unknown").toString()
     } catch (_: Exception) {
-      JSONObject().put("ok", false).put("error", if (leases.wasDispatched(token)) "outcome unknown" else "upload failed").toString()
-    }
+      val dispatched = transfer.authority.wasDispatched(transfer.grant)
+      if (!dispatched) runCatching { ledger.settle(record, UploadRecoveryLedger.State.NOT_SENT) }
+      JSONObject().put("ok", false).put("error", if (dispatched) "outcome unknown" else "upload failed").toString()
+    } finally { activeRecovery.remove(record.uploadId()) }
   }
+
   fun finish(token: String, raw: String) {
     val publicId = leases.publicIdForApp(token) ?: return
     val captured = synchronized(completed) { completed.remove(token) }

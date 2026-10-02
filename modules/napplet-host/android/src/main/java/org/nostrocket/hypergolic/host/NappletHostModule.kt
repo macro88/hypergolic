@@ -15,6 +15,7 @@ class NappletHostModule : Module() {
     Name("HypergolicNappletHost")
     Events("onRelayStream", "onRelayLifecycle", "onUploadProgress")
     OnCreate {
+      UploadTransport.configureRecovery(appContext.runtime.reactContext?.noBackupFilesDir)
       UploadTransport.observeProgress { event -> sendEvent("onUploadProgress", event) }
       RelaySubscriptionTransport.observeLifecycle { snapshot -> sendEvent("onRelayLifecycle", mapOf("snapshot" to snapshot)) }
       val foreground = appContext.runtime.reactContext?.lifecycleState == LifecycleState.RESUMED
@@ -94,6 +95,8 @@ class NappletHostModule : Module() {
     }
     Function("configureUploadProof") { anchor: String -> UploadTransport.configureProof(anchor) }
     Function("configureUploadServer") { server: String? -> UploadTransport.configure(server) }
+    Function("listUploadRecovery") { UploadTransport.listRecovery() }
+    AsyncFunction("checkUploadRecovery") Coroutine { uploadId: String -> withContext(Dispatchers.IO) { UploadTransport.checkRecovery(uploadId) } }
     Function("takeUpload") { token: String -> UploadTransport.take(token) }
     Function("isUploadLive") { token: String -> UploadTransport.leases.isLive(token) }
     Function("mayReviewUpload") { token: String -> UploadTransport.leases.mayReview(token) }
@@ -204,6 +207,7 @@ class NappletHostModule : Module() {
     View(NappletHostView::class) {
       Events("onHostEvent")
       Prop("pickerFaultProof") { view: NappletHostView, action: String -> view.armPickerFaultProof(action) }
+      Prop("uploadFaultProof") { view: NappletHostView, action: String -> view.armUploadFaultProof(action) }
       Prop("configuration") { view: NappletHostView, raw: String -> view.startConfiguredSession(raw) }
       Prop("publishedArtifact") { view: NappletHostView, raw: String -> view.startPublishedArtifact(raw) }
       Prop("sessionId") { view: NappletHostView, id: String -> view.startSession(id) }

@@ -30,7 +30,8 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
 #if HYPERGOLIC_NETWORK_PROOF
   private var pickerFaultProof: String?
 #endif
-  private var active = true
+  // A newly mounted hidden host cannot claim focus before the trusted active prop.
+  private var active = false
   private lazy var selectedFilePicker = SelectedFilePicker(live: { [weak self] in self?.maySelectFile() == true })
   private func maySelectFile() -> Bool {
     live && ready && loaded && !disposed && active && configuration?.domains.contains("upload") == true && UploadTransport.leases.isRegistered(generation)
@@ -96,8 +97,19 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   private func schedulePickerFaultProof() {
 #if HYPERGOLIC_NETWORK_PROOF
     guard let action = pickerFaultProof else {return}; pickerFaultProof = nil
+    scheduleHostFaultProof(action, delay: 12)
+#endif
+  }
+  func armUploadFaultProof(_ action: String) {
+#if HYPERGOLIC_NETWORK_PROOF
+    guard ["close", "replace", "identity", "renderer"].contains(action) else {return}
+    scheduleHostFaultProof(action, delay: 2)
+#endif
+  }
+  private func scheduleHostFaultProof(_ action: String, delay: Int) {
+#if HYPERGOLIC_NETWORK_PROOF
     Task { @MainActor [weak self] in
-      try? await Task.sleep(for: .seconds(12))
+      try? await Task.sleep(for: .seconds(delay))
       guard let self, !self.disposed, self.live else {return}
       if action == "close" {self.fail("proof-close"); return}
       if action == "renderer" {

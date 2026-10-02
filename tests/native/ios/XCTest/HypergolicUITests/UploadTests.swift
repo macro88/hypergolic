@@ -366,4 +366,288 @@ final class UploadTests: XCTestCase {
     openMenu(); app.buttons["Cancel"].tap(); noFile("fresh-menu-after-revocation")
   }
 
+  func testInterruptedUploadRecovery() throws {
+    continueAfterFailure = false
+    let app = XCUIApplication(bundleIdentifier: "org.nostrocket.hypergolic.uploadfixture")
+    func emit(_ value: String) {print("RECOVERY_" + value); fflush(stdout)}
+    func capture(_ name: String) {
+      let image = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); image.name = name; image.lifetime = .keepAlways; add(image)
+      let tree = XCTAttachment(string: app.debugDescription); tree.name = name + "-accessibility"; tree.lifetime = .keepAlways; add(tree)
+    }
+    func guest(_ label: String) {
+      guard let view = app.webViews.allElementsBoundByIndex.first(where: {$0.frame.height > 1 && $0.frame.width > 1}) else {XCTFail(app.debugDescription); return}
+      let button = view.buttons[label]
+      func exposed() -> Bool {
+        let overlay = app.buttons["upload-recovery-open"]
+        let center = CGPoint(x: button.frame.midX, y: button.frame.midY)
+        return button.isHittable && (!overlay.exists || !overlay.frame.contains(center))
+      }
+      for _ in 0..<12 {if exposed() {break}; view.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45)).press(forDuration: 0.05, thenDragTo: view.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)))}
+      if !exposed() {for _ in 0..<12 {if exposed() {break}; view.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).press(forDuration: 0.05, thenDragTo: view.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45)))}}
+      XCTAssertTrue(exposed(), app.debugDescription); button.tap()
+    }
+    func review() {
+      guest("Request PNG upload")
+      XCTAssertTrue(app.staticTexts["Approve file upload"].waitForExistence(timeout: 15), app.debugDescription)
+      XCTAssertTrue(app.buttons["Approve once"].isEnabled, app.debugDescription); capture("recovery-trusted-review")
+    }
+    func mode(_ value: String) {emit("MODE:" + value); Thread.sleep(forTimeInterval: 3)}
+    func waitCheck() {
+      let button = app.buttons["Check saved server"]
+      let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == true AND enabled == true"), object: button)
+      XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 15), .completed, app.debugDescription)
+    }
+    app.terminate(); app.launch()
+    XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30), app.debugDescription)
+    review(); app.buttons["Reject upload"].tap()
+    XCTAssertTrue(app.staticTexts["Upload cancelled."].waitForExistence(timeout: 10), app.debugDescription)
+    emit("REJECT"); Thread.sleep(forTimeInterval: 2); app.buttons["upload-outcome"].tap()
+    review(); app.buttons["Approve once"].tap()
+    XCTAssertTrue(app.staticTexts["Upload failed."].waitForExistence(timeout: 20), app.debugDescription)
+    XCTAssertTrue(app.buttons["upload-recovery-open"].waitForExistence(timeout: 10), app.debugDescription)
+    capture("lost-ack-unknown"); emit("LOST_ACK"); Thread.sleep(forTimeInterval: 2)
+    app.terminate(); app.launch()
+    XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30), app.debugDescription)
+    XCTAssertTrue(app.buttons["upload-recovery-open"].waitForExistence(timeout: 10), app.debugDescription)
+    capture("cold-restart-unknown"); emit("COLD_RESTART"); Thread.sleep(forTimeInterval: 2)
+    guest("Request PNG upload")
+    let blocked = app.staticTexts["upload failed"]
+    XCTAssertTrue(blocked.waitForExistence(timeout: 10), app.debugDescription)
+    XCTAssertFalse(app.staticTexts["Approve file upload"].exists, app.debugDescription)
+    capture("unresolved-hash-blocked"); emit("DUPLICATE_BLOCKED"); Thread.sleep(forTimeInterval: 2)
+    app.buttons["upload-recovery-open"].tap()
+    XCTAssertTrue(app.staticTexts["Check interrupted uploads"].waitForExistence(timeout: 10), app.debugDescription)
+    for fault in ["wrong-hash","truncated","redirect","quota"] {
+      mode(fault); app.buttons["Check saved server"].tap()
+      Thread.sleep(forTimeInterval: 1); waitCheck()
+      XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "still unknown")).firstMatch.exists, app.debugDescription)
+      capture("recovery-" + fault); emit("CHECKED:" + fault); Thread.sleep(forTimeInterval: 2)
+    }
+    mode("hold"); app.buttons["Check saved server"].tap()
+    XCTAssertTrue(app.buttons["Checking saved server…"].waitForExistence(timeout: 10), app.debugDescription)
+    emit("CHECK_HELD"); Thread.sleep(forTimeInterval: 4); capture("native-read-held")
+    XCUIDevice.shared.press(.home); capture("native-background-home"); emit("BACKGROUND"); Thread.sleep(forTimeInterval: 2)
+    app.activate(); waitCheck(); capture("background-read-revoked"); emit("BACKGROUND_RETURN"); Thread.sleep(forTimeInterval: 2)
+    mode("normal"); app.buttons["Check saved server"].tap()
+    let present = app.staticTexts["A matching copy is present. This check does not prove which attempt stored it."]
+    XCTAssertTrue(present.waitForExistence(timeout: 15), app.debugDescription)
+    capture("native-present"); emit("PRESENT"); Thread.sleep(forTimeInterval: 2); app.buttons["Close upload checks"].tap()
+    review(); app.buttons["Approve once"].tap()
+    XCTAssertTrue(app.staticTexts["Upload complete."].waitForExistence(timeout: 20), app.debugDescription)
+    emit("FRESH_APPROVAL"); Thread.sleep(forTimeInterval: 2); app.buttons["upload-outcome"].tap()
+    app.buttons["Load Peer Napplet"].tap()
+    XCTAssertTrue(app.staticTexts["Native peer connected"].waitForExistence(timeout: 20), app.debugDescription)
+    mode("put-hold"); review(); app.buttons["Approve once"].tap()
+    XCTAssertTrue(app.buttons["Cancel upload"].waitForExistence(timeout: 15), app.debugDescription)
+    emit("PUT_HELD"); Thread.sleep(forTimeInterval: 4); app.buttons["Switch to Peer Napplet"].tap()
+    XCTAssertTrue(app.staticTexts["Peer napplet focused"].waitForExistence(timeout: 10), app.debugDescription)
+    XCTAssertTrue(app.buttons["Cancel upload"].exists, app.debugDescription)
+    XCTAssertGreaterThanOrEqual(app.webViews.count, 2, app.debugDescription)
+    capture("two-loaded-hosts-progress"); emit("PEER_SWITCH"); Thread.sleep(forTimeInterval: 2)
+    emit("RELEASE"); Thread.sleep(forTimeInterval: 2)
+    XCTAssertTrue(app.buttons["upload-outcome"].waitForExistence(timeout: 15), app.debugDescription)
+    XCTAssertEqual(app.buttons["upload-outcome"].label, "Upload confirmed by server.")
+    capture("peer-focus-native-completion"); app.buttons["upload-outcome"].tap(); app.buttons["Switch to Upload Lab"].tap()
+    guest("Read upload status")
+    let receipt = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "5a852fbaaaecaf4cd14c01e150c7f881c5c5894b0a1e3c53be7e007c58374ee6")).allElementsBoundByIndex.first(where: {$0.label.contains("complete")})
+    XCTAssertNotNil(receipt, app.debugDescription)
+    if let receipt, let view = app.webViews.allElementsBoundByIndex.first(where: {$0.frame.height > 1 && $0.frame.width > 1}) {
+      for _ in 0..<12 {
+        if receipt.frame.minY >= view.frame.minY && receipt.frame.minY < view.frame.midY {break}
+        view.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45)).press(forDuration: 0.05, thenDragTo: view.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)))
+      }
+      XCTAssertTrue(view.frame.intersects(receipt.frame), app.debugDescription)
+    }
+    capture("original-recipient-after-peer-switch"); emit("COMPLETE")
+  }
+
+  func testUploadTransferFaultMatrix() {
+    continueAfterFailure = false
+    let app = XCUIApplication(bundleIdentifier: "org.nostrocket.hypergolic.uploadfixture")
+    func emit(_ value: String) {print("TRANSFER_" + value); fflush(stdout)}
+    func capture(_ name: String) {
+      let image = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); image.name = name; image.lifetime = .keepAlways; add(image)
+      let tree = XCTAttachment(string: app.debugDescription); tree.name = name + "-accessibility"; tree.lifetime = .keepAlways; add(tree)
+    }
+    func guest(_ label: String) {
+      guard let view = app.webViews.allElementsBoundByIndex.first(where: {$0.frame.height > 1 && $0.frame.width > 1}) else {XCTFail(app.debugDescription); return}
+      let button = view.buttons[label]
+      func exposed() -> Bool {
+        let center = CGPoint(x: button.frame.midX, y: button.frame.midY)
+        return button.isHittable && !["upload-recovery-open","upload-outcome","upload-cancel"].contains(where: {let overlay = app.buttons[$0]; return overlay.exists && overlay.frame.contains(center)})
+      }
+      for direction in [true,false] {for _ in 0..<12 {
+        if exposed() {break}
+        let high = view.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)), low = view.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45))
+        (direction ? low : high).press(forDuration: 0.05, thenDragTo: direction ? high : low)
+      }}
+      XCTAssertTrue(exposed(), app.debugDescription); button.tap()
+    }
+    func reset(_ name: String, _ mode: String) {
+      app.terminate();emit("RESET:" + name + ":" + mode);Thread.sleep(forTimeInterval: 6);app.launch()
+      XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30), app.debugDescription)
+    }
+    func review(_ large: Bool = false) {
+      guest(large ? "Request large WAV upload" : "Request PNG upload")
+      XCTAssertTrue(app.staticTexts["Approve file upload"].waitForExistence(timeout: 20), app.debugDescription)
+      XCTAssertTrue(app.buttons["Approve once"].isEnabled, app.debugDescription)
+    }
+    for mode in ["reject","large","quota","wrong-receipt","truncated-receipt","malformed-receipt","redirect","drop-before-store","timeout"] {
+      reset(mode, mode);review();capture(mode + "-review");app.buttons["Approve once"].tap()
+      XCTAssertTrue(app.staticTexts["Upload failed."].waitForExistence(timeout: 75), app.debugDescription)
+      XCTAssertFalse(app.staticTexts["Upload complete."].exists, app.debugDescription)
+      capture(mode + "-failed");emit("RESULT:" + mode);Thread.sleep(forTimeInterval: 2)
+    }
+    for action in ["before-body","stream","cancel","background","close","native-close","replace","identity","renderer"] {
+      reset(action, action == "before-body" ? "before-tls" : action == "stream" ? "slow-stream" : "hold")
+      review(action == "stream");app.buttons["Approve once"].tap()
+      XCTAssertTrue(app.buttons["Cancel upload"].waitForExistence(timeout: 20), app.debugDescription)
+      emit("HELD:" + action);Thread.sleep(forTimeInterval: 3);capture(action + "-held")
+      if action == "background" {
+        XCUIDevice.shared.press(.home);capture("actual-Home-transfer");emit("RELEASE");Thread.sleep(forTimeInterval: 2);app.activate()
+      } else if action == "close" {
+        app.buttons["Close Upload Lab"].tap();XCTAssertTrue(app.staticTexts["Upload Lab closed"].waitForExistence(timeout: 10))
+        emit("RELEASE");Thread.sleep(forTimeInterval: 2);app.buttons["Open Upload Lab"].tap()
+        XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 20), app.debugDescription)
+      } else if ["native-close","replace","identity","renderer"].contains(action) {
+        app.buttons["Upload fault controls"].tap();app.buttons["Interrupt upload " + (action == "native-close" ? "close" : action)].tap()
+        let code = action == "native-close" ? "proof-close" : action == "renderer" ? "renderer-stopped" : "session-reuse-blocked"
+        XCTAssertTrue(app.staticTexts["Native host failed: " + code].waitForExistence(timeout: 20), app.debugDescription)
+        emit("RELEASE");Thread.sleep(forTimeInterval: 2);app.buttons["Open Upload Lab"].tap()
+        XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 20), app.debugDescription)
+      } else {app.buttons["Cancel upload"].tap();emit("RELEASE")}
+      Thread.sleep(forTimeInterval: 3);XCTAssertFalse(app.staticTexts["Upload complete."].exists, app.debugDescription)
+      capture(action + "-revoked");emit("RESULT:" + action);Thread.sleep(forTimeInterval: 2)
+    }
+    for kind in ["checksum","mode","symlink"] {
+      reset(kind, "lost-ack");review();app.buttons["Approve once"].tap()
+      XCTAssertTrue(app.staticTexts["Upload failed."].waitForExistence(timeout: 20), app.debugDescription)
+      app.terminate();emit("CORRUPT:" + kind);Thread.sleep(forTimeInterval: 6);app.launch()
+      XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30), app.debugDescription)
+      guest("Request PNG upload");Thread.sleep(forTimeInterval: 2)
+      XCTAssertFalse(app.staticTexts["Approve file upload"].exists, app.debugDescription)
+      XCTAssertFalse(app.staticTexts["Upload complete."].exists, app.debugDescription)
+      capture(kind + "-storage-denied");emit("RESULT:" + kind);Thread.sleep(forTimeInterval: 2)
+    }
+    emit("COMPLETE")
+  }
+
+  func testUploadQueueBounds() {
+    continueAfterFailure = false
+    let app = XCUIApplication(bundleIdentifier: "org.nostrocket.hypergolic.uploadfixture")
+    func emit(_ value: String) {print("QUEUE_" + value); fflush(stdout)}
+    func capture(_ name: String) {
+      let image = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); image.name = name; image.lifetime = .keepAlways; add(image)
+      let tree = XCTAttachment(string: app.debugDescription); tree.name = name + "-accessibility"; tree.lifetime = .keepAlways; add(tree)
+    }
+    func counts(_ value: String) {XCTAssertTrue(app.staticTexts[value].waitForExistence(timeout: 15), app.debugDescription)}
+    func guest(_ label: String) {
+      guard let view = app.webViews.allElementsBoundByIndex.first(where: {$0.frame.height > 1 && $0.frame.width > 1}) else {XCTFail(app.debugDescription); return}
+      let button = view.buttons[label]
+      for direction in [true,false] {for _ in 0..<12 {
+        if button.isHittable {break}
+        let high = view.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)), low = view.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45))
+        (direction ? low : high).press(forDuration: 0.05, thenDragTo: direction ? high : low)
+      }}
+      XCTAssertTrue(button.isHittable, app.debugDescription);button.tap()
+    }
+    app.terminate();app.launch()
+    XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30))
+    app.buttons["Load Peer Napplet"].tap();XCTAssertTrue(app.staticTexts["Native peer connected"].waitForExistence(timeout: 20))
+    guest("Schedule PNG request in fifteen seconds")
+    app.buttons["Switch to Peer Napplet"].tap();guest("Request large WAV upload")
+    XCTAssertTrue(app.staticTexts["Approve file upload"].waitForExistence(timeout: 20));app.buttons["Approve once"].tap();emit("FIRST_APPROVED")
+    app.buttons["Switch to Upload Lab"].tap();XCTAssertTrue(app.staticTexts["Approve file upload"].waitForExistence(timeout: 20));app.buttons["Approve once"].tap();emit("SECOND_APPROVED")
+    counts("Active: 2; queued: 0");app.buttons["Load eight queue peers"].tap();counts("Active: 2; queued: 8");capture("two-active-eight-queued");emit("HELD")
+    app.buttons["Focus queue peer"].tap();counts("Active: 2; queued: 8");XCTAssertFalse(app.staticTexts["Approve file upload"].exists)
+    XCTAssertTrue(app.staticTexts["Queue pending; second request rejected: quota exceeded"].waitForExistence(timeout: 10));emit("REALM_BOUND")
+    app.buttons["Load overflow peer"].tap();app.buttons["Focus queue peer"].tap()
+    XCTAssertTrue(app.staticTexts["Queue request rejected: quota exceeded"].waitForExistence(timeout: 10));counts("Active: 2; queued: 8");capture("native-overflow-denied");emit("OVERFLOW")
+    app.buttons.matching(identifier: "upload-cancel").firstMatch.tap();counts("Active: 1; queued: 8")
+    app.buttons.matching(identifier: "upload-cancel").firstMatch.tap();counts("Active: 0; queued: 8");emit("RELEASE");Thread.sleep(forTimeInterval: 2);capture("two-cancelled-eight-queued");emit("CANCELLED")
+    XCUIDevice.shared.press(.home);Thread.sleep(forTimeInterval: 1);app.activate();counts("Active: 0; queued: 0");capture("background-revokes-all-queued");emit("COMPLETE")
+  }
+
+
+  func testVerifiedPublishedUpload() throws {
+    continueAfterFailure = false
+    let app = XCUIApplication(bundleIdentifier: "org.nostrocket.hypergolic.uploadfixture")
+    func emit(_ value: String) {print("PUBLISHED_UPLOAD_" + value);fflush(stdout);Thread.sleep(forTimeInterval: 2)}
+    func capture(_ name: String) {
+      let image = XCTAttachment(screenshot: app.screenshot());image.name = "published-" + name;image.lifetime = .keepAlways;add(image)
+      let tree = XCTAttachment(string: app.debugDescription);tree.name = "published-" + name + "-accessibility";tree.lifetime = .keepAlways;add(tree)
+    }
+    func settings(_ element: XCUIElement) {
+      for _ in 0..<16 {
+        if element.isHittable {return}
+        let scroll = app.scrollViews.firstMatch
+        if element.exists && element.frame.midY < scroll.frame.minY {scroll.swipeDown()} else {scroll.swipeUp()}
+      }
+      XCTAssertTrue(element.isHittable, app.debugDescription)
+    }
+    func guest(_ element: XCUIElement) {
+      guard let view = app.webViews.allElementsBoundByIndex.first(where: {$0.frame.height > 1 && $0.frame.width > 1}) else {XCTFail(app.debugDescription);return}
+      for direction in [false,true] {for _ in 0..<12 {
+        if element.isHittable {element.tap();return}
+        let high = view.coordinate(withNormalizedOffset: CGVector(dx: 0.5,dy: 0.15)), low = view.coordinate(withNormalizedOffset: CGVector(dx: 0.5,dy: 0.45))
+        (direction ? low : high).press(forDuration: 0.05,thenDragTo: direction ? high : low)
+      }}
+      XCTFail("Guest control not exposed: " + app.debugDescription)
+    }
+    func review() {
+      guest(app.buttons["Request PNG upload"])
+      XCTAssertTrue(app.staticTexts["Approve file upload"].waitForExistence(timeout: 20),app.debugDescription)
+      XCTAssertTrue(app.images["Exact photo selected for upload"].exists)
+      XCTAssertTrue(app.buttons["Approve once"].isEnabled);capture("trusted-review")
+    }
+    app.terminate();app.launch()
+    let address = app.staticTexts["signed-upload-address"]
+    XCTAssertTrue(address.waitForExistence(timeout: 30),app.debugDescription)
+    let link = address.label;XCTAssertTrue(link.hasPrefix("naddr1"));XCTAssertFalse(link.contains("..."));XCTAssertFalse(link.contains("…"))
+    app.buttons["shell-settings"].tap()
+    let input = app.textFields["settings-napplet-address"];settings(input);input.tap();input.typeText(link + "\n")
+    let consent = app.staticTexts["Allow this napplet?"].firstMatch
+    XCTAssertTrue(consent.waitForExistence(timeout: 30),app.debugDescription);settings(consent);capture("first-open-consent")
+    XCTAssertTrue(app.staticTexts["Requested access: upload"].exists)
+    XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label == %@", "Upload access allows this napplet to read files you select. Every upload still needs your separate approval of the file, identity and server.")).firstMatch.exists)
+    let reject = app.buttons["settings-napplet-reject"];settings(reject);reject.tap();emit("CONSENT_REJECT")
+    let verify = app.buttons["settings-open-napplet"];settings(verify);verify.tap()
+    XCTAssertTrue(consent.waitForExistence(timeout: 30),app.debugDescription)
+    let allow = app.buttons["settings-napplet-approve"];settings(allow);allow.tap()
+    XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30),app.debugDescription);capture("signed-sdk-ready");emit("ADMITTED")
+    guest(app.buttons["Read upload limits"])
+    let info = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "\"maxBytes\"")).firstMatch
+    XCTAssertTrue(info.waitForExistence(timeout: 15),app.debugDescription);capture("native-SDK-upload-info");emit("INFO:" + info.label.replacingOccurrences(of: "\n",with: " "))
+    review();app.buttons["Reject upload"].tap()
+    XCTAssertTrue(app.staticTexts["Upload cancelled."].waitForExistence(timeout: 15),app.debugDescription);emit("REJECT")
+    app.buttons["upload-outcome"].tap();review();app.buttons["Approve once"].tap()
+    XCTAssertTrue(app.staticTexts["Upload complete."].waitForExistence(timeout: 30),app.debugDescription)
+    XCTAssertEqual(app.buttons["upload-outcome"].label,"Upload confirmed by server.");capture("confirmed");emit("APPROVED")
+    app.buttons["upload-outcome"].tap();guest(app.buttons["Read upload status"])
+    let receipt = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "\"status\": \"complete\"")).firstMatch
+    XCTAssertTrue(receipt.waitForExistence(timeout: 15),app.debugDescription)
+    XCTAssertTrue(receipt.label.contains("5a852fbaaaecaf4cd14c01e150c7f881c5c5894b0a1e3c53be7e007c58374ee6"));capture("original-sdk-receipt");emit("RECEIPT:" + receipt.label.replacingOccurrences(of: "\n",with: " "))
+    guest(app.buttons["Select a file"])
+    XCTAssertTrue(app.buttons["Choose file"].waitForExistence(timeout: 10));app.buttons["Choose file"].tap()
+    XCTAssertTrue(app.navigationBars.firstMatch.waitForExistence(timeout: 10))
+    if app.buttons["Browse"].exists {app.buttons["Browse"].tap()}
+    let local = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "On My iPhone")).firstMatch
+    if local.exists {local.tap()}
+    let container = app.cells["Hypergolic, Container"]
+    if container.waitForExistence(timeout: 3) {container.coordinate(withNormalizedOffset: CGVector(dx: 0.5,dy: 0.25)).tap()}
+    let file = app.cells.matching(NSPredicate(format: "label BEGINSWITH %@", "published-proof")).firstMatch
+    XCTAssertTrue(file.waitForExistence(timeout: 10),app.debugDescription);capture("system-selected-WAV");file.coordinate(withNormalizedOffset: CGVector(dx: 0.5,dy: 0.25)).tap()
+    let selected = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Selected bytes: 4194304; SHA-256: b662d59b296866a4472ac00bd2fde89b616af2368b1222c1250afc141ecb58c9")).firstMatch
+    XCTAssertTrue(selected.waitForExistence(timeout: 15),app.debugDescription);capture("selected-WAV-guest-handoff");emit("WAV_SELECTED")
+    func reviewWav() {
+      guest(app.buttons["Request selected upload"]);XCTAssertTrue(app.staticTexts["Approve file upload"].waitForExistence(timeout: 15))
+      XCTAssertTrue(app.staticTexts["upload-attachment-inspection"].exists);XCTAssertTrue(app.buttons["Approve once"].isEnabled);capture("selected-WAV-review")
+    }
+    reviewWav();app.buttons["Reject upload"].tap();XCTAssertTrue(app.staticTexts["Upload cancelled."].waitForExistence(timeout: 15));emit("WAV_REJECT")
+    app.buttons["upload-outcome"].tap();guest(app.buttons["Read selected file"]);XCTAssertTrue(selected.exists);emit("WAV_READ")
+    reviewWav();app.buttons["Approve once"].tap();XCTAssertTrue(app.staticTexts["Upload complete."].waitForExistence(timeout: 30));XCTAssertEqual(app.buttons["upload-outcome"].label,"Upload confirmed by server.");capture("selected-WAV-confirmed");emit("WAV_APPROVED");app.buttons["upload-outcome"].tap()
+    app.terminate();app.launch()
+    XCTAssertTrue(app.staticTexts["Ready to request a PNG upload."].waitForExistence(timeout: 30),app.debugDescription)
+    XCTAssertFalse(consent.exists);capture("persisted-cold-restart");emit("COLD_RESTART");emit("COMPLETE")
+  }
 }

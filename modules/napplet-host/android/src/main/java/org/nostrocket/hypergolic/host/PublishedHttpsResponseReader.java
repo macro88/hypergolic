@@ -38,15 +38,19 @@ final class PublishedHttpsResponseReader {
     UploadStatus(int status) { super("Upload response status " + status); this.status = status; }
   }
   static UploadResponse readUpload(InputStream input, PublishedHttpsTransport.Cancellation cancellation) throws IOException {
-    return readProfile(input, cancellation, 32 * 1024, true);
+    return readProfile(input, cancellation, 32 * 1024, true, false);
   }
   static byte[] read(InputStream input, PublishedHttpsTransport.Cancellation cancellation) throws IOException {
     return readBounded(input, cancellation, PublishedHttpsTransport.MAX_BODY_BYTES);
   }
   static byte[] readBounded(InputStream input, PublishedHttpsTransport.Cancellation cancellation, int maximumBytes) throws IOException {
-    return readProfile(input, cancellation, maximumBytes, false).body;
+    return readProfile(input, cancellation, maximumBytes, false, false).body;
   }
-  private static UploadResponse readProfile(InputStream input, PublishedHttpsTransport.Cancellation cancellation, int maximumBytes, boolean uploadProfile) throws IOException {
+  /** Purpose-specific same-server reconciliation; only complete 200/404 responses can resolve uncertainty. */
+  static UploadResponse readRecovery(InputStream input, PublishedHttpsTransport.Cancellation cancellation, int maximumBytes) throws IOException {
+    return readProfile(input, cancellation, maximumBytes, false, true);
+  }
+  private static UploadResponse readProfile(InputStream input, PublishedHttpsTransport.Cancellation cancellation, int maximumBytes, boolean uploadProfile, boolean recoveryProfile) throws IOException {
     if (maximumBytes < 1 || maximumBytes > 10 * 1024 * 1024) throw new ResourceFailure("too-large", "Invalid HTTPS body limit");
     HeaderBlock block = readHeaders(input, PublishedHttpsTransport.MAX_RESPONSE_HEADER_BYTES);
     String[] lines = block.text.split("\r\n", -1);
@@ -58,18 +62,17 @@ final class PublishedHttpsResponseReader {
       if ((c < 0x20 && c != '\t') || c == 0x7f) throw new IOException("Malformed HTTPS status line");
     }
     int status = Integer.parseInt(lines[0].substring(9, 12));
-    if (!uploadProfile && maximumBytes > PublishedHttpsTransport.MAX_BODY_BYTES &&
+    if (!uploadProfile && !recoveryProfile && maximumBytes > PublishedHttpsTransport.MAX_BODY_BYTES &&
         (status == 301 || status == 302 || status == 303 || status == 307 || status == 308)) {
       String location = uniqueHeader(parseHeaders(lines), "location");
       if (location == null || location.isEmpty() || location.length() > 8192) throw new ResourceFailure("blocked-by-policy", "Invalid resource redirect");
       throw new ResourceRedirect(location);
     }
     if (status >= 300 && status < 400) throw new ResourceFailure("blocked-by-policy", "HTTPS redirects are not followed");
-    if (uploadProfile && status != 200 && status != 201) throw new UploadStatus(status);
-    if (!uploadProfile && status != 200) throw new ResourceFailure(status == 404 ? "not-found" : status == 401 || status == 403 ? "blocked-by-policy" : "network-error", "HTTPS response status " + status);
+    if (!uploadProfile && !recoveryProfile && status != 200) throw new ResourceFailure(status == 404 ? "not-found" : status == 401 || status == 403 ? "blocked-by-policy" : "network-error", "HTTPS response status " + status);
     Map<String, List<String>> headers = parseHeaders(lines);
-    boolean resourceProfile = uploadProfile || maximumBytes > PublishedHttpsTransport.MAX_BODY_BYTES;
-    if (uploadProfile && uniqueHeader(headers, "location") != null) throw new ResourceFailure("blocked-by-policy", "Upload Location headers are not followed");
+    boolean resourceProfile = uploadProfile || recoveryProfile || maximumBytes > PublishedHttpsTransport.MAX_BODY_BYTES;
+    if ((uploadProfile || recoveryProfile) && uniqueHeader(headers, "location") != null) throw new ResourceFailure("blocked-by-policy", "Upload Location headers are not followed");
     if (resourceProfile) uniqueHeader(headers, "connection");
     String encoding = resourceProfile ? uniqueHeader(headers, "content-encoding") : singleHeader(headers, "content-encoding");
     if (encoding != null && !"identity".equalsIgnoreCase(encoding.trim())) {
@@ -78,16 +81,21 @@ final class PublishedHttpsResponseReader {
     String transferEncoding = uniqueHeader(headers, "transfer-encoding");
     String contentLength = uniqueHeader(headers, "content-length");
     if (transferEncoding != null && contentLength != null) throw new IOException("Ambiguous HTTPS body framing");
+    byte[] body;
     if (transferEncoding != null) {
       if (!"chunked".equalsIgnoreCase(transferEncoding.trim())) throw new IOException("Unsupported HTTPS transfer encoding");
-      return new UploadResponse(status, readChunked(input, block.size, cancellation, maximumBytes));
-    }
-    if (contentLength != null) {
+      body = readChunked(input, block.size, cancellation, maximumBytes);
+    } else if (contentLength != null) {
       long length = parseLength(contentLength);
       if (length > maximumBytes) throw new ResourceFailure("too-large", "HTTPS response exceeds its byte limit");
-      return new UploadResponse(status, readExact(input, (int) length, cancellation));
-    }
-    return new UploadResponse(status, readUntilEof(input, cancellation, maximumBytes));
+      body = readExact(input, (int) length, cancellation);
+    } else { body = readUntilEof(input, cancellation, maximumBytes); }
+    if ((uploadProfile || recoveryProfile) && input.read() != -1) throw new IOException("Trailing HTTPS response bytes");
+    PublishedHttpsTransport.checkCancellation(cancellation);
+    // Error headers alone are not a definitive server rejection or an absence proof.
+    if (uploadProfile && status != 200 && status != 201) throw new UploadStatus(status);
+    if (recoveryProfile && status != 200 && status != 404) throw new ResourceFailure("network-error", "Unresolved recovery response");
+    return new UploadResponse(status, body);
   }
 
   private static HeaderBlock readHeaders(InputStream input, int maximumBytes) throws IOException {

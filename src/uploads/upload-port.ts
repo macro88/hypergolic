@@ -4,6 +4,8 @@ import { parseUploadRequest, UPLOAD_ERRORS, UploadError, UPLOAD_LIMITS, captureU
 import type { TakenUpload, UploadLease, UploadNativePort, UploadReview } from './upload-service.ts';
 
 export interface UploadModule {
+  listUploadRecovery?(): string;
+  checkUploadRecovery?(uploadId: string): Promise<string>;
   addListener?(name: 'onUploadProgress', listener: (event: unknown) => void): {remove(): void};
   takeUpload(token: string): string | null;
   isUploadLive(token: string): boolean;
@@ -66,7 +68,20 @@ function bytes(raw: string | null): Uint8Array<ArrayBuffer> {
 export function createNativeUploadPort(module: UploadModule): UploadNativePort {
   const tokens = new WeakMap<UploadLease, string>(), uploads = new WeakMap<UploadLease, string>();
   const tokenFor = (lease: UploadLease): string => {const token = tokens.get(lease); if (!token) throw new UploadError('policy denied'); return token;};
+  const recovery = module.listUploadRecovery && module.checkUploadRecovery ? Object.freeze({
+    list: () => {
+      const raw = module.listUploadRecovery!();
+      if (typeof raw !== 'string' || new TextEncoder().encode(raw).length > 256 * 1024) throw new UploadError('policy denied');
+      return JSON.parse(raw) as unknown;
+    },
+    check: async (uploadId: string) => {
+      const raw = await module.checkUploadRecovery!(text(uploadId, 36));
+      if (typeof raw !== 'string' || new TextEncoder().encode(raw).length > 1024) throw new UploadError('policy denied');
+      return JSON.parse(raw) as unknown;
+    },
+  }) : undefined;
   return Object.freeze<UploadNativePort>({
+    ...(recovery ? {recovery} : {}),
     take(token: string) {
       const raw = module.takeUpload(token); if (raw === null) return null;
       try {

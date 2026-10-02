@@ -48,6 +48,7 @@ export function OpenPublishedNapplet({ open }: { open: SettingsActions['openPubl
     <Text style={styles.detail}>Napplet</Text><Text selectable style={styles.claim}>{review.appId}</Text>
     <Text style={styles.detail}>Signed event</Text><Text selectable style={styles.claim}>{review.eventId}</Text>
     {review.domains.includes('resource') && <Text style={styles.detail}>Resource access allows bounded downloads from public HTTPS sites and your configured Blossom servers. Files stay in memory while this napplet is loaded.</Text>}
+    {review.domains.includes('upload') && <Text style={styles.detail}>Upload access allows this napplet to read files you select. Every upload still needs your separate approval of the file, identity and server.</Text>}
     <Text style={styles.detail}>Requested access: {review.domains.length ? review.domains.join(', ') : 'none'}</Text>
     <Pressable accessibilityRole="button" testID="settings-napplet-approve" onPress={() => decide(true)} style={styles.action}><Text style={styles.actionText}>Allow and open</Text></Pressable>
     <Pressable accessibilityRole="button" testID="settings-napplet-reject" onPress={() => decide(false)} style={styles.secondary}><Text style={styles.secondaryText}>Cancel</Text></Pressable>

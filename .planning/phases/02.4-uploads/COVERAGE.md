@@ -7,7 +7,8 @@
 | upload.status | INTEGRATE | Realm-scoped status/recovery of an existing uploadId. |
 | upload.status.changed | INTEGRATE | Bounded progress and terminal pushes. |
 | Blossom PUT /upload | INTEGRATE | Raw unchanged approved output bytes. |
-| Blossom GET/HEAD hash | INTEGRATE | Bounded receipt/reconciliation reads. |
+| Blossom GET hash | INTEGRATE | Bounded exact-size/hash reconciliation; complete 200/404 framing. |
+| Blossom HEAD hash | OPT-OUT | Not used for recovery; HEAD alone cannot verify complete saved bytes. |
 | Blossom HEAD /upload | OPT-OUT | Read-only research only; upload never requires preflight and production eligibility is advisory. |
 | Blossom PUT /media | OPT-OUT | Server transformations cannot be previewed before our exact-byte approval. |
 | Blossom PUT /mirror | OPT-OUT | Automatic replication is outside the selected single-destination upload profile. |

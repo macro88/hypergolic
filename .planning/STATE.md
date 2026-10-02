@@ -2,17 +2,17 @@
 gsd_state_version: "1.0"
 current_phase: "2.4"
 current_phase_name: Uploads
-status: completed
-stopped_at: Plan 02 sealed build6 original/recipient/PNG matrix passes both hosts. Run final quality and targeted commit, capture/sync Notes, then start Plan 03. Usage 4%, continue until 50%.
-last_updated: "2026-10-01T11:56:38.716Z"
-last_activity: 2026-10-01
-state_head: 6ae9d36a49cac6eed0c085797cb7e40de7dc388d
+status: phase-complete
+stopped_at: Selected2.4 complete with approved locked-patch advisory exception; commit integration and begin2.5. Usage9%, continue until50% or Phase2 complete.
+last_updated: "2026-10-02T03:00:26.810809+00:00"
+last_activity: 2026-10-02
+state_head: 176f1f1e29cbe72566a3d891c65266b768ecdd7d
 progress:
   total_phases: 14
-  completed_phases: 0
+  completed_phases: 5
   total_plans: 18
-  completed_plans: 10
-  percent: 0
+  completed_plans: 12
+  percent: 67
 ---
 
 # Project State
@@ -38,9 +38,9 @@ expansion cards are not executable PLAN files.
 
 ## Current Position
 
-Phase: 2.4 (Uploads) — EXECUTING
-Plan: 2 of 4
-Status: Plan 02 selected profile native-complete; final quality and targeted commit gate, then Plan 03 durable recovery. Plans 03–04 and CAP-05 remain open.
+Phase: 2.4 (Uploads) — SELECTED PROFILE COMPLETE
+Plan: 4 of 4
+Status: All four selected plans complete; CAP-05 accepted under the owner-approved tested-patch exception. Android27 nine/iOS28 eleven signed checks, ordinary builds and all other gates pass. Integrate Plan03/04 in a targeted local commit, then2.5.
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
 Previous native action checkpoint: 2026-09-15 — Added the Android native deletion authority with 95 owning JVM assertions and the protected-record/erase reader with 89 actual Android assertions. Existing SDK records are unchanged; disposable data alone was erased. The actual Release app and separate instrumentation APK build and their installed bytes match. The production deletion path remains denied pending native context/lifecycle and system-prompt integration; authentication in the record probe is a double. See docs/identity-storage.md.
@@ -746,9 +746,9 @@ Phase 2.3 completion — 30 September 2026: all three resource plans pass the se
 
 ## Session
 
-**Last session:** 2026-10-01T11:56:38.650Z
-**Stopped at:** Plan 02 sealed build6 original/recipient/PNG matrix passes both hosts. Run final quality and targeted commit, capture/sync Notes, then start Plan 03. Usage 4%, continue until 50%.
-**Resume file:** .planning/phases/02.4-uploads/02.4-03-PLAN.md
+**Last session:** 2026-10-02T03:00:26.811028+00:00
+**Stopped at:** Phase2.4 selected acceptance complete with approved advisory exception; finalize targeted local commit and begin2.5. Usage9%, continue until50%.
+**Resume file:** .planning/phases/02.4-uploads/02.4-04-SUMMARY.md
 
 Static photo checkpoint (2026-10-01): native preparation supports bounded static
 JPEG/PNG/WebP/GIF/HEIC with disclosed full-size PNG conversion, exact orientation,
@@ -763,3 +763,22 @@ aislop each reach 100/100, with nine dependency audits passing; the final state
 is rechecked before the targeted local commit. Plan 02 recipient faults and iOS malformed
 selection remain open; plans 03–04 and CAP-05 remain incomplete. Weekly usage 3%
 consumed; continue until the requested 50% pause limit. No source push.
+
+
+Plan04 checkpoint2October: final signed Android25/iOS26, actual selected WAV,
+normal Settings/consent/cache and original SDK receipts pass. One newly reviewed
+node-forge advisory prevents the mandatory clean quality gate. The exact proposed
+upstream RSA patch is locked and installed; regression and Expo certificate API
+checks pass, but the audit remains red. The owner approved this one advisory exception with its stated basis; finish
+final-source validation and the coherent commit before advancing2.5. Source remains
+176f1f1 with Plan03/04 work uncommitted. Weekly usage9%, 50% pause remains active.
+
+
+Final Phase2.4 disposition2October: selected CAP-05 complete under the explicit
+owner-approved locked-patch exception. Android27 nine/iOS28 eleven checks and
+ordinary builds pass after patching; native products are unchanged. Final-source
+review must match only the approved advisory and preserve actual scores/audits.
+All other gates pass. Broad MVP/physical/protected/public-provider evidence remains
+Phase2.11. Next2.5 requires owning research and unresolved product interviews;
+continue one phase at a time, no source push, pause at50% usage. Metadata percent
+counts completed executable plans12/18, not product completion.

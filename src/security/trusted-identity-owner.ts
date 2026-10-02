@@ -72,6 +72,7 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
       if (!runtime) throw new Error('APPROVAL_DENIED');
       runtime.assertPublishedUpload(origin);
     }), {
+      currentIdentity: () => transition.getSnapshot().phase === 'ready' ? transition.getSnapshot().session.vault.selectedPubkey : null,
       sha256: async bytes => Array.from(new Uint8Array(await digest(CryptoDigestAlgorithm.SHA256, bytes)), byte => byte.toString(16).padStart(2, '0')).join(''),
       nowSeconds: () => Math.floor(Date.now() / 1000),
       sign: (snapshot, execution) => vault.signApprovedUpload(snapshot, execution, (event, secret) => {
