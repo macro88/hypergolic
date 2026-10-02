@@ -16,7 +16,7 @@ and resolve each phase's material policy decisions before generating those files
 - [x] **Phase 2.2: Live relay subscriptions** — L; Feed Lab.
 - [x] **Phase 2.3: Resource access** — L; Resource Lab.
 - [x] **Phase 2.4: Uploads** — L; Upload Lab.
-- [ ] **Phase 2.5: Public identity data** — M; State Lab and Feed Lab.
+- [x] **Phase 2.5: Public identity data** — M; State Lab and Feed Lab.
 - [ ] **Phase 2.6: External links** — S–M; Resource Lab.
 - [ ] **Phase 2.7: Intents and inter-napplet communication** — M + L; Routing Lab pair.
 - [ ] **Phase 2.8: Notifications and configuration** — M + M; Routing Lab.
@@ -105,7 +105,27 @@ The existing phase directory name remains unchanged to preserve references.
 **Requirements:** CAP-06
 **Fixture:** State Lab and Feed Lab
 **Work and exit criteria:** Inventory all recognized reads and backing kinds; implement selected public metadata/list behavior, cache and canonical missing/error semantics. Verify controlled data, stale cache, identity switching and no cross-user delivery.
-**Plans:** Pending owning-contract research and phase-local decisions; no completion claimed.
+**Plans:** Three sequential plans after the completed product interview; CAP-06 remains open.
+**Wave 1**
+
+- [x] 02.5-01-PLAN.md — Real profile/cache SDK/native tracer.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 02.5-02-PLAN.md — Selected lists, separate permission and accepted badges.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 02.5-03-PLAN.md — Signed admission, final native/quality acceptance and targeted commit.
+
+**Selected acceptance:** All three plans pass. Final lists/permission/badges22 and
+normal signed State/Feed14 pass per host, with both ordinary builds and full numeric
+quality under only the approved Forge exception. See [verification](phases/02.5-public-identity-data/02.5-VERIFICATION.md).
+CAP-06 is selected-profile complete; broad CAP-14 gates remain open.
+
+**Cross-cutting constraints:**
+
+- Selected behavior has genuine SDK/native evidence on both platforms before acceptance.
 
 ### Phase 2.6: External links
 

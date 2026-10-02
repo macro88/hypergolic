@@ -10,7 +10,7 @@ import {
 } from '@kehto/shell';
 import { createThemeService } from '@kehto/services';
 import type { HostOperationContext, NappletMessage } from '@kehto/runtime';
-import { identityResult, parseCapabilityRequest } from '../../src/runtime/capability-protocol';
+import { identityFailure, identityResult, parseCapabilityRequest } from '../../src/runtime/capability-protocol';
 import { createNativeClient, type NativeHost } from './native-client';
 import { injectPublishedCsp, readPublishedArtifact } from './published-artifact';
 import { ensureSecureRandomUuid } from './secure-random-compat';
@@ -91,7 +91,9 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
       const live = captureRecipient();
       void native.request(message).then(response => { if (live()) send(response); }).catch(() => {
         if (!live()) return;
-        try { send(identityResult(parseCapabilityRequest(message), '') as NappletMessage); } catch { /* Unknown operation. */ }
+        try { const request = parseCapabilityRequest(message);
+          send((request.type === 'identity.getPublicKey' ? identityResult(request, '') : identityFailure(request, 'identity request denied')) as NappletMessage);
+        } catch { /* Unknown operation. */ }
       });
     } };
   return {

@@ -1,3 +1,5 @@
+import type { IdentityDataPort } from '../identity/identity-service.ts';
+import { identityFailure, type IdentityRequest } from '../identity/identity-contract.ts';
 import { createResourceBroker, type ResourceHost } from '../resources/resource-broker.ts';
 import type { RelayQueryService } from '../network/native-relay-query.ts';
 import type { ShellDatabase } from '../storage/database.ts';
@@ -39,8 +41,27 @@ async function operate(storage: StringStorage, request: CapabilityRequest): Prom
     case 'storage.remove': await storage.remove(request.key!, request.scope); return base;
   }
 }
+/** Native expiry/background can precede the React Native lifecycle mirror. */
+async function watchedRead<T>(pending: Set<AbortController>, active: () => void, read: (signal: AbortSignal) => Promise<T>): Promise<T> {
+  const controller = new AbortController();
+  pending.add(controller);
+  const watcher = setInterval(() => { try { active(); } catch { controller.abort(); } }, 25);
+  try { return await read(controller.signal); }
+  finally { clearInterval(watcher); pending.delete(controller); }
+}
+async function readQuery(request: Extract<CapabilityRequest, {type: 'relay.query'}>, queries: RelayQueryService | undefined, pending: Set<AbortController>, active: () => void): Promise<CapabilityReply> {
+  if (!queries || pending.size >= 2) return queryFailure(request, 'relay query unavailable or busy')!;
+  try { return {type: 'relay.query.result', id: request.id, events: await watchedRead(pending, active, signal => queries.query(request.filters, signal, active))}; }
+  catch { return queryFailure(request, 'relay query failed')!; }
+}
+async function readIdentity(request: IdentityRequest, service: IdentityDataPort | undefined, registration: NativeRegistration, pending: Set<AbortController>, active: () => void): Promise<CapabilityReply> {
+  if (!service || request.type === 'identity.getPublicKey') return identityResult(request, registration.user);
+  if (pending.size >= 2) return identityFailure(request, 'identity data busy');
+  try { return await watchedRead(pending, active, signal => service.read(request, registration, signal, active)); }
+  catch { return identityFailure(request, 'identity data unavailable'); }
+}
 /** One broker per registered native view. It is never passed into the WebView. */
-export function createCapabilityBroker(database: ShellDatabase, native: NativeCapabilityPort, owner: CapabilityOwner, queries?: RelayQueryService, closeRelay?: (request:unknown)=>void, resources?: ResourceHost) {
+export function createCapabilityBroker(database: ShellDatabase, native: NativeCapabilityPort, owner: CapabilityOwner, queries?: RelayQueryService, closeRelay?: (request:unknown)=>void, resources?: ResourceHost, identityData?: IdentityDataPort) {
   const registration = decodeNativeRegistration(owner.registration);
   const expected = JSON.stringify(registration);
   const resource = resources ? createResourceBroker(resources, owner) : null;
@@ -91,20 +112,8 @@ export function createCapabilityBroker(database: ShellDatabase, native: NativeCa
         }
         seen.add(correlation);
         let result: CapabilityReply;
-        if (request.type === 'relay.query') {
-          if (!queries || pending.size >= 2) result = queryFailure(request, 'relay query unavailable or busy')!;
-          else {
-            const controller = new AbortController();
-            pending.add(controller);
-            // Native expiry/background can precede the React Native lifecycle mirror.
-            const watcher = setInterval(() => { try { assertActive(token); } catch { controller.abort(); } }, 25);
-            try { result = { type: 'relay.query.result', id: request.id,
-              events: await queries.query(request.filters, controller.signal, () => assertActive(token)) }; }
-            catch { result = queryFailure(request, 'relay query failed')!; }
-            finally { clearInterval(watcher); pending.delete(controller); }
-          }
-        }
-        else if (domain === 'identity') result = identityResult(request, registration.user);
+        if (request.type === 'relay.query') result = await readQuery(request, queries, pending, () => assertActive(token));
+        else if (domain === 'identity') result = await readIdentity(request as IdentityRequest, identityData, registration, pending, () => assertActive(token));
         else {
           const binding = database.bindStorage({ user: registration.user, publisher: registration.publisher,
             appId: registration.appId, version: registration.version, instanceId: registration.instanceId,

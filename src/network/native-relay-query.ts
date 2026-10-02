@@ -3,7 +3,7 @@ import type { NativePublishedRelayPort } from '../napplets/native-published-rela
 import { parsePublishedRelayMessage } from '../napplets/published-relay-wire.ts';
 import { normalizeRelayUrl, MAX_RELAYS_PER_ROLE } from './relay-settings.ts';
 import { utf8Bytes } from '../storage/codec.ts';
-import { parseQueryFilters, QUERY_LIMITS, RelayQueryError, selectQueryEvents, verifyQueryEvent, type QueryFilter } from './relay-query-contract.ts';
+import { parseQueryFilters, QUERY_LIMITS, RelayQueryDataError, RelayQueryError, selectQueryEvents, verifyQueryEvent, type QueryFilter } from './relay-query-contract.ts';
 
 export interface RelayQueryService {
   query(filters: readonly QueryFilter[], signal: AbortSignal, assertActive: () => void): Promise<readonly Readonly<{ event: NostrEvent }>[]>;
@@ -58,7 +58,7 @@ export function createNativeRelayQuery(port: Pick<NativePublishedRelayPort, 'new
         if (signal.aborted) cancel();
         const work = async () => {
           const events = new Map<string, NostrEvent>();
-          let successes = 0, bytes = 0;
+          let successes = 0, bytes = 0, invalidData = false;
           for (const relay of relays) {
             active();
             if (cancelledSignal.aborted) throw new RelayQueryError();
@@ -74,7 +74,7 @@ export function createNativeRelayQuery(port: Pick<NativePublishedRelayPort, 'new
               const frames = await port.queryPublishedRelay(operation, relay, wire, subscription);
               active();
               if (cancelledSignal.aborted) throw new RelayQueryError();
-              batch = parseFrames(frames, subscription, filters);
+              try {batch = parseFrames(frames, subscription, filters);} catch {invalidData = true; throw new RelayQueryDataError();}
             } catch {
               active();
               if (cancelledSignal.aborted) throw new RelayQueryError();
@@ -83,13 +83,13 @@ export function createNativeRelayQuery(port: Pick<NativePublishedRelayPort, 'new
             for (const event of batch) {
               if (events.has(event.id)) continue;
               bytes += utf8Bytes(JSON.stringify(event));
-              if (events.size >= QUERY_LIMITS.events || bytes > QUERY_LIMITS.resultBytes) throw new RelayQueryError('relay query exceeded limits');
+              if (events.size >= QUERY_LIMITS.events || bytes > QUERY_LIMITS.resultBytes) throw new RelayQueryDataError();
               events.set(event.id, event);
             }
             successes++;
           }
           active();
-          if (successes === 0) throw new RelayQueryError();
+          if (successes === 0) {if (invalidData) throw new RelayQueryDataError(); throw new RelayQueryError();}
           return selectQueryEvents([...events.values()], filters);
         };
         return await Promise.race([work(), cancelled]);

@@ -24,3 +24,5 @@ button:disabled { cursor: wait; }
 #result { display: block; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 12rem; overflow-y: auto; font-family: ui-monospace, monospace; font-size: 14px; }
 #key-list { padding-left: 20px; overflow-wrap: anywhere; }
 footer { border-top: 1px solid color-mix(in srgb, var(--text) 20%, var(--bg)); margin-top: 24px; padding-top: 16px; }
+
+#profile-result, #public-result { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; }

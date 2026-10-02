@@ -35,7 +35,7 @@ internal class CapabilityConfiguration(raw: String, generation: String, allowPub
       "approval-lab" -> setOf("identity", "relay", "theme")
       "upload-lab", "upload-queue-lab" -> setOf("upload", "theme")
       "resource-lab" -> setOf("resource", "theme")
-      "feed-lab" -> setOf("relay", "theme")
+      "feed-lab" -> setOf("identity", "relay", "theme")
       "published" -> {
         require(allowPublished)
         require(PublishedCapabilityBinding.validDomains(granted))

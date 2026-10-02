@@ -1,3 +1,4 @@
+import {IdentityListSettings} from './IdentityListSettings';
 import { UploadSettings } from './UploadSettings';
 import { ResourceSettings } from './ResourceSettings';
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
@@ -113,8 +114,59 @@ function PublishedNappletSettings({ available, openPublished, publishedSessions,
     </>}
   </>;
 }
+function SavedIdentities({session, transition, format, canDelete, onDelete}: {
+  session: IdentitySession; transition: IdentityTransition; format(pubkey: string): string;
+  canDelete: boolean; onDelete(pubkey: string): void;
+}) {
+  return <>
+      <Text accessibilityRole="header" style={styles.title}>Saved identities</Text>
+      {session.vault.identities.map(identity => <View key={identity.pubkey} style={styles.identity}><Pressable accessibilityRole="button"
+        disabled={identity.pubkey === session.vault.selectedPubkey || identity.status !== 'active'}
+        accessibilityState={{ selected: identity.pubkey === session.vault.selectedPubkey, disabled: identity.pubkey === session.vault.selectedPubkey || identity.status !== 'active' }}
+        testID={`identity-select-${identity.pubkey}`} style={styles.identitySelect} onPress={() => transition.prepareSelect(identity.pubkey)}>
+        <Text style={styles.npub}>{format(identity.pubkey)}</Text>
+        <Text style={styles.detail}>{identity.pubkey === session.vault.selectedPubkey ? 'Selected' : identity.status === 'deleting' ? 'Deletion pending' : 'Use this identity'}</Text>
+      </Pressable>
+      {canDelete && identity.pubkey !== session.vault.selectedPubkey && (session.vault.pendingDeletion === null || session.vault.pendingDeletion === identity.pubkey) &&
+        <Action title={identity.status === 'deleting' ? 'Finish deletion' : 'Delete identity'} testID={`identity-delete-${identity.pubkey}`}
+          onPress={() => onDelete(identity.pubkey)} subdued />}
+      </View>)}
+  </>;
+}
+function SettingsHome({session, onBackup, onCloseBackup, onDelete, onImport, onSignedLab, openBundledTest, openStateLab, openPublished, publishedSessions, checkPublishedUpdate}: Omit<SettingsActions, 'closeSettings'> & {
+  session: IdentitySession; onBackup(): void; onCloseBackup(): void; onDelete(pubkey: string): void; onImport(): void; onSignedLab(): void;
+}) {
+  const {transition, formatNpub, runtime, actions, relaySettings, resourceSettings, uploadSettings, listAccess} = useIdentityOwner();
+  return <>
+      <Text selectable testID="settings-full-npub" style={styles.npub}>{formatNpub(session.vault.selectedPubkey)}</Text>
+      {actions && <IdentityBackup actions={actions} session={session} npub={formatNpub(session.vault.selectedPubkey)} reviewing={false}
+        onReview={onBackup} onClose={onCloseBackup} Action={Action} />}
+      <PublishedNappletSettings available={Boolean(runtime)} openPublished={openPublished} publishedSessions={publishedSessions} checkPublishedUpdate={checkPublishedUpdate} />
+      <SavedIdentities session={session} transition={transition} format={formatNpub} canDelete={Boolean(actions)}
+        onDelete={onDelete} />
+      <Action title="Import identity" testID="settings-import-identity" onPress={onImport} />
+      <IdentityListSettings service={listAccess ?? null} user={session.vault.selectedPubkey} />
+      <RelaySettings service={relaySettings} />
+      <ResourceSettings service={resourceSettings} />
+      <UploadSettings service={uploadSettings ?? null} />
+      {runtime && <>
+        <Text accessibilityRole="header" style={styles.title}>Signed host test</Text>
+        <Action title="Inspect signed test napplet" testID="settings-inspect-signed-test" onPress={onSignedLab} subdued />
+      </>}
+      <Text accessibilityRole="header" style={styles.title}>Bundled test napplets</Text>
+      <Action title="Open UX Lab" testID="settings-open-ux-lab" onPress={openBundledTest} subdued />
+      {runtime && <>
+        <Action title="Open Resource Lab" testID="settings-open-resource-lab" onPress={() => openStateLab('resource-lab')} subdued />
+        <Action title="Open Feed Lab" testID="settings-open-feed-lab" onPress={() => openStateLab('feed-lab')} subdued />
+        <Action title="Open Approval Lab" testID="settings-open-approval-lab" onPress={() => openStateLab('approval-lab')} subdued />
+        <Action title="Open State Lab" testID="settings-open-state-lab" onPress={() => openStateLab('state-lab')} subdued />
+        <Action title="Open State Lab Peer" testID="settings-open-state-lab-peer" onPress={() => openStateLab('state-lab-peer')} subdued />
+        <Action title="Open State Lab · other publisher" testID="settings-open-state-lab-other-publisher" onPress={() => openStateLab('state-lab-other-publisher')} subdued />
+      </>}
+  </>;
+}
 export function IdentitySettings({ openBundledTest, openStateLab, openPublished, publishedSessions, checkPublishedUpdate }: SettingsActions) {
-  const { transition, formatNpub, runtime, actions, relaySettings, resourceSettings, uploadSettings } = useIdentityOwner();
+  const { transition, formatNpub, actions } = useIdentityOwner();
   const state = useSyncExternalStore(transition.subscribe, transition.getSnapshot);
   const [importing, setImporting] = useState(false);
   const [deletion, setDeletion] = useState<DeletionReview | null>(null);
@@ -166,41 +218,11 @@ export function IdentitySettings({ openBundledTest, openStateLab, openPublished,
   return <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
     {state.failure && <Text testID="identity-change-error" accessibilityLiveRegion="polite" style={styles.detail}>{failureMessage(state.failure)}</Text>}
     {importing ? <ImportIdentity transition={transition} onClose={closeImport} /> : <>
-      <Text selectable testID="settings-full-npub" style={styles.npub}>{formatNpub(state.session.vault.selectedPubkey)}</Text>
-      {actions && <IdentityBackup actions={actions} session={state.session} npub={formatNpub(state.session.vault.selectedPubkey)} reviewing={false}
-        onReview={() => setBackupReview(true)} onClose={() => setBackupReview(false)} Action={Action} />}
-      <PublishedNappletSettings available={Boolean(runtime)} openPublished={openPublished} publishedSessions={publishedSessions} checkPublishedUpdate={checkPublishedUpdate} />
-      <Text accessibilityRole="header" style={styles.title}>Saved identities</Text>
-      {state.session.vault.identities.map(identity => <View key={identity.pubkey} style={styles.identity}><Pressable accessibilityRole="button"
-        disabled={identity.pubkey === state.session.vault.selectedPubkey || identity.status !== 'active'}
-        accessibilityState={{ selected: identity.pubkey === state.session.vault.selectedPubkey, disabled: identity.pubkey === state.session.vault.selectedPubkey || identity.status !== 'active' }}
-        testID={`identity-select-${identity.pubkey}`} style={styles.identitySelect} onPress={() => transition.prepareSelect(identity.pubkey)}>
-        <Text style={styles.npub}>{formatNpub(identity.pubkey)}</Text>
-        <Text style={styles.detail}>{identity.pubkey === state.session.vault.selectedPubkey ? 'Selected' : identity.status === 'deleting' ? 'Deletion pending' : 'Use this identity'}</Text>
-      </Pressable>
-      {actions && identity.pubkey !== state.session.vault.selectedPubkey && (state.session.vault.pendingDeletion === null || state.session.vault.pendingDeletion === identity.pubkey) &&
-        <Action title={identity.status === 'deleting' ? 'Finish deletion' : 'Delete identity'} testID={`identity-delete-${identity.pubkey}`}
-          onPress={() => setDeletion(Object.freeze({ pubkey: identity.pubkey, session: state.session }))} subdued />}
-      </View>)}
-      <Action title="Import identity" testID="settings-import-identity" onPress={() => setImporting(true)} />
-      <RelaySettings service={relaySettings} />
-      <ResourceSettings service={resourceSettings} />
-      <UploadSettings service={uploadSettings ?? null} />
-      {runtime && <>
-        <Text accessibilityRole="header" style={styles.title}>Signed host test</Text>
-        <Action title="Inspect signed test napplet" testID="settings-inspect-signed-test" onPress={() => setSignedLab(true)} subdued />
-      </>}
-      <Text accessibilityRole="header" style={styles.title}>Bundled test napplets</Text>
-      <Action title="Open UX Lab" testID="settings-open-ux-lab" onPress={openBundledTest} subdued />
-      {runtime && <>
-        <Action title="Open Resource Lab" testID="settings-open-resource-lab" onPress={() => openStateLab('resource-lab')} subdued />
-        <Action title="Open Feed Lab" testID="settings-open-feed-lab" onPress={() => openStateLab('feed-lab')} subdued />
-        <Action title="Open Approval Lab" testID="settings-open-approval-lab" onPress={() => openStateLab('approval-lab')} subdued />
-        <Action title="Open State Lab" testID="settings-open-state-lab" onPress={() => openStateLab('state-lab')} subdued />
-        <Action title="Open State Lab Peer" testID="settings-open-state-lab-peer" onPress={() => openStateLab('state-lab-peer')} subdued />
-        <Action title="Open State Lab · other publisher" testID="settings-open-state-lab-other-publisher" onPress={() => openStateLab('state-lab-other-publisher')} subdued />
-      </>}
+      <SettingsHome session={state.session} onBackup={() => setBackupReview(true)} onCloseBackup={() => setBackupReview(false)}
+        onDelete={pubkey => setDeletion(Object.freeze({pubkey, session: state.session}))} onImport={() => setImporting(true)} onSignedLab={() => setSignedLab(true)}
+        openBundledTest={openBundledTest} openStateLab={openStateLab} openPublished={openPublished} publishedSessions={publishedSessions} checkPublishedUpdate={checkPublishedUpdate} />
     </>}
+
   </ScrollView>;
 }
 const styles = StyleSheet.create({

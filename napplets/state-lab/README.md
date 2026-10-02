@@ -43,3 +43,11 @@ isolation, quotas and revocation still need Android and iOS integration tests.
 
 See [design](docs/design.md), the [source registry](../../docs/test-napplets.md), and
 the [selected owning protocol revisions](../../docs/capability-contract.md).
+
+
+Public identity controls now use genuine SDK reads. State Lab covers public profile,
+relay preferences, follows, separately approved mutes/bookmarks/pins/interests,
+accepted badges and explicit unsupported/deferred results. Feed Lab offers an
+explicit follows read without changing query routing. See the selected
+[public identity contract](../../docs/public-identity-data.md) and
+[native acceptance drivers](../../tests/native/identity-data/README.md).

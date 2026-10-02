@@ -9,6 +9,10 @@ export type RelayQueryRequest = Readonly<{ type: 'relay.query'; id: string; filt
 export class RelayQueryError extends Error {
   constructor(message = 'relay query failed') { super(message); this.name = 'RelayQueryError'; }
 }
+/** Returned frames failed authentication, correlation or bounds; this is not an outage. */
+export class RelayQueryDataError extends RelayQueryError {
+  constructor() {super('relay query failed'); this.name = 'RelayQueryDataError';}
+}
 const fail = (): never => { throw new RelayQueryError('invalid relay query'); };
 const hex64 = /^[0-9a-f]{64}$/;
 const integer = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;

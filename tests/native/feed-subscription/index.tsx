@@ -22,7 +22,7 @@ const stats={open:0,stop:0,frames:0,eose:0,background:0,foreground:0};
 let manager:ReturnType<typeof createRelaySubscriptions>|null=null;
 function FixtureHost({name,instance,active,ownerEpoch}:{name:string;instance:number;active:boolean;ownerEpoch:number}) {
   const [configuration]=useState(()=>({sessionId:'feed-stream-'+name+'-'+instance,epoch:ownerEpoch,user,publisher:'f'.repeat(64),appId:'feed-lab',
-    version:BUNDLED_FIXTURES['feed-lab'].aggregateHash,instanceId:'feed-stream-'+name+'-'+instance,fixture:'feed-lab',domains:['relay','theme']}));
+    version:BUNDLED_FIXTURES['feed-lab'].aggregateHash,instanceId:'feed-stream-'+name+'-'+instance,fixture:'feed-lab',domains:['identity','relay','theme']}));
   const receive=useRef<((event:Event)=>void)|null>(null);
   const [ready,setReady]=useState(false);
   useEffect(()=> {

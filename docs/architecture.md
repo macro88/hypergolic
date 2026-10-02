@@ -52,6 +52,11 @@ checks and nine diagnostic SDK/native fault cases on each platform. Switching
 retains loaded feeds; background cancels sockets and foreground refreshes bounded
 reads. Broader relay operations and full published compatibility remain open.
 
+The [public identity resolver](public-identity-data.md) uses native-captured ownership,
+signed bounded relay reads and a dedicated reverified SQLite cache. Separate trusted
+consent governs public mutes and categorized lists; Settings revocation also gates
+queued native delivery. Phase 2.5 selected acceptance is recorded in `docs/public-identity-data.md`; broader protected and physical MVP gates remain Phase 2.11.
+
 The shell enters through a native identity vault; Android protected entry and
 public identity continuity have native evidence, while iOS protected storage needs
 a physical iPhone. See the [identity checkpoint](identity-storage.md). The

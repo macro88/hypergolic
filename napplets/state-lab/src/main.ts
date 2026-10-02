@@ -4,6 +4,8 @@ import { connectTheme } from './theme';
 import './style.css';
 
 const controls = element<HTMLFieldSetElement>('controls');
+const publicControls = element<HTMLFieldSetElement>('public-controls');
+const profileControls = element<HTMLFieldSetElement>('profile-controls');
 const keyInput = element<HTMLInputElement>('key');
 const valueInput = element<HTMLTextAreaElement>('value');
 const scopeInput = element<HTMLSelectElement>('scope');
@@ -18,6 +20,14 @@ function acceptIdentity(value: string): void {
   publicKey = /^[0-9a-f]{64}$/.test(value) ? value : '';
   pending = false;
   controls.disabled = !publicKey;
+  profileControls.disabled = !publicKey;
+  publicControls.disabled = !publicKey;
+  element('public-status').textContent = 'No public data request yet.';
+  element('public-result').textContent = '';
+  element('public-result').dataset.state = 'idle';
+  element('profile-status').textContent = 'No profile request yet.';
+  element('profile-result').textContent = '';
+  element('profile-result').dataset.state = 'idle';
   element('identity').textContent = publicKey;
   element('identity-status').textContent = publicKey ? 'Identity connected' : 'No identity selected';
   element('result').textContent = '';
@@ -33,7 +43,7 @@ async function connectIdentity(): Promise<void> {
       changed = true;
       acceptIdentity(value);
     });
-    window.addEventListener('pagehide', () => { disposed = true; identityEpoch++; controls.disabled = true; sub.close(); });
+    window.addEventListener('pagehide', () => { disposed = true; identityEpoch++; controls.disabled = true; profileControls.disabled = true; publicControls.disabled = true; sub.close(); });
     const initial = await identity.getPublicKey();
     if (!changed && !disposed) acceptIdentity(initial);
   } catch {
@@ -94,3 +104,52 @@ document.title = __LAB_TITLE__;
 element('lab').dataset.ready = 'true';
 void connectIdentity();
 void connectTheme();
+
+async function readProfile(): Promise<void> {
+  if (!publicKey || disposed || profileControls.disabled) return;
+  const epoch = identityEpoch;
+  const current = (): boolean => !disposed && epoch === identityEpoch;
+  profileControls.disabled = true;
+  element('profile-status').textContent = 'Reading public profile…';
+  try {
+    const profile = await identity.getProfile();
+    if (!current()) return;
+    element('profile-result').dataset.state = profile === null ? 'missing' : 'present';
+    element('profile-result').textContent = JSON.stringify(profile);
+    element('profile-status').textContent = profile === null ? 'No public profile found.' : 'Profile read complete.';
+  } catch (error) {
+    if (!current()) return;
+    element('profile-result').dataset.state = 'error';
+    element('profile-result').textContent = '';
+    element('profile-status').textContent = 'Profile read failed: ' + (error instanceof Error ? error.message.slice(0, 240) : 'identity unavailable');
+  } finally { if (current()) profileControls.disabled = !publicKey; }
+}
+element('profile-read').addEventListener('click', () => { void readProfile(); });
+
+const publicReads = {
+  relays: () => identity.getRelays(), follows: () => identity.getFollows(),
+  mutes: () => identity.getMutes(), badges: () => identity.getBadges(),
+  blocked: () => identity.getBlocked(), zaps: () => identity.getZaps(),
+  list: () => identity.getList(element<HTMLSelectElement>('list-type').value),
+};
+async function readPublic(kind: keyof typeof publicReads): Promise<void> {
+  if (!publicKey || disposed || publicControls.disabled) return;
+  const epoch = identityEpoch, current = () => !disposed && epoch === identityEpoch;
+  publicControls.disabled = true;
+  element('public-status').textContent = 'Reading public ' + kind + '…';
+  element('public-result').textContent = '';
+  try {
+    const value = await publicReads[kind]();
+    if (!current()) return;
+    element('public-result').dataset.state = 'present';
+    element('public-result').textContent = JSON.stringify(value);
+    element('public-status').textContent = 'Public ' + kind + ' read complete.';
+  } catch (error) {
+    if (!current()) return;
+    element('public-result').dataset.state = 'error';
+    element('public-status').textContent = 'Public ' + kind + ' read failed: ' + (error instanceof Error ? error.message.slice(0, 240) : 'identity unavailable');
+  } finally {if (current()) publicControls.disabled = !publicKey;}
+}
+for (const kind of Object.keys(publicReads) as (keyof typeof publicReads)[]) {
+  element('public-' + kind).addEventListener('click', () => {void readPublic(kind);});
+}

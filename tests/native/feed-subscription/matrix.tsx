@@ -16,7 +16,7 @@ type HostEvent=NativeCapabilityEvent|{type:'ready'|'error';sessionId:string};
 const Host=requireNativeView<ViewProps&{configuration:string;active:boolean;onHostEvent:(event:NativeSyntheticEvent<HostEvent>)=>void}>('HypergolicNappletHost');
 export const STREAM_CASES=['signed-live','duplicate','bad-signature','wrong-filter','foreign-sub','frame-flood','oversized-frame','view-revoke','paused-owner-revoke'] as const;
 type Scenario=typeof STREAM_CASES[number];
-const config={sessionId:'stream-matrix',instanceId:'stream-matrix',epoch:0,user:'c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5',publisher:'f'.repeat(64),appId:'feed-lab',version:BUNDLED_FIXTURES['feed-lab'].aggregateHash,fixture:'feed-lab',domains:['relay','theme']};
+const config={sessionId:'stream-matrix',instanceId:'stream-matrix',epoch:0,user:'c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5',publisher:'f'.repeat(64),appId:'feed-lab',version:BUNDLED_FIXTURES['feed-lab'].aggregateHash,fixture:'feed-lab',domains:['identity','relay','theme']};
 function frames(scenario:Scenario,sub:string):string[] {
   const event=(value:unknown,recipient=sub)=>JSON.stringify(['EVENT',recipient,value]);
   const eose=JSON.stringify(['EOSE',sub]);

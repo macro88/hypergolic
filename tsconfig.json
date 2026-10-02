@@ -11,7 +11,8 @@
     "tests/native/published-update-fixtures/**/*.tsx",
     "tests/native/feed-query/**/*.tsx",
     "tests/native/feed-subscription/**/*.tsx",
-    "tests/native/upload/**/*.tsx"
+    "tests/native/upload/**/*.tsx",
+    "tests/native/identity-data/**/*.tsx"
   ],
   "exclude": [
     "src/**/*.test.ts"

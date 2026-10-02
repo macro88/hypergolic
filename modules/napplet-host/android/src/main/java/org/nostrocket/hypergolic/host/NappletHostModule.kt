@@ -203,6 +203,7 @@ class NappletHostModule : Module() {
     Function("closeSubscription") { token: String -> RelaySubscriptionTransport.close(token) }
     Function("takeCapability") { token: String -> CapabilityTransport.leases.take(token) }
     Function("isCapabilityActive") { token: String -> CapabilityTransport.leases.isActive(token) }
+    Function("replaceIdentityListAccess") { raw: String -> IdentityListAccess.replace(raw) }
     Function("finishCapability") { token: String, response: String? -> CapabilityTransport.finish(token, response) }
     View(NappletHostView::class) {
       Events("onHostEvent")

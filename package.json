@@ -39,7 +39,8 @@
     "test:resources": "node --experimental-strip-types --test tests/network/resource*.test.ts",
     "test:uploads": "node --experimental-strip-types --test tests/network/upload*.test.ts",
     "test:uploads:native": "python3 tests/native/upload-authority/run.py",
-    "test:uploads:tls": "python3 tests/native/upload-authority/tls_run.py"
+    "test:uploads:tls": "python3 tests/native/upload-authority/tls_run.py",
+    "test:identity": "node --experimental-strip-types --test tests/network/identity*.test.ts"
   },
   "dependencies": {
     "applesauce-core": "6.2.0",

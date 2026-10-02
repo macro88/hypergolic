@@ -98,3 +98,9 @@ export function identityResult(request: CapabilityRequest, user: string): Capabi
     default: return invalid();
   }
 }
+
+/** Failed identity reads keep their required empty primary fields; public key has no error result. */
+export function identityFailure(request: CapabilityRequest, error: string): CapabilityReply {
+  if (request.type === 'identity.getPublicKey' || !request.type.startsWith('identity.')) return invalid();
+  return Object.freeze({ ...identityResult(request, ''), error });
+}

@@ -12,7 +12,7 @@ example, not a required product napplet.
 | [UX Lab](../napplets/ux-lab/README.md) | Standalone artifact and browser checks implemented | Temporary input/counter, horizontal and vertical content, instance lifecycle, optional colors |
 | [State Lab](../napplets/state-lab/README.md) | Embedded; native storage/identity journeys recorded on Android and iOS | Unsaved/saved state, close/reopen and user + publisher + stable napplet isolation |
 | [Approval Lab](../napplets/approval-lab/README.md) | Standalone unsigned artifact; native integration remains open | Explicit approve/deny, background deferral, cancellation and independently verified results |
-| [Feed Lab](../napplets/feed-lab/README.md) | Embedded query fixture; five isolated native query/lifecycle checks pass on Android API 36 and iOS Simulator | Exact signed event, empty EOSE, explicit failure, close/reopen and cold restart; eight live-stream lifecycle checks and nine diagnostic stream fault cases pass on both native hosts; public identity data/outbox remain planned |
+| [Feed Lab](../napplets/feed-lab/README.md) | Embedded query fixture; five isolated native query/lifecycle checks pass on Android API 36 and iOS Simulator | Exact signed event, empty EOSE, explicit failure, close/reopen and cold restart; eight live-stream lifecycle checks and nine diagnostic stream fault cases pass on both native hosts; explicit public follows reads pass on both native hosts; outbox remains planned |
 | [Resource Lab](../napplets/resource-lab/README.md) | Embedded genuine SDK fixture; selected native journeys and controlled lifetime matrix under verification | Complete image/audio/video Blobs, schemes/bulk/cache/settings, cancellation and revoked private handles; external opening remains Phase 2.6 |
 | [Upload Lab](../napplets/upload-lab/README.md) | Embedded genuine SDK fixture and locally supplied signed manifest; selected native upload/picker/recovery and normal signed-admission journeys pass on both hosts | Per-file review, exact prepared/original bytes, original SDK receipts, faults/queues/reconciliation and persisted grant/cache; selected acceptance uses the owner-approved patched-tooling exception |
 | Signed host QA fixture | Fixed signed event and HTML embedded locally; Android Settings and isolated iOS native QA journeys pass | Published-artifact verification, explicit review, one-use native transfer and host rendering without relay or publisher deployment |
@@ -242,3 +242,15 @@ them. `stage-lab.py` explicitly rebuilds and repins the unsigned fixtures;
 validates staged bytes and never silently rebuilds napplet sources. Local signed
 admission proves normal-shell integration, not public release or public-provider
 acceptance. See [upload access](upload-access.md).
+
+
+### Public identity selected acceptance
+
+State Lab has genuine SDK profile/relay/follows/mutes/global-list/accepted-badge
+controls with literal untrusted output and owner guards. The selected native
+matrix passes22 cases per host, including exact independently verified sources,
+separate list review, durable grant/revoke and native queued-delivery denial.
+Locally signed State/Feed fixtures additionally pass14 normal admission/cache/user
+checks each. Feed's explicit follows read never changes relay routing. These signed
+artifacts are supplied locally; no external fixture publication is claimed. See
+[public identity](public-identity-data.md) and its [native drivers](../tests/native/identity-data/README.md).

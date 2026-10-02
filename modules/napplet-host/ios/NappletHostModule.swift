@@ -107,6 +107,7 @@ public final class NappletHostModule: Module {
     Function("closeSubscription") { (token: String) in RelaySubscriptionTransport.shared.close(token) }
     Function("takeCapability") { (token: String) -> String? in CapabilityTransport.leases.take(token) }
     Function("isCapabilityActive") { (token: String) -> Bool in CapabilityTransport.leases.isActive(token) }
+    Function("replaceIdentityListAccess") { (raw: String) throws in try IdentityListAccess.shared.replaceJSON(raw) }
     Function("finishCapability") { (token: String, response: String?) in CapabilityTransport.finish(token, response: response) }
     Function("takeApproval") { (token: String) -> String? in ApprovalTransport.take(token) }
     Function("isApprovalLive") { (token: String) -> Bool in ApprovalTransport.isLive(token) }

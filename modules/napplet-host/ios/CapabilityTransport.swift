@@ -53,7 +53,7 @@ struct CapabilityConfiguration {
     case "approval-lab": expected = ["identity", "relay", "theme"]
     case "upload-lab", "upload-queue-lab": expected = ["upload", "theme"]
     case "resource-lab": expected = ["resource", "theme"]
-    case "feed-lab": expected = ["relay", "theme"]
+    case "feed-lab": expected = ["identity", "relay", "theme"]
     case "published":
       expected = Set(domains)
       guard domains.count <= 6,
@@ -107,13 +107,16 @@ enum CapabilityTransport {
   }
   private struct Pending {
     let generation: String
+    let access: IdentityListAccess.Ticket?
     let reply: @MainActor @Sendable (String?) -> Void
   }
   private static var pending: [String: Pending] = [:]
   static func admit(_ generation: String, sequence: UInt64, snapshot: String,
                     reply: @escaping @MainActor @Sendable (String?) -> Void) -> String? {
     guard let token = leases.admit(generation, sequence: sequence, snapshot: snapshot) else { return nil }
-    pending[token] = Pending(generation: generation, reply: reply)
+    let access: IdentityListAccess.Ticket?
+    do {access = try IdentityListAccess.shared.captureJSON(snapshot)} catch {_ = leases.finish(token); return nil}
+    pending[token] = Pending(generation: generation, access: access, reply: reply)
     DispatchQueue.main.asyncAfter(deadline: .now() + 25) {
       // ContinuousClock in the registry, not this cleanup timer, controls expiry during sleep.
       if !leases.isActive(token) { pending.removeValue(forKey: token)?.reply(nil) }
@@ -125,7 +128,7 @@ enum CapabilityTransport {
     Task { @MainActor in
       let admitted = leases.finish(token)
       guard let request = pending.removeValue(forKey: token) else { return }
-      request.reply(admitted && leases.sessionActive(request.generation) ? bounded : nil)
+      request.reply(admitted && leases.sessionActive(request.generation) && IdentityListAccess.shared.permits(request.access) ? bounded : nil)
     }
   }
   static func revoke(_ generation: String) {

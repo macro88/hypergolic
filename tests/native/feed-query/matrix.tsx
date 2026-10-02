@@ -16,7 +16,7 @@ const Host = requireNativeView<ViewProps & {configuration:string;active:boolean;
 export const CASES = ['signed', 'empty', 'bad-signature', 'wrong-filter', 'missing-eose', 'event-flood', 'frame-flood', 'timeout', 'close', 'owner-epoch'] as const;
 const config = Object.freeze({sessionId:'feed-query-matrix',epoch:0,
   user:'c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5',publisher:'f'.repeat(64),
-  appId:'feed-lab',version:BUNDLED_FIXTURES['feed-lab'].aggregateHash,instanceId:'feed-query-matrix',fixture:'feed-lab',domains:['relay','theme']});
+  appId:'feed-lab',version:BUNDLED_FIXTURES['feed-lab'].aggregateHash,instanceId:'feed-query-matrix',fixture:'feed-lab',domains:['identity','relay','theme']});
 /** Diagnostic frames only; SDK, Kehto, native leases, production broker and validators remain real. */
 export function QueryMatrix() {
   const [index,setIndex]=useState(0),[prepared,setPrepared]=useState(false),[visible,setVisible]=useState(true),[receipt,setReceipt]=useState('Waiting for SDK query');

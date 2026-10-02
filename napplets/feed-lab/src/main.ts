@@ -1,4 +1,4 @@
-import { relay, type NostrFilter } from '@napplet/sdk';
+import { identity, relay, type NostrFilter } from '@napplet/sdk';
 import './style.css';
 function element<T extends HTMLElement>(id: string): T {
   const value = document.getElementById(id);
@@ -79,3 +79,19 @@ empty.addEventListener('click', () => { filters.value = '[{"kinds":[1],"limit":0
 window.addEventListener('pagehide', () => { stopLive(); disposed = true; controls(); }, { once: true });
 controls();
 ready = true; lab.dataset.ready = 'true'; status.textContent = 'Ready to query.'; controls();
+
+const followsButton = element<HTMLButtonElement>('follows');
+const followsResult = element('follows-result'), followsStatus = element('follows-status');
+let followsPending = false, identityEpoch = 0;
+function clearFollows(): void {identityEpoch++; followsPending = false; followsButton.disabled = disposed; followsResult.textContent = ''; followsStatus.textContent = 'No follows request yet.';}
+try {const changes = identity.onChanged(clearFollows); window.addEventListener('pagehide', () => {identityEpoch++; followsButton.disabled = true; changes.close();}, {once: true});} catch { /* Query and stream controls still work when this optional domain is unavailable. */ }
+followsButton.addEventListener('click', () => {
+  if (disposed || followsPending) return;
+  const epoch = identityEpoch, current = () => !disposed && epoch === identityEpoch;
+  followsPending = true; followsButton.disabled = true; followsStatus.textContent = 'Reading public follows…';
+  void identity.getFollows().then(pubkeys => {
+    if (!current()) return;
+    followsResult.textContent = JSON.stringify(pubkeys); followsStatus.textContent = 'Follows read complete.';
+  }).catch(error => {if (current()) {followsResult.textContent = ''; followsStatus.textContent = 'Follows read failed: ' + (error instanceof Error ? error.message.slice(0, 240) : 'identity unavailable');}})
+    .finally(() => {if (current()) {followsPending = false; followsButton.disabled = false;}});
+});

@@ -15,6 +15,12 @@
     <p id="identity-status" data-testid="identity-status" role="status">Connecting…</p>
     <output id="identity" data-testid="identity"></output>
   </header>
+  <fieldset id="profile-controls" disabled>
+    <legend>Public profile</legend>
+    <button id="profile-read" data-testid="profile-read" type="button">Read profile</button>
+    <p id="profile-status" data-testid="profile-status" role="status">No profile request yet.</p>
+    <pre id="profile-result" data-testid="profile-result" data-state="idle"></pre>
+  </fieldset>
   <fieldset id="controls" disabled>
     <legend>Saved strings</legend>
     <label for="scope">Save in</label>
@@ -37,6 +43,23 @@
     <ul id="key-list" data-testid="key-list" aria-label="Saved keys"></ul>
     <p class="meta">Requests <output id="requests" data-testid="requests">0</output></p>
   </section>
+  <fieldset id="public-controls" disabled>
+    <legend>Public identity data</legend>
+    <p>Mutes and categorized lists require separate shell approval.</p>
+    <div class="actions">
+      <button id="public-relays" type="button">Read relay preferences</button>
+      <button id="public-follows" type="button">Read follows</button>
+      <button id="public-mutes" type="button">Read mutes</button>
+      <button id="public-badges" type="button">Read accepted badges</button>
+      <button id="public-blocked" type="button">Check blocks support</button>
+      <button id="public-zaps" type="button">Check zaps support</button>
+    </div>
+    <label for="list-type">Global list category</label>
+    <select id="list-type"><option value="bookmarks">Bookmarks</option><option value="pins">Pins</option><option value="interests">Interests</option><option value="unsupported">Unsupported category</option></select>
+    <button id="public-list" type="button">Read selected list</button>
+    <p id="public-status" role="status">No public data request yet.</p>
+    <pre id="public-result" data-state="idle"></pre>
+  </fieldset>
   <footer><p>Storage is separated by identity and napplet. Nothing here is published.</p><p class="meta" id="theme-status" data-testid="theme-status">Local palette</p></footer>
 </main>
 <script type="module" src="/src/main.ts"></script>

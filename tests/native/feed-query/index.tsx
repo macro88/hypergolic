@@ -17,7 +17,7 @@ const Host = requireNativeView<ViewProps & {configuration:string;active:boolean;
 // Public scalar-2 public key only. No identity store, signer, publication or secret exists in this fixture.
 const configuration = Object.freeze({ sessionId:'feed-query-native',epoch:0,
   user:'c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5', publisher:'f'.repeat(64),
-  appId:'feed-lab',version:BUNDLED_FIXTURES['feed-lab'].aggregateHash,instanceId:'feed-query-native',fixture:'feed-lab',domains:['relay','theme'] });
+  appId:'feed-lab',version:BUNDLED_FIXTURES['feed-lab'].aggregateHash,instanceId:'feed-query-native',fixture:'feed-lab',domains:['identity','relay','theme'] });
 function Fixture() {
   const [visible,setVisible]=useState(true),[generation,setGeneration]=useState(0),[prepared,setPrepared]=useState(false),[status,setStatus]=useState('Opening query fixture…');
   const receiver=useRef<((event:Event)=>void)|null>(null);

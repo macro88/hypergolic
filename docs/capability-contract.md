@@ -59,7 +59,10 @@ Other recognized read requests return supported values or the specified empty
 defaults: getRelays→relays map, getProfile→profile|null, getFollows/getMutes/
 getBlocked→pubkeys[], getList(listType)→entries[], getZaps→zaps[], getBadges→badges[].
 Do not label bootstrap relay settings as discovered NIP-65 metadata. Unsupported
-social/profile reads stay empty; no private signer enters the WebView.
+reads return their canonical empty field plus an explicit error. The selected
+[public identity profile](public-identity-data.md) implements signed public profile,
+relay preferences, follows, mutes, three list categories and accepted badges.
+Sensitive lists need separate remembered consent; no private signer enters the WebView.
 
 | Storage request | Request fields besides type | Success result fields after type/id |
 | --- | --- | --- |

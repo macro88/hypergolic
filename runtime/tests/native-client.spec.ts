@@ -156,3 +156,13 @@ test('Approval Lab SDK publication remains pending past the ordinary native 27-s
   await page.clock.fastForward(28_000);
   await expect(ui.locator('#status')).toHaveText('Request 1 captured and sent to the shell.');
 });
+
+for (const mode of ['deny', 'wrong-id']) test(`denied identity profile read cannot become a successful missing profile (${mode})`, async ({page}) => {
+  await open(page);
+  await page.evaluate(mode => { (window as unknown as {nativeTest: {mode: string}}).nativeTest.mode = mode; }, mode);
+  const ui = page.frameLocator('#napplet');
+  await ui.locator('#profile-read').click();
+  await expect(ui.locator('#profile-status')).toHaveText('Profile read failed: identity request denied');
+  await expect(ui.locator('#profile-result')).toHaveAttribute('data-state', 'error');
+  await expect(ui.locator('#profile-result')).toHaveText('');
+});

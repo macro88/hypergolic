@@ -1,3 +1,4 @@
+import type { IdentityDataPort } from '../identity/identity-service.ts';
 import type { UploadService } from '../uploads/upload-service.ts';
 import type { ResourceHost } from '../resources/resource-broker.ts';
 import {createRelaySubscriptionBroker,type NativeRelaySubscriptionPort} from './relay-subscription-broker.ts';
@@ -35,7 +36,7 @@ export interface RuntimeOwner {
 
 function capabilityReceiver(database: ShellDatabase, native: RuntimeNativePort,
   approvals: Readonly<{ service: ApprovalService; destinations: () => readonly string[] }> | undefined,
-  sessionId: string, configuration: Omit<NativeRegistration, 'generation'>, assertActive: () => void, queries?: RelayQueryService, subscriptions?: ReturnType<typeof createRelaySubscriptions>, resources?: ResourceHost, uploads?: UploadService) {
+  sessionId: string, configuration: Omit<NativeRegistration, 'generation'>, assertActive: () => void, queries?: RelayQueryService, subscriptions?: ReturnType<typeof createRelaySubscriptions>, resources?: ResourceHost, uploads?: UploadService, identityData?: IdentityDataPort) {
   let generation: string | null = null;
   let broker: ReturnType<typeof createCapabilityBroker> | null = null;
   let streams:ReturnType<typeof createRelaySubscriptionBroker>|null=null;
@@ -51,7 +52,7 @@ function capabilityReceiver(database: ShellDatabase, native: RuntimeNativePort,
           generation = event.generation;
           const owner={registration:{...configuration,generation},assertActive};
           if(configuration.domains.includes('relay')&&native.subscriptions&&subscriptions)streams=createRelaySubscriptionBroker(native.subscriptions,subscriptions,owner);
-          broker = createCapabilityBroker(database, native, owner, queries, request=>streams?.close(request), resources);
+          broker = createCapabilityBroker(database, native, owner, queries, request=>streams?.close(request), resources, identityData);
         }
         if (event.generation !== generation) return;
         if (event.lane === 'upload') {
@@ -69,7 +70,7 @@ function capabilityReceiver(database: ShellDatabase, native: RuntimeNativePort,
 export function createRuntimeOwner(database: ShellDatabase,
   identity: Pick<IdentityTransition, 'getSnapshot' | 'sessionAuthority'>, native: RuntimeNativePort,
   approvals?: Readonly<{ service: ApprovalService; destinations: () => readonly string[] }>,
-  published?: Omit<PublishedSessionDependencies, 'identity' | 'database' | 'newInstanceId'>, queries?: RelayQueryService, subscriptions?: ReturnType<typeof createRelaySubscriptions>, resources?: ResourceHost, uploads?: UploadService): RuntimeOwner {
+  published?: Omit<PublishedSessionDependencies, 'identity' | 'database' | 'newInstanceId'>, queries?: RelayQueryService, subscriptions?: ReturnType<typeof createRelaySubscriptions>, resources?: ResourceHost, uploads?: UploadService, identityData?: IdentityDataPort): RuntimeOwner {
   const coordinator = published ? createPublishedSessionCoordinator({
     ...published, identity, database, newInstanceId: () => native.newInstanceId(),
   }) : null;
@@ -91,7 +92,7 @@ export function createRuntimeOwner(database: ShellDatabase,
       ready.assertActive();
       exactSession(selected);
     };
-    const receiver = capabilityReceiver(database, native, approvals, selected.id, configuration, assertActive, queries, subscriptions, resources, uploads);
+    const receiver = capabilityReceiver(database, native, approvals, selected.id, configuration, assertActive, queries, subscriptions, resources, uploads, identityData);
     const binding: PublishedRuntimeBinding = Object.freeze({
       publishedArtifact: ready.hostInput,
       assertApproval(origin: ApprovalOrigin): void {
@@ -199,7 +200,7 @@ export function createRuntimeOwner(database: ShellDatabase,
           current.version !== descriptor.version || current.source !== descriptor.source || current.title !== descriptor.title) throw new ShellStorageError('REVOKED');
     };
     assertActive();
-    const receiver = capabilityReceiver(database, native, approvals, descriptor.id, configuration, assertActive, queries, subscriptions, resources, uploads);
+    const receiver = capabilityReceiver(database, native, approvals, descriptor.id, configuration, assertActive, queries, subscriptions, resources, uploads, identityData);
     return Object.freeze({ configuration: JSON.stringify(configuration),
       revoke(): void { revoked = true; receiver.revoke(); approvals?.service.close(descriptor.id); uploads?.close(descriptor.id); },
       receive: receiver.receive,

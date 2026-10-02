@@ -55,3 +55,13 @@ test('live UI observes only a captured-parent terminal response and restores con
   await page.evaluate(()=>{const target=(document.querySelector('#fixture') as HTMLIFrameElement).contentWindow!;target.postMessage({type:'relay.closed',reason:'native owner revoked'},'*');});
   await expect(frame.locator('#stream-status')).toHaveText('Live feed closed: native owner revoked');await expect(frame.getByRole('button',{name:'Start live feed'})).toBeEnabled();
 });
+
+test('optional follows is an explicit SDK read, makes no relay request and cannot repaint after account change',async({page})=>{
+ await page.setContent('<iframe id="fixture" sandbox="allow-scripts" style="width:390px;height:844px"></iframe>');
+ const mock=`<script>window.proof={calls:0,queries:0};window.napplet={identity:{getFollows:()=>{window.proof.calls++;return new Promise(resolve=>window.proof.resolve=resolve);},onChanged:callback=>{window.proof.change=callback;return {close:()=>{}};}},relay:{query:()=>{window.proof.queries++;return Promise.resolve([]);}}};</script>`;
+ await page.locator('#fixture').evaluate((node,content)=>(node as HTMLIFrameElement).srcdoc=content,html.replace('<head>','<head>'+mock));
+ const frame=page.frameLocator('#fixture');await expect(frame.getByTestId('lab')).toHaveAttribute('data-ready','true');await frame.locator('#follows').click();
+ await frame.locator('body').evaluate(()=>{const proof=(window as unknown as Window & {proof:{calls:number;queries:number;change():void;resolve(value:string[]):void}}).proof;proof.change();proof.resolve(['old user']);});
+ await expect(frame.locator('#follows-result')).toHaveText('');await expect(frame.locator('#follows-status')).toHaveText('No follows request yet.');
+ expect(await frame.locator('body').evaluate(()=>{const proof=(window as unknown as Window & {proof:{calls:number;queries:number}}).proof;return [proof.calls,proof.queries];})).toEqual([1,0]);
+});

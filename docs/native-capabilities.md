@@ -73,7 +73,7 @@ but cannot produce a stale success response. Each request binding is then releas
 ## Supported broker operations
 
 The pinned [owning capability contract](capability-contract.md) governs exact fields.
-All nine identity reads return the selected public key or specified empty defaults;
+At the original admission checkpoint, all nine identity reads returned the selected public key or specified empty defaults;
 they never access a signer or the database. Storage get/set/remove/keys route to the
 native-bound composite namespace. Missing values remain null, empty strings remain
 empty, failures use the canonical result/error shape, and write success follows
@@ -188,3 +188,44 @@ with a public disposable identity under compile-gated local TLS. Physical iOS
 protection/signing, ordinary workspace identity-switch parity and public-provider
 acceptance remain Phase2.11 gates. CAP-05 is accepted for this declared profile under the owner-approved exception
 for the still-visible patched tooling advisory.
+
+## Public profile tracer — 2 October 2026
+
+Phase2.5 Plan01 connects genuine State Lab `identity.getProfile()` to a captured
+native identity, verified signed kind0 projection and a dedicated durable SQLite
+source cache. Five-minute recent cache avoids a query; older validated data can
+be returned after a bounded refresh failure, without a freshness wire extension.
+No-cache transport failure is an error. Native denial can no longer become a
+successful missing profile. Metadata URLs stay literal data.
+
+Both isolated native Release products pass nine source/product-linked SDK checks,
+including actual public WSS, cold cache, controlled offline/empty/failure cases,
+view closure, trusted identity-epoch revocation with the view open and tampered
+native disk signatures. Identity19, capability55, State Lab34 and runtime162 browser
+regressions pass. [Plan01](../.planning/phases/02.5-public-identity-data/02.5-01-SUMMARY.md)
+records exact products, scope and retained failures. Lists/permissions/badges,
+normal signed admission and final quality remain open; this is not CAP-06 or
+physical/protected identity acceptance.
+
+
+## Public identity selected acceptance — 2 October 2026
+
+All three Phase2.5 plans are complete for the [selected public profile](public-identity-data.md).
+The final list/permission/badge matrix passes22 actual SDK/native checks on each
+host, including queued revoke/regrant denial and background with an observed
+pending query. Normal signed State/Feed loading passes14 on each host through
+IdentityShell/Settings, first-open domain review, separate remembered list consent,
+cold native SQLite cache, Settings revoke and confirmed public-only transitions.
+Each signed journey independently compares nine original SDK values. The new user
+separately approves domain access; no original user's permission or source is reused.
+
+Android build04 and iOS build05 share all application/runtime/HTML bytes. Only the
+iOS XCTest selector/scroll helper changed between their seals. The list matrix's
+production bytes also match; later QA driver-only changes are recorded explicitly.
+Historical profile evidence includes actual WSS; signed admission/list matrices
+use labelled local signed artifacts and diagnostic relay frames/clocks/destinations.
+Normal protected identity switching, physical devices and full published MVP parity
+remain Phase2.11 gates. Both ordinary exports/Release builds and regressions pass.
+Full numeric quality is ReactDoctor100/aislop99 with only the approved locked Forge
+exception: the normal root audit stays red and the other eight audits are clean.
+See [verification](../.planning/phases/02.5-public-identity-data/02.5-VERIFICATION.md).

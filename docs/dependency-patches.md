@@ -63,3 +63,13 @@ changes patch encoding/hash only; the installed RSA source hash remains exactly
 unchanged. Frozen installation and all58 quality/API regressions pass afterward.
 Final build29 repeats packaging with the normalized lockfile; its exact products
 are compared to the already tested build27 products.
+
+
+Phase2.5 recheck on2October2026: registry latest remains1.4.0, the advisory has no
+patched official release, and PR1152 remains open/unmerged at the same selected
+commit. The complete new report scores ReactDoctor100/aislop99, with zero warnings
+and only the same Forge diagnostic. The better score reflects the current clean
+source inventory; it is not suppression or a new exception. All58 verifier/installed
+patch regressions pass. Eight audits are clean; the root audit still reports only
+GHSA-86w9-cpqp-85rv. The fresh separate review requires the actual99 score, complete
+coverage and exact unchanged patch/consumer hashes, and rejects any extra finding.
