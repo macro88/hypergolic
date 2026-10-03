@@ -195,7 +195,8 @@ test('request parser rejects getters, forged result types, extra fields and non-
     { type: 'storage.get', id: 'x', key: 'x', get user() { throw new Error('getter must not execute'); } },
     { type: 'identity.getPublicKey', id: 'x', publisher: hex(9) }]) assert.throws(() => parseCapabilityRequest(request));
   assert.throws(() => decodeNativeRegistration(registration({ domains: ['identity', 'identity'] })));
-  assert.throws(() => decodeNativeRegistration(registration({ domains: ['inc'] })));
+  assert.deepEqual(decodeNativeRegistration(registration({ domains: ['intent','inc'] })).domains, ['inc','intent']);
+  assert.throws(() => decodeNativeRegistration(registration({ domains: ['webrtc'] })));
   assert.deepEqual(decodeNativeRegistration(registration({ domains: ['relay'] })).domains, ['relay']);
   assert.throws(() => parseCapabilityRequest({ type: 'relay.publish', id: 'approval-only', event: {} }));
 });

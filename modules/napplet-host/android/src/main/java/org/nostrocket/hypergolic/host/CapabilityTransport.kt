@@ -32,12 +32,14 @@ internal object CapabilityTransport {
     }
   }
   fun foreground(value: Boolean) {
+    RoutingTransport.foreground(value)
     LinkTransport.foreground(value)
     val revoked = leases.setForeground(value)
     main.post { for (token in revoked) pending.remove(token)?.reply?.invoke(null) }
   }
   fun revoke(generation: String) {
     // Revoke before dispatching callbacks, navigating or dismantling a renderer.
+    RoutingTransport.revoke(generation)
     leases.revoke(generation)
     ResourceHttpsRequestOwner.INSTANCE.revokeGeneration(generation)
     RelaySubscriptionTransport.revoke(generation)

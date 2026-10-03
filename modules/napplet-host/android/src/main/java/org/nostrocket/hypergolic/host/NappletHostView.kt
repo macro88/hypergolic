@@ -152,6 +152,14 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
             return@addWebMessageListener
           }
           if (data.optString("sessionId") != generation) return@addWebMessageListener
+          if (data.optString("type") == "routing-ack") {
+            if (data.keys().asSequence().toSet() != setOf("type", "sessionId", "sequence", "delivery")) return@addWebMessageListener
+            val seq = data.opt("sequence"); val delivery = data.opt("delivery")
+            if ((seq !is Int && seq !is Long) || (delivery !is Int && delivery !is Long)) return@addWebMessageListener
+            if ((delivery as Number).toLong() !in 1..9_007_199_254_740_991L || !CapabilityTransport.leases.consumeSequence(generation, (seq as Number).toLong())) return@addWebMessageListener
+            RoutingTransport.acknowledge(generation, delivery.toLong())
+            return@addWebMessageListener
+          }
           if (data.optString("type") == "relay-stream-ack") {
             receiveStreamAck(data)
             return@addWebMessageListener
@@ -176,7 +184,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
           }
           if (text.toByteArray(Charsets.UTF_8).size > 2048) return@addWebMessageListener
           when (data.optString("type")) {
-            "ready" -> if (data.length() == 2 && !ready) { ready = true; emit("ready") }
+            "ready" -> if (data.length() == 2 && !ready) { ready = true; RoutingTransport.ready(generation); emit("ready") }
             "error" -> if (data.length() == 3 && data.optString("code").matches(Regex("[a-z-]{1,80}"))) fail(data.getString("code"))
           }
         } catch (_: Exception) {
@@ -194,6 +202,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     updateMediaPlayback()
     ApprovalTransport.focus(generation, active)
     UploadTransport.focus(generation, active)
+    RoutingTransport.focus(generation, active)
     LinkTransport.focus(generation, active)
     webView.importantForAccessibility = if (active) View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
       else View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
@@ -283,11 +292,13 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (config != null) {
       if (!CapabilityTransport.leases.register(generation)) { fail("capability-unavailable"); return }
       if (!ApprovalTransport.register(generation)) { fail("approval-unavailable"); return }
+      if (!RoutingTransport.register(generation, config)) { fail("routing-unavailable"); return }
       if (!LinkTransport.register(generation, config)) { fail("link-unavailable"); return }
       if (!UploadTransport.register(generation, config)) { fail("upload-unavailable"); return }
       configuration = config
       ApprovalTransport.focus(generation, active)
     UploadTransport.focus(generation, active)
+    RoutingTransport.focus(generation, active)
     LinkTransport.focus(generation, active)
     }
     published = claims
@@ -369,6 +380,11 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (sequence !in 1..9_007_199_254_740_991L) return
     val message = data.getString("message")
     val request = runCatching { UploadWire.objectValue(message, CapabilityLeaseRegistry.MAX_BYTES) }.getOrNull()
+    if (request?.optString("type") == "routing.call") {
+      val token = RoutingTransport.receive(generation, sequence, message, push, reply) ?: return
+      onHostEvent(mapOf("type" to "capability", "lane" to "routing", "sessionId" to config.sessionId, "generation" to generation, "token" to token))
+      return
+    }
     if (request?.optString("type") == "link.open") {
       if (!CapabilityTransport.leases.consumeSequence(generation, sequence)) { reply(null); return }
       LinkTransport.receive(generation, config, message, appContext.currentActivity, reply)
@@ -408,10 +424,13 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (configuration != null && !ApprovalTransport.register(generation)) { fail("approval-unavailable"); return }
     ApprovalTransport.focus(generation, active)
     UploadTransport.focus(generation, active)
+    RoutingTransport.focus(generation, active)
     LinkTransport.focus(generation, active)
+    if (configuration != null && !RoutingTransport.register(generation, configuration!!)) { fail("routing-unavailable"); return }
     if (configuration != null && !LinkTransport.register(generation, configuration!!)) { fail("link-unavailable"); return }
     configuration?.let { if (!UploadTransport.register(generation, it)) { fail("upload-unavailable"); return } }
     UploadTransport.focus(generation, active)
+    RoutingTransport.focus(generation, active)
     LinkTransport.focus(generation, active)
     live = true
     expectedUrl = "$ORIGIN/assets/runtime/index.html?sessionId=$generation"

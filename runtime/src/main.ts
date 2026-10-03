@@ -1,4 +1,6 @@
 import { ensureObjectHasOwn } from './legacy-webview';
+import { createRoutingAdapter } from './routing-adapter';
+import { parseRoutingMessage } from '../../src/routing/routing-contract';
 import { createLinkAdapter } from './link-adapter';
 import { linkRequestId } from '../../src/links/link-contract';
 import { createUploadAdapter } from './upload-adapter';
@@ -11,7 +13,7 @@ import {
   resolveShellEnvironment, type ShellAdapter,
 } from '@kehto/shell';
 import { createThemeService } from '@kehto/services';
-import type { HostOperationContext, NappletMessage } from '@kehto/runtime';
+import type { HostOperationContext, NappletMessage, ServiceRuntimeContext } from '@kehto/runtime';
 import { identityFailure, identityResult, parseCapabilityRequest } from '../../src/runtime/capability-protocol';
 import { createNativeClient, type NativeHost } from './native-client';
 import { injectPublishedCsp, readPublishedArtifact } from './published-artifact';
@@ -72,12 +74,13 @@ async function digest(value: string): Promise<string> {
 }
 
 function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipient: () => () => boolean,
-  artifact: RuntimeArtifact): ShellAdapter {
+  artifact: RuntimeArtifact, registerRouting: (context: ServiceRuntimeContext | null) => void): ShellAdapter {
   const unavailable = (): never => { throw new Error('Capability unavailable'); };
   const theme = createThemeService({ initialTheme: {
     colors: { background: '#140f0b', text: '#f3efeb', primary: '#e8805d' },
   } });
   const supported = new Set(artifact.domains);
+  const routing = createRoutingAdapter(native, captureRecipient);
   const resource = createResourceAdapter(native, captureRecipient);
   const upload = createUploadAdapter(native, captureRecipient);
   const storage = async ({ message, send }: HostOperationContext): Promise<void> => { send({ ...await native.request(message) }); };
@@ -114,20 +117,25 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
     hotkeys: { executeHotkeyFromForward: unavailable },
     workerRelay: { getWorkerRelay: () => null },
     crypto: { verifyEvent: async () => false },
+    intent: {isAvailable: () => supported.has('intent')},
     link: {isAvailable: () => supported.has('link')},
     services: { theme: theme.handler,
+      ...(supported.has('intent') ? {intent: {descriptor: {name: 'intent', version: '1.0.0'}, handleMessage: unavailable, onRegistered: registerRouting, onUnregistered: () => registerRouting(null)}} : {}),
+      ...(supported.has('inc') ? {inc: {descriptor: {name: 'inc', version: '1.0.0'}, handleMessage: unavailable, onRegistered: registerRouting, onUnregistered: () => registerRouting(null)}} : {}),
       ...(supported.has('link') ? {link: createLinkAdapter(native, captureRecipient)} : {}),
       ...(supported.has('upload') ? { upload: { descriptor: { name: 'upload', version: '1.0.0' }, handleMessage: unavailable } } : {}), ...(supported.has('identity') ? { identity } : {}),
       ...(supported.has('resource') ? { resource: { descriptor: { name: 'resource', version: '1.0.0' }, handleMessage: unavailable } } : {}),
       ...(supported.has('relay') ? { relay: { descriptor: { name: 'relay', version: '1.0.0' }, handleMessage: unavailable } } : {}) },
-    ...((supported.has('storage') || supported.has('relay') || supported.has('resource') || supported.has('upload')) ? { operationOverrides: {
+    ...((supported.has('storage') || supported.has('relay') || supported.has('resource') || supported.has('upload') || supported.has('intent') || supported.has('inc')) ? { operationOverrides: {
+      ...(supported.has('intent') ? { 'intent.invoke': routing, 'intent.available': routing, 'intent.handlers': routing } : {}),
+      ...(supported.has('inc') ? { 'inc.subscribe': routing, 'inc.unsubscribe': routing, 'inc.emit': routing, 'inc.channel.open': routing, 'inc.channel.list': routing, 'inc.channel.emit': routing, 'inc.channel.broadcast': routing, 'inc.channel.close': routing } : {}),
       ...(supported.has('upload') ? { 'upload.info': upload, 'upload.upload': upload, 'upload.status': upload } : {}),
       ...(supported.has('resource') ? { 'resource.info': resource, 'resource.bytes': resource, 'resource.bytesMany': resource, 'resource.cancel': resource } : {}),
       ...(supported.has('storage') ? { 'storage.get': storage, 'storage.set': storage, 'storage.remove': storage, 'storage.keys': storage } : {}),
       ...(supported.has('relay') ? { 'relay.publish': relayPublish, 'relay.query': relayPublish, 'relay.subscribe': relaySubscribe, 'relay.close': relayClose } : {}),
     } } : {}),
     capabilities: {
-      disabledDomains: ['link', 'upload', 'resource', 'relay', 'identity', 'storage', 'inc', 'keys', 'media', 'notify'].filter(domain => !supported.has(domain)),
+      disabledDomains: ['link', 'upload', 'resource', 'relay', 'identity', 'storage', 'intent', 'inc', 'keys', 'media', 'notify'].filter(domain => !supported.has(domain)),
       resolveEnvironment: () => ({ domains: [...supported], services: ['theme', ...(supported.has('identity') ? ['identity'] : [])] }),
     },
   };
@@ -140,6 +148,7 @@ function validEnvelope(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const message = value as Record<string, unknown>;
   const keys = Object.keys(message);
+  if (typeof message.type === 'string' && (message.type.startsWith('intent.') || message.type.startsWith('inc.'))) { try { parseRoutingMessage(value); return true; } catch { return false; } }
   if (message.type === 'link.open') return linkRequestId(value) !== null;
   if (typeof message.type === 'string' && message.type.startsWith('upload.')) {
     try { parseUploadRequest(value); return true; } catch { return false; }
@@ -172,19 +181,10 @@ function validEnvelope(value: unknown): boolean {
     && keys.every(key => key === 'type' || key === 'id');
 }
 
-function mount(artifact: RuntimeArtifact): void {
-  const native = createNativeClient(hostWindow.HypergolicHost!, sessionId,
-    artifact.publishTimeoutMs === undefined ? {} : { requestTimeoutsMs: { 'relay.publish': artifact.publishTimeoutMs } });
-  const hooks = makeHooks(native, () => {
-    const entry = bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId);
-    return () => !stopped && entry !== undefined && bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId) === entry;
-  }, artifact);
-  const bridge = createShellBridge(hooks);
-  const identity = Object.freeze({ dTag: artifact.appId, aggregateHash: artifact.aggregateHash });
-  const environment = resolveShellEnvironment(hooks, identity);
+function createGuestFrame(title: string): HTMLIFrameElement {
   const frame = document.createElement('iframe');
   frame.id = 'napplet';
-  frame.title = artifact.title;
+  frame.title = title;
   frame.setAttribute('sandbox', 'allow-scripts');
   frame.setAttribute('referrerpolicy', 'no-referrer');
   frame.setAttribute('allow', "camera 'none'; microphone 'none'; geolocation 'none'; payment 'none'; clipboard-read 'none'; clipboard-write 'none'");
@@ -192,6 +192,26 @@ function mount(artifact: RuntimeArtifact): void {
   style.textContent = 'html,body{margin:0;height:100%;overflow:hidden;background:#140f0b;color:#f3efeb}iframe{display:block;width:100%;height:100%;border:0}body>p{font:16px system-ui;padding:24px}';
   document.head.append(style);
   document.body.replaceChildren(frame);
+  return frame;
+}
+
+function mount(artifact: RuntimeArtifact): void {
+  let routingContext: ServiceRuntimeContext | null = null;
+  const native = createNativeClient(hostWindow.HypergolicHost!, sessionId,
+    { ...(artifact.publishTimeoutMs === undefined ? {} : { requestTimeoutsMs: { 'relay.publish': artifact.publishTimeoutMs } }),
+      onRouting: message => {
+        if (stopped || !ready || frame.contentWindow !== source || !bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId)) return;
+        const domain = message.type.split('.')[0]!;
+        if (artifact.domains.includes(domain)) routingContext?.sendToEligibleNapplet(sessionId, message);
+      } });
+  const hooks = makeHooks(native, () => {
+    const entry = bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId);
+    return () => !stopped && entry !== undefined && bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId) === entry;
+  }, artifact, context => { routingContext = context; });
+  const bridge = createShellBridge(hooks);
+  const identity = Object.freeze({ dTag: artifact.appId, aggregateHash: artifact.aggregateHash });
+  const environment = resolveShellEnvironment(hooks, identity);
+  const frame = createGuestFrame(artifact.title);
   const source = frame.contentWindow;
   if (!source) { bridge.destroy(); throw new Error('Frame unavailable'); }
   const media = bindResourceMedia(source);
@@ -225,6 +245,7 @@ function mount(artifact: RuntimeArtifact): void {
       ready = true;
       window.clearTimeout(deadline);
       diagnostic({ type: 'ready', sessionId });
+      if (artifact.domains.includes('intent') || artifact.domains.includes('inc')) void native.routing({type: 'routing.__register'}).catch(() => {});
     }
   };
   const loaded = (): void => {

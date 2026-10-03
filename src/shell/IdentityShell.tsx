@@ -1,3 +1,4 @@
+import {RoutingReview} from './RoutingReview';
 import {IdentityListReview} from './IdentityListReview';
 import { createContext, useContext, useEffect, useSyncExternalStore } from 'react';
 import { AppState, StyleSheet, Text } from 'react-native';
@@ -32,6 +33,7 @@ export function IdentityShell({ owner }: { owner: TrustedIdentityOwner }) {
   return <OwnerContext value={owner}><RuntimeContext value={owner.runtime ?? null}>
     <WorkspaceEntry key={state.session.epoch} identity={{ npub: formatNpub(state.session.vault.selectedPubkey) }}
       controller={state.session.workspace} approvals={owner.approvals} uploads={owner.uploads} epoch={state.session.epoch} blocked={state.phase === 'switching' || state.phase === 'deleting'} settingsComponent={IdentitySettings} />
+    <RoutingReview service={owner.routing?.reviews ?? null} blocked={state.phase !== 'ready'} />
     <IdentityListReview service={owner.listAccess ?? null} blocked={state.phase !== 'ready'} />
   </RuntimeContext></OwnerContext>;
 }

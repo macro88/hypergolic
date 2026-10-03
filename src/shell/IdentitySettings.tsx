@@ -1,3 +1,4 @@
+import { RoutingSettings } from './RoutingSettings';
 import {IdentityListSettings} from './IdentityListSettings';
 import { UploadSettings } from './UploadSettings';
 import { ResourceSettings } from './ResourceSettings';
@@ -136,12 +137,13 @@ function SavedIdentities({session, transition, format, canDelete, onDelete}: {
 function SettingsHome({session, onBackup, onCloseBackup, onDelete, onImport, onSignedLab, openBundledTest, openStateLab, openPublished, publishedSessions, checkPublishedUpdate}: Omit<SettingsActions, 'closeSettings'> & {
   session: IdentitySession; onBackup(): void; onCloseBackup(): void; onDelete(pubkey: string): void; onImport(): void; onSignedLab(): void;
 }) {
-  const {transition, formatNpub, runtime, actions, relaySettings, resourceSettings, uploadSettings, listAccess} = useIdentityOwner();
+  const {transition, formatNpub, runtime, actions, relaySettings, resourceSettings, uploadSettings, listAccess, routing} = useIdentityOwner();
   return <>
       <Text selectable testID="settings-full-npub" style={styles.npub}>{formatNpub(session.vault.selectedPubkey)}</Text>
       {actions && <IdentityBackup actions={actions} session={session} npub={formatNpub(session.vault.selectedPubkey)} reviewing={false}
         onReview={onBackup} onClose={onCloseBackup} Action={Action} />}
       <PublishedNappletSettings available={Boolean(runtime)} openPublished={openPublished} publishedSessions={publishedSessions} checkPublishedUpdate={checkPublishedUpdate} />
+      {routing && <RoutingSettings key={session.epoch} service={routing.settings} />}
       <SavedIdentities session={session} transition={transition} format={formatNpub} canDelete={Boolean(actions)}
         onDelete={onDelete} />
       <Action title="Import identity" testID="settings-import-identity" onPress={onImport} />
@@ -157,6 +159,7 @@ function SettingsHome({session, onBackup, onCloseBackup, onDelete, onImport, onS
       <Action title="Open UX Lab" testID="settings-open-ux-lab" onPress={openBundledTest} subdued />
       {runtime && <>
         <Action title="Open Resource Lab" testID="settings-open-resource-lab" onPress={() => openStateLab('resource-lab')} subdued />
+        <Action title="Open Routing Lab" testID="settings-open-routing-lab" onPress={() => openStateLab('routing-lab')} subdued />
         <Action title="Open Feed Lab" testID="settings-open-feed-lab" onPress={() => openStateLab('feed-lab')} subdued />
         <Action title="Open Approval Lab" testID="settings-open-approval-lab" onPress={() => openStateLab('approval-lab')} subdued />
         <Action title="Open State Lab" testID="settings-open-state-lab" onPress={() => openStateLab('state-lab')} subdued />

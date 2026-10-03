@@ -13,8 +13,9 @@ import kotlinx.coroutines.withContext
 class NappletHostModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("HypergolicNappletHost")
-    Events("onRelayStream", "onRelayLifecycle", "onUploadProgress")
+    Events("onRelayStream", "onRelayLifecycle", "onUploadProgress", "onRoutingLifecycle")
     OnCreate {
+      RoutingTransport.observeLifecycle { snapshot -> sendEvent("onRoutingLifecycle", mapOf("snapshot" to snapshot)) }
       UploadTransport.configureRecovery(appContext.runtime.reactContext?.noBackupFilesDir)
       UploadTransport.observeProgress { event -> sendEvent("onUploadProgress", event) }
       RelaySubscriptionTransport.observeLifecycle { snapshot -> sendEvent("onRelayLifecycle", mapOf("snapshot" to snapshot)) }
@@ -81,6 +82,7 @@ class NappletHostModule : Module() {
     }
     OnDestroy {
       SelectedFilePicker.cancel()
+      RoutingTransport.observeLifecycle(null)
       UploadTransport.observeProgress(null)
       SelectedFilePicker.foreground(false)
       UploadTransport.foreground(false)
@@ -205,6 +207,13 @@ class NappletHostModule : Module() {
     Function("isSubscriptionActive") { token: String -> RelaySubscriptionTransport.registry.isActive(token) }
     Function("sendSubscription") { token: String, response: String -> RelaySubscriptionTransport.send(token, response) }
     Function("closeSubscription") { token: String -> RelaySubscriptionTransport.close(token) }
+    Function("synchronizeRoutingOwner") { user: String, epoch: Long, available: Boolean ->
+      require(RoutingTransport.synchronizeOwner(user, epoch, available)) { "Routing owner unavailable" }
+    }
+    Function("routingState") { RoutingTransport.state() }
+    Function("mayReviewRouting") { generation: String, revision: Long -> RoutingTransport.mayReview(generation, revision) }
+    Function("mayDeliverRouting") { generation: String, revision: Long, domain: String -> RoutingTransport.mayDeliver(generation, revision, domain) }
+    Function("sendRouting") { generation: String, revision: Long, response: String -> RoutingTransport.send(generation, revision, response) }
     Function("takeCapability") { token: String -> CapabilityTransport.leases.take(token) }
     Function("isCapabilityActive") { token: String -> CapabilityTransport.leases.isActive(token) }
     Function("replaceIdentityListAccess") { raw: String -> IdentityListAccess.replace(raw) }

@@ -18,7 +18,7 @@ and resolve each phase's material policy decisions before generating those files
 - [x] **Phase 2.4: Uploads** — L; Upload Lab.
 - [x] **Phase 2.5: Public identity data** — M; State Lab and Feed Lab.
 - [x] **Phase 2.6: External links** — S–M; Resource Lab.
-- [ ] **Phase 2.7: Intents and inter-napplet communication** — M + L; Routing Lab pair.
+- [x] **Phase 2.7: Intents and inter-napplet communication** — M + L; Routing Lab pair.
 - [ ] **Phase 2.8: Notifications and configuration** — M + M; Routing Lab.
 - [ ] **Phase 2.9: Outbox routing** — L; Feed Lab.
 - [ ] **Phase 2.11: Complete published MVP acceptance** — L; All MVP fixtures (excluding Value Lab) plus selected real napplets.
@@ -149,7 +149,11 @@ CAP-06 is selected-profile complete; broad CAP-14 gates remain open.
 **Requirements:** CAP-08, CAP-09
 **Fixture:** Routing Lab pair
 **Work and exit criteria:** Select handler/default and permission policy. Prove role dispatch and exact payload delivery, then correlated messaging. Verify absent/ambiguous handlers, consent, forged sender, target closure, replay and revocation.
-**Plans:** Pending owning-contract research and phase-local decisions; no completion claimed.
+**Plans:** Four waves accepted; A1–G1 selected profile and CAP-08/CAP-09 accepted under the existing exact dependency exceptions; broader CAP-14 remains open.
+- [x] 02.7-01-PLAN.md — Native-attested intent/review/ready-target tracer.
+- [x] 02.7-02-PLAN.md — Cross-view topics and symmetric channels tracer.
+- [x] 02.7-03-PLAN.md — Lifecycle, revocation, replay and fault boundaries.
+- [x] 02.7-04-PLAN.md — Signed admission, persistence and final acceptance.
 
 ### Phase 2.8: Notifications and configuration
 

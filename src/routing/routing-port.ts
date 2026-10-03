@@ -1,0 +1,9 @@
+export type RoutingNativeState = Readonly<{ user: string; epoch: number; revision: number; available: boolean; ownerAvailable: boolean; foreground: boolean }>;
+export interface RoutingNativePort {
+  state(): RoutingNativeState;
+  mayDeliver(generation: string, revision: number, domain: 'intent' | 'inc'): boolean;
+  mayReview(generation: string, revision: number): boolean;
+  send(generation: string, revision: number, message: Readonly<Record<string, unknown>>): boolean;
+  subscribe(listener: () => void): () => void;
+  newChannelId(): string;
+}

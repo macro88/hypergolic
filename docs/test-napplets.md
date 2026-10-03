@@ -254,3 +254,8 @@ Locally signed State/Feed fixtures additionally pass14 normal admission/cache/us
 checks each. Feed's explicit follows read never changes relay routing. These signed
 artifacts are supplied locally; no external fixture publication is claimed. See
 [public identity](public-identity-data.md) and its [native drivers](../tests/native/identity-data/README.md).
+
+
+## Routing Lab source
+
+`napplets/routing-lab` uses the pinned genuine SDK for intent availability/dispatch, exact topics and symmetric channels. Its boundary controls issue labelled malformed guest requests and an observed foreign channel id, then use a valid topic message as a positive control. The compiled unsigned embedded fixture grants intent/inc only; saved-data controls therefore require a separately signed storage-enabled variant. Native staging signs exact compiled bytes with documented disposable public scalars 2 and 3 and never publishes. The auto-peer variant requests its topic on load so cold target readiness can be proved with fresh trusted approval. The theme-only variant tests genuine missing-domain failure. The collision variant has the peer dTag under a distinct signed publisher and proves explicit-handler/live-peer ambiguity.

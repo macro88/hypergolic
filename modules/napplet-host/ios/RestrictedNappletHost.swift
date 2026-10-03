@@ -66,7 +66,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     active = isActive
     if !isActive {selectedFilePicker.cancel()}
     updateMediaPlayback()
-    if configuration != nil { ApprovalTransport.setFocused(generation, active: isActive); UploadTransport.focus(generation, active: isActive); LinkTransport.focus(generation, isActive) }
+    if configuration != nil { ApprovalTransport.setFocused(generation, active: isActive); UploadTransport.focus(generation, active: isActive); LinkTransport.focus(generation, isActive); RoutingTransport.shared.focus(generation, isActive) }
     // Dismiss only this retained view's editor; keep its loaded document and position.
     if !isActive { webView?.endEditing(true) }
   }
@@ -204,6 +204,8 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
           CapabilityTransport.leases.revoke(generation)
           fail("capability-unavailable"); return
         }
+        guard RoutingTransport.shared.register(generation, config: configuration) else { fail("routing-unavailable"); return }
+        RoutingTransport.shared.focus(generation, active)
         guard LinkTransport.register(generation, config: configuration) else { fail("link-unavailable"); return }
         guard UploadTransport.register(generation, config: configuration) else { fail("upload-unavailable"); return }
         UploadTransport.focus(generation, active: active); LinkTransport.focus(generation, active)
@@ -397,8 +399,18 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     }
     guard text.utf8.count <= 2048 else { reply(nil, "Diagnostic rejected"); return }
     switch value["type"] as? String {
+    case "routing-ack":
+      guard Set(value.keys) == ["type", "sessionId", "sequence", "delivery"],
+        let sequence = value["sequence"] as? NSNumber, let delivery = value["delivery"] as? NSNumber,
+        CFGetTypeID(sequence) != CFBooleanGetTypeID(), CFGetTypeID(delivery) != CFBooleanGetTypeID(),
+        sequence.doubleValue.isFinite, delivery.doubleValue.isFinite,
+        sequence.doubleValue >= 1, sequence.doubleValue <= 9_007_199_254_740_991, sequence.doubleValue.rounded(.towardZero) == sequence.doubleValue,
+        delivery.doubleValue >= 1, delivery.doubleValue <= 9_007_199_254_740_991, delivery.doubleValue.rounded(.towardZero) == delivery.doubleValue,
+        CapabilityTransport.leases.consumeSequence(generation, sequence: sequence.uint64Value) else { return }
+      RoutingTransport.shared.acknowledge(generation, delivery: delivery.uint64Value)
     case "ready" where value.count == 2 && !ready:
       ready = true
+      RoutingTransport.shared.ready(generation)
       deadline?.cancel()
       reply(nil, nil)
       emit("ready")
@@ -484,6 +496,20 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
         "sequence": counter, "response": response as Any? ?? NSNull()]
       guard let bytes = try? JSONSerialization.data(withJSONObject: result) else { reply(nil, "Capability rejected"); return }
       reply(String(decoding: bytes, as: UTF8.self), nil)
+    }
+    if let request = try? UploadWire.object(message, limit: 36 * 1024), request["type"] as? String == "routing.call" {
+      guard let capturedView = webView, let capturedURL = expectedURL,
+        let token = RoutingTransport.shared.receive(generation, sequence: counter, raw: message,
+          push: { [weak self, weak capturedView] envelope in
+            guard let self, let capturedView, self.webView === capturedView, self.live, !self.disposed,
+              capturedView.url?.absoluteString == capturedURL.absoluteString else { return }
+            let script = "window.postMessage({type:'hypergolic.native-response',message:" + self.jsString(envelope) + "}, '*')"
+            capturedView.evaluateJavaScript(script, in: nil, in: self.bridgeWorld) { [weak self] result in
+              if case .failure = result { self?.fail("renderer-stopped") }
+            }
+          }, reply: respond) else { return }
+      onEvent?(["type": "capability", "lane": "routing", "sessionId": configuration.sessionId, "generation": generation, "token": token])
+      return
     }
     if let request = try? UploadWire.object(message, limit: 16 * 1024), request["type"] as? String == "link.open" {
       guard CapabilityTransport.leases.consumeSequence(generation, sequence: counter) else {respond(nil); return}

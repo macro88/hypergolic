@@ -263,3 +263,8 @@ tests; assign each to an implementation plan and record target-device evidence.
 The granted `resource` domain routes genuine SDK calls through the injected Kehto facade and captured native capability broker. A resource-owned HTTPS operation repeats public DNS/address and TLS checks on each of at most two HTTPS redirects. App-only bounded byte reads feed the trusted resource service; verified Blossom, one-hop public Nostr JSON and data bytes share its MIME/size/lifetime admission. A separate realm-bound one-use transfer pool projects complete Blobs into the SDK without enlarging ordinary JSON messages.
 
 Memory cache lifetime follows the loaded napplet. Trusted native focus/background control pauses Blob media and return requires Play. Download server settings use a dedicated public SQLite store across identities. The [resource profile](resource-access.md) records the owning draft, active SDK facade, exact engineering limits, native evidence requirements and post-Phase-4 Hashtree/SVG gaps. CAP-04 acceptance and physical/published MVP completion remain separate.
+
+
+## Intent and INC boundary — Phase 2.7
+
+The [selected intent/INC profile](intent-inc.md) uses a verified identity-specific manifest catalog, explicit user defaults, trusted per-dispatch/topic/channel reviews and native-attested cross-view routing. Foreground switching remains live; background pauses topics and closes channels without a payload backlog. Closed handlers reopen through the ordinary exact pinned artifact path. Trusted Settings removal preserves saved data. Native lifecycle/identity/generation authority, strict wire capture and bounded transport remain mandatory; final signed/cold/fault acceptance is tracked separately from compilation.

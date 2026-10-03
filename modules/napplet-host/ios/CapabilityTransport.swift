@@ -54,11 +54,12 @@ struct CapabilityConfiguration {
     case "approval-lab": expected = ["identity", "relay", "theme"]
     case "upload-lab", "upload-queue-lab": expected = ["upload", "theme"]
     case "resource-lab": expected = ["resource", "link", "theme"]
+    case "routing-lab": expected = ["intent", "inc", "theme"]
     case "feed-lab": expected = ["identity", "relay", "theme"]
     case "published":
       expected = Set(domains)
-      guard domains.count <= 7,
-        expected.isSubset(of: ["identity", "storage", "theme", "relay", "resource", "upload", "link"]) else {
+      guard domains.count <= 9,
+        expected.isSubset(of: ["identity", "storage", "theme", "relay", "resource", "upload", "link", "intent", "inc"]) else {
         throw Invalid.configuration
       }
     default: throw Invalid.configuration
@@ -101,6 +102,7 @@ enum CapabilityTransport {
   nonisolated static let leases = CapabilityLeaseRegistry()
   nonisolated static let lifecycle = CapabilityLifecycle()
   nonisolated static func foreground(_ value: Bool) {
+    RoutingTransport.shared.foreground(value)
     LinkTransport.foreground(value)
     UploadTransport.foreground(value)
     let revoked = leases.setForeground(value)
@@ -135,6 +137,7 @@ enum CapabilityTransport {
     }
   }
   static func revoke(_ generation: String) {
+    RoutingTransport.shared.revoke(generation)
     leases.revoke(generation)
     ResourceHTTPSBridgeOwner.shared.revoke(generation)
     RelaySubscriptionTransport.shared.revoke(generation)

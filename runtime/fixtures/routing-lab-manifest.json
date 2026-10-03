@@ -1,0 +1,30 @@
+{
+  "kind": 35129,
+  "created_at": 1791014917,
+  "tags": [
+    [
+      "d",
+      "routing-lab"
+    ],
+    [
+      "path",
+      "/index.html",
+      "862cc2b3fd0a4f25393124090e6d863165f758af8e46e8a9fc315f0fd42162ff"
+    ],
+    [
+      "x",
+      "3566c853ad4392f5f571e7b17db9038c50823258c3c542f296cfbd59ee05e98f",
+      "aggregate"
+    ],
+    [
+      "requires",
+      "inc"
+    ],
+    [
+      "requires",
+      "intent"
+    ]
+  ],
+  "content": "",
+  "aggregateHash": "3566c853ad4392f5f571e7b17db9038c50823258c3c542f296cfbd59ee05e98f"
+}

@@ -22,6 +22,7 @@ function decodeBase64(value: unknown): Uint8Array {
   if (binary.length < 1 || binary.length > CHUNK_BYTES || btoa(binary) !== value) throw new Error('Invalid artifact chunk');
   return Uint8Array.from(binary, character => character.charCodeAt(0));
 }
+const ARTIFACT_DOMAINS = new Set(['identity', 'storage', 'theme', 'relay', 'resource', 'upload', 'link', 'intent', 'inc']);
 function metadata(value: Record<string, unknown>): PublishedMetadata {
   const { publisher, appId, eventId, version, htmlHash, domains } = value;
   if (typeof publisher !== 'string' || !HEX64.test(publisher) ||
@@ -30,8 +31,8 @@ function metadata(value: Record<string, unknown>): PublishedMetadata {
       typeof htmlHash !== 'string' || !HEX64.test(htmlHash) ||
       typeof appId !== 'string' || !appId || appId !== appId.trim() ||
       new TextEncoder().encode(appId).length > 255 || /[\u0000-\u001f\u007f]/.test(appId) ||
-      !Array.isArray(domains) || domains.length > 7 ||
-      domains.some(domain => typeof domain !== 'string' || !['identity', 'storage', 'theme', 'relay', 'resource', 'upload', 'link'].includes(domain)) ||
+      !Array.isArray(domains) || domains.length > 9 ||
+      domains.some(domain => typeof domain !== 'string' || !ARTIFACT_DOMAINS.has(domain)) ||
       domains.some((domain, index) => index > 0 && domains[index - 1] >= domain)) throw new Error('Invalid artifact metadata');
   return Object.freeze({ publisher, appId, eventId, version, htmlHash, domains: Object.freeze([...domains]) });
 }

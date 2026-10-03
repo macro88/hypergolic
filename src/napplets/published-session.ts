@@ -33,6 +33,7 @@ const SESSION = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f
 export interface PreparedPublishedSession {
   readonly descriptor: NappletDescriptor;
   readonly hostInput: string;
+  readonly artifact: VerifiedNappletArtifact;
   /** Check the identity, accepted grant, and retained native-session lifetime. */
   assertActive(): void;
   revoke(): void;
@@ -147,7 +148,7 @@ async function preparePublishedSession(ports: PublishedSessionDependencies, requ
     active();
     const hostInput = publishedHostInput(artifact, admission, descriptor, authority, handle);
     success = true;
-    return Object.freeze({ descriptor, hostInput,
+    return Object.freeze({ descriptor, hostInput, artifact,
       assertActive: () => { active(); admission.assertActive(); },
       revoke: () => { controller.abort(); ports.native.revokePublishedSession(id); },
     });

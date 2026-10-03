@@ -22,13 +22,15 @@ public final class NappletHostModule: Module {
     // which schedules payload conversion and module lookup on Expo's JavaScriptActor.
     nonisolated(unsafe) weak let streamEmitter = self
     Name("HypergolicNappletHost")
-    Events("onRelayStream", "onRelayLifecycle", "onUploadProgress")
+    Events("onRelayStream", "onRelayLifecycle", "onUploadProgress", "onRoutingLifecycle")
     OnCreate {
       UploadTransport.observeProgress { event in streamEmitter?.emit(event: "onUploadProgress", payload: ["token": event.token, "bytesSent": event.bytesSent, "bytesTotal": event.bytesTotal]) }
+      RoutingTransport.shared.observeLifecycle { snapshot in streamEmitter?.emit(event: "onRoutingLifecycle", payload: ["snapshot": snapshot]) }
       _ = CapabilityTransport.lifecycle
       RelaySubscriptionTransport.shared.observeLifecycle { snapshot in streamEmitter?.emit(event: "onRelayLifecycle", payload: ["snapshot": snapshot]) }
     }
     OnDestroy {
+      RoutingTransport.shared.observeLifecycle(nil)
       UploadTransport.observeProgress(nil)
       CapabilityTransport.foreground(false)
       RelaySubscriptionTransport.shared.observeLifecycle(nil)
@@ -112,6 +114,14 @@ public final class NappletHostModule: Module {
     Function("isSubscriptionActive") { (token: String) -> Bool in RelaySubscriptionTransport.shared.registry.isActive(token) }
     Function("sendSubscription") { (token: String, response: String) -> Int in RelaySubscriptionTransport.shared.send(token, response: response) }
     Function("closeSubscription") { (token: String) in RelaySubscriptionTransport.shared.close(token) }
+    Function("synchronizeRoutingOwner") { (user: String, epoch: Double, available: Bool) throws in
+      guard epoch.isFinite, epoch >= 0, epoch <= 9_007_199_254_740_991, epoch.rounded(.towardZero) == epoch,
+        RoutingTransport.shared.synchronizeOwner(user, epoch: UInt64(epoch), available: available) else { throw NSError(domain: "HypergolicRoutingOwner", code: 1) }
+    }
+    Function("routingState") { RoutingTransport.shared.state() }
+    Function("mayReviewRouting") { (generation: String, revision: UInt64) -> Bool in RoutingTransport.shared.mayReview(generation, revision: revision) }
+    Function("mayDeliverRouting") { (generation: String, revision: UInt64, domain: String) -> Bool in RoutingTransport.shared.mayDeliver(generation, revision: revision, domain: domain) }
+    Function("sendRouting") { (generation: String, revision: UInt64, response: String) -> Bool in RoutingTransport.shared.send(generation, revision: revision, raw: response) }
     Function("takeCapability") { (token: String) -> String? in CapabilityTransport.leases.take(token) }
     Function("isCapabilityActive") { (token: String) -> Bool in CapabilityTransport.leases.isActive(token) }
     Function("replaceIdentityListAccess") { (raw: String) throws in try IdentityListAccess.shared.replaceJSON(raw) }

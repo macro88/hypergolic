@@ -3,7 +3,7 @@ import { parseRelayQuery, type RelayQueryRequest } from '../network/relay-query-
 import { LIMITS, type Scope } from '../storage/ports.ts';
 
 export const CAPABILITY_LIMITS = Object.freeze({ messageBytes: 2 * 1024 * 1024, sessionRequests: 1024 });
-export const SUPPORTED_CAPABILITY_DOMAINS = Object.freeze(['identity', 'storage', 'theme', 'relay', 'resource', 'upload', 'link']);
+export const SUPPORTED_CAPABILITY_DOMAINS = Object.freeze(['identity', 'storage', 'theme', 'relay', 'resource', 'upload', 'link', 'intent', 'inc']);
 const NATIVE_CAPABILITY_DOMAINS = SUPPORTED_CAPABILITY_DOMAINS;
 export const IDENTITY_OPERATIONS = ['identity.getPublicKey', 'identity.getRelays', 'identity.getProfile',
   'identity.getFollows', 'identity.getMutes', 'identity.getBlocked', 'identity.getList',

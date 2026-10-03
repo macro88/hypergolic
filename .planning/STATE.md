@@ -1,18 +1,18 @@
 ---
 gsd_state_version: "1.0"
-current_phase: "2.7"
-current_phase_name: Intents and inter-napplet communication
-status: researching
-stopped_at: Phase2.6 selected acceptance complete under exact approved Forge/braces exceptions; make targeted local commit, then2.7 owning-contract research and product interview. Continue below50% weekly or finish Phase2; source unpushed.
-last_updated: "2026-10-03T03:57:13Z"
+current_phase: "2.8"
+current_phase_name: Notifications and configuration
+status: awaiting-product-interview
+stopped_at: Phase2.7 accepted selected profile. Phase2.8 owning proposals researched; separate text product interview pending. Source unpushed; pause50%.
+last_updated: "2026-10-03T09:28:53Z"
 last_activity: 2026-10-03
-state_head: f11dcdc51fc744892f4b2609621c20d122202e15
+state_head: 537efda184ed3d1dc1aceb88fd61be79c8c9d6d2
 progress:
   total_phases: 14
-  completed_phases: 7
-  total_plans: 24
-  completed_plans: 18
-  percent: 75
+  completed_phases: 8
+  total_plans: 28
+  completed_plans: 22
+  percent: 79
 ---
 
 # Project State
@@ -22,7 +22,7 @@ progress:
 See: .planning/PROJECT.md (scope updated 2026-09-29)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Phase 2.7 — Intents and inter-napplet communication
+**Current focus:** Phase 2.8 — Notifications and configuration
 
 ## MVP scope checkpoint — 29 September 2026
 
@@ -38,9 +38,9 @@ expansion cards are not executable PLAN files.
 
 ## Current Position
 
-Phase: 2.7 (Intents and inter-napplet communication) — RESEARCHING
-Plan: Phase2.6 all three waves accepted;2.7 plans await owning-contract/product choices.
-Status: Phase2.6 selected CAP-07 profile is complete: final-source Android13/iOS12 lifecycle checks, eight normal signed-admission checks per host, supplementary actual Android Chrome/AX/image/SDK-return and all affected regressions pass. Both ordinary exports/prebuilds and Android ARM64/iOS Simulator Release builds pass. Owner approved exact empty-score payload/destination and tested locked braces exception on3October. Fresh complete quality Doctor100/aislop97 has exactly the approved Forge/braces findings, root2high/quality1high/seven clean audits. Separate exact review and all74 quality tests pass; ordinary gates remain visibly red. Expo Doctor still recommends six newer packages under retained approved pins. Targeted local Phase2.6 commit precedes2.7; source push remains owner-controlled. Weekly usage16%; continue below50% or finish Phase2. Progress18/24 counts executable plans, not MVP readiness.
+Phase: 2.8 (Notifications and configuration) — PRODUCT INTERVIEW PENDING
+Plan: Phase2.7 all four plans accepted; next phase has owning-proposal research but no selected policies or implementation plan.
+Status: Each Android/iOS signed-local Release host passes routing/fault24, Settings/cold/removal14 and original-SDK absence/ambiguity5. All293 production/native/runtime inputs match final source across all six sealed runs. Routing43, full browser runtime188, capability55, storage92, shell27, napplet96, quality74 and TypeScript pass. Both ordinary exports/prebuilds/production Release builds pass; packaged runtime bytes match. Complete React Doctor100 and aislop97 under only the existing exact Forge/braces exceptions; ordinary gates remain red and six retained Expo patch recommendations remain visible. Final fresh source-bound quality is a pre-commit gate. CAP-08/CAP-09 accepted selected profile; broader physical/protected/published-update CAP-14 open. Source push remains owner-controlled. Usage31%; pause50%. Progress22/28 counts executable plans, not MVP readiness.
 
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
@@ -801,3 +801,8 @@ External links interview complete (2026-10-03): HTTPS only; approval for each op
 
 
 External links native/build checkpoint (2026-10-03): final signed Android03/iOS03 and lifecycle Android07/iOS05 pass. Published-artifact reader now admits all seven declared domains, including link; full runtime172 and native189/167 pass. Preserve earlier stale-denial, artifact-allowlist, address-entry, accessibility-readiness, timer and supplemental observer failures. Supplement03 shows actual focused Chrome first-run/AX/image then original SDK opened; page loading is not claimed. See phase-local VERIFICATION for the remaining two quality decisions. No phase commit or next-phase advance while they remain unresolved.
+
+
+## Phase 2.7 first native tracer — 3 October 2026
+
+The seven signed-local SDK/native intent cases pass on Android API36 Release and iOS26.5 Release. Sealed installed products and unchanged source inputs were checked; native review, exact target payload and original caller result were inspected. TypeScript, capability55, routing22 and browser12 pass. The pinned ACL recipient mapping gap is covered by the opt-in locked runtime patch with existing domain/session/ACL checks preserved. Earlier observer failures remain visible. Plan01 complete; general INC plan02 is executing. CAP-08/CAP-09 and physical/protected/full CAP-14 acceptance remain open. Weekly usage22% at the checkpoint; no source commit/push.
