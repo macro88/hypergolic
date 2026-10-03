@@ -16,7 +16,7 @@ const Host = requireNativeView<ViewProps & {configuration:string;active:boolean;
 export const RESOURCE_CASES = ['cancel','owner-epoch','close','background','chunk-cancel','chunk-owner-epoch','chunk-close'] as const;
 const config = Object.freeze({sessionId:'resource-matrix',epoch:0,
   user:'c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5',publisher:'f'.repeat(64),
-  appId:'resource-lab',version:BUNDLED_FIXTURES['resource-lab'].aggregateHash,instanceId:'resource-matrix',fixture:'resource-lab',domains:['resource','theme']});
+  appId:'resource-lab',version:BUNDLED_FIXTURES['resource-lab'].aggregateHash,instanceId:'resource-matrix',fixture:'resource-lab',domains:['resource','link','theme']});
 /** Held resolver/dispatch diagnostics. Real SDK, WebView, leases, broker and byte carrier; no DNS/TLS claim. */
 export function ResourceMatrix() {
   const [index,setIndex]=useState(0),[prepared,setPrepared]=useState(false),[visible,setVisible]=useState(true),[receipt,setReceipt]=useState('Waiting for SDK resource');

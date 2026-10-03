@@ -1,3 +1,4 @@
+import {bindLinkOwner, type NativeLinkOwner} from '../links/link-owner';
 import {openIdentityListAccess, type IdentityListAccess} from '../identity/identity-permissions';
 import {loadIdentityListNativePolicy} from '../identity/identity-permissions-native';
 import { openIdentityCache } from '../identity/identity-cache';
@@ -56,6 +57,7 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
   let resourceSettings: NativeResourceSettings | null = null;
   let uploadSettings: NativeUploadSettings | null = null;
   let listAccess: IdentityListAccess | null = null;
+  let releaseLinks: (() => void) | null = null;
   let identityCache: Awaited<ReturnType<typeof openIdentityCache>> | null = null;
   try {
     try { relaySettings = await openNativeRelaySettings(SQLite, platform); } catch { relaySettings = null; }
@@ -64,6 +66,7 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
     identityCache = await openIdentityCache(SQLite, platform);
     const queries = loadNativeRelayQuery(() => relaySettings?.getSettings().networkRelays ?? []);
     const transition = await IdentityTransition.open({ vault, database, publicKeyFromNsec, seed: initialTestWorkspace, assertAvailable: assertWorkspaceAvailability });
+    releaseLinks = bindLinkOwner(transition, requireNativeModule<NativeLinkOwner>('HypergolicNappletHost'));
     try {listAccess = await openIdentityListAccess(SQLite, platform, loadIdentityListNativePolicy(), () => {const state = transition.getSnapshot(); return state.phase === 'ready' ? state.session.vault.selectedPubkey : '';});} catch {listAccess = null;}
     let runtime: RuntimeOwner | null = null;
     const approvals = new ApprovalService(loadNativeApprovalPort(), createApprovalOwner(transition, origin => {
@@ -98,6 +101,7 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
       loadNativeResourceHost(() => resourceSettings?.servers() ?? [], queries), uploads, createIdentityDataService(identityCache, queries, Date.now, listAccess ?? undefined));
     return { listAccess, transition, approvals, relaySettings, resourceSettings, uploadSettings, uploads, runtime };
   } catch {
+    releaseLinks?.();
     try { await listAccess?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await identityCache?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await uploadSettings?.close(); } catch { /* Preserve the workspace failure. */ }

@@ -32,6 +32,7 @@ internal object CapabilityTransport {
     }
   }
   fun foreground(value: Boolean) {
+    LinkTransport.foreground(value)
     val revoked = leases.setForeground(value)
     main.post { for (token in revoked) pending.remove(token)?.reply?.invoke(null) }
   }

@@ -20,6 +20,7 @@ final class CapabilityLifecycle: @unchecked Sendable {
 struct CapabilityConfiguration {
   let snapshot: String
   let user: String
+  let epoch: UInt64
   let sessionId: String
   let fixture: String
   let domains: Set<String>
@@ -52,12 +53,12 @@ struct CapabilityConfiguration {
     case "state-lab", "state-lab-peer": expected = ["identity", "storage", "theme"]
     case "approval-lab": expected = ["identity", "relay", "theme"]
     case "upload-lab", "upload-queue-lab": expected = ["upload", "theme"]
-    case "resource-lab": expected = ["resource", "theme"]
+    case "resource-lab": expected = ["resource", "link", "theme"]
     case "feed-lab": expected = ["identity", "relay", "theme"]
     case "published":
       expected = Set(domains)
-      guard domains.count <= 6,
-        expected.isSubset(of: ["identity", "storage", "theme", "relay", "resource", "upload"]) else {
+      guard domains.count <= 7,
+        expected.isSubset(of: ["identity", "storage", "theme", "relay", "resource", "upload", "link"]) else {
         throw Invalid.configuration
       }
     default: throw Invalid.configuration
@@ -66,6 +67,7 @@ struct CapabilityConfiguration {
     value["generation"] = generation
     self.snapshot = String(decoding: try JSONSerialization.data(withJSONObject: value), as: UTF8.self)
     self.user = value["user"] as! String
+    self.epoch = epoch.uint64Value
     self.sessionId = sessionId
     self.fixture = fixture
     self.domains = expected
@@ -99,6 +101,7 @@ enum CapabilityTransport {
   nonisolated static let leases = CapabilityLeaseRegistry()
   nonisolated static let lifecycle = CapabilityLifecycle()
   nonisolated static func foreground(_ value: Bool) {
+    LinkTransport.foreground(value)
     UploadTransport.foreground(value)
     let revoked = leases.setForeground(value)
     Task { @MainActor in

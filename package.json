@@ -40,7 +40,9 @@
     "test:uploads": "node --experimental-strip-types --test tests/network/upload*.test.ts",
     "test:uploads:native": "python3 tests/native/upload-authority/run.py",
     "test:uploads:tls": "python3 tests/native/upload-authority/tls_run.py",
-    "test:identity": "node --experimental-strip-types --test tests/network/identity*.test.ts"
+    "test:identity": "node --experimental-strip-types --test tests/network/identity*.test.ts",
+    "test:links": "node --experimental-strip-types --test tests/network/link*.test.ts",
+    "test:links:native": "python3 tests/native/links/unit.py"
   },
   "dependencies": {
     "applesauce-core": "6.2.0",
@@ -77,7 +79,8 @@
       "xcode>uuid": "11.1.1"
     },
     "patchedDependencies": {
-      "node-forge@1.4.0": "patches/node-forge@1.4.0.patch"
+      "node-forge@1.4.0": "patches/node-forge@1.4.0.patch",
+      "braces@3.0.3": "tools/quality/patches/braces@3.0.3.patch"
     }
   }
 }

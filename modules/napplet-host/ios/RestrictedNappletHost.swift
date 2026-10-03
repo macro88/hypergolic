@@ -66,7 +66,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     active = isActive
     if !isActive {selectedFilePicker.cancel()}
     updateMediaPlayback()
-    if configuration != nil { ApprovalTransport.setFocused(generation, active: isActive); UploadTransport.focus(generation, active: isActive) }
+    if configuration != nil { ApprovalTransport.setFocused(generation, active: isActive); UploadTransport.focus(generation, active: isActive); LinkTransport.focus(generation, isActive) }
     // Dismiss only this retained view's editor; keep its loaded document and position.
     if !isActive { webView?.endEditing(true) }
   }
@@ -204,8 +204,9 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
           CapabilityTransport.leases.revoke(generation)
           fail("capability-unavailable"); return
         }
+        guard LinkTransport.register(generation, config: configuration) else { fail("link-unavailable"); return }
         guard UploadTransport.register(generation, config: configuration) else { fail("upload-unavailable"); return }
-        UploadTransport.focus(generation, active: active)
+        UploadTransport.focus(generation, active: active); LinkTransport.focus(generation, active)
         // React props may set focus before configuration; replay the current native view state.
         ApprovalTransport.setFocused(generation, active: active)
       }
@@ -484,6 +485,11 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       guard let bytes = try? JSONSerialization.data(withJSONObject: result) else { reply(nil, "Capability rejected"); return }
       reply(String(decoding: bytes, as: UTF8.self), nil)
     }
+    if let request = try? UploadWire.object(message, limit: 16 * 1024), request["type"] as? String == "link.open" {
+      guard CapabilityTransport.leases.consumeSequence(generation, sequence: counter) else {respond(nil); return}
+      LinkTransport.receive(generation, config: configuration, raw: message, view: self, reply: respond)
+      return
+    }
     if let request = try? UploadWire.object(message, limit: 400 * 1024),
       let type = request["type"] as? String, type.hasPrefix("upload.") {
       guard configuration.domains.contains("upload"), CapabilityTransport.leases.consumeSequence(generation, sequence: counter),
@@ -528,6 +534,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     guard !disposed else { return }
     live = false
     UploadTransport.revoke(generation)
+    LinkTransport.revoke(generation)
     ApprovalTransport.revoke(generation)
     CapabilityTransport.leases.revoke(generation)
     emit("error", code: code)
@@ -544,6 +551,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     publishedReader?.clear()
     publishedReader = nil
     UploadTransport.revoke(generation)
+    LinkTransport.revoke(generation)
     ApprovalTransport.revoke(generation)
     CapabilityTransport.revoke(generation)
     deadline?.cancel()

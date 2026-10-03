@@ -109,7 +109,7 @@ phase-2 evidence remains required. Phase 2.11 owns final integration acceptance.
 | CAP-04 | Selected resource schemes deliver verified expected bytes/rendering; destination, MIME, size, cancellation, cache and handle lifetime tests | 2.3 | Accepted selected bounded profile; native bytes/playback/lifetime pass. Full published/physical compatibility remains CAP-14 |
 | CAP-05 | Selected upload protocols send only approved bytes/destination; independent hash/receipt, cancellation, interruption and unknown-outcome handling | 2.4 | Accepted selected profile; sole owner-approved patched-tooling exception |
 | CAP-06 | Selected identity reads return validated profile/relay/public social data with canonical missing/error behavior, freshness and account isolation | 2.5 | Complete — selected profile; approved Forge exception |
-| CAP-07 | Deliberate permitted external links open through native controls; forbidden schemes, floods, denial and missing handler are tested | 2.6 | Open |
+| CAP-07 | Deliberate permitted external links open through native controls; forbidden schemes, floods, denial and missing handler are tested | 2.6 | Accepted selected profile; two approved dependency exceptions |
 | CAP-08 | Intent dispatch resolves authorized verified targets and exact payloads; handler choice, absent target, first-open consent and cancellation tested | 2.7 | Open |
 | CAP-09 | INC preserves sender/recipient identity and correlation; forged sender, replay, flood, closed/replaced target and cross-account traffic denied | 2.7 | Open |
 | CAP-10 | Shell-rendered notifications are attributed, bounded and dismissible; focus/action ownership and hostile content tested; no assumed OS push | 2.8 | Open |

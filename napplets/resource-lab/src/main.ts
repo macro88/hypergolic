@@ -1,4 +1,4 @@
-import { resource } from '@napplet/sdk';
+import { resource, link } from '@napplet/sdk';
 import './style.css';
 function element<T extends HTMLElement>(id: string): T {
   const node = document.getElementById(id); if (!node) throw Error('Missing resource control'); return node as T;
@@ -74,3 +74,24 @@ element('clear').addEventListener('click',()=>{revision++;pending?.abort();relea
 element('info').addEventListener('click',()=>{void resource.info().then(info=>{if(!disposed)receipt.textContent = JSON.stringify(info,null,2);}).catch(()=>{if(!disposed)status.textContent = 'Support unavailable.';});});
 window.addEventListener('pagehide',()=>{disposed = true;revision++;pending?.abort();release();controls();},{once:true});
 lab.dataset.ready = 'true';controls();
+
+const linkInput = element<HTMLInputElement>('link-url'), linkLabel = element<HTMLInputElement>('link-label');
+const linkStatus = element('link-status'), linkResult = element('link-result'), linkButton = element<HTMLButtonElement>('open-link');
+let linkRevision = 0;
+async function openLink(): Promise<void> {
+  const current = ++linkRevision; linkButton.disabled = true; linkResult.textContent = ''; linkStatus.textContent = 'Waiting for shell approval…';
+  try {
+    const result = await link.open(linkInput.value, {label: linkLabel.value});
+    if (disposed || current !== linkRevision) return;
+    linkResult.textContent = JSON.stringify(result); lab.dataset.linkResult = JSON.stringify(result);
+    linkStatus.textContent = result.status === 'opened' ? 'Link handed to your device.' : 'Link opening denied.';
+  } catch {if (!disposed && current === linkRevision) linkStatus.textContent = 'Link request unavailable.';}
+  finally {if (!disposed && current === linkRevision) linkButton.disabled = false;}
+}
+linkButton.addEventListener('click', () => {void openLink();});
+element('link-flood').addEventListener('click', () => {
+  const current = ++linkRevision;
+  void Promise.all(Array.from({length: 4}, () => link.open(linkInput.value))).then(results => {
+    if (!disposed && current === linkRevision) {linkResult.textContent = JSON.stringify(results); lab.dataset.linkResult = JSON.stringify(results); linkStatus.textContent = 'Four link requests settled.';}
+  }).catch(() => {if (!disposed && current === linkRevision) linkStatus.textContent = 'Link request unavailable.';});
+});

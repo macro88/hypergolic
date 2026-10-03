@@ -30,8 +30,8 @@ function metadata(value: Record<string, unknown>): PublishedMetadata {
       typeof htmlHash !== 'string' || !HEX64.test(htmlHash) ||
       typeof appId !== 'string' || !appId || appId !== appId.trim() ||
       new TextEncoder().encode(appId).length > 255 || /[\u0000-\u001f\u007f]/.test(appId) ||
-      !Array.isArray(domains) || domains.length > 6 ||
-      domains.some(domain => typeof domain !== 'string' || !['identity', 'storage', 'theme', 'relay', 'resource', 'upload'].includes(domain)) ||
+      !Array.isArray(domains) || domains.length > 7 ||
+      domains.some(domain => typeof domain !== 'string' || !['identity', 'storage', 'theme', 'relay', 'resource', 'upload', 'link'].includes(domain)) ||
       domains.some((domain, index) => index > 0 && domains[index - 1] >= domain)) throw new Error('Invalid artifact metadata');
   return Object.freeze({ publisher, appId, eventId, version, htmlHash, domains: Object.freeze([...domains]) });
 }

@@ -20,7 +20,7 @@ const Host = requireNativeView<ViewProps & {configuration:string;active:boolean;
 // Public scalar-2 public key only. No identity store, signer, publication or secret exists in this fixture.
 const configuration = Object.freeze({ sessionId:'resource-native',epoch:0,
   user:'c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5', publisher:'f'.repeat(64),
-  appId:'resource-lab',version:BUNDLED_FIXTURES['resource-lab'].aggregateHash,instanceId:'resource-native',fixture:'resource-lab',domains:['resource','theme'] });
+  appId:'resource-lab',version:BUNDLED_FIXTURES['resource-lab'].aggregateHash,instanceId:'resource-native',fixture:'resource-lab',domains:['resource','link','theme'] });
 function Fixture() {
   const [settingsVisible,setSettingsVisible]=useState(false),[settings,setSettings]=useState<NativeResourceSettings|null>(null);
   const [focused,setFocused]=useState(true);

@@ -1,4 +1,4 @@
-# Dependency patch and approved exception
+# Dependency patches and approved exceptions
 
 ## node-forge1.4.0 — GHSA-86w9-cpqp-85rv
 
@@ -73,3 +73,43 @@ source inventory; it is not suppression or a new exception. All58 verifier/insta
 patch regressions pass. Eight audits are clean; the root audit still reports only
 GHSA-86w9-cpqp-85rv. The fresh separate review requires the actual99 score, complete
 coverage and exact unchanged patch/consumer hashes, and rejects any extra finding.
+
+
+## braces3.0.3 — GHSA-vfj7-8cjw-p6xm — approved exception
+
+The 3 October 2026 complete audit identifies a second high advisory in both
+Expo CLI → Expo Metro file map → micromatch → braces and the isolated quality
+scanner → micromatch → braces. The [reviewed advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
+affects versions through3.0.3 and lists no patched release. The owning
+[report](https://github.com/micromatch/braces/issues/70) describes uncontrolled
+recursive AST traversal. The existing Forge exception does not cover this finding.
+
+The approved local patch is `tools/quality/patches/braces@3.0.3.patch`, shared by
+the root and quality lockfiles. Package names and versions remain3.0.3. A fixed
+256-level guard bounds parse stacks, compile/expand/stringify walkers, expansion
+parent traversal and array flattening. Excessive nesting raises an explicit
+RangeError before stack exhaustion. This is a locally authored mitigation with
+no upstream security review or released-fix claim. It intentionally rejects
+unusually deep patterns; normal expansion, compile/stringify and micromatch
+results are covered by positive cases. Callers must still handle invalid-pattern
+errors, just as they must handle existing syntax and length errors.
+
+Unmodified3.0.3 reproduces stack exhaustion for an8003-character nested expansion
+and direct6000-level ASTs. Installed patched copies in both actual consumers
+reject those inputs with the guard. All16 new consumer cases and all74 combined
+quality regressions pass; installed library files match between both consumers.
+PatchSHA256: `161bd9d790cc0ff2e1cbcd08818d8eece91c27c00575678613ca697b780876a6`.
+Frozen installation is verified. A pnpm cached installation initially retained
+unpatched files despite the hash-labelled path; forced frozen reinstall resolved
+it. The installed tests detect that failure rather than trusting the path.
+
+The complete scanner still reports Forge and braces with zero other findings;
+ReactDoctor100 and aislop97 are the actual scores. Root audit has both advisories,
+quality audit has braces, and the other seven lockfile audits are clean. Scoring,
+versions, audit data and standard gates are unchanged and still fail visibly.
+The owner explicitly approved this additional exception on 3 October 2026,
+limited to the tested locked patch, this advisory in the two identified consumers,
+the resulting97/100 score and the root/quality audit failures. All other quality
+requirements remain. Any other finding, new dependency consumer, incomplete scan
+or changed patch requires fresh review. Phase2.6 acceptance requires a fresh full
+report and separate exact-scope review; the ordinary verifier stays unchanged.

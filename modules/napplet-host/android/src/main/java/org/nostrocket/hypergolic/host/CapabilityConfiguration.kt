@@ -9,6 +9,7 @@ internal class CapabilityConfiguration(raw: String, generation: String, allowPub
   val fixture: String
   val allowsUpload: Boolean
   val user: String
+  val epoch: Long
   val allowsRelay: Boolean
   val publisher: String
   val appId: String
@@ -34,7 +35,7 @@ internal class CapabilityConfiguration(raw: String, generation: String, allowPub
       "state-lab", "state-lab-peer" -> setOf("identity", "storage", "theme")
       "approval-lab" -> setOf("identity", "relay", "theme")
       "upload-lab", "upload-queue-lab" -> setOf("upload", "theme")
-      "resource-lab" -> setOf("resource", "theme")
+      "resource-lab" -> setOf("resource", "link", "theme")
       "feed-lab" -> setOf("identity", "relay", "theme")
       "published" -> {
         require(allowPublished)
@@ -45,6 +46,7 @@ internal class CapabilityConfiguration(raw: String, generation: String, allowPub
     }
     if (fixture != "published") require(granted.toSet() == expected)
     user = string("user")
+    this.epoch = (epoch as Number).toLong()
     allowsUpload = "upload" in granted
     allowsRelay = "relay" in granted
     grantedDomains = granted.sorted()

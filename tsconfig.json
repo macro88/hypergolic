@@ -12,7 +12,8 @@
     "tests/native/feed-query/**/*.tsx",
     "tests/native/feed-subscription/**/*.tsx",
     "tests/native/upload/**/*.tsx",
-    "tests/native/identity-data/**/*.tsx"
+    "tests/native/identity-data/**/*.tsx",
+    "tests/native/links/**/*.tsx"
   ],
   "exclude": [
     "src/**/*.test.ts"

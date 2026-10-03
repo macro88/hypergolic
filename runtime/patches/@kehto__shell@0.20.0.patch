@@ -23,7 +23,7 @@ index 0ec36f0a861a096c6391bdae988ba8243bb3f021..a6bdd59f250582b9bf37cac8704465fc
  /**
   * Render the host-owned NIP-5D bootstrap that exposes available NAP domains
 diff --git a/dist/index.js b/dist/index.js
-index 523bcf16686659726604376dea98363a06f86049..f2265984bbd1ee7c8e939dc5f4f88046fe58e204 100644
+index 523bcf16686659726604376dea98363a06f86049..5592da60f4fb6a9c51263c57d0d5b01e5de56a38 100644
 --- a/dist/index.js
 +++ b/dist/index.js
 @@ -312,6 +312,7 @@ function adaptHooks(shellHooks, deps) {
@@ -148,3 +148,15 @@ index 523bcf16686659726604376dea98363a06f86049..f2265984bbd1ee7c8e939dc5f4f88046
          for (const url of objectUrls) URL.revokeObjectURL(url);
          objectUrls.clear();
        }
+@@ -2367,7 +2403,10 @@ function nappletNamespacePrelude(domains) {
+       open: (url, options) => request(
+         { type: "link.open", url, ...options ? { options } : {} },
+         "link.open.result",
+-        resultOrError,
++        (msg) => {
++          if (msg.status !== "opened" && msg.status !== "denied") throw new Error("invalid link result");
++          return { status: msg.status };
++        },
+         { rejectOnError: false }
+       )
+     };

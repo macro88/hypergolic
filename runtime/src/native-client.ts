@@ -46,16 +46,19 @@ function receiveControl(envelope:ControlEnvelope,generation:string,streams:Map<n
       }
   return false;
 }
-type PendingRequest={type:string;id:string;timer:number;resolve:(message:NappletMessage)=>void;reject:()=>void};
+/** Internal native revocation: settle transport bookkeeping without a guest receipt. */
+export class NativeRequestRevoked extends Error {}
+type PendingRequest={type:string;id:string;timer:number;resolve:(message:NappletMessage)=>void;reject:(reason?: Error)=>void};
 function receiveOrdinary(envelope:{sequence:number;response:unknown},pending:Map<number,PendingRequest>):void {
   const request = pending.get(envelope.sequence);
   if (!request) return;
   try {
+    if (request.type === 'link.open' && envelope.response === null) throw new NativeRequestRevoked('Native link owner revoked');
     if (typeof envelope.response !== 'string') throw new Error('Native request denied');
     const response = JSON.parse(envelope.response);
     if (!response || (response.type !== request.type + '.result' && !(request.type.startsWith('resource.') && response.type === request.type + '.error')) || response.id !== request.id) throw new Error('Native response mismatch');
     request.resolve(response);
-  } catch { request.reject(); }
+  } catch (error) { request.reject(error instanceof NativeRequestRevoked ? error : undefined); }
   finally { pending.delete(envelope.sequence); window.clearTimeout(request.timer); }
 }
 type UploadState = {uploadId: string; delivery: number; bytesSent: number; onStatus(message: NappletMessage): void};
@@ -147,7 +150,7 @@ export function createNativeClient(native: NativeHost, generation: string, optio
       if (new TextEncoder().encode(encoded).length > maxBytes) return Promise.reject(new Error('Native request too large'));
       sequence = counter;
       return new Promise((resolve, rejectPromise) => {
-        const reject = (): void => { uploads.delete(counter); rejectPromise(new Error('Native capability unavailable')); };
+        const reject = (reason?: Error): void => { uploads.delete(counter); rejectPromise(reason ?? new Error('Native capability unavailable')); };
         if (upload) uploads.set(counter, {uploadId: upload.uploadId, delivery: 0, bytesSent: 0, onStatus: upload.onStatus});
         const timeout = options.requestTimeoutsMs?.[message.type] ?? ordinaryTimeoutMs;
         const timer = window.setTimeout(() => { pending.delete(counter); reject(); }, timeout);

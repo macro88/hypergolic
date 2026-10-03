@@ -51,6 +51,17 @@ var resource = {
     return requireDomain("resource").bytesAsObjectURL(url);
   }
 };
+var link = {
+  /**
+   * Request that the shell open an external URL for the user.
+   * @param url      Absolute URL to open
+   * @param options  Optional prompt/display hints
+   * @returns Promise resolving to the shell's open/deny status
+   */
+  open(url, options) {
+    return requireDomain("link").open(url, options);
+  }
+};
 function element(id) {
   const node = document.getElementById(id);
   if (!node) throw Error("Missing resource control");
@@ -142,11 +153,11 @@ async function render(blob, target) {
       lab.dataset.paused = "false";
     });
   } else {
-    const link = document.createElement("a");
-    link.textContent = `Attachment: ${blob.type}, ${blob.size} bytes`;
-    ownSource(blob, link);
-    link.download = "resource";
-    target.append(link);
+    const link2 = document.createElement("a");
+    link2.textContent = `Attachment: ${blob.type}, ${blob.size} bytes`;
+    ownSource(blob, link2);
+    link2.download = "resource";
+    target.append(link2);
   }
 }
 async function run(bulk) {
@@ -237,6 +248,41 @@ window.addEventListener("pagehide", () => {
 }, { once: true });
 lab.dataset.ready = "true";
 controls();
+const linkInput = element("link-url"), linkLabel = element("link-label");
+const linkStatus = element("link-status"), linkResult = element("link-result"), linkButton = element("open-link");
+let linkRevision = 0;
+async function openLink() {
+  const current = ++linkRevision;
+  linkButton.disabled = true;
+  linkResult.textContent = "";
+  linkStatus.textContent = "Waiting for shell approval…";
+  try {
+    const result = await link.open(linkInput.value, { label: linkLabel.value });
+    if (disposed || current !== linkRevision) return;
+    linkResult.textContent = JSON.stringify(result);
+    lab.dataset.linkResult = JSON.stringify(result);
+    linkStatus.textContent = result.status === "opened" ? "Link handed to your device." : "Link opening denied.";
+  } catch {
+    if (!disposed && current === linkRevision) linkStatus.textContent = "Link request unavailable.";
+  } finally {
+    if (!disposed && current === linkRevision) linkButton.disabled = false;
+  }
+}
+linkButton.addEventListener("click", () => {
+  void openLink();
+});
+element("link-flood").addEventListener("click", () => {
+  const current = ++linkRevision;
+  void Promise.all(Array.from({ length: 4 }, () => link.open(linkInput.value))).then((results) => {
+    if (!disposed && current === linkRevision) {
+      linkResult.textContent = JSON.stringify(results);
+      lab.dataset.linkResult = JSON.stringify(results);
+      linkStatus.textContent = "Four link requests settled.";
+    }
+  }).catch(() => {
+    if (!disposed && current === linkRevision) linkStatus.textContent = "Link request unavailable.";
+  });
+});
 </script>
   <style>*{box-sizing:border-box}html{color-scheme:dark}body{margin:0;background:#140f0b;color:#f3efeb;font:16px/1.5 system-ui,sans-serif}main{max-width:42rem;margin:auto;padding:24px 20px 80px}h1{font-size:34px;line-height:1.1;margin:8px 0 18px}.eyebrow{color:#e8805d;font-size:12px;text-transform:uppercase;letter-spacing:.12em}label{display:block;margin:24px 0 8px;font-weight:600}textarea{display:block;width:100%;min-height:120px;resize:vertical;background:#241b14;color:inherit;border:1px solid #655143;border-radius:8px;padding:12px;font:16px/1.5 ui-monospace,monospace}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}button{min-height:48px;border:1px solid #e8805d;border-radius:8px;background:#e8805d;color:#21150e;font:inherit;padding:10px 14px;cursor:pointer}button:disabled{opacity:.5;cursor:default}button:focus-visible,textarea:focus-visible{outline:3px solid #fff;outline-offset:3px}#status{min-height:48px}ol{list-style:none;padding:0}li{overflow-wrap:anywhere;padding:14px 0;border-top:1px solid #655143}li p{white-space:pre-wrap;overflow-wrap:anywhere}code{display:block;color:#c7b6a7;font-size:11px;overflow-wrap:anywhere}[data-state=error] #status{color:#ffaf9b}
 
@@ -244,6 +290,11 @@ input{width:100%;min-height:48px;background:#241b14;color:inherit;border:1px sol
 </style>
 </head>
 <body><main id="lab" data-testid="lab"><p class="eyebrow">Hypergolic fixture</p><h1>Resource Lab</h1><p>Load complete bytes through the shell and inspect the result.</p>
+<section aria-label="External links"><h2>Open an external link</h2>
+<label for="link-url">External HTTPS URL</label><input id="link-url" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" value="https://example.com/?hypergolic=link-tracer">
+<label for="link-label">Untrusted label hint</label><input id="link-label" type="text" value="Read external page">
+<div class="actions"><button id="open-link" type="button">Open external link</button><button id="link-flood" type="button">Request four links</button></div>
+<p id="link-status" role="status" aria-live="polite">Ready to request a link.</p><pre id="link-result"></pre></section>
 <label for="url">Resource URL</label><input id="url" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" value="https://www.w3.org/assets/logos/w3c-2025-transitional/w3c-72x48.png">
 <div class="actions"><button id="load" type="button">Load resource</button><button id="cancel" type="button" disabled>Cancel</button><button id="info" type="button">Check support</button><button id="clear" type="button">Release preview</button></div>
 <p id="status" role="status" aria-live="polite">Ready to load.</p><div id="preview"></div><pre id="receipt"></pre>

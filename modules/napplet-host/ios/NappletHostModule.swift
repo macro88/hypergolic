@@ -33,6 +33,13 @@ public final class NappletHostModule: Module {
       CapabilityTransport.foreground(false)
       RelaySubscriptionTransport.shared.observeLifecycle(nil)
     }
+    Function("synchronizeLinkOwner") { (user: String, epoch: Double, available: Bool) throws in
+      guard user.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil,
+        epoch.isFinite, epoch >= 0, epoch <= 9_007_199_254_740_991, epoch.rounded(.towardZero) == epoch,
+        LinkTransport.synchronizeOwner(user, epoch: UInt64(epoch), available: available) else {
+        throw NSError(domain: "HypergolicLinkOwner", code: 1)
+      }
+    }
     Function("relayLifecycle") { RelaySubscriptionTransport.shared.lifecycle() }
     Function("startRelayStream") { (id: String, token: String, url: String, request: String, subId: String) -> Bool in
       relayStreams.start(id, token: token, url: url, request: request, subId: subId) { event in streamEmitter?.emit(event: "onRelayStream", payload: event.payload) }

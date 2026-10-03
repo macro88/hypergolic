@@ -11,6 +11,9 @@ overrides:
   xcode>uuid: 11.1.1
 
 patchedDependencies:
+  braces@3.0.3:
+    hash: 161bd9d790cc0ff2e1cbcd08818d8eece91c27c00575678613ca697b780876a6
+    path: tools/quality/patches/braces@3.0.3.patch
   node-forge@1.4.0:
     hash: 0169a20d1e125a82cafab56e53fa41e0c6caf2148dca29511c251d6411dc632a
     path: patches/node-forge@1.4.0.patch
@@ -5347,7 +5350,7 @@ snapshots:
     dependencies:
       balanced-match: 4.0.4
 
-  braces@3.0.3:
+  braces@3.0.3(patch_hash=161bd9d790cc0ff2e1cbcd08818d8eece91c27c00575678613ca697b780876a6):
     dependencies:
       fill-range: 7.1.1
 
@@ -6466,7 +6469,7 @@ snapshots:
 
   micromatch@4.0.8:
     dependencies:
-      braces: 3.0.3
+      braces: 3.0.3(patch_hash=161bd9d790cc0ff2e1cbcd08818d8eece91c27c00575678613ca697b780876a6)
       picomatch: 2.3.2
 
   mime-db@1.52.0: {}

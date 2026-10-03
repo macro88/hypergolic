@@ -194,6 +194,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     updateMediaPlayback()
     ApprovalTransport.focus(generation, active)
     UploadTransport.focus(generation, active)
+    LinkTransport.focus(generation, active)
     webView.importantForAccessibility = if (active) View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
       else View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
     if (active || !webView.hasFocus()) return
@@ -282,10 +283,12 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (config != null) {
       if (!CapabilityTransport.leases.register(generation)) { fail("capability-unavailable"); return }
       if (!ApprovalTransport.register(generation)) { fail("approval-unavailable"); return }
+      if (!LinkTransport.register(generation, config)) { fail("link-unavailable"); return }
       if (!UploadTransport.register(generation, config)) { fail("upload-unavailable"); return }
       configuration = config
       ApprovalTransport.focus(generation, active)
     UploadTransport.focus(generation, active)
+    LinkTransport.focus(generation, active)
     }
     published = claims
     publishedSource = raw
@@ -366,6 +369,11 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (sequence !in 1..9_007_199_254_740_991L) return
     val message = data.getString("message")
     val request = runCatching { UploadWire.objectValue(message, CapabilityLeaseRegistry.MAX_BYTES) }.getOrNull()
+    if (request?.optString("type") == "link.open") {
+      if (!CapabilityTransport.leases.consumeSequence(generation, sequence)) { reply(null); return }
+      LinkTransport.receive(generation, config, message, appContext.currentActivity, reply)
+      return
+    }
     if (request?.optString("type")?.startsWith("upload.") == true) {
       if (!CapabilityTransport.leases.consumeSequence(generation, sequence) || !config.allowsUpload) { reply(null); return }
       reply(UploadTransport.receive(generation, sequence, message, push) { token ->
@@ -400,8 +408,11 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (configuration != null && !ApprovalTransport.register(generation)) { fail("approval-unavailable"); return }
     ApprovalTransport.focus(generation, active)
     UploadTransport.focus(generation, active)
+    LinkTransport.focus(generation, active)
+    if (configuration != null && !LinkTransport.register(generation, configuration!!)) { fail("link-unavailable"); return }
     configuration?.let { if (!UploadTransport.register(generation, it)) { fail("upload-unavailable"); return } }
     UploadTransport.focus(generation, active)
+    LinkTransport.focus(generation, active)
     live = true
     expectedUrl = "$ORIGIN/assets/runtime/index.html?sessionId=$generation"
     configuration?.let { expectedUrl += "&fixture=" + it.fixture }
@@ -423,6 +434,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     publishedReader?.clear()
     SelectedFilePicker.revoke(generation)
     UploadTransport.revoke(generation)
+    LinkTransport.revoke(generation)
     ApprovalTransport.revoke(generation)
     CapabilityTransport.leases.revoke(generation)
     emit("error", code)
@@ -437,6 +449,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     synchronized(publishedViews) { publishedViews.remove(this) }
     SelectedFilePicker.revoke(generation)
     UploadTransport.revoke(generation)
+    LinkTransport.revoke(generation)
     ApprovalTransport.revoke(generation)
     CapabilityTransport.revoke(generation)
     if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {

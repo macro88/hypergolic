@@ -17,7 +17,7 @@ and resolve each phase's material policy decisions before generating those files
 - [x] **Phase 2.3: Resource access** — L; Resource Lab.
 - [x] **Phase 2.4: Uploads** — L; Upload Lab.
 - [x] **Phase 2.5: Public identity data** — M; State Lab and Feed Lab.
-- [ ] **Phase 2.6: External links** — S–M; Resource Lab.
+- [x] **Phase 2.6: External links** — S–M; Resource Lab.
 - [ ] **Phase 2.7: Intents and inter-napplet communication** — M + L; Routing Lab pair.
 - [ ] **Phase 2.8: Notifications and configuration** — M + M; Routing Lab.
 - [ ] **Phase 2.9: Outbox routing** — L; Feed Lab.
@@ -135,7 +135,11 @@ CAP-06 is selected-profile complete; broad CAP-14 gates remain open.
 **Requirements:** CAP-07
 **Fixture:** Resource Lab
 **Work and exit criteria:** Select schemes and confirmation rules; implement attributed user-controlled native opening. Verify malformed/forbidden URLs, cancellation, missing handler, floods and returning to the live napplet.
-**Plans:** Pending owning-contract research and phase-local decisions; no completion claimed.
+**Selected decisions:** HTTPS only; trusted approval for each opening; device normal handler. NAP-LINK proposal53 e251433 is the declared draft profile.
+**Plans:** Three tracer-first waves complete; CAP-07 accepted for the selected native profile under the two approved locked dependency exceptions.
+- [x] 02.6-01-PLAN.md — SDK/native HTTPS review/handoff/return tracer.
+- [x] 02.6-02-PLAN.md — Validation, limits, lifecycle and failure boundaries.
+- [x] 02.6-03-PLAN.md — Signed admission and final native/quality acceptance.
 
 ### Phase 2.7: Intents and inter-napplet communication
 

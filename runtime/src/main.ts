@@ -1,8 +1,10 @@
+import { ensureObjectHasOwn } from './legacy-webview';
+import { createLinkAdapter } from './link-adapter';
+import { linkRequestId } from '../../src/links/link-contract';
 import { createUploadAdapter } from './upload-adapter';
 import { parseUploadRequest } from '../../src/uploads/upload-contract';
 import { bindResourceMedia, injectResourceMediaGate } from './resource-media';
 import { createResourceAdapter } from './resource-adapter';
-import { ensureObjectHasOwn } from './legacy-webview';
 import { parseRelaySubscribe, parseRelayClose } from '../../src/network/relay-subscription-contract';
 import {
   createShellBridge, injectNappletNamespacePrelude, originRegistry,
@@ -112,7 +114,9 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
     hotkeys: { executeHotkeyFromForward: unavailable },
     workerRelay: { getWorkerRelay: () => null },
     crypto: { verifyEvent: async () => false },
+    link: {isAvailable: () => supported.has('link')},
     services: { theme: theme.handler,
+      ...(supported.has('link') ? {link: createLinkAdapter(native, captureRecipient)} : {}),
       ...(supported.has('upload') ? { upload: { descriptor: { name: 'upload', version: '1.0.0' }, handleMessage: unavailable } } : {}), ...(supported.has('identity') ? { identity } : {}),
       ...(supported.has('resource') ? { resource: { descriptor: { name: 'resource', version: '1.0.0' }, handleMessage: unavailable } } : {}),
       ...(supported.has('relay') ? { relay: { descriptor: { name: 'relay', version: '1.0.0' }, handleMessage: unavailable } } : {}) },
@@ -123,7 +127,7 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
       ...(supported.has('relay') ? { 'relay.publish': relayPublish, 'relay.query': relayPublish, 'relay.subscribe': relaySubscribe, 'relay.close': relayClose } : {}),
     } } : {}),
     capabilities: {
-      disabledDomains: ['upload', 'resource', 'relay', 'identity', 'storage', 'inc', 'keys', 'media', 'notify'].filter(domain => !supported.has(domain)),
+      disabledDomains: ['link', 'upload', 'resource', 'relay', 'identity', 'storage', 'inc', 'keys', 'media', 'notify'].filter(domain => !supported.has(domain)),
       resolveEnvironment: () => ({ domains: [...supported], services: ['theme', ...(supported.has('identity') ? ['identity'] : [])] }),
     },
   };
@@ -136,6 +140,7 @@ function validEnvelope(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const message = value as Record<string, unknown>;
   const keys = Object.keys(message);
+  if (message.type === 'link.open') return linkRequestId(value) !== null;
   if (typeof message.type === 'string' && message.type.startsWith('upload.')) {
     try { parseUploadRequest(value); return true; } catch { return false; }
   }

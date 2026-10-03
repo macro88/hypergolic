@@ -11,7 +11,8 @@
     "dTag": "resource-lab",
     "title": "Resource Lab",
     "requires": [
-      "resource"
+      "resource",
+      "link"
     ]
   },
   "scripts": {

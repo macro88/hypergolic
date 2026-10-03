@@ -57,6 +57,11 @@ signed bounded relay reads and a dedicated reverified SQLite cache. Separate tru
 consent governs public mutes and categorized lists; Settings revocation also gates
 queued native delivery. Phase 2.5 selected acceptance is recorded in `docs/public-identity-data.md`; broader protected and physical MVP gates remain Phase 2.11.
 
+The [external-link owner](external-links.md) provides native per-opening HTTPS review,
+normal OS handoff and identity/lifecycle revocation. Its selected Android/iOS native profile
+and CAP-07 are accepted under the two documented locked dependency exceptions. Domain admission alone
+does not establish completion of a capability.
+
 The shell enters through a native identity vault; Android protected entry and
 public identity continuity have native evidence, while iOS protected storage needs
 a physical iPhone. See the [identity checkpoint](identity-storage.md). The
@@ -81,7 +86,7 @@ The NIP-19 decoder accepts valid `naddr` TLV field orderings; re-encoding an
 address must not be used as a byte-for-byte admission rule. Unsupported
 `requires` domains are identified before consent, and Settings names them to
 the user rather than offering access the native host cannot supply. The current
-host admits `identity`, `storage`, `theme`, `relay`, `resource` and `upload` for
+host admits `identity`, `storage`, `theme`, `relay`, `resource`, `upload` and `link` for
 verified napplets. Upload admission has scoped normal-shell native evidence;
 its selected acceptance uses the documented patched-tooling exception. A verified napplet that
 requires `cvm` or `webrtc` remains incompatible. This follows

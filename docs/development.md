@@ -545,3 +545,40 @@ gates, install, publish, change remotes or imply v1 acceptance.
 
 Run `pnpm run test:tester` for packaging failure/success contract tests. Those tests
 use controlled tool substitutes and do not establish native runtime behavior.
+
+## External-link native verification
+
+The [selected contract](external-links.md) separates actual OS handoff from page
+loading, browser doubles, owning core assertions and final MVP acceptance. From
+the pinned checkout, run `pnpm run test:links`, `pnpm run test:links:native` and
+`pnpm run runtime:test`. Native units use the installed JVM/Swift toolchains.
+
+`tests/native/links/build.py` seals an isolated Release product with ordinary
+native network/security settings. Use an evidence directory outside the checkout:
+
+```sh
+python3 tests/native/links/build.py --platform android --output "$HYPERGOLIC_LINK_EVIDENCE_DIR/android-build"
+adb -s "$ANDROID_SERIAL" install -r "$HYPERGOLIC_LINK_EVIDENCE_DIR/android-build/linkfixture.apk"
+python3 tests/native/links/android.py --matrix --serial "$ANDROID_SERIAL" --build "$HYPERGOLIC_LINK_EVIDENCE_DIR/android-build/build.json" --apk "$HYPERGOLIC_LINK_EVIDENCE_DIR/android-build/linkfixture.apk" --output "$HYPERGOLIC_LINK_EVIDENCE_DIR/android-matrix"
+```
+
+Set both variables to the actual evidence directory and selected emulator. The
+Android QA APK uses debug signing and its isolated `linkfixture` application ID;
+it does not establish ordinary tester signing. The iOS counterpart uses
+`build.py --platform ios`, the resulting Simulator app and `ios.py --matrix`.
+Its XCTest runner records native input, accessibility and exported attachments.
+Both drivers compare tested source and exact installed product before/after.
+
+`build.py --suite published` selects normal IdentityShell admission of locally
+supplied signed Resource Lab fixtures. The `android-published.py` and
+`ios-published.py` drivers exercise separate domain consent, fresh native review,
+OS return, persisted grant, confirmed identity change and an undeclared link domain.
+These isolated fixtures use disposable public identities and make no external
+publication or protected/physical-device claim. Reset only their fixture container
+before a fresh signed journey. Keep original failed and passing reports distinct.
+
+After native verification, run the ordinary exports, prebuild and Release builds.
+The required unsuppressed numeric quality report remains separate from local
+zero-finding scans. Current locked dependency exceptions and pending decisions
+are recorded in [dependency patches](dependency-patches.md); an existing exception
+does not authorize accepting a new advisory.

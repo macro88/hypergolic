@@ -189,6 +189,10 @@ class NappletHostModule : Module() {
     Function("finishApproval") { token: String, response: String? -> ApprovalTransport.finish(token, response) }
     Function("resumeApprovals") { ApprovalTransport.resume() }
     Function("newInstanceId") { java.util.UUID.randomUUID().toString() }
+    Function("synchronizeLinkOwner") { user: String, epoch: Double, available: Boolean ->
+      require(user.matches(Regex("[0-9a-f]{64}")) && epoch.isFinite() && epoch >= 0 && epoch <= 9_007_199_254_740_991.0 && epoch % 1.0 == 0.0)
+      check(LinkTransport.synchronizeOwner(user, epoch.toLong(), available)) { "Stale link owner" }
+    }
     Function("relayLifecycle") { RelaySubscriptionTransport.lifecycle() }
     Function("startRelayStream") { id: String, token: String, url: String, request: String, subId: String ->
       RelayStreamWssOwner.start(id, token, url, request, subId) { event -> sendEvent("onRelayStream", event) }

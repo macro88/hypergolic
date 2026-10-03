@@ -1,18 +1,18 @@
 ---
 gsd_state_version: "1.0"
-current_phase: "2.5"
-current_phase_name: Public identity data
-status: phase_complete
-stopped_at: Phase2.5 selected acceptance complete; seal final docs/quality and targeted local commit, then2.6. Continue until50% weekly consumed or Phase2 complete.
-last_updated: "2026-10-02T11:06:21.701Z"
-last_activity: 2026-10-02
-state_head: c3f92f8dd808b2ff3dd8f69ee2ca6e36b2231e18
+current_phase: "2.7"
+current_phase_name: Intents and inter-napplet communication
+status: researching
+stopped_at: Phase2.6 selected acceptance complete under exact approved Forge/braces exceptions; make targeted local commit, then2.7 owning-contract research and product interview. Continue below50% weekly or finish Phase2; source unpushed.
+last_updated: "2026-10-03T03:57:13Z"
+last_activity: 2026-10-03
+state_head: f11dcdc51fc744892f4b2609621c20d122202e15
 progress:
   total_phases: 14
-  completed_phases: 6
-  total_plans: 21
-  completed_plans: 15
-  percent: 71
+  completed_phases: 7
+  total_plans: 24
+  completed_plans: 18
+  percent: 75
 ---
 
 # Project State
@@ -22,7 +22,7 @@ progress:
 See: .planning/PROJECT.md (scope updated 2026-09-29)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Phase 2.5 — Public identity data
+**Current focus:** Phase 2.7 — Intents and inter-napplet communication
 
 ## MVP scope checkpoint — 29 September 2026
 
@@ -38,9 +38,10 @@ expansion cards are not executable PLAN files.
 
 ## Current Position
 
-Phase: 2.5 (Public identity data) — SELECTED PROFILE COMPLETE
-Plan: 03 of 03 complete
-Status: CAP-06 selected accepted; Android/iOS lists22 and normal signed14 each pass. Both ordinary builds and full quality pass under only the approved Forge exception (Doctor100/aislop99). Seal final documentation/quality and targeted local commit, then2.6 owning research/product decisions. Last weekly usage30%; continue to50% or Phase2 complete, no source push. Progress15/21 counts completed executable plans, not overall MVP readiness.
+Phase: 2.7 (Intents and inter-napplet communication) — RESEARCHING
+Plan: Phase2.6 all three waves accepted;2.7 plans await owning-contract/product choices.
+Status: Phase2.6 selected CAP-07 profile is complete: final-source Android13/iOS12 lifecycle checks, eight normal signed-admission checks per host, supplementary actual Android Chrome/AX/image/SDK-return and all affected regressions pass. Both ordinary exports/prebuilds and Android ARM64/iOS Simulator Release builds pass. Owner approved exact empty-score payload/destination and tested locked braces exception on3October. Fresh complete quality Doctor100/aislop97 has exactly the approved Forge/braces findings, root2high/quality1high/seven clean audits. Separate exact review and all74 quality tests pass; ordinary gates remain visibly red. Expo Doctor still recommends six newer packages under retained approved pins. Targeted local Phase2.6 commit precedes2.7; source push remains owner-controlled. Weekly usage16%; continue below50% or finish Phase2. Progress18/24 counts executable plans, not MVP readiness.
+
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
 Previous native action checkpoint: 2026-09-15 — Added the Android native deletion authority with 95 owning JVM assertions and the protected-record/erase reader with 89 actual Android assertions. Existing SDK records are unchanged; disposable data alone was erased. The actual Release app and separate instrumentation APK build and their installed bytes match. The production deletion path remains denied pending native context/lifecycle and system-prompt integration; authentication in the record probe is a double. See docs/identity-storage.md.
@@ -794,3 +795,9 @@ approved locked Forge exception; normal gates remain red. Private evidence is
 captured/synced separately. Finalize targeted local commit; next2.6 external links
 needs owning research and material product decisions. No source push. Latest30%,
 continue one phase at a time until50% or complete Phase2.
+
+
+External links interview complete (2026-10-03): HTTPS only; approval for each opening; device normal handler (browser or associated app). NAP-LINK proposal53 e251433 selected for this bounded profile, still open/unmerged. Three tracer-first plans are authored inline under the Codex adapter, pending structure validation and execution; CAP-07 remains open. Phase2.5 targeted local commit f11dcdc is complete. Current weekly usage2%; continue through Phase2 or50%, no source push. Native accepted-handoff receipt must be proven across caused background without reviving ordinary leases.
+
+
+External links native/build checkpoint (2026-10-03): final signed Android03/iOS03 and lifecycle Android07/iOS05 pass. Published-artifact reader now admits all seven declared domains, including link; full runtime172 and native189/167 pass. Preserve earlier stale-denial, artifact-allowlist, address-entry, accessibility-readiness, timer and supplemental observer failures. Supplement03 shows actual focused Chrome first-run/AX/image then original SDK opened; page loading is not claimed. See phase-local VERIFICATION for the remaining two quality decisions. No phase commit or next-phase advance while they remain unresolved.
