@@ -17,11 +17,11 @@ enum UploadWire {
     return value.int64Value
   }
   static func json(_ value: [String: Any]) throws -> String { String(decoding: try JSONSerialization.data(withJSONObject: value, options: [.sortedKeys, .withoutEscapingSlashes]), as: UTF8.self) }
-  static func object(_ raw: String, limit: Int = 32 * 1024) throws -> [String: Any] {
-    guard boundedJSON(raw, limit: limit), let value = try JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any] else { throw Invalid.value }; return value
+  static func object(_ raw: String, limit: Int = 32 * 1024, maximumDepth: Int = 12) throws -> [String: Any] {
+    guard boundedJSON(raw, limit: limit, maximumDepth: maximumDepth), let value = try JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any] else { throw Invalid.value }; return value
   }
-  static func boundedJSON(_ input: String, limit: Int) -> Bool {
-    guard input.utf8.count <= limit else { return false }
+  static func boundedJSON(_ input: String, limit: Int, maximumDepth: Int = 12) -> Bool {
+    guard maximumDepth > 0, maximumDepth <= 40, input.utf8.count <= limit else { return false }
     var depth = 0, quoted = false, escaped = false
     for value in input.utf8 {
       if quoted {
@@ -29,7 +29,7 @@ enum UploadWire {
         else if value == 92 { escaped = true }
         else if value == 34 { quoted = false }
       } else if value == 34 { quoted = true }
-      else if value == 91 || value == 123 { depth += 1; if depth > 12 { return false } }
+      else if value == 91 || value == 123 { depth += 1; if depth > maximumDepth { return false } }
       else if value == 93 || value == 125 { depth -= 1; if depth < 0 { return false } }
     }
     return depth == 0 && !quoted

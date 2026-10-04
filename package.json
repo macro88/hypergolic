@@ -44,7 +44,8 @@
     "test:links": "node --experimental-strip-types --test tests/network/link*.test.ts",
     "test:links:native": "python3 tests/native/links/unit.py",
     "test:routing": "node --experimental-strip-types --test tests/routing/*.test.ts",
-    "test:routing:native": "python3 tests/native/routing/unit.py"
+    "test:routing:native": "python3 tests/native/routing/unit.py",
+    "test:presentation": "node --experimental-strip-types --test tests/presentation/*.test.ts"
   },
   "dependencies": {
     "applesauce-core": "6.2.0",

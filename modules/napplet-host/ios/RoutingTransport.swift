@@ -33,8 +33,8 @@ final class RoutingTransportRegistry: @unchecked Sendable {
   } }
   private func clearPending() { for generation in Array(rows.keys) { rows[generation]?.pending.removeAll() } }
   func register(_ generation: String, config: CapabilityConfiguration) -> Bool { lock.withLock {
-    guard config.domains.contains("intent") || config.domains.contains("inc") else { return true }
-    guard endpoints.register(generation, user: config.user, epoch: config.epoch, intent: config.domains.contains("intent"), inc: config.domains.contains("inc")) else { return false }
+    guard config.domains.contains("intent") || config.domains.contains("inc") || config.domains.contains("notify") || config.domains.contains("config") else { return true }
+    guard endpoints.register(generation, user: config.user, epoch: config.epoch, intent: config.domains.contains("intent"), inc: config.domains.contains("inc"), notify: config.domains.contains("notify"), config: config.domains.contains("config")) else { return false }
     rows[generation] = Row(config: config); return true
   } }
   func ready(_ generation: String) { lock.withLock { endpoints.ready(generation) } }
@@ -48,13 +48,13 @@ final class RoutingTransportRegistry: @unchecked Sendable {
       reply: @escaping @MainActor @Sendable (String?) -> Void) -> String? {
     lock.lock(); defer { lock.unlock() }
     let revision = endpoints.state().revision
-    guard var wrapper = try? UploadWire.object(raw, limit: 36 * 1024), let row = rows[generation],
+    guard var wrapper = try? UploadWire.object(raw, limit: 36 * 1024, maximumDepth: 40), let row = rows[generation],
       Set(wrapper.keys) == ["type", "id", "message"], wrapper["type"] as? String == "routing.call",
       let id = wrapper["id"] as? String, id.range(of: "^[A-Za-z0-9_-]{1,128}$", options: .regularExpression) != nil,
       let message = wrapper["message"] as? [String: Any], let type = message["type"] as? String,
-      let domain = type == "routing.__register" ? row.config.domains.sorted().first(where: {$0 == "intent" || $0 == "inc"}) : type.split(separator: ".").first.map(String.init),
+      let domain = type == "notify.__register" ? "notify" : type == "routing.__register" ? row.config.domains.sorted().first(where: {$0 == "intent" || $0 == "inc"}) : type.split(separator: ".").first.map(String.init),
       mayDeliver(generation, revision: revision, domain: domain),
-      type != "routing.__register" || Set(message.keys) == ["type"] else {
+      (type != "routing.__register" && type != "notify.__register") || Set(message.keys) == ["type"] else {
       _ = CapabilityTransport.leases.consumeSequence(generation, sequence: sequence); reply(nil); return nil
     }
     rows[generation]?.push = push; wrapper["revision"] = revision
@@ -65,8 +65,8 @@ final class RoutingTransportRegistry: @unchecked Sendable {
     return token
   }
   func send(_ generation: String, revision: UInt64, raw: String) -> Bool { lock.withLock {
-    guard var row = rows[generation], let message = try? UploadWire.object(raw, limit: 36 * 1024),
-      let type = message["type"] as? String, ["intent.changed", "inc.event", "inc.channel.opened", "inc.channel.event", "inc.channel.closed"].contains(type),
+    guard var row = rows[generation], let message = try? UploadWire.object(raw, limit: 36 * 1024, maximumDepth: 40),
+      let type = message["type"] as? String, ["intent.changed", "inc.event", "inc.channel.opened", "inc.channel.event", "inc.channel.closed", "notify.action", "notify.clicked", "notify.dismissed", "notify.controls", "config.values", "config.schemaError"].contains(type),
       let domain = type.split(separator: ".").first.map(String.init), mayDeliver(generation, revision: revision, domain: domain),
       row.push != nil, row.pending.count < 4, row.delivery < 9_007_199_254_740_991 else { return false }
     row.delivery += 1; let delivery = row.delivery; row.pending.insert(delivery); rows[generation] = row

@@ -26,8 +26,8 @@ internal object RoutingTransport {
     if (before != endpoints.revision()) { rows.values.forEach { it.pending.clear() }; sink?.invoke(state()) }
   }
   @Synchronized fun register(generation: String, config: CapabilityConfiguration): Boolean {
-    if (config.grantedDomains.none { it == "intent" || it == "inc" }) return true
-    if (!endpoints.register(generation, config.user, config.epoch, config.grantedDomains.contains("intent"), config.grantedDomains.contains("inc"))) return false
+    if (config.grantedDomains.none { it == "intent" || it == "inc" || it == "notify" || it == "config" }) return true
+    if (!endpoints.register(generation, config.user, config.epoch, config.grantedDomains.contains("intent"), config.grantedDomains.contains("inc"), config.grantedDomains.contains("notify"), config.grantedDomains.contains("config"))) return false
     rows[generation] = Row(config); return true
   }
   @Synchronized fun ready(generation: String) { endpoints.ready(generation) }
@@ -37,16 +37,16 @@ internal object RoutingTransport {
   @Synchronized fun mayDeliver(generation: String, revision: Long, domain: String): Boolean =
     endpoints.matchesRevision(revision) && endpoints.mayDeliver(generation, domain) && CapabilityTransport.leases.sessionActive(generation)
   @Synchronized fun receive(generation: String, sequence: Long, raw: String, push: (String) -> Unit, reply: (String?) -> Unit): String? {
-    val wrapper = runCatching { UploadWire.objectValue(raw, 36 * 1024) }.getOrNull()
+    val wrapper = runCatching { UploadWire.objectValue(raw, 36 * 1024, maximumDepth = 40) }.getOrNull()
     val row = rows[generation]
     val id = wrapper?.opt("id") as? String
     val message = wrapper?.opt("message") as? JSONObject
     val type = message?.opt("type") as? String
-    val domain = if (type == "routing.__register") row?.config?.grantedDomains?.firstOrNull { it == "intent" || it == "inc" } else type?.substringBefore('.')
+    val domain = if (type == "notify.__register") "notify" else if (type == "routing.__register") row?.config?.grantedDomains?.firstOrNull { it == "intent" || it == "inc" || it == "notify" || it == "config" } else type?.substringBefore('.')
     val revision = endpoints.revision()
     val valid = row != null && wrapper != null && wrapper.keys().asSequence().toSet() == setOf("type", "id", "message") &&
       wrapper.opt("type") == "routing.call" && id != null && id.matches(Regex("[A-Za-z0-9_-]{1,128}")) && domain != null && mayDeliver(generation, revision, domain) &&
-      (type != "routing.__register" || message!!.keys().asSequence().toSet() == setOf("type"))
+      ((type != "routing.__register" && type != "notify.__register") || message!!.keys().asSequence().toSet() == setOf("type"))
     if (!valid) { CapabilityTransport.leases.consumeSequence(generation, sequence); reply(null); return null }
     row!!.push = push
     wrapper!!.put("revision", revision)
@@ -56,10 +56,10 @@ internal object RoutingTransport {
   }
   @Synchronized fun send(generation: String, revision: Long, raw: String): Boolean {
     val row = rows[generation] ?: return false
-    val message = runCatching { UploadWire.objectValue(raw, 36 * 1024) }.getOrNull() ?: return false
+    val message = runCatching { UploadWire.objectValue(raw, 36 * 1024, maximumDepth = 40) }.getOrNull() ?: return false
     val type = message.opt("type") as? String ?: return false
     val domain = type.substringBefore('.')
-    if (type !in setOf("intent.changed", "inc.event", "inc.channel.opened", "inc.channel.event", "inc.channel.closed") ||
+    if (type !in setOf("intent.changed", "inc.event", "inc.channel.opened", "inc.channel.event", "inc.channel.closed", "notify.action", "notify.clicked", "notify.dismissed", "notify.controls", "config.values", "config.schemaError") ||
       !mayDeliver(generation, revision, domain) || row.push == null || row.pending.size >= 4 || row.delivery >= 9_007_199_254_740_991L) return false
     val delivery = ++row.delivery; row.pending.add(delivery)
     val envelope = JSONObject().put("type", "routing.event").put("sessionId", generation).put("delivery", delivery).put("response", raw).toString()

@@ -36,7 +36,7 @@ internal class CapabilityConfiguration(raw: String, generation: String, allowPub
       "approval-lab" -> setOf("identity", "relay", "theme")
       "upload-lab", "upload-queue-lab" -> setOf("upload", "theme")
       "resource-lab" -> setOf("resource", "link", "theme")
-      "routing-lab" -> setOf("intent", "inc", "theme")
+      "routing-lab" -> setOf("intent", "inc", "notify", "config", "theme")
       "feed-lab" -> setOf("identity", "relay", "theme")
       "published" -> {
         require(allowPublished)

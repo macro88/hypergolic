@@ -497,7 +497,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       guard let bytes = try? JSONSerialization.data(withJSONObject: result) else { reply(nil, "Capability rejected"); return }
       reply(String(decoding: bytes, as: UTF8.self), nil)
     }
-    if let request = try? UploadWire.object(message, limit: 36 * 1024), request["type"] as? String == "routing.call" {
+    if let request = try? UploadWire.object(message, limit: 36 * 1024, maximumDepth: 40), request["type"] as? String == "routing.call" {
       guard let capturedView = webView, let capturedURL = expectedURL,
         let token = RoutingTransport.shared.receive(generation, sequence: counter, raw: message,
           push: { [weak self, weak capturedView] envelope in
@@ -508,7 +508,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
               if case .failure = result { self?.fail("renderer-stopped") }
             }
           }, reply: respond) else { return }
-      onEvent?(["type": "capability", "lane": "routing", "sessionId": configuration.sessionId, "generation": generation, "token": token])
+      onEvent?(["type": "capability", "lane": ((request["message"] as? [String: Any])?["type"] as? String)?.hasPrefix("notify.") == true ? "presentation" : ((request["message"] as? [String: Any])?["type"] as? String)?.hasPrefix("config.") == true ? "configuration" : "routing", "sessionId": configuration.sessionId, "generation": generation, "token": token])
       return
     }
     if let request = try? UploadWire.object(message, limit: 16 * 1024), request["type"] as? String == "link.open" {

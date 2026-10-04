@@ -13,7 +13,7 @@ overrides:
 
 patchedDependencies:
   '@kehto/runtime@0.22.0':
-    hash: 752c6df9e2e21360c5dee05f293c36a46a19ab61db0bfd690428508a938f0949
+    hash: 36ebe2b42ca0c8d393359b010ea4091fc434aeb16a4c396d4733728b408ac5ba
     path: patches/@kehto__runtime@0.22.0.patch
   '@kehto/shell@0.20.0':
     hash: 8733e0cccd74c1a29b9771c6c36b06f44e9d7e52019679662b66b784cb81c89b
@@ -25,7 +25,7 @@ importers:
     dependencies:
       '@kehto/runtime':
         specifier: 0.22.0
-        version: 0.22.0(patch_hash=752c6df9e2e21360c5dee05f293c36a46a19ab61db0bfd690428508a938f0949)(@napplet/core@0.31.1)(@napplet/nap@0.31.1)
+        version: 0.22.0(patch_hash=36ebe2b42ca0c8d393359b010ea4091fc434aeb16a4c396d4733728b408ac5ba)(@napplet/core@0.31.1)(@napplet/nap@0.31.1)
       '@kehto/services':
         specifier: 0.20.0
         version: 0.20.0(@napplet/core@0.31.1)(@napplet/nap@0.31.1)(nostr-tools@2.24.0(typescript@6.0.3))
@@ -640,7 +640,7 @@ snapshots:
     dependencies:
       '@napplet/core': 0.31.1
 
-  '@kehto/runtime@0.22.0(patch_hash=752c6df9e2e21360c5dee05f293c36a46a19ab61db0bfd690428508a938f0949)(@napplet/core@0.31.1)(@napplet/nap@0.31.1)':
+  '@kehto/runtime@0.22.0(patch_hash=36ebe2b42ca0c8d393359b010ea4091fc434aeb16a4c396d4733728b408ac5ba)(@napplet/core@0.31.1)(@napplet/nap@0.31.1)':
     dependencies:
       '@kehto/acl': 0.18.0(@napplet/core@0.31.1)(@napplet/nap@0.31.1)
       '@kehto/firewall': 0.5.0(@napplet/core@0.31.1)
@@ -651,7 +651,7 @@ snapshots:
 
   '@kehto/services@0.20.0(@napplet/core@0.31.1)(@napplet/nap@0.31.1)(nostr-tools@2.24.0(typescript@6.0.3))':
     dependencies:
-      '@kehto/runtime': 0.22.0(patch_hash=752c6df9e2e21360c5dee05f293c36a46a19ab61db0bfd690428508a938f0949)(@napplet/core@0.31.1)(@napplet/nap@0.31.1)
+      '@kehto/runtime': 0.22.0(patch_hash=36ebe2b42ca0c8d393359b010ea4091fc434aeb16a4c396d4733728b408ac5ba)(@napplet/core@0.31.1)(@napplet/nap@0.31.1)
       '@napplet/core': 0.31.1
       '@napplet/nap': 0.31.1
     optionalDependencies:
@@ -660,7 +660,7 @@ snapshots:
   '@kehto/shell@0.20.0(patch_hash=8733e0cccd74c1a29b9771c6c36b06f44e9d7e52019679662b66b784cb81c89b)(@napplet/core@0.31.1)(@napplet/nap@0.31.1)(nostr-tools@2.24.0(typescript@6.0.3))':
     dependencies:
       '@kehto/acl': 0.18.0(@napplet/core@0.31.1)(@napplet/nap@0.31.1)
-      '@kehto/runtime': 0.22.0(patch_hash=752c6df9e2e21360c5dee05f293c36a46a19ab61db0bfd690428508a938f0949)(@napplet/core@0.31.1)(@napplet/nap@0.31.1)
+      '@kehto/runtime': 0.22.0(patch_hash=36ebe2b42ca0c8d393359b010ea4091fc434aeb16a4c396d4733728b408ac5ba)(@napplet/core@0.31.1)(@napplet/nap@0.31.1)
       '@napplet/core': 0.31.1
       '@napplet/nap': 0.31.1
       nostr-tools: 2.24.0(typescript@6.0.3)

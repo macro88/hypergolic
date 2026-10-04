@@ -1,3 +1,5 @@
+import {captureConfigPush, captureConfigReply, type ConfigMessage} from '../../src/presentation/config-contract';
+import { captureNotifyPush, captureNotifyReply, type NotifyMessage } from '../../src/presentation/notify-contract';
 import { captureRoutingPush, captureRoutingReply } from './routing-adapter';
 import type { RoutingMessage } from '../../src/routing/routing-contract';
 import { captureUploadResult } from '../../src/uploads/upload-contract';
@@ -102,7 +104,8 @@ function createRoutingReceiver(generation: string, deliver: NativeClientOptions[
     if (envelope?.type !== 'routing.event') return false;
     if (Object.keys(envelope).length !== 4 || envelope.sessionId !== generation || !Number.isSafeInteger(envelope.delivery) || (envelope.delivery as number) <= routingDelivery || typeof envelope.response !== 'string' || new TextEncoder().encode(envelope.response).length > 36 * 1024) return true;
     try {
-      const message = captureRoutingPush(JSON.parse(envelope.response));
+      const raw = JSON.parse(envelope.response);
+      const message = typeof raw?.type === 'string' && raw.type.startsWith('notify.') ? captureNotifyPush(raw) : typeof raw?.type === 'string' && raw.type.startsWith('config.') ? captureConfigPush(raw) : captureRoutingPush(raw);
       routingDelivery = envelope.delivery as number;
       deliver?.(message);
       acknowledge(routingDelivery);
@@ -127,6 +130,32 @@ function enqueueRequest(native: NativeHost, pending: Map<number, PendingRequest>
         try { native.postMessage(encoded); }
         catch { pending.delete(counter); window.clearTimeout(timer); reject(); }
       });
+}
+
+function createPresentationRequests(request: (message: NappletMessage) => Promise<NappletMessage>) {
+  return {
+    async routing(message: RoutingMessage | Readonly<{type: 'routing.__register'}>): Promise<NappletMessage | null> {
+      const id = 'routing-' + crypto.randomUUID();
+      const wrapper = {type: 'routing.call', id, message}, response = await request(wrapper);
+      if (!('response' in response)) throw new Error('Missing routing response');
+      if (message.type === 'routing.__register') { if (response.response !== null) throw new Error('Invalid registration response'); return null; }
+      return captureRoutingReply(response.response, message);
+    },
+    async notify(message: NotifyMessage | Readonly<{type: 'notify.__register'}>): Promise<NappletMessage | null> {
+      const id = 'notify-' + crypto.randomUUID(), wrapper = {type: 'routing.call', id, message};
+      const response = await request(wrapper);
+      if (!('response' in response)) throw new Error('Missing notification response');
+      if (message.type === 'notify.__register') {if (response.response !== null) throw new Error('Invalid registration response'); return null;}
+      return captureNotifyReply(response.response, message);
+    },
+    async config(message: ConfigMessage): Promise<NappletMessage | null> {
+      const id = 'config-' + crypto.randomUUID(), wrapper = {type: 'routing.call', id, message};
+      const response = await request(wrapper);
+      if (!('response' in response)) throw new Error('Missing configuration response');
+      if (message.type === 'config.get' && response.response === null) return null;
+      return captureConfigReply(response.response, message);
+    },
+  };
 }
 
 /** Trusted top document only. A response never selects its destination window. */
@@ -162,7 +191,7 @@ export function createNativeClient(native: NativeHost, generation: string, optio
       const encoded = JSON.stringify({ type: 'capability', sessionId: generation, sequence: counter, message: JSON.stringify(message) });
       if (new TextEncoder().encode(encoded).length > maxBytes) return Promise.reject(new Error('Native request too large'));
       sequence = counter;
-      return enqueueRequest(native, pending, uploads, {counter, encoded, id, type: message.type, timeoutMs: options.requestTimeoutsMs?.[message.type] ?? ordinaryTimeoutMs, upload});
+      return enqueueRequest(native, pending, uploads, {counter, encoded, id, type: message.type, timeoutMs: options.requestTimeoutsMs?.[message.type] ?? ordinaryTimeoutMs, ...(upload ? {upload} : {})});
    }
   const routing = createRoutingReceiver(generation, options.onRouting, delivery => {
     if (sequence >= Number.MAX_SAFE_INTEGER) throw new Error('Native sequence exhausted');
@@ -193,13 +222,7 @@ export function createNativeClient(native: NativeHost, generation: string, optio
       for(const [counter,stream] of streams)if(stream.subId===request.subId){stopStream(counter,false,request.id);return;}
     },
     request,
-    async routing(message: RoutingMessage | Readonly<{type: 'routing.__register'}>): Promise<NappletMessage | null> {
-      const id = 'routing-' + crypto.randomUUID();
-      const wrapper = {type: 'routing.call', id, message}, response = await request(wrapper);
-      if (!('response' in response)) throw new Error('Missing routing response');
-      if (message.type === 'routing.__register') { if (response.response !== null) throw new Error('Invalid registration response'); return null; }
-      return captureRoutingReply(response.response, message);
-    },
+    ...createPresentationRequests(request),
     destroy(): void {
       disposed = true;
       native.removeEventListener?.('message', android);

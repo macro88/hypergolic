@@ -12,7 +12,9 @@
     "title": "Routing Lab",
     "requires": [
       "intent",
-      "inc"
+      "inc",
+      "notify",
+      "config"
     ]
   },
   "scripts": {

@@ -21,6 +21,14 @@ import Foundation
     let limit = RoutingEndpointRegistry(); expect(limit.synchronizeOwner(a, epoch:0, available:true))
     for i in 0..<64 { expect(limit.register("endpoint-\(i)", user:a, epoch:0, intent:true, inc:true)) }
     expect(!limit.register("overflow", user:a, epoch:0, intent:true, inc:true)); limit.revoke("endpoint-0"); expect(limit.register("replacement", user:a, epoch:0, intent:true, inc:true))
+    let presentation = RoutingEndpointRegistry(); expect(presentation.synchronizeOwner(a, epoch:0, available:true))
+    expect(presentation.register("config-only", user:a, epoch:0, intent:false, inc:false, notify:false, config:true)); presentation.ready("config-only")
+    expect(presentation.mayDeliver("config-only", domain:"config")); expect(!presentation.mayDeliver("config-only", domain:"notify")); expect(!presentation.mayDeliver("config-only", domain:"intent")); expect(!presentation.mayDeliver("config-only", domain:"inc"))
+    presentation.focus("config-only", true); expect(presentation.mayReview("config-only")); presentation.focus("config-only", false); expect(!presentation.mayReview("config-only")); expect(presentation.mayDeliver("config-only", domain:"config"))
+    expect(presentation.register("notify-only", user:a, epoch:0, intent:false, inc:false, notify:true, config:false)); presentation.ready("notify-only"); expect(presentation.mayDeliver("notify-only", domain:"notify")); expect(!presentation.mayDeliver("notify-only", domain:"config"))
+    let captured = presentation.state().revision; presentation.setForeground(false); expect(!presentation.mayDeliver("config-only", domain:"config")); expect(!presentation.mayDeliver("notify-only", domain:"notify")); expect(!presentation.matchesRevision(captured))
+    presentation.setForeground(true); expect(presentation.mayDeliver("config-only", domain:"config")); expect(presentation.mayDeliver("notify-only", domain:"notify"))
+    presentation.revoke("config-only"); expect(!presentation.mayDeliver("config-only", domain:"config")); expect(presentation.synchronizeOwner(b, epoch:1, available:true)); expect(!presentation.mayDeliver("notify-only", domain:"notify"))
     print("iOS routing core \(count) assertions passed")
   }
 }

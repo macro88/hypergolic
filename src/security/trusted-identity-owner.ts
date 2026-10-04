@@ -1,3 +1,8 @@
+import {createNotificationSettings, type NotificationSettingsService} from '../presentation/notify-settings';
+import {ConfigBroker} from '../presentation/config-broker';
+import {openNativeConfigStore} from '../presentation/config-store-native';
+import {NotifyBroker} from '../presentation/notify-broker';
+import {openNotifyPermissions, type NotifyPermissions} from '../presentation/notify-permissions';
 import { createRoutingSettings, type RoutingSettingsService } from '../routing/routing-settings';
 import {openRoutingCatalog, type RoutingCatalog} from '../routing/routing-catalog';
 import {RoutingBroker} from '../routing/routing-broker';
@@ -44,6 +49,9 @@ import { IdentityTransition } from './identity-transition';
 import { assertWorkspaceAvailability, initialTestWorkspace } from '../shell/fixtures';
 
 export interface TrustedIdentityOwner {
+  readonly notify?: NotifyBroker;
+  readonly notificationSettings?: NotificationSettingsService;
+  readonly config?: ConfigBroker;
   readonly routing?: Readonly<{broker: RoutingBroker; catalog: RoutingCatalog; reviews: RoutingReviewService; settings: RoutingSettingsService}>;
   readonly listAccess?: IdentityListAccess | null;
   readonly transition: IdentityTransition;
@@ -59,7 +67,7 @@ export interface TrustedIdentityOwner {
 export class WorkspaceStartupError extends Error {
   constructor() { super('Workspace could not be opened'); this.name = 'WorkspaceStartupError'; }
 }
-async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<{ routing: Readonly<{broker: RoutingBroker; catalog: RoutingCatalog; reviews: RoutingReviewService; settings: RoutingSettingsService}>; listAccess: IdentityListAccess | null; transition: IdentityTransition; runtime: RuntimeOwner; approvals: ApprovalService; relaySettings: NativeRelaySettings | null; resourceSettings: NativeResourceSettings | null; uploadSettings: NativeUploadSettings | null; uploads: UploadService }> {
+async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<{ notificationSettings: NotificationSettingsService; config: ConfigBroker; notify: NotifyBroker; routing: Readonly<{broker: RoutingBroker; catalog: RoutingCatalog; reviews: RoutingReviewService; settings: RoutingSettingsService}>; listAccess: IdentityListAccess | null; transition: IdentityTransition; runtime: RuntimeOwner; approvals: ApprovalService; relaySettings: NativeRelaySettings | null; resourceSettings: NativeResourceSettings | null; uploadSettings: NativeUploadSettings | null; uploads: UploadService }> {
   const database = await openShellDatabase(SQLite, platform).catch(() => { throw new WorkspaceStartupError(); });
   let relaySettings: NativeRelaySettings | null = null;
   let resourceSettings: NativeResourceSettings | null = null;
@@ -69,12 +77,16 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
   let releaseRouting: (() => void) | null = null;
   let routingCatalog: RoutingCatalog | null = null;
   let routingBroker: RoutingBroker | null = null;
+  let notifyPermissions: NotifyPermissions | null = null;
+  let notifyBroker: NotifyBroker | null = null;
+  let configBroker: ConfigBroker | null = null;
   let identityCache: Awaited<ReturnType<typeof openIdentityCache>> | null = null;
   try {
     try { relaySettings = await openNativeRelaySettings(SQLite, platform); } catch { relaySettings = null; }
     try { resourceSettings = await openNativeResourceSettings(SQLite); } catch { resourceSettings = null; }
     try { uploadSettings = await openNativeUploadSettings(SQLite, requireNativeModule<UploadConfigurationModule>('HypergolicNappletHost')); } catch { uploadSettings = null; }
     routingCatalog = await openRoutingCatalog(SQLite, platform);
+    notifyPermissions = await openNotifyPermissions(SQLite, platform);
     identityCache = await openIdentityCache(SQLite, platform);
     const queries = loadNativeRelayQuery(() => relaySettings?.getSettings().networkRelays ?? []);
     const transition = await IdentityTransition.open({ vault, database, publicKeyFromNsec, seed: initialTestWorkspace, assertAvailable: assertWorkspaceAvailability });
@@ -107,6 +119,8 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
     });
     const capability = loadNativeCapabilityPort(), routingNative = loadRoutingNativePort();
     const reviews = new RoutingReviewService();
+    notifyBroker = new NotifyBroker(capability, routingNative, notifyPermissions);
+    configBroker = new ConfigBroker(capability, routingNative, await openNativeConfigStore());
     routingBroker = new RoutingBroker(capability, routingNative, routingCatalog, reviews, createRoutingTargets(transition, () => runtime, reviews, routingNative));
     const routing = Object.freeze({broker: routingBroker, catalog: routingCatalog, reviews, settings: createRoutingSettings(transition, routingNative, routingCatalog, routingBroker)});
     runtime = createRuntimeOwner(database, transition, capability,
@@ -115,10 +129,11 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
         lookupRelays: () => relaySettings?.getSettings().lookupRelays ?? [] },
       queries,
       loadNativeRelaySubscriptions(() => relaySettings?.getSettings().networkRelays ?? []),
-      loadNativeResourceHost(() => resourceSettings?.servers() ?? [], queries), uploads, createIdentityDataService(identityCache, queries, Date.now, listAccess ?? undefined), routing);
-    return { routing, listAccess, transition, approvals, relaySettings, resourceSettings, uploadSettings, uploads, runtime };
+      loadNativeResourceHost(() => resourceSettings?.servers() ?? [], queries), uploads, createIdentityDataService(identityCache, queries, Date.now, listAccess ?? undefined), routing, notifyBroker, configBroker);
+    return { notificationSettings: createNotificationSettings(transition, routingNative, notifyBroker), config: configBroker, notify: notifyBroker, routing, listAccess, transition, approvals, relaySettings, resourceSettings, uploadSettings, uploads, runtime };
   } catch {
-    releaseLinks?.(); releaseRouting?.(); routingBroker?.stop();
+    releaseLinks?.(); releaseRouting?.(); routingBroker?.stop(); notifyBroker?.stop(); configBroker?.stop();
+    try { await notifyPermissions?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await routingCatalog?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await listAccess?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await identityCache?.close(); } catch { /* Preserve the workspace failure. */ }

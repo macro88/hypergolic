@@ -54,12 +54,12 @@ struct CapabilityConfiguration {
     case "approval-lab": expected = ["identity", "relay", "theme"]
     case "upload-lab", "upload-queue-lab": expected = ["upload", "theme"]
     case "resource-lab": expected = ["resource", "link", "theme"]
-    case "routing-lab": expected = ["intent", "inc", "theme"]
+    case "routing-lab": expected = ["intent", "inc", "notify", "config", "theme"]
     case "feed-lab": expected = ["identity", "relay", "theme"]
     case "published":
       expected = Set(domains)
-      guard domains.count <= 9,
-        expected.isSubset(of: ["identity", "storage", "theme", "relay", "resource", "upload", "link", "intent", "inc"]) else {
+      let supported: Set<String> = ["identity", "storage", "theme", "relay", "resource", "upload", "link", "intent", "inc", "notify", "config"]
+      guard domains.count <= supported.count, expected.isSubset(of: supported) else {
         throw Invalid.configuration
       }
     default: throw Invalid.configuration

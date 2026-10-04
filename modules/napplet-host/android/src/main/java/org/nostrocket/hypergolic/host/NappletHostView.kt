@@ -379,12 +379,13 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     val sequence = (number as Number).toLong()
     if (sequence !in 1..9_007_199_254_740_991L) return
     val message = data.getString("message")
-    val request = runCatching { UploadWire.objectValue(message, CapabilityLeaseRegistry.MAX_BYTES) }.getOrNull()
+    val request = runCatching { UploadWire.objectValue(message, CapabilityLeaseRegistry.MAX_BYTES, maximumDepth = 40) }.getOrNull()
     if (request?.optString("type") == "routing.call") {
       val token = RoutingTransport.receive(generation, sequence, message, push, reply) ?: return
-      onHostEvent(mapOf("type" to "capability", "lane" to "routing", "sessionId" to config.sessionId, "generation" to generation, "token" to token))
+      onHostEvent(mapOf("type" to "capability", "lane" to (if (request.optJSONObject("message")?.optString("type")?.startsWith("notify.") == true) "presentation" else if (request.optJSONObject("message")?.optString("type")?.startsWith("config.") == true) "configuration" else "routing"), "sessionId" to config.sessionId, "generation" to generation, "token" to token))
       return
     }
+    if (!UploadJsonBounds.accepts(message, CapabilityLeaseRegistry.MAX_BYTES)) { reply(null); return }
     if (request?.optString("type") == "link.open") {
       if (!CapabilityTransport.leases.consumeSequence(generation, sequence)) { reply(null); return }
       LinkTransport.receive(generation, config, message, appContext.currentActivity, reply)

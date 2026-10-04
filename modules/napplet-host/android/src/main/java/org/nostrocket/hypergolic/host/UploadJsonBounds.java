@@ -6,6 +6,10 @@ import java.nio.charset.StandardCharsets;
 final class UploadJsonBounds {
   private UploadJsonBounds() {}
   static boolean accepts(String input, int maximumBytes) {
+    return accepts(input, maximumBytes, 12);
+  }
+  static boolean accepts(String input, int maximumBytes, int maximumDepth) {
+    if (maximumDepth < 1 || maximumDepth > 40) return false;
     if (input == null || input.length() > maximumBytes || input.getBytes(StandardCharsets.UTF_8).length > maximumBytes) return false;
     int depth = 0; boolean quoted = false, escaped = false;
     for (int index = 0; index < input.length(); index++) {
@@ -15,7 +19,7 @@ final class UploadJsonBounds {
         else if (value == '\\') escaped = true;
         else if (value == '"') quoted = false;
       } else if (value == '"') quoted = true;
-      else if (value == '[' || value == '{') { if (++depth > 12) return false; }
+      else if (value == '[' || value == '{') { if (++depth > maximumDepth) return false; }
       else if (value == ']' || value == '}') { if (--depth < 0) return false; }
     }
     return depth == 0 && !quoted;

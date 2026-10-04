@@ -15,7 +15,8 @@ extension IdentityListAccess {
   func captureJSON(_ snapshot: String) throws -> Ticket? {
     let data = try UploadWire.object(snapshot, limit: CapabilityLeaseRegistry.maxBytes)
     guard let raw = data["request"] as? String else {throw Failure.invalid}
-    let request = try UploadWire.object(raw, limit: CapabilityLeaseRegistry.maxBytes)
+    let request = try UploadWire.object(raw, limit: CapabilityLeaseRegistry.maxBytes, maximumDepth: 40)
+    guard request["type"] as? String == "routing.call" || UploadWire.boundedJSON(raw, limit: CapabilityLeaseRegistry.maxBytes) else {throw Failure.invalid}
     guard ["identity.getMutes", "identity.getList"].contains(request["type"] as? String ?? "") else {return nil}
     guard let owner = data["registration"] as? [String: Any], let user = owner["user"] as? String,
       let publisher = owner["publisher"] as? String, let appId = owner["appId"] as? String else {throw Failure.invalid}

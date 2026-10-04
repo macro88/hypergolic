@@ -22,6 +22,14 @@ public final class RoutingCoreTests {
     RoutingEndpointRegistry limit = new RoutingEndpointRegistry(); expect(limit.synchronizeOwner(a, 0, true));
     for (int i=0;i<64;i++) expect(limit.register("endpoint-"+i,a,0,true,true));
     expect(!limit.register("overflow",a,0,true,true)); limit.revoke("endpoint-0"); expect(limit.register("replacement",a,0,true,true));
+    RoutingEndpointRegistry presentation = new RoutingEndpointRegistry(); expect(presentation.synchronizeOwner(a, 0, true));
+    expect(presentation.register("config-only", a, 0, false, false, false, true)); presentation.ready("config-only");
+    expect(presentation.mayDeliver("config-only", "config")); expect(!presentation.mayDeliver("config-only", "notify")); expect(!presentation.mayDeliver("config-only", "intent")); expect(!presentation.mayDeliver("config-only", "inc"));
+    presentation.focus("config-only", true); expect(presentation.mayReview("config-only")); presentation.focus("config-only", false); expect(!presentation.mayReview("config-only")); expect(presentation.mayDeliver("config-only", "config"));
+    expect(presentation.register("notify-only", a, 0, false, false, true, false)); presentation.ready("notify-only"); expect(presentation.mayDeliver("notify-only", "notify")); expect(!presentation.mayDeliver("notify-only", "config"));
+    long captured = presentation.revision(); presentation.foreground(false); expect(!presentation.mayDeliver("config-only", "config")); expect(!presentation.mayDeliver("notify-only", "notify")); expect(!presentation.matchesRevision(captured));
+    presentation.foreground(true); expect(presentation.mayDeliver("config-only", "config")); expect(presentation.mayDeliver("notify-only", "notify"));
+    presentation.revoke("config-only"); expect(!presentation.mayDeliver("config-only", "config")); expect(presentation.synchronizeOwner(b, 1, true)); expect(!presentation.mayDeliver("notify-only", "notify"));
     System.out.println("Android routing core " + count + " assertions passed");
   }
 }

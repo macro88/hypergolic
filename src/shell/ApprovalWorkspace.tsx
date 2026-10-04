@@ -11,7 +11,7 @@ import { colors } from './theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { RelayOutcome } from '../network/relay-service';
 
-type Props = Omit<ShellProps, 'pendingApprovals' | 'onBeforeClose' | 'footer'> & { service: ApprovalService; uploads?: UploadService; epoch: number };
+type Props = Omit<ShellProps, 'pendingApprovals' | 'onBeforeClose'> & { service: ApprovalService; uploads?: UploadService; epoch: number };
 
 function publicationStatus(results: readonly RelayOutcome[]): string {
   const accepted = results.filter(result => result.status === 'accepted').length;
@@ -21,7 +21,7 @@ function publicationStatus(results: readonly RelayOutcome[]): string {
 }
 
 /** Joins trusted presentation to the native-authoritative queue without blocking the guest host. */
-export function ApprovalWorkspace({ service, uploads, epoch, workspace, ...shell }: Props) {
+export function ApprovalWorkspace({ service, uploads, epoch, workspace, footer, ...shell }: Props) {
   const insets = useSafeAreaInsets();
   const subscribe = useCallback((listener: () => void) => service.subscribe(listener), [service]);
   const getSnapshot = useCallback(() => service.getSnapshot(), [service]);
@@ -45,7 +45,7 @@ export function ApprovalWorkspace({ service, uploads, epoch, workspace, ...shell
   const title = workspace?.sessions.find(session => session.id === shown?.origin.sessionId)?.title ?? 'Napplet';
   return <ApprovalProvider value={service}><UploadProvider value={uploads ?? null}>
     <Shell {...shell} workspace={workspace} pendingApprovals={new Set([...snapshot.pendingSessionIds, ...uploadSnapshot.pendingSessionIds])}
-      footer={<UploadWorkspace service={uploads} snapshot={uploadSnapshot} workspace={workspace} blocked={Boolean(shown || shell.blocked)} />}
+      footer={<>{!shown && !uploadSnapshot.current && !shell.blocked && footer}<UploadWorkspace service={uploads} snapshot={uploadSnapshot} workspace={workspace} blocked={Boolean(shown || shell.blocked)} /></>}
       onBeforeClose={session => {service.close(session.id); uploads?.close(session.id);}} />
     {snapshot.reviewPaused && snapshot.pending > 0 && snapshot.focusedSessionId !== null && <View pointerEvents="box-none" style={[styles.resumeArea, { paddingBottom: Math.max(24, insets.bottom + 12) }]}><Pressable testID="approval-resume" accessibilityRole="button" onPress={() => service.resume()} style={styles.resume}><Text style={styles.resumeText}>Resume approvals</Text></Pressable></View>}
     {outcome && !shown && snapshot.focusedSessionId !== null && <Pressable testID="approval-outcome" accessibilityRole="button" accessibilityLabel={`${outcome} Dismiss status`} onPress={() => setOutcome(null)} style={styles.outcome}><Text accessibilityLiveRegion="polite" style={styles.outcomeText}>{outcome}</Text></Pressable>}

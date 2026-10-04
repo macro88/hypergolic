@@ -163,7 +163,11 @@ CAP-06 is selected-profile complete; broad CAP-14 gates remain open.
 **Requirements:** CAP-10, CAP-11
 **Fixture:** Routing Lab
 **Work and exit criteria:** Select shell notification UX and supported config schema features. Implement attributed bounded notifications and scoped validated configuration. Verify flood/dismissal, defaults, restart, identity isolation and incompatible schema updates.
-**Plans:** Pending owning-contract research and phase-local decisions; no completion claimed.
+**Plans:** Four waves accepted for the A1-G1 draft profile under the exact existing dependency exceptions; CAP-10/CAP-11 accepted. Broader CAP-14 remains open.
+- [x] 02.8-01-PLAN.md — Original SDK/native notification tracer.
+- [x] 02.8-02-PLAN.md — Native encrypted configuration/editor/restart tracer.
+- [x] 02.8-03-PLAN.md — Lifecycle, revocation and fault boundaries.
+- [x] 02.8-04-PLAN.md — Final native, ordinary packaging and source-bound quality acceptance.
 
 ### Phase 2.9: Outbox routing
 

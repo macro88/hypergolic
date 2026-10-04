@@ -1,6 +1,6 @@
 /** Reviewed unsigned test artifacts. These records confer no remote publisher trust. */
 export const BUNDLED_FIXTURES = Object.freeze({
-  'routing-lab': Object.freeze({title: 'Routing Lab', appId: 'routing-lab', sha256: '862cc2b3fd0a4f25393124090e6d863165f758af8e46e8a9fc315f0fd42162ff', aggregateHash: '3566c853ad4392f5f571e7b17db9038c50823258c3c542f296cfbd59ee05e98f', domains: Object.freeze(['intent', 'inc', 'theme'])}),
+  'routing-lab': Object.freeze({title: 'Routing Lab', appId: 'routing-lab', sha256: 'e52489d7e52c6649b258312efe85d5e5206622551d95de117e0791bcbac7184c', aggregateHash: 'ca599ba52c91fcf8e5adff7e51312e2bacbda205bca57df613041ca46c2abe7e', domains: Object.freeze(['intent', 'inc', 'notify', 'config', 'theme'])}),
   'upload-queue-lab': Object.freeze({title: 'Upload Queue Lab', appId: 'upload-queue-lab',
     sha256: 'c1d196a6a4913290a9dcf40adfa216922e21dc86a11d94c8902ec536a0e3dbd9', aggregateHash: '945fad95c24b8e5ce032d64110a30d9245e55b0a904742320677713697e05d3a', domains: Object.freeze(['upload', 'theme'])}),
   'upload-lab': Object.freeze({title: 'Upload Lab', appId: 'upload-lab',

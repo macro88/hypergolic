@@ -36,7 +36,7 @@ async function openPublished(page: Page, mode: Mode = 'normal', extraQuery = '')
         type: 'artifact.chunk', sessionId: generation,
         sequence: mode === 'replayed-sequence' ? sequence + 1 : sequence,
         base64, byteLength: payload.length, totalBytes: htmlLength,
-        ...claims, domains: mode === 'unknown-domain' ? ['future-domain'] : mode === 'relay-domain' ? ['relay', 'theme'] : mode === 'upload-domain' ? ['upload'] : mode === 'all-domains' ? ['identity', 'link', 'relay', 'resource', 'storage', 'theme', 'upload'] : ['theme'],
+        ...claims, domains: mode === 'unknown-domain' ? ['future-domain'] : mode === 'relay-domain' ? ['relay', 'theme'] : mode === 'upload-domain' ? ['upload'] : mode === 'all-domains' ? ['config', 'identity', 'inc', 'intent', 'link', 'notify', 'relay', 'resource', 'storage', 'theme', 'upload'] : ['theme'],
         done: (sequence + 1) * 48 * 1024 >= htmlLength,
       };
       for (const listener of listenerSet) listener({ data: JSON.stringify(envelope) });
@@ -151,6 +151,7 @@ for (const mode of ['upload-domain', 'all-domains'] as const) {
     await expect.poll(() => guest.evaluate(() => (window as any).napplet.shell.supports('upload'))).toBe(true);
     expect(await guest.evaluate(() => (window as any).napplet.shell.supports('resource'))).toBe(mode === 'all-domains');
     expect(await guest.evaluate(() => (window as any).napplet.shell.supports('link'))).toBe(mode === 'all-domains');
-    expect(await guest.evaluate(() => (window as any).napplet.shell.supports('inc'))).toBe(false);
+    expect(await guest.evaluate(() => (window as any).napplet.shell.supports('inc'))).toBe(mode === 'all-domains');
+    for (const domain of ['intent','notify','config']) expect(await guest.evaluate(domain => (window as any).napplet.shell.supports(domain), domain)).toBe(mode === 'all-domains');
   });
 }

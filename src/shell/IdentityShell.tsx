@@ -1,3 +1,5 @@
+import {Configuration} from './Configuration';
+import {Notifications} from './Notifications';
 import {RoutingReview} from './RoutingReview';
 import {IdentityListReview} from './IdentityListReview';
 import { createContext, useContext, useEffect, useSyncExternalStore } from 'react';
@@ -32,7 +34,9 @@ export function IdentityShell({ owner }: { owner: TrustedIdentityOwner }) {
   </SafeAreaView>;
   return <OwnerContext value={owner}><RuntimeContext value={owner.runtime ?? null}>
     <WorkspaceEntry key={state.session.epoch} identity={{ npub: formatNpub(state.session.vault.selectedPubkey) }}
-      controller={state.session.workspace} approvals={owner.approvals} uploads={owner.uploads} epoch={state.session.epoch} blocked={state.phase === 'switching' || state.phase === 'deleting'} settingsComponent={IdentitySettings} />
+      controller={state.session.workspace} approvals={owner.approvals} uploads={owner.uploads} epoch={state.session.epoch} blocked={state.phase === 'switching' || state.phase === 'deleting'} settingsComponent={IdentitySettings}
+      footer={owner.notify && <Notifications service={owner.notify} blocked={state.phase !== 'ready'} />} />
+    {owner.config && <Configuration service={owner.config} blocked={state.phase !== 'ready'} />}
     <RoutingReview service={owner.routing?.reviews ?? null} blocked={state.phase !== 'ready'} />
     <IdentityListReview service={owner.listAccess ?? null} blocked={state.phase !== 'ready'} />
   </RuntimeContext></OwnerContext>;

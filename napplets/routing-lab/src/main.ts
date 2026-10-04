@@ -1,4 +1,4 @@
-import {intent,inc,storage} from '@napplet/sdk';
+import {intent,inc,storage,notify,config} from '@napplet/sdk';
 import './style.css';
 function element<T extends HTMLElement>(id: string): T {const value = document.getElementById(id); if (!value) throw new Error('Missing fixture control'); return value as T;}
 const text = (id: string, value: unknown) => {element(id).textContent = typeof value === 'string' ? value : JSON.stringify(value);};
@@ -61,3 +61,70 @@ button('channel-flood', () => {
 if (document.querySelector('meta[name="routing-auto-topic"]')) subscribeTopic();
 button('save-routing-data', () => {void Promise.resolve().then(() => storage.setItem('routing-retained-proof', 'saved before registration removal')).then(() => {if(!disposed)text('storage-status','Routing data saved.');}).catch(error=>failure('storage-status',error));});
 button('read-routing-data', () => {void Promise.resolve().then(() => storage.getItem('routing-retained-proof')).then(value => {if(!disposed)text('storage-status',value===null?'No routing data saved.':value);}).catch(error=>failure('storage-status',error));});
+
+// Genuine SDK notification controls and results; no synthetic native acknowledgement.
+const notificationSubscriptions: {close(): void}[] = [], notificationEvents: unknown[] = [];
+let notificationId = '';
+try {
+ notificationSubscriptions.push(notify.onControls(controls => {if (!disposed) text('notify-controls', controls);}));
+ notificationSubscriptions.push(notify.onAction((id, actionId) => {if (!disposed) record(notificationEvents, 'notify-events', {kind: 'action', notificationId: id, actionId});}));
+ notificationSubscriptions.push(notify.onClicked(id => {if (!disposed) record(notificationEvents, 'notify-events', {kind: 'clicked', notificationId: id});}));
+ notificationSubscriptions.push(notify.onDismissed((id, reason) => {if (!disposed) record(notificationEvents, 'notify-events', {kind: 'dismissed', notificationId: id, reason});}));
+} catch {text('notify-status', 'Notify domain unavailable.');}
+button('notify-permission', () => {text('notify-status', 'Awaiting notification permission…');void Promise.resolve().then(() => notify.requestPermission(input('notify-channel') || undefined)).then(value => {if (!disposed) {text('notify-permission-result', value);text('notify-status', value.granted ? 'Notification permission granted.' : 'Notification permission denied.');}}).catch(error => failure('notify-status', error));});
+button('notify-register-channel', () => {try {notify.registerChannel({channelId: 'messages', label: 'Messages', description: 'Routing Lab alerts', defaultPriority: 'normal'});text('notify-status', 'Channel registration sent.');} catch(error) {failure('notify-status',error);}});
+button('notify-send', () => {text('notify-status', 'Sending notification…');void Promise.resolve().then(() => notify.send({title: 'Routing Lab alert', body: 'Exact SDK notification + ⚡', actions: [{id: 'reply', label: 'Reply to Routing Lab'}], ...(input('notify-channel') ? {channel: input('notify-channel')} : {})})).then(value => {if(!disposed) {notificationId = value.notificationId;text('notify-result',value);text('notify-status','Notification sent.');}}).catch(error => failure('notify-status',error));});
+button('notify-dismiss', () => {try {notify.dismiss(notificationId);text('notify-status','Dismissal requested.');} catch(error) {failure('notify-status',error);}});
+button('notify-badge', () => {try {notify.badge(3);text('notify-status','Badge requested.');} catch(error) {failure('notify-status',error);}});
+button('notify-malformed', () => {window.parent.postMessage({type:'notify.send',id:'forged-source',title:'Forged source',publisher:'foreign'},'*');window.parent.postMessage({type:'notify.action',notificationId,actionId:'reply'},'*');text('notify-status','Invalid guest notification controls sent.');});
+window.addEventListener('pagehide', () => notificationSubscriptions.forEach(subscription => subscription.close()), {once: true});
+
+
+// Genuine SDK configuration API. Values here are disposable test data only.
+const configurationSchema = {type: 'object' as const, $version: 1, properties: {
+ theme: {type: 'string', title: 'Theme', enum: ['dark', 'light'], enumDescriptions: ['Dark palette', 'Light palette'], default: 'dark', 'x-napplet-section': 'Basics', 'x-napplet-order': 0},
+ count: {type: 'integer', title: 'Item count', minimum: 1, maximum: 12, default: 3, 'x-napplet-section': 'Basics', 'x-napplet-order': 1},
+ enabled: {type: 'boolean', title: 'Enabled', default: true, 'x-napplet-section': 'Basics', 'x-napplet-order': 2},
+ token: {type: 'string', title: 'API token', minLength: 1, maxLength: 256, 'x-napplet-secret': true, 'x-napplet-section': 'Credentials'},
+ tags: {type: 'array', title: 'Tags (JSON)', items: {type: 'string', maxLength: 32}, minItems: 1, maxItems: 8, default: ['alpha'], 'x-napplet-section': 'Options'},
+ advanced: {type: 'object', 'x-napplet-section': 'Options', properties: {density: {type: 'string', title: 'Density', enum: ['comfortable', 'compact'], default: 'comfortable'}}},
+}, required: ['theme']};
+let configurationReads = 0;
+let configurationSubscription: ReturnType<typeof config.subscribe> | null = null;
+const configurationEvents: unknown[] = [], configurationErrors: unknown[] = [];
+let configurationErrorsSubscription: ReturnType<typeof config.onSchemaError> | null = null;
+try {configurationErrorsSubscription = config.onSchemaError(value => {if (!disposed) record(configurationErrors, 'config-errors', value);});} catch {text('config-status', 'Config domain unavailable.');}
+button('config-register', () => {text('config-status', 'Registering configuration schema…');void Promise.resolve().then(() => config.registerSchema(configurationSchema, 1)).then(() => {if(!disposed)text('config-status','Configuration schema accepted.');}).catch(error => failure('config-status',error));});
+button('config-get', () => {text('config-status','Reading configuration…');void Promise.resolve().then(() => config.get()).then(value => {if(!disposed) {text('config-result',value);text('config-read-count',{reads:++configurationReads});text('config-status','Configuration snapshot received.');}}).catch(error => failure('config-status',error));});
+button('config-subscribe', () => {try {configurationSubscription?.close();configurationSubscription=config.subscribe(value => {if(!disposed)record(configurationEvents,'config-events',value);});text('config-status','Configuration subscription requested.');} catch(error){failure('config-status',error);}});
+button('config-unsubscribe', () => {configurationSubscription?.close();configurationSubscription=null;text('config-status','Configuration subscription closed.');});
+button('config-open', () => {try {config.openSettings({section:'Basics'});text('config-status','Configuration settings requested.');} catch(error){failure('config-status',error);}});
+button('config-bad-default', () => {void Promise.resolve().then(() => config.registerSchema({type:'object',properties:{token:{type:'string','x-napplet-secret':true,default:'forbidden-default'}}})).then(() => text('config-status','Unexpected schema acceptance.')).catch(error => failure('config-status',error));});
+button('config-bad-pattern', () => {void Promise.resolve().then(() => config.registerSchema({type:'object',properties:{name:{type:'string',pattern:'^(a|a)*$'}}})).then(() => text('config-status','Unexpected schema acceptance.')).catch(error => failure('config-status',error));});
+button('config-depth-four', () => {
+ const schema = {...configurationSchema, $version: 2, properties: {...configurationSchema.properties, deep: {type: 'object', properties: {child: {type: 'object', properties: {leaf: {type: 'object', properties: {values: {type: 'array', items: {type: 'string', enum: ['native-depth-four']}, default: ['native-depth-four']}}}}}}}}};
+ void Promise.resolve().then(() => config.registerSchema(schema, 2)).then(() => {if (!disposed) text('config-status','Depth-four schema accepted.');}).catch(error => failure('config-status',error));
+});
+button('config-purge-secret', () => {
+ const {token: _removedSecret, ...properties} = configurationSchema.properties;
+ void Promise.resolve().then(() => config.registerSchema({...configurationSchema, $version: 3, properties}, 3)).then(() => {if (!disposed) text('config-status','Secret field removed.');}).catch(error => failure('config-status',error));
+});
+button('config-restore-secret', () => {void Promise.resolve().then(() => config.registerSchema({...configurationSchema, $version: 4}, 4)).then(() => {if (!disposed) text('config-status','Secret field restored without saved value.');}).catch(error => failure('config-status',error));});
+button('config-malformed', () => {window.parent.postMessage({type:'config.set',values:{theme:'forged'}},'*');window.parent.postMessage({type:'config.get',id:'forged-config',publisher:'forged'},'*');window.parent.postMessage({type:'config.values',values:{theme:'guest-forged'}},'*');text('config-status','Invalid guest configuration requests sent.');});
+window.addEventListener('pagehide', () => {configurationSubscription?.close();configurationErrorsSubscription?.();}, {once:true});
+
+button('notify-oversized', () => {
+ text('notify-oversized-result','Awaiting oversized SDK result…');
+ void Promise.resolve().then(() => notify.send({title:'Oversized public test',body:'x'.repeat(4097)})).then(value => {if(!disposed)text('notify-oversized-result',{accepted:true,...value});},error => {if(!disposed)text('notify-oversized-result',{accepted:false,error:error instanceof Error?error.message:'unavailable'});});
+});
+button('notify-flood', () => {
+ text('notify-flood-result','Awaiting bounded SDK results…');
+ // Each request waits for the previous SDK receipt so the transport concurrency cap stays out of this case.
+ type SendResult={ok:true;notificationId:string}|{ok:false;error:string};
+ const channel=input('notify-channel');
+ const send=(index:number):Promise<SendResult> => notify.send({title:'Bounded public flood '+index,...(channel?{channel}:{})})
+  .then(value=>({ok:true as const,notificationId:value.notificationId}),error=>({ok:false as const,error:error instanceof Error?error.message:'unavailable'}));
+ const sequence=Array.from({length:20},(_,index)=>index).reduce<Promise<SendResult[]>>(
+  (previous,index)=>previous.then(results=>send(index).then(result=>[...results,result])),Promise.resolve([]));
+ void sequence.then(results=>{if(!disposed)text('notify-flood-result',{results});});
+});

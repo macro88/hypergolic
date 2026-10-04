@@ -1,18 +1,18 @@
 ---
 gsd_state_version: "1.0"
-current_phase: "2.8"
-current_phase_name: Notifications and configuration
-status: awaiting-product-interview
-stopped_at: Phase2.7 accepted selected profile. Phase2.8 owning proposals researched; separate text product interview pending. Source unpushed; pause50%.
-last_updated: "2026-10-03T09:28:53Z"
-last_activity: 2026-10-03
-state_head: 537efda184ed3d1dc1aceb88fd61be79c8c9d6d2
+current_phase: "2.9"
+current_phase_name: Outbox routing
+status: awaiting_product_decisions
+stopped_at: Phase2.8 selected profile accepted; targeted local commit follows fresh quality. Next2.9 research/interview; pause at weekly50%.
+last_updated: "2026-10-04T13:21:02.644041+00:00"
+last_activity: 2026-10-04
+state_head: 25cf7ff7f4f0a76de759541feb1e8dac85abf81c
 progress:
   total_phases: 14
-  completed_phases: 8
-  total_plans: 28
-  completed_plans: 22
-  percent: 79
+  completed_phases: 9
+  total_plans: 32
+  completed_plans: 26
+  percent: 81
 ---
 
 # Project State
@@ -22,7 +22,7 @@ progress:
 See: .planning/PROJECT.md (scope updated 2026-09-29)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Phase 2.8 — Notifications and configuration
+**Current focus:** Phase 2.9 — Outbox routing
 
 ## MVP scope checkpoint — 29 September 2026
 
@@ -38,9 +38,10 @@ expansion cards are not executable PLAN files.
 
 ## Current Position
 
-Phase: 2.8 (Notifications and configuration) — PRODUCT INTERVIEW PENDING
-Plan: Phase2.7 all four plans accepted; next phase has owning-proposal research but no selected policies or implementation plan.
-Status: Each Android/iOS signed-local Release host passes routing/fault24, Settings/cold/removal14 and original-SDK absence/ambiguity5. All293 production/native/runtime inputs match final source across all six sealed runs. Routing43, full browser runtime188, capability55, storage92, shell27, napplet96, quality74 and TypeScript pass. Both ordinary exports/prebuilds/production Release builds pass; packaged runtime bytes match. Complete React Doctor100 and aislop97 under only the existing exact Forge/braces exceptions; ordinary gates remain red and six retained Expo patch recommendations remain visible. Final fresh source-bound quality is a pre-commit gate. CAP-08/CAP-09 accepted selected profile; broader physical/protected/published-update CAP-14 open. Source push remains owner-controlled. Usage31%; pause50%. Progress22/28 counts executable plans, not MVP readiness.
+Phase: 2.9 (Outbox routing) — OWNING RESEARCH AND PRODUCT INTERVIEW NEXT
+Plan: Phase2.8-01 through04 complete for accepted A1-G1 profile. CAP-10/CAP-11 accepted; Phase2.9 has no executable plans or selected policy yet.
+Status: Final Android40/iOS39 signed-local SDK/native checks pass across eight runs with identical408 inputs and stable installed products. Browser202, presentation33, capability55, routing43, storage92, shell27, security349/bootstrap13, quality-verifier74, carrier Swift18/Java11 and endpoint120 per host pass. Ordinary exports/prebuilds/Release packages pass. Complete Doctor100/aislop98 has only exact owner-approved Forge/braces findings; ordinary gates remain unchanged/red and Expo20/21 patch recommendations remain visible. Fresh source-bound quality and targeted local commit follow this documentation checkpoint. Physical/protected/full published/cross-capability integration CAP-14 remains open. Inline GSD fallback claims no independent planner/critic. Source mobile-revamp remains unpushed; weekly43%, pause50%. Progress26/32 counts executable plans, not MVP readiness.
+
 
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 

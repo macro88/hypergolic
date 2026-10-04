@@ -20,7 +20,8 @@ internal object IdentityListAccess {
   }
   fun capture(snapshot: String): Ticket? {
     val data = UploadWire.objectValue(snapshot, CapabilityLeaseRegistry.MAX_BYTES)
-    val request = UploadWire.objectValue(data.getString("request"), CapabilityLeaseRegistry.MAX_BYTES)
+    val request = UploadWire.objectValue(data.getString("request"), CapabilityLeaseRegistry.MAX_BYTES, maximumDepth = 40)
+    require(request.optString("type") == "routing.call" || UploadJsonBounds.accepts(data.getString("request"), CapabilityLeaseRegistry.MAX_BYTES))
     if (request.optString("type") !in setOf("identity.getMutes", "identity.getList")) return null
     val owner = data.getJSONObject("registration")
     return Ticket(IdentityListAccessRegistry.Owner(owner.getString("user"), owner.getString("publisher"), owner.getString("appId")), IdentityListAccessRegistry.INSTANCE.capture())

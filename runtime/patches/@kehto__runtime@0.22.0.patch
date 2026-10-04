@@ -2,7 +2,7 @@ diff --git a/dist/index.d.ts b/dist/index.d.ts
 index cbbc6af8b2e2bd23e3c77e05544fbd26edc6db7e..4968171c786adb54427e903705ab4ab555ac1716 100644
 --- a/dist/index.d.ts
 +++ b/dist/index.d.ts
-@@ -680,9 +680,35 @@ interface RuntimeConfigOverrides {
+@@ -680,9 +680,37 @@ interface RuntimeConfigOverrides {
   * const runtime = createRuntime(hooks);
   * ```
   */
@@ -13,7 +13,9 @@ index cbbc6af8b2e2bd23e3c77e05544fbd26edc6db7e..4968171c786adb54427e903705ab4ab5
 +    | 'upload.info' | 'upload.upload' | 'upload.status'
 +    | 'intent.invoke' | 'intent.available' | 'intent.handlers'
 +    | 'inc.subscribe' | 'inc.unsubscribe' | 'inc.emit' | 'inc.channel.open' | 'inc.channel.list'
-+    | 'inc.channel.emit' | 'inc.channel.broadcast' | 'inc.channel.close';
++    | 'inc.channel.emit' | 'inc.channel.broadcast' | 'inc.channel.close'
++    | 'notify.send' | 'notify.dismiss' | 'notify.badge' | 'notify.channel.register' | 'notify.permission.request'
++    | 'config.registerSchema' | 'config.get' | 'config.subscribe' | 'config.unsubscribe' | 'config.openSettings';
 +type HostOperationEnvelope = NappletMessage & Readonly<Record<string, unknown>>;
 +interface HostOperationContext {
 +    /** Source-bound runtime session; never read this authority from the message. */
@@ -38,7 +40,7 @@ index cbbc6af8b2e2bd23e3c77e05544fbd26edc6db7e..4968171c786adb54427e903705ab4ab5
      /**
       * Determines whether a session-established napplet may invoke a NAP domain.
       * When omitted, every domain remains eligible for dispatch. Browser shells
-@@ -1593,5 +1619,4 @@ declare function routeServiceMessage(windowId: string, message: NappletMessage,
+@@ -1593,5 +1621,4 @@ declare function routeServiceMessage(windowId: string, message: NappletMessage,
   * ```
   */
  declare function notifyServiceWindowDestroyed(windowId: string, services: ServiceRegistry): void;
@@ -49,7 +51,7 @@ diff --git a/dist/index.js b/dist/index.js
 index 5e968b83b4df972b40e2f90953fdb6893459acbf..c6d0a9bda5ff9bff56bd9c9ac25fd78f1fb642ea 100644
 --- a/dist/index.js
 +++ b/dist/index.js
-@@ -1842,6 +1842,62 @@ function buildObservation(envelope, windowId, senderCap, sessionRegistry, getFoc
+@@ -1842,6 +1842,74 @@ function buildObservation(envelope, windowId, senderCap, sessionRegistry, getFoc
      now
    };
  }
@@ -61,7 +63,9 @@ index 5e968b83b4df972b40e2f90953fdb6893459acbf..c6d0a9bda5ff9bff56bd9c9ac25fd78f
 +  "upload.info", "upload.upload", "upload.status",
 +  "intent.invoke", "intent.available", "intent.handlers",
 +  "inc.subscribe", "inc.unsubscribe", "inc.emit", "inc.channel.open", "inc.channel.list",
-+  "inc.channel.emit", "inc.channel.broadcast", "inc.channel.close"
++  "inc.channel.emit", "inc.channel.broadcast", "inc.channel.close",
++  "notify.send", "notify.dismiss", "notify.badge", "notify.channel.register", "notify.permission.request",
++  "config.registerSchema", "config.get", "config.subscribe", "config.unsubscribe", "config.openSettings"
 +]);
 +function getHostOperation(hooks, type) {
 +  const operations = hooks.operationOverrides;
@@ -73,6 +77,16 @@ index 5e968b83b4df972b40e2f90953fdb6893459acbf..c6d0a9bda5ff9bff56bd9c9ac25fd78f
 +  if (!getHostOperation(hooks, envelope.type)) return null;
 +  const { type, id, subId } = envelope;
 +  if (type.startsWith("intent.")) return createIntentPolicyDenial(envelope);
++  if (type.startsWith("config.")) {
++    if (type === "config.registerSchema") return { type: "config.registerSchema.result", id, ok: false, code: "invalid-schema", error: "Configuration is unavailable." };
++    if (type === "config.get" || type === "config.subscribe") return { type: "config.schemaError", code: "invalid-schema", error: "Configuration is unavailable." };
++    return null;
++  }
++  if (type.startsWith("notify.")) {
++    if (type === "notify.send") return { type: "notify.send.result", id, error };
++    if (type === "notify.permission.request") return { type: "notify.permission.result", id, granted: false };
++    return null;
++  }
 +  if (type.startsWith("inc.")) {
 +    if (type === "inc.subscribe" || type === "inc.channel.open") return { type: `${type}.result`, id, error };
 +    if (type === "inc.channel.list") return { type: `${type}.result`, id, channels: [], error };
@@ -112,7 +126,7 @@ index 5e968b83b4df972b40e2f90953fdb6893459acbf..c6d0a9bda5ff9bff56bd9c9ac25fd78f
  function createFirewallGate(config) {
    const { firewallState, sessionRegistry, hooks, fireConsent } = config;
    return function firewallGate(windowId, envelope, senderCap) {
-@@ -1858,7 +1914,8 @@ function createFirewallGate(config) {
+@@ -1858,7 +1926,8 @@ function createFirewallGate(config) {
          if (decision === "prompt") fireConsent(windowId, napplet);
          return "drop";
        }
@@ -122,7 +136,7 @@ index 5e968b83b4df972b40e2f90953fdb6893459acbf..c6d0a9bda5ff9bff56bd9c9ac25fd78f
        if (canonicalResult) {
          hooks.sendToNapplet(windowId, canonicalResult);
          hooks.onFirewallEvent?.({ windowId, napplet, opClass, decision, action, ruleId, reason, message: envelope });
-@@ -1910,7 +1967,8 @@ function createMessageHandler(hooks, sessionRegistry, enforceNap, dispatchNapEnv
+@@ -1910,7 +1979,8 @@ function createMessageHandler(hooks, sessionRegistry, enforceNap, dispatchNapEnv
            hooks.sendToNapplet(windowId, intentDenial);
            return;
          }
@@ -132,7 +146,7 @@ index 5e968b83b4df972b40e2f90953fdb6893459acbf..c6d0a9bda5ff9bff56bd9c9ac25fd78f
          if (canonicalResult) {
            hooks.sendToNapplet(windowId, canonicalResult);
            return;
-@@ -1926,6 +1984,7 @@ function createMessageHandler(hooks, sessionRegistry, enforceNap, dispatchNapEnv
+@@ -1926,6 +1996,7 @@ function createMessageHandler(hooks, sessionRegistry, enforceNap, dispatchNapEnv
      }
      const verdict = firewallGate(windowId, envelope, caps.senderCap);
      if (verdict === "drop") return;
@@ -140,7 +154,7 @@ index 5e968b83b4df972b40e2f90953fdb6893459acbf..c6d0a9bda5ff9bff56bd9c9ac25fd78f
      dispatchNapEnvelope(windowId, envelope);
    };
  }
-@@ -1981,7 +2040,12 @@ function createRuntimeInstance(context) {
+@@ -1981,7 +2052,14 @@ function createRuntimeInstance(context) {
        const domain = message.type.slice(0, dotIndex);
        try {
          if (isDomainAllowed && !isDomainAllowed(windowId, domain)) return false;
@@ -150,7 +164,9 @@ index 5e968b83b4df972b40e2f90953fdb6893459acbf..c6d0a9bda5ff9bff56bd9c9ac25fd78f
 +        // retain the built-in INC recipient requirement instead of bypassing ACL.
 +        const nativeIncPush = ["inc.event", "inc.channel.event", "inc.channel.opened", "inc.channel.closed"].includes(message.type)
 +          && (getHostOperation(hooks, "inc.subscribe") || getHostOperation(hooks, "inc.channel.open"));
-+        const recipientCap = mappedRecipientCap ?? (nativeIncPush ? "relay:read" : null);
++        const nativeNotifyPush = ["notify.controls", "notify.action", "notify.clicked", "notify.dismissed"].includes(message.type)
++          && getHostOperation(hooks, "notify.send");
++        const recipientCap = mappedRecipientCap ?? (nativeIncPush ? "relay:read" : nativeNotifyPush ? "notify:send" : null);
          if (!recipientCap) return false;
          if (!aclState.check("", entry.dTag, entry.aggregateHash, recipientCap)) {
            return false;

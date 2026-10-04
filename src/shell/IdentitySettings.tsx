@@ -1,3 +1,4 @@
+import {NotificationSettings} from './NotificationSettings';
 import { RoutingSettings } from './RoutingSettings';
 import {IdentityListSettings} from './IdentityListSettings';
 import { UploadSettings } from './UploadSettings';
@@ -137,13 +138,14 @@ function SavedIdentities({session, transition, format, canDelete, onDelete}: {
 function SettingsHome({session, onBackup, onCloseBackup, onDelete, onImport, onSignedLab, openBundledTest, openStateLab, openPublished, publishedSessions, checkPublishedUpdate}: Omit<SettingsActions, 'closeSettings'> & {
   session: IdentitySession; onBackup(): void; onCloseBackup(): void; onDelete(pubkey: string): void; onImport(): void; onSignedLab(): void;
 }) {
-  const {transition, formatNpub, runtime, actions, relaySettings, resourceSettings, uploadSettings, listAccess, routing} = useIdentityOwner();
+  const {transition, formatNpub, runtime, actions, relaySettings, resourceSettings, uploadSettings, listAccess, routing, notificationSettings} = useIdentityOwner();
   return <>
       <Text selectable testID="settings-full-npub" style={styles.npub}>{formatNpub(session.vault.selectedPubkey)}</Text>
       {actions && <IdentityBackup actions={actions} session={session} npub={formatNpub(session.vault.selectedPubkey)} reviewing={false}
         onReview={onBackup} onClose={onCloseBackup} Action={Action} />}
       <PublishedNappletSettings available={Boolean(runtime)} openPublished={openPublished} publishedSessions={publishedSessions} checkPublishedUpdate={checkPublishedUpdate} />
       {routing && <RoutingSettings key={session.epoch} service={routing.settings} />}
+      {notificationSettings && <NotificationSettings key={session.epoch} service={notificationSettings} />}
       <SavedIdentities session={session} transition={transition} format={formatNpub} canDelete={Boolean(actions)}
         onDelete={onDelete} />
       <Action title="Import identity" testID="settings-import-identity" onPress={onImport} />

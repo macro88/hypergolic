@@ -7,8 +7,8 @@ import java.util.Base64
 
 /** Independent native parsing for the private byte carrier and provider receipt. */
 internal object UploadWire {
-  fun objectValue(raw: String, limit: Int = 400 * 1024): JSONObject {
-    require(UploadJsonBounds.accepts(raw, limit)); return JSONObject(raw)
+  fun objectValue(raw: String, limit: Int = 400 * 1024, maximumDepth: Int = 12): JSONObject {
+    require(UploadJsonBounds.accepts(raw, limit, maximumDepth)); return JSONObject(raw)
   }
   fun fields(value: JSONObject, required: Set<String>, optional: Set<String> = emptySet()) {
     val keys = value.keys().asSequence().toSet()

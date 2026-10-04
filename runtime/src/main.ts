@@ -1,4 +1,8 @@
 import { ensureObjectHasOwn } from './legacy-webview';
+import {createConfigAdapter} from './config-adapter';
+import {parseConfigMessage} from '../../src/presentation/config-contract';
+import {createNotifyAdapter} from './notify-adapter';
+import {parseNotifyMessage} from '../../src/presentation/notify-contract';
 import { createRoutingAdapter } from './routing-adapter';
 import { parseRoutingMessage } from '../../src/routing/routing-contract';
 import { createLinkAdapter } from './link-adapter';
@@ -81,6 +85,8 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
   } });
   const supported = new Set(artifact.domains);
   const routing = createRoutingAdapter(native, captureRecipient);
+  const notify = createNotifyAdapter(native, captureRecipient);
+  const config = createConfigAdapter(native, captureRecipient);
   const resource = createResourceAdapter(native, captureRecipient);
   const upload = createUploadAdapter(native, captureRecipient);
   const storage = async ({ message, send }: HostOperationContext): Promise<void> => { send({ ...await native.request(message) }); };
@@ -120,13 +126,17 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
     intent: {isAvailable: () => supported.has('intent')},
     link: {isAvailable: () => supported.has('link')},
     services: { theme: theme.handler,
+      ...(supported.has('config') ? {config: {descriptor: {name: 'config', version: '1.0.0'}, handleMessage: unavailable, onRegistered: registerRouting, onUnregistered: () => registerRouting(null)}} : {}),
+      ...(supported.has('notify') ? {notify: {descriptor: {name: 'notify', version: '1.0.0'}, handleMessage: unavailable, onRegistered: registerRouting, onUnregistered: () => registerRouting(null)}} : {}),
       ...(supported.has('intent') ? {intent: {descriptor: {name: 'intent', version: '1.0.0'}, handleMessage: unavailable, onRegistered: registerRouting, onUnregistered: () => registerRouting(null)}} : {}),
       ...(supported.has('inc') ? {inc: {descriptor: {name: 'inc', version: '1.0.0'}, handleMessage: unavailable, onRegistered: registerRouting, onUnregistered: () => registerRouting(null)}} : {}),
       ...(supported.has('link') ? {link: createLinkAdapter(native, captureRecipient)} : {}),
       ...(supported.has('upload') ? { upload: { descriptor: { name: 'upload', version: '1.0.0' }, handleMessage: unavailable } } : {}), ...(supported.has('identity') ? { identity } : {}),
       ...(supported.has('resource') ? { resource: { descriptor: { name: 'resource', version: '1.0.0' }, handleMessage: unavailable } } : {}),
       ...(supported.has('relay') ? { relay: { descriptor: { name: 'relay', version: '1.0.0' }, handleMessage: unavailable } } : {}) },
-    ...((supported.has('storage') || supported.has('relay') || supported.has('resource') || supported.has('upload') || supported.has('intent') || supported.has('inc')) ? { operationOverrides: {
+    ...((supported.has('storage') || supported.has('relay') || supported.has('resource') || supported.has('upload') || supported.has('intent') || supported.has('inc') || supported.has('notify') || supported.has('config')) ? { operationOverrides: {
+      ...(supported.has('config') ? {'config.registerSchema': config, 'config.get': config, 'config.subscribe': config, 'config.unsubscribe': config, 'config.openSettings': config} : {}),
+      ...(supported.has('notify') ? {'notify.send': notify, 'notify.dismiss': notify, 'notify.badge': notify, 'notify.channel.register': notify, 'notify.permission.request': notify} : {}),
       ...(supported.has('intent') ? { 'intent.invoke': routing, 'intent.available': routing, 'intent.handlers': routing } : {}),
       ...(supported.has('inc') ? { 'inc.subscribe': routing, 'inc.unsubscribe': routing, 'inc.emit': routing, 'inc.channel.open': routing, 'inc.channel.list': routing, 'inc.channel.emit': routing, 'inc.channel.broadcast': routing, 'inc.channel.close': routing } : {}),
       ...(supported.has('upload') ? { 'upload.info': upload, 'upload.upload': upload, 'upload.status': upload } : {}),
@@ -135,7 +145,7 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
       ...(supported.has('relay') ? { 'relay.publish': relayPublish, 'relay.query': relayPublish, 'relay.subscribe': relaySubscribe, 'relay.close': relayClose } : {}),
     } } : {}),
     capabilities: {
-      disabledDomains: ['link', 'upload', 'resource', 'relay', 'identity', 'storage', 'intent', 'inc', 'keys', 'media', 'notify'].filter(domain => !supported.has(domain)),
+      disabledDomains: ['link', 'upload', 'resource', 'relay', 'identity', 'storage', 'intent', 'inc', 'keys', 'media', 'notify', 'config'].filter(domain => !supported.has(domain)),
       resolveEnvironment: () => ({ domains: [...supported], services: ['theme', ...(supported.has('identity') ? ['identity'] : [])] }),
     },
   };
@@ -148,6 +158,8 @@ function validEnvelope(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const message = value as Record<string, unknown>;
   const keys = Object.keys(message);
+  if (typeof message.type === 'string' && message.type.startsWith('config.')) {try {parseConfigMessage(value); return true;} catch {return false;}}
+  if (typeof message.type === 'string' && message.type.startsWith('notify.')) {try {parseNotifyMessage(value); return true;} catch {return false;}}
   if (typeof message.type === 'string' && (message.type.startsWith('intent.') || message.type.startsWith('inc.'))) { try { parseRoutingMessage(value); return true; } catch { return false; } }
   if (message.type === 'link.open') return linkRequestId(value) !== null;
   if (typeof message.type === 'string' && message.type.startsWith('upload.')) {
@@ -245,6 +257,7 @@ function mount(artifact: RuntimeArtifact): void {
       ready = true;
       window.clearTimeout(deadline);
       diagnostic({ type: 'ready', sessionId });
+      if (artifact.domains.includes('notify')) void native.notify({type: 'notify.__register'}).catch(() => {});
       if (artifact.domains.includes('intent') || artifact.domains.includes('inc')) void native.routing({type: 'routing.__register'}).catch(() => {});
     }
   };
