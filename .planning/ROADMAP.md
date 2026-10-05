@@ -19,7 +19,7 @@ and resolve each phase's material policy decisions before generating those files
 - [x] **Phase 2.5: Public identity data** — M; State Lab and Feed Lab.
 - [x] **Phase 2.6: External links** — S–M; Resource Lab.
 - [x] **Phase 2.7: Intents and inter-napplet communication** — M + L; Routing Lab pair.
-- [ ] **Phase 2.8: Notifications and configuration** — M + M; Routing Lab.
+- [x] **Phase 2.8: Notifications and configuration** — selected profile accepted; final physical/full MVP acceptance remains 2.11.
 - [x] **Phase 2.9: Outbox routing** — implementation closed; remaining acceptance transferred to 2.11 on 5 October 2026.
 - [ ] **Phase 2.11: Complete published MVP acceptance** — L; All MVP fixtures (excluding Value Lab) plus selected real napplets.
 - [ ] **Phase 3: External signing** — post-MVP NIP-55 and NIP-46 integrations.
