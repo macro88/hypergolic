@@ -364,11 +364,12 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     val request = runCatching { UploadWire.objectValue(message, CapabilityLeaseRegistry.MAX_BYTES) }.getOrNull() ?: return
     val subId = request.opt("subId") as? String ?: return
     val id = request.opt("id") as? String ?: return
-    if (!config.allowsRelay || request.optString("type") != "relay.subscribe" ||
+    val outbox = request.optString("type") == "outbox.subscribe"
+    if (!config.allowsRelay || (if (outbox) !config.grantedDomains.contains("outbox") else request.optString("type") != "relay.subscribe") ||
       subId.isEmpty() || subId.toByteArray(Charsets.UTF_8).size > 128 || subId.any { it.code < 32 || it.code == 127 } ||
       id.isEmpty() || id.toByteArray(Charsets.UTF_8).size > 128 || message.toByteArray(Charsets.UTF_8).size > 16 * 1024) return
-    val token = RelaySubscriptionTransport.admit(generation, sequence, config.request(message), subId, push) ?: return
-    onHostEvent(mapOf("type" to "capability", "lane" to "subscription", "sessionId" to config.sessionId, "generation" to generation, "token" to token))
+    val token = RelaySubscriptionTransport.admit(generation, sequence, config.request(message), subId, push, outbox) ?: return
+    onHostEvent(mapOf("type" to "capability", "lane" to (if (outbox) "outbox-subscription" else "subscription"), "sessionId" to config.sessionId, "generation" to generation, "token" to token))
   }
 
   private fun receiveCapability(data: JSONObject, push: (String) -> Unit, reply: (String?) -> Unit) {
@@ -398,10 +399,10 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
       })
       return
     }
-    if (request?.optString("type") == "relay.publish") {
+    if (request != null && request.optString("type") in listOf("relay.publish", "outbox.publish")) {
       if (!CapabilityTransport.leases.consumeSequence(generation, sequence)) { reply(null); return }
       val id = request.opt("id") as? String
-      if (!config.allowsRelay || id == null || id.isEmpty() || id.toByteArray(Charsets.UTF_8).size > 128) { reply(null); return }
+      if (!config.allowsRelay || (request.optString("type") == "outbox.publish" && "outbox" !in config.grantedDomains) || id == null || id.isEmpty() || id.toByteArray(Charsets.UTF_8).size > 128) { reply(null); return }
       val approval = ApprovalTransport.admit(generation, config.request(message), id, reply)
       if (approval == null) { reply(null); return }
       onHostEvent(mapOf("type" to "capability", "lane" to "approval", "sessionId" to config.sessionId, "generation" to generation, "token" to approval))

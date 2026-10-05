@@ -461,12 +461,13 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       CapabilityTransport.leases.consumeSequence(generation, sequence: counter),
       let message = value["message"] as? String, message.utf8.count <= 16 * 1024,
       let request = try? JSONSerialization.jsonObject(with: Data(message.utf8)) as? [String: Any],
-      request["type"] as? String == "relay.subscribe", let subId = request["subId"] as? String,
+      let type = request["type"] as? String,
+      (type == "relay.subscribe" || (type == "outbox.subscribe" && configuration.domains.contains("outbox"))), let subId = request["subId"] as? String,
       (1...128).contains(subId.utf8.count), !subId.utf8.contains(where: { $0 < 32 || $0 == 127 }),
       let id = request["id"] as? String, (1...128).contains(id.utf8.count),
       let snapshot = try? configuration.request(message), let capturedView = webView, let capturedURL = expectedURL else { return }
     RelaySubscriptionTransport.shared.foreground(UIApplication.shared.applicationState == .active)
-    guard let token = RelaySubscriptionTransport.shared.admit(generation, sequence: counter, snapshot: snapshot, subId: subId,
+    guard let token = RelaySubscriptionTransport.shared.admit(generation, sequence: counter, snapshot: snapshot, subId: subId, outbox: type == "outbox.subscribe",
       push: { [weak self, weak capturedView] envelope in
         guard let self, let capturedView, self.webView === capturedView, self.live, !self.disposed,
           capturedView.url?.absoluteString == capturedURL.absoluteString else { return }
@@ -475,7 +476,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
           if case .failure = result { self?.fail("renderer-stopped") }
         }
       }) else { return }
-    onEvent?(["type": "capability", "lane": "subscription", "sessionId": configuration.sessionId,
+    onEvent?(["type": "capability", "lane": type == "outbox.subscribe" ? "outbox-subscription" : "subscription", "sessionId": configuration.sessionId,
       "generation": generation, "token": token])
   }
 

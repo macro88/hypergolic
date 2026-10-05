@@ -15,7 +15,8 @@ public final class RelaySubscriptionProof {
     streams.setForeground(true);
     String first = streams.admit("one", "immutable-one"); check(first != null);
     check(!streams.accept(first)); check("immutable-one".equals(streams.take(first))); check(streams.take(first) == null);
-    check(streams.accept(first)); check(!streams.accept(first)); check(streams.isActive(first)); check(streams.mayDeliver(first));
+    check(streams.accept(first)); check(streams.connectionLimit(first) == 2); check(!streams.accept(first)); check(streams.isActive(first)); check(streams.mayDeliver(first));
+    String outbox = streams.admit("one", "native-outbox", true); check(outbox != null); check(streams.connectionLimit(outbox) == 0); check(streams.take(outbox) != null); check(streams.accept(outbox)); check(streams.connectionLimit(outbox) == 16); streams.close(outbox); check(streams.connectionLimit(outbox) == 0);
     String pending = streams.admit("one", "pending"); check(pending != null); check(streams.admit("one", "overload") == null);
     clock.addAndGet(25_000); check(streams.take(pending) == null); check(streams.isActive(first));
     streams.setForeground(false); check(streams.isActive(first)); check(!streams.mayDeliver(first)); check(streams.admit("one", "background") == null);

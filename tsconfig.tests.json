@@ -17,6 +17,7 @@
     "tests/storage/**/*.test.ts",
     "tests/runtime/**/*.test.ts",
     "tests/network/**/*.test.ts",
-    "tests/presentation/**/*.test.ts"
+    "tests/presentation/**/*.test.ts",
+    "tests/outbox/**/*.test.ts"
   ]
 }

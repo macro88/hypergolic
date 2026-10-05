@@ -10,7 +10,7 @@ internal object RelaySubscriptionTransport {
   val registry = RelaySubscriptionRegistry(SystemClock::elapsedRealtime, CapabilityTransport.leases::sessionActive)
   private val main = Handler(Looper.getMainLooper())
   private data class Row(val generation: String, val sequence: Long, val subId: String,
-    val push: (String) -> Unit, var delivery: Long = 0, var acknowledged: Long = 0,
+    val push: (String) -> Unit, val outbox: Boolean, var delivery: Long = 0, var acknowledged: Long = 0,
     val sizes: MutableMap<Long, Int> = mutableMapOf(),
     val payloads: MutableMap<Long, String> = mutableMapOf(), val pushed: MutableSet<Long> = mutableSetOf(), var terminal: Boolean = false)
   private val rows = mutableMapOf<String, Row>()
@@ -20,9 +20,9 @@ internal object RelaySubscriptionTransport {
   @Synchronized fun observeLifecycle(sink: ((String) -> Unit)?) { lifecycleSink = sink }
   @Synchronized fun lifecycle(): String = JSONObject().put("active", foreground).put("revision", revision).toString()
   @Synchronized fun admit(generation: String, sequence: Long, snapshot: String, subId: String,
-    push: (String) -> Unit): String? {
-    val token = registry.admit(generation, snapshot) ?: return null
-    rows[token] = Row(generation, sequence, subId, push)
+    push: (String) -> Unit, outbox: Boolean = false): String? {
+    val token = registry.admit(generation, snapshot, outbox) ?: return null
+    rows[token] = Row(generation, sequence, subId, push, outbox)
     main.postDelayed({ synchronized(this) { if (!registry.isActive(token)) close(token) } }, 25_000)
     return token
   }
@@ -34,12 +34,12 @@ internal object RelaySubscriptionTransport {
     if (!registry.mayDeliver(token) || row.terminal || bytes > 66 * 1024 ||
       row.sizes.size >= 4 || row.sizes.values.sum() + bytes > 256 * 1024) { close(token); return -1 }
     val message = runCatching { JSONObject(response) }.getOrNull() ?: run { close(token); return -1 }
-    if (message.opt("subId") != row.subId || message.optString("type") !in setOf("relay.event", "relay.eose", "relay.closed")) {
+    if (message.opt("subId") != row.subId || message.optString("type") !in (if (row.outbox) setOf("outbox.event", "relay.eose", "outbox.closed") else setOf("relay.event", "relay.eose", "relay.closed"))) {
       close(token); return -1
     }
     val delivery = ++row.delivery
     row.sizes[delivery] = bytes
-    row.terminal = message.optString("type") == "relay.closed"
+    row.terminal = message.optString("type") == (if (row.outbox) "outbox.closed" else "relay.closed")
     val envelope = JSONObject().put("type", "capability.stream").put("sessionId", row.generation)
       .put("sequence", row.sequence).put("delivery", delivery).put("response", response).toString()
     row.payloads[delivery] = envelope

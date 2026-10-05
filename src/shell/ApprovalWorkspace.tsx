@@ -1,36 +1,27 @@
+import {PublicationReceiptSheet} from './PublicationReceiptSheet';
+import {useApprovalPresentation} from './useApprovalPresentation';
 import type { UploadService } from '../uploads/upload-service.ts';
 import { UploadProvider } from './UploadContext';
 import { UploadWorkspace, useUploadPresentation } from './UploadWorkspace';
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { AppState, Pressable, StyleSheet, Text, View } from 'react-native';
-import type { ApprovalItem, ApprovalService } from '../security/approval-service.ts';
+import type { ApprovalService, ApprovalSnapshot } from '../security/approval-service.ts';
 import { ApprovalSheet } from './ApprovalSheet';
 import { ApprovalProvider } from './ApprovalContext';
 import { Shell, type ShellProps } from './Shell';
 import { colors } from './theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import type { RelayOutcome } from '../network/relay-service';
 
 type Props = Omit<ShellProps, 'pendingApprovals' | 'onBeforeClose'> & { service: ApprovalService; uploads?: UploadService; epoch: number };
 
-function publicationStatus(results: readonly RelayOutcome[]): string {
-  const accepted = results.filter(result => result.status === 'accepted').length;
-  const unknown = results.filter(result => result.status === 'unknown').length;
-  if (accepted > 0) return `Published to ${accepted} of ${results.length} relays.${unknown ? ' Other delivery could not be confirmed.' : ''}`;
-  return unknown ? 'Publication could not be confirmed.' : 'No relay accepted the event.';
-}
-
 /** Joins trusted presentation to the native-authoritative queue without blocking the guest host. */
 export function ApprovalWorkspace({ service, uploads, epoch, workspace, footer, ...shell }: Props) {
-  const insets = useSafeAreaInsets();
   const subscribe = useCallback((listener: () => void) => service.subscribe(listener), [service]);
   const getSnapshot = useCallback(() => service.getSnapshot(), [service]);
   const snapshot = useSyncExternalStore(subscribe, getSnapshot);
   const uploadSnapshot = useUploadPresentation(uploads, epoch);
-  const [held, setHeld] = useState<ApprovalItem | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [outcome, setOutcome] = useState<string | null>(null);
-  const shown = busy ? held : snapshot.current;
+  const presentation=useApprovalPresentation(service,epoch);
+  const shown=presentation.busy ? presentation.held : snapshot.current;
   useEffect(() => {
     service.revisionChanged(epoch);
     if (AppState.currentState === 'active') service.foreground(); else service.background();
@@ -47,12 +38,20 @@ export function ApprovalWorkspace({ service, uploads, epoch, workspace, footer, 
     <Shell {...shell} workspace={workspace} pendingApprovals={new Set([...snapshot.pendingSessionIds, ...uploadSnapshot.pendingSessionIds])}
       footer={<>{!shown && !uploadSnapshot.current && !shell.blocked && footer}<UploadWorkspace service={uploads} snapshot={uploadSnapshot} workspace={workspace} blocked={Boolean(shown || shell.blocked)} /></>}
       onBeforeClose={session => {service.close(session.id); uploads?.close(session.id);}} />
-    {snapshot.reviewPaused && snapshot.pending > 0 && snapshot.focusedSessionId !== null && <View pointerEvents="box-none" style={[styles.resumeArea, { paddingBottom: Math.max(24, insets.bottom + 12) }]}><Pressable testID="approval-resume" accessibilityRole="button" onPress={() => service.resume()} style={styles.resume}><Text style={styles.resumeText}>Resume approvals</Text></Pressable></View>}
-    {outcome && !shown && snapshot.focusedSessionId !== null && <Pressable testID="approval-outcome" accessibilityRole="button" accessibilityLabel={`${outcome} Dismiss status`} onPress={() => setOutcome(null)} style={styles.outcome}><Text accessibilityLiveRegion="polite" style={styles.outcomeText}>{outcome}</Text></Pressable>}
-    <ApprovalSheet item={shown} nappletTitle={title} busy={busy} error={null}
-      onApprove={id => { if (busy || snapshot.current?.id !== id) return; setHeld(snapshot.current); setBusy(true); setOutcome(null); void service.approve(id).then(results => setOutcome(publicationStatus(results))).catch(() => setOutcome('Approval was not completed.')).finally(() => { setHeld(null); setBusy(false); }); }}
-      onReject={id => { if (!busy) service.reject(id); }} onDismiss={id => { if (!busy) service.dismiss(id); }} />
+    <ApprovalResults snapshot={snapshot} service={service} presentation={presentation} shown={shown!==null}/>
+    <ApprovalSheet item={shown} nappletTitle={title} busy={presentation.busy} error={null}
+      onApprove={id => {if(snapshot.current?.id===id)presentation.approve(snapshot.current);}}
+      onReject={id => {if(!presentation.busy)service.reject(id);}} onDismiss={id => {if(!presentation.busy)service.dismiss(id);}} />
   </UploadProvider></ApprovalProvider>;
+}
+
+function ApprovalResults({snapshot,service,presentation,shown}:{snapshot:ApprovalSnapshot;service:ApprovalService;presentation:ReturnType<typeof useApprovalPresentation>;shown:boolean}){
+ const insets=useSafeAreaInsets();
+ return <>
+    {snapshot.reviewPaused && snapshot.pending > 0 && snapshot.focusedSessionId !== null && <View pointerEvents="box-none" style={[styles.resumeArea, { paddingBottom: Math.max(24, insets.bottom + 12) }]}><Pressable testID="approval-resume" accessibilityRole="button" onPress={() => service.resume()} style={styles.resume}><Text style={styles.resumeText}>Resume approvals</Text></Pressable></View>}
+    {presentation.outcome && !presentation.receipt && !shown && snapshot.focusedSessionId !== null && <Pressable testID="approval-outcome" accessibilityRole="button" accessibilityLabel={`${presentation.outcome} Dismiss status`} onPress={presentation.dismissOutcome} style={styles.outcome}><Text accessibilityLiveRegion="polite" style={styles.outcomeText}>{presentation.outcome}</Text></Pressable>}
+    {presentation.receipt&&!shown&&<PublicationReceiptSheet receipt={presentation.receipt} onDismiss={presentation.dismissReceipt}/>}
+ </>;
 }
 
 const styles = StyleSheet.create({

@@ -8,6 +8,7 @@ export interface NativeRelaySubscriptionPort {
   accept(token:string):boolean;
   isActive(token:string):boolean;
   mayDeliver(token:string):boolean;
+  canSend?(token:string):boolean;
   send(token:string,response:string):boolean|'paused';
   close(token:string):void;
 }

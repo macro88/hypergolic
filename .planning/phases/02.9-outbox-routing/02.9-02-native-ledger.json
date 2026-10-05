@@ -1,0 +1,80 @@
+{
+  "android": {
+    "status": "passed",
+    "journey": "android-reads-stream04",
+    "build": "android-build09",
+    "checks": [
+      "disjoint-native-wss-original-sdk",
+      "cold-native-sqlite-routing",
+      "native-missing-domain-no-transport",
+      "native-captured-owner-mismatch-no-transport",
+      "resolve-read-write-roles",
+      "resolve-write-read-roles",
+      "getEvent-exact-signed-id",
+      "getEvent-not-found",
+      "original-live-handle-full-plan",
+      "loaded-switch-preserves-stream-and-draft",
+      "native-background-fresh-plan-before-reconnect",
+      "original-close-stops-all-sockets",
+      "zero-backfill-public-live-after-ordinary-lease",
+      "changed-public-owner-revokes-old-handle",
+      "revoked-intent-does-not-return"
+    ],
+    "sourceInputCount": 418,
+    "sourceFingerprint": "25680dd500b6be4edd0b2c7d2a35d8637f3c904e5af9c09952c0848c0ecab31f",
+    "installedProductFingerprint": "4438df5f83a0fa1237d21a9d3f5024d721fd9bbcc1008e449c1645b38f310a3f",
+    "sdkIncompleteFlags": [
+      true,
+      true
+    ],
+    "liveSDKCount": 19,
+    "independentPostEOSEIds": [
+      "9c81b5e21abff1e25777a812a415716b65fb538b0652cc17617218d866015153",
+      "88313d324c21f67fca96de3ee1d120ec2cbe87c18cf40183f2e0333efdf3eba9",
+      "f0f5fa46e7ca64193f4b3fc2152b32f65c90f8ac73c3c5c39f5d6ebd00f58809",
+      "4093d72e69d3c03be952b78c9729ec4a1b97b38a2556c2cd6fb95e60ca56bf27"
+    ],
+    "visualInspection": true,
+    "visualInspectionCount": 15
+  },
+  "ios": {
+    "status": "passed",
+    "journey": "ios-reads-stream07",
+    "build": "ios-build12",
+    "checks": [
+      "disjoint-native-wss-original-sdk",
+      "cold-native-sqlite-routing",
+      "resolve-read-write-roles",
+      "resolve-write-read-roles",
+      "getEvent-exact-signed-id",
+      "getEvent-not-found",
+      "original-live-handle-full-plan",
+      "loaded-switch-preserves-stream-and-draft",
+      "native-background-fresh-plan-before-reconnect",
+      "original-close-stops-all-sockets",
+      "zero-backfill-public-live-after-ordinary-lease",
+      "changed-public-owner-revokes-old-handle",
+      "revoked-intent-does-not-return",
+      "native-missing-domain-no-transport",
+      "native-captured-owner-mismatch-no-transport"
+    ],
+    "sourceInputCount": 418,
+    "sourceFingerprint": "0be13baa29a2b06620c8413c73c99ff4c50f2e684867f13d5d9d8003ee9660d0",
+    "installedProductFingerprint": "00b9f14766c7dc25485c9c4b7e5a7c89105265bcff3ec30e275693a8b3b192d4",
+    "sdkIncompleteFlags": [
+      true,
+      true
+    ],
+    "liveSDKCount": 14,
+    "independentPostEOSEIds": [
+      "06a4bd08b9ce717bb8dd3164da355f0fd1d7a92353616f1147b4ca42f1583819",
+      "6f332c3b3105acb2298cc55b16540953854c0d2a27326b9ced185cb6296a015f",
+      "4a99f81083bf0a9fb0a385a62320d580ecf5a01f5ced0b4ffe87aaddad1fc9c3",
+      "b0011266e1a5c27aeefd195c3e3a6a37e3b192f2c3f8e1899e0314635e550418"
+    ],
+    "visualInspection": true,
+    "visualInspectionCount": 15
+  },
+  "scope": "Original SDK read operations and public native WSS/SQLite/stream lifecycle on emulator and Simulator. No protected signing, physical device or published Outbox admission claim.",
+  "sourceDifference": "The iOS seal differs from Android only in the XCTest receipt-selector correction; production, native, runtime and guest fixture inputs match byte-for-byte."
+}

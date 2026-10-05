@@ -10,6 +10,11 @@ ROOT = Path(__file__).resolve().parents[3]
 NATIVE = ROOT / "modules/napplet-host/ios"
 FIXTURE = Path(__file__).resolve().parent
 SOURCES = [
+    NATIVE / "NativeUploadAuthority.swift",
+    NATIVE / "UploadFileProfile.swift",
+    NATIVE / "UploadPngMetadata.swift",
+    NATIVE / "UploadPngProfile.swift",
+
     NATIVE / "PublicAddressPolicy.swift",
     NATIVE / "PublishedHTTPResponse.swift",
     NATIVE / "PublishedPinnedHTTPS.swift",
@@ -60,7 +65,7 @@ with tempfile.TemporaryDirectory(prefix="hypergolic-ios-published-wss-") as temp
     output = Path(temporary)
     proof = output / "published-wss-proof"
     run([
-        "xcrun", "swiftc", "-warnings-as-errors", "-sdk", macos_sdk,
+        "xcrun", "swiftc", "-swift-version", "6", "-warnings-as-errors", "-sdk", macos_sdk,
         "-module-cache-path", str(output / "macos-modules"), "-parse-as-library",
         "-o", str(proof), *(str(source) for source in SOURCES),
         str(FIXTURE / "PublishedRelayWebSocketQueryProof.swift"),
@@ -68,7 +73,7 @@ with tempfile.TemporaryDirectory(prefix="hypergolic-ios-published-wss-") as temp
     run([str(proof)], environment)
 
     run([
-        "xcrun", "swiftc", "-warnings-as-errors", "-target", "arm64-apple-ios18.4-simulator",
+        "xcrun", "swiftc", "-swift-version", "6", "-warnings-as-errors", "-target", "arm64-apple-ios18.4-simulator",
         "-sdk", simulator_sdk, "-module-cache-path", str(output / "simulator-modules"),
         "-parse-as-library", "-emit-module", "-emit-module-path", str(output / "PublishedRelayWSS.swiftmodule"),
         *(str(source) for source in SOURCES),

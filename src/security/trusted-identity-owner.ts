@@ -1,3 +1,6 @@
+import {loadNativeOutboxSubscriptions} from '../outbox/native-subscription-port';
+import {openOutboxRelayListCache} from '../outbox/relay-list-cache';
+import {loadNativeOutboxReadService} from '../outbox/native-read-port';
 import {createNotificationSettings, type NotificationSettingsService} from '../presentation/notify-settings';
 import {ConfigBroker} from '../presentation/config-broker';
 import {openNativeConfigStore} from '../presentation/config-store-native';
@@ -81,6 +84,7 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
   let notifyBroker: NotifyBroker | null = null;
   let configBroker: ConfigBroker | null = null;
   let identityCache: Awaited<ReturnType<typeof openIdentityCache>> | null = null;
+  let outboxCache: Awaited<ReturnType<typeof openOutboxRelayListCache>> | null = null;
   try {
     try { relaySettings = await openNativeRelaySettings(SQLite, platform); } catch { relaySettings = null; }
     try { resourceSettings = await openNativeResourceSettings(SQLite); } catch { resourceSettings = null; }
@@ -88,15 +92,17 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
     routingCatalog = await openRoutingCatalog(SQLite, platform);
     notifyPermissions = await openNotifyPermissions(SQLite, platform);
     identityCache = await openIdentityCache(SQLite, platform);
+    outboxCache = await openOutboxRelayListCache(SQLite, platform);
+    const outbox = loadNativeOutboxReadService(outboxCache, () => relaySettings?.getSettings() ?? {networkRelays: [], lookupRelays: []});
     const queries = loadNativeRelayQuery(() => relaySettings?.getSettings().networkRelays ?? []);
     const transition = await IdentityTransition.open({ vault, database, publicKeyFromNsec, seed: initialTestWorkspace, assertAvailable: assertWorkspaceAvailability });
     releaseRouting = bindRoutingOwner(transition, requireNativeModule<NativeRoutingOwner>('HypergolicNappletHost'));
     releaseLinks = bindLinkOwner(transition, requireNativeModule<NativeLinkOwner>('HypergolicNappletHost'));
     try {listAccess = await openIdentityListAccess(SQLite, platform, loadIdentityListNativePolicy(), () => {const state = transition.getSnapshot(); return state.phase === 'ready' ? state.session.vault.selectedPubkey : '';});} catch {listAccess = null;}
     let runtime: RuntimeOwner | null = null;
-    const approvals = new ApprovalService(loadNativeApprovalPort(), createApprovalOwner(transition, origin => {
+    const approvals = new ApprovalService(loadNativeApprovalPort(), createApprovalOwner(transition, (origin,domain) => {
       if (!runtime) throw new Error('APPROVAL_DENIED');
-      runtime.assertPublishedApproval(origin);
+      runtime.assertPublishedApproval(origin,domain);
     }), {
       sign: (snapshot, execution) => vault.signApproved(snapshot, execution, (event, secret) => {
         const signed = finalizeEvent(event, secret);
@@ -104,7 +110,7 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
           content: signed.content, tags: signed.tags, sig: signed.sig };
       }),
       publishEvent,
-    });
+    },outbox.publication);
     const uploads = new UploadService(loadNativeUploadPort(), createUploadOwner(transition, origin => {
       if (!runtime) throw new Error('APPROVAL_DENIED');
       runtime.assertPublishedUpload(origin);
@@ -129,13 +135,14 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
         lookupRelays: () => relaySettings?.getSettings().lookupRelays ?? [] },
       queries,
       loadNativeRelaySubscriptions(() => relaySettings?.getSettings().networkRelays ?? []),
-      loadNativeResourceHost(() => resourceSettings?.servers() ?? [], queries), uploads, createIdentityDataService(identityCache, queries, Date.now, listAccess ?? undefined), routing, notifyBroker, configBroker);
+      loadNativeResourceHost(() => resourceSettings?.servers() ?? [], queries), uploads, createIdentityDataService(identityCache, queries, Date.now, listAccess ?? undefined), routing, notifyBroker, configBroker, outbox, loadNativeOutboxSubscriptions(outbox));
     return { notificationSettings: createNotificationSettings(transition, routingNative, notifyBroker), config: configBroker, notify: notifyBroker, routing, listAccess, transition, approvals, relaySettings, resourceSettings, uploadSettings, uploads, runtime };
   } catch {
     releaseLinks?.(); releaseRouting?.(); routingBroker?.stop(); notifyBroker?.stop(); configBroker?.stop();
     try { await notifyPermissions?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await routingCatalog?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await listAccess?.close(); } catch { /* Preserve the workspace failure. */ }
+    try { await outboxCache?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await identityCache?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await uploadSettings?.close(); } catch { /* Preserve the workspace failure. */ }
     try { await resourceSettings?.close(); } catch { /* Preserve the workspace failure. */ }

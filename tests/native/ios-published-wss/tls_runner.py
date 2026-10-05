@@ -17,9 +17,14 @@ ROOT = Path(__file__).resolve().parents[3]
 NATIVE = ROOT / "modules/napplet-host/ios"
 PROOF = Path(__file__).resolve().parent / "PublishedRelayWssTlsProof.swift"
 SOURCES = [
+    "NativeUploadAuthority.swift",
+    "UploadFileProfile.swift",
+    "UploadPngMetadata.swift",
+    "UploadPngProfile.swift",
+
     "PublicAddressPolicy.swift", "PublishedHTTPResponse.swift", "PublishedPinnedHTTPS.swift",
     "PublishedRelayWebSocketHandshake.swift", "PublishedRelayWebSocketFrames.swift",
-    "PublishedRelayWebSocketClientFrames.swift", "PublishedRelayWebSocketQuery.swift",
+    "PublishedRelayWebSocketClientFrames.swift", "PublishedRelayWebSocketQuery.swift", "PublishedRelayEnvelope.swift",
 ]
 
 
@@ -123,7 +128,7 @@ def main() -> None:
         valid_key, valid_cert, valid_der = identity(output, "relay.example.org")
         wrong_key, wrong_cert, wrong_der = identity(output, "other.example.org")
         binary = output / "ios-wss-tls-proof"
-        compiler = ["swiftc", "-D", "HYPERGOLIC_NETWORK_PROOF", "-warnings-as-errors"]
+        compiler = ["swiftc", "-swift-version", "6", "-D", "HYPERGOLIC_NETWORK_PROOF", "-warnings-as-errors"]
         compiler_environment = os.environ.copy()
         if simulator:
             sdk = subprocess.check_output(["xcrun", "--sdk", "iphonesimulator", "--show-sdk-path"], text=True).strip()

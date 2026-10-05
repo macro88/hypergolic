@@ -8,6 +8,7 @@ final class RelaySubscriptionTransportRegistry: @unchecked Sendable {
     let sequence: UInt64
     let subId: String
     let push: Push
+    let outbox: Bool
     var delivery: UInt64 = 0
     var acknowledged: UInt64 = 0
     var sizes: [UInt64: Int] = [:]
@@ -31,10 +32,10 @@ final class RelaySubscriptionTransportRegistry: @unchecked Sendable {
   init(leases: CapabilityLeaseRegistry) {
     registry = RelaySubscriptionRegistry(generationActive: { leases.sessionActive($0) })
   }
-  func admit(_ generation: String, sequence: UInt64, snapshot: String, subId: String, push: @escaping Push) -> String? {
+  func admit(_ generation: String, sequence: UInt64, snapshot: String, subId: String, outbox: Bool = false, push: @escaping Push) -> String? {
     lock.withLock {
-      guard let token = registry.admit(generation, snapshot: snapshot) else { return nil }
-      rows[token] = Row(generation: generation, sequence: sequence, subId: subId, push: push)
+      guard let token = registry.admit(generation, snapshot: snapshot, outbox: outbox) else { return nil }
+      rows[token] = Row(generation: generation, sequence: sequence, subId: subId, push: push, outbox: outbox)
       DispatchQueue.main.asyncAfter(deadline: .now() + 25) { [weak self] in
         guard let self else { return }
         self.lock.withLock { if !self.registry.isActive(token) { self.close(token) } }
@@ -53,12 +54,12 @@ final class RelaySubscriptionTransportRegistry: @unchecked Sendable {
         row.sizes.values.reduce(0, +) + response.utf8.count <= 256 * 1024,
         let message = try? JSONSerialization.jsonObject(with: Data(response.utf8)) as? [String: Any],
         message["subId"] as? String == row.subId,
-        let type = message["type"] as? String, ["relay.event", "relay.eose", "relay.closed"].contains(type),
+        let type = message["type"] as? String, (row.outbox ? ["outbox.event", "relay.eose", "outbox.closed"] : ["relay.event", "relay.eose", "relay.closed"]).contains(type),
         row.delivery < 9_007_199_254_740_991 else { close(token); return -1 }
       row.delivery += 1
       let delivery = row.delivery
       row.sizes[delivery] = response.utf8.count
-      row.terminal = type == "relay.closed"
+      row.terminal = type == (row.outbox ? "outbox.closed" : "relay.closed")
       rows[token] = row
       let value: [String: Any] = ["type": "capability.stream", "sessionId": row.generation,
         "sequence": row.sequence, "delivery": delivery, "response": response]

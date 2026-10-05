@@ -101,13 +101,19 @@ enum PublishedRelayWebSocketQuery {
     }
   }
 
+  struct PublicationControl: Sendable {
+    let mayContinue: @Sendable () -> Bool
+    let send: @Sendable (@Sendable () -> Void) throws -> Void
+  }
   static func query(_ url: String, subscription: String,
+                    publication: PublicationControl? = nil,
                     classifyText: @escaping @Sendable (String) throws -> TextKind,
                     completion: @escaping @Sendable (Result<[String], Error>) -> Void) throws -> Operation {
     let request = try Request(url)
     guard Data(subscription.utf8).count <= PublishedRelayWebSocketClientFrames.maxTextBytes,
           String(data: Data(subscription.utf8), encoding: .utf8) == subscription else { throw Failure.invalidURL }
     let operation = Operation(request: request, subscription: subscription, classifyText: classifyText, completion: completion)
+    operation.publication = publication
     operation.start()
     return operation
   }
@@ -129,6 +135,7 @@ enum PublishedRelayWebSocketQuery {
   /// Host-only proof seam. The production query cannot choose addresses or trust anchors.
   static func queryForProof(_ url: String, subscription: String,
                             addresses: [PublishedPinnedHTTPS.Address], anchorDER: Data?,
+                            publication: PublicationControl? = nil,
                             classifyText: @escaping @Sendable (String) throws -> TextKind,
                             completion: @escaping @Sendable (Result<[String], Error>) -> Void) throws -> Operation {
     let request = try Request(url)
@@ -139,6 +146,7 @@ enum PublishedRelayWebSocketQuery {
                               classifyText: classifyText, completion: completion)
     operation.proofAddresses = addresses
     operation.proofAnchorDER = anchorDER
+    operation.publication = publication
     operation.start()
     return operation
   }
@@ -168,6 +176,7 @@ enum PublishedRelayWebSocketQuery {
     private var total = 0
     private var collector = TextCollector()
     private var ended = false
+    fileprivate var publication: PublicationControl?
     fileprivate var streamDelivery: StreamDelivery?
     private var streamTexts: [String] = []
     private var streamBytes = 0
@@ -188,6 +197,7 @@ enum PublishedRelayWebSocketQuery {
     }
 
     fileprivate func start() {
+      guard publication?.mayContinue() != false else { finish(.failure(Failure.cancelled)); return }
       queue.asyncAfter(deadline: .now() + 10) { if self.streamDelivery == nil || !self.streamEOSE { self.finish(.failure(Failure.timeout)) } }
 #if HYPERGOLIC_NETWORK_PROOF
       if let proofAddresses {
@@ -216,6 +226,7 @@ enum PublishedRelayWebSocketQuery {
     func cancel() { cancellation.cancel(); queue.async { self.finish(.failure(Failure.cancelled)) } }
 
     private func connectNext() {
+      guard publication?.mayContinue() != false else { finish(.failure(Failure.cancelled)); return }
       guard let address = addresses?.next() else { finish(.failure(Failure.connection)); return }
       connection?.stateUpdateHandler = nil
       connection?.cancel()
@@ -287,11 +298,14 @@ enum PublishedRelayWebSocketQuery {
           catch { self.finish(.failure(error)); return }
           do {
             let frame = try PublishedRelayWebSocketClientFrames.textReq(self.subscription)
-            connection.send(content: frame, completion: .contentProcessed { sendError in
-              if sendError != nil { self.finish(.failure(Failure.connection)) }
-              else if parts.prefetchedFrames.isEmpty { self.receiveFrames() }
-              else { self.consumeFrames(parts.prefetchedFrames) }
-            })
+            let emit: @Sendable () -> Void = {
+              connection.send(content: frame, completion: .contentProcessed { sendError in
+                if sendError != nil { self.finish(.failure(Failure.connection)) }
+                else if parts.prefetchedFrames.isEmpty { self.receiveFrames() }
+                else { self.consumeFrames(parts.prefetchedFrames) }
+              })
+            }
+            if let publication = self.publication { try publication.send(emit) } else { emit() }
           } catch { self.finish(.failure(error)) }
         } else { self.receiveHandshake() }
       }

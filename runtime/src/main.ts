@@ -1,4 +1,5 @@
 import { ensureObjectHasOwn } from './legacy-webview';
+import {parseOutboxSubscribe,parseOutboxClose} from '../../src/outbox/subscription-contract';
 import {createConfigAdapter} from './config-adapter';
 import {parseConfigMessage} from '../../src/presentation/config-contract';
 import {createNotifyAdapter} from './notify-adapter';
@@ -94,7 +95,7 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
   const relaySubscribe = ({message,send}:HostOperationContext):void => {
     const live=captureRecipient();
     try { native.subscribe(message,response=>{if(live())send({...response});}); }
-    catch { if(live())send({type:'relay.closed',subId:parseRelaySubscribe(message).subId,reason:'relay subscription unavailable'}); }
+    catch { if(live()){const outbox=message.type==='outbox.subscribe';const request=outbox?parseOutboxClose({type:'outbox.close',id:message.id,subId:message.subId}):parseRelayClose({type:'relay.close',id:message.id,subId:message.subId});send({type:outbox?'outbox.closed':'relay.closed',subId:request.subId,reason:'relay subscription unavailable'});} }
   };
   const relayClose = ({message}:HostOperationContext):void => { native.close(message); };
   const identity = { descriptor: { name: 'identity', version: '1.0.0' },
@@ -133,8 +134,9 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
       ...(supported.has('link') ? {link: createLinkAdapter(native, captureRecipient)} : {}),
       ...(supported.has('upload') ? { upload: { descriptor: { name: 'upload', version: '1.0.0' }, handleMessage: unavailable } } : {}), ...(supported.has('identity') ? { identity } : {}),
       ...(supported.has('resource') ? { resource: { descriptor: { name: 'resource', version: '1.0.0' }, handleMessage: unavailable } } : {}),
+      ...(supported.has('outbox') ? {outbox: {descriptor: {name: 'outbox', version: '1.0.0'}, handleMessage: unavailable}} : {}),
       ...(supported.has('relay') ? { relay: { descriptor: { name: 'relay', version: '1.0.0' }, handleMessage: unavailable } } : {}) },
-    ...((supported.has('storage') || supported.has('relay') || supported.has('resource') || supported.has('upload') || supported.has('intent') || supported.has('inc') || supported.has('notify') || supported.has('config')) ? { operationOverrides: {
+    ...((supported.has('storage') || supported.has('relay') || supported.has('resource') || supported.has('upload') || supported.has('intent') || supported.has('inc') || supported.has('notify') || supported.has('config') || supported.has('outbox')) ? { operationOverrides: {
       ...(supported.has('config') ? {'config.registerSchema': config, 'config.get': config, 'config.subscribe': config, 'config.unsubscribe': config, 'config.openSettings': config} : {}),
       ...(supported.has('notify') ? {'notify.send': notify, 'notify.dismiss': notify, 'notify.badge': notify, 'notify.channel.register': notify, 'notify.permission.request': notify} : {}),
       ...(supported.has('intent') ? { 'intent.invoke': routing, 'intent.available': routing, 'intent.handlers': routing } : {}),
@@ -142,10 +144,11 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
       ...(supported.has('upload') ? { 'upload.info': upload, 'upload.upload': upload, 'upload.status': upload } : {}),
       ...(supported.has('resource') ? { 'resource.info': resource, 'resource.bytes': resource, 'resource.bytesMany': resource, 'resource.cancel': resource } : {}),
       ...(supported.has('storage') ? { 'storage.get': storage, 'storage.set': storage, 'storage.remove': storage, 'storage.keys': storage } : {}),
+      ...(supported.has('outbox') ? {'outbox.query': relayPublish, 'outbox.getEvent': relayPublish, 'outbox.resolveRelays': relayPublish, 'outbox.publish': relayPublish, 'outbox.subscribe': relaySubscribe, 'outbox.close': relayClose} : {}),
       ...(supported.has('relay') ? { 'relay.publish': relayPublish, 'relay.query': relayPublish, 'relay.subscribe': relaySubscribe, 'relay.close': relayClose } : {}),
     } } : {}),
     capabilities: {
-      disabledDomains: ['link', 'upload', 'resource', 'relay', 'identity', 'storage', 'intent', 'inc', 'keys', 'media', 'notify', 'config'].filter(domain => !supported.has(domain)),
+      disabledDomains: ['link', 'upload', 'resource', 'relay', 'identity', 'storage', 'intent', 'inc', 'keys', 'media', 'notify', 'config', 'outbox'].filter(domain => !supported.has(domain)),
       resolveEnvironment: () => ({ domains: [...supported], services: ['theme', ...(supported.has('identity') ? ['identity'] : [])] }),
     },
   };
@@ -153,7 +156,7 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
 
 const privilegedRequests = new Set(['identity.getPublicKey', 'identity.getRelays', 'identity.getProfile',
   'identity.getFollows', 'identity.getMutes', 'identity.getBlocked', 'identity.getList',
-  'identity.getZaps', 'identity.getBadges', 'storage.get', 'storage.set', 'storage.remove', 'storage.keys', 'relay.query', 'resource.info', 'resource.bytes', 'resource.bytesMany', 'resource.cancel']);
+  'identity.getZaps', 'identity.getBadges', 'storage.get', 'storage.set', 'storage.remove', 'storage.keys', 'relay.query', 'outbox.query', 'outbox.getEvent', 'outbox.resolveRelays', 'outbox.publish', 'resource.info', 'resource.bytes', 'resource.bytesMany', 'resource.cancel']);
 function validEnvelope(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const message = value as Record<string, unknown>;
@@ -165,6 +168,7 @@ function validEnvelope(value: unknown): boolean {
   if (typeof message.type === 'string' && message.type.startsWith('upload.')) {
     try { parseUploadRequest(value); return true; } catch { return false; }
   }
+  if(message.type==='outbox.subscribe'||message.type==='outbox.close'){try{if(message.type==='outbox.subscribe')parseOutboxSubscribe(value);else parseOutboxClose(value);return true;}catch{return false;}}
   if(message.type==='relay.subscribe'||message.type==='relay.close') {
     try {if(message.type==='relay.subscribe')parseRelaySubscribe(value);else parseRelayClose(value);return true;}catch{return false;}
   }
@@ -207,10 +211,15 @@ function createGuestFrame(title: string): HTMLIFrameElement {
   return frame;
 }
 
+function approvalTimeouts(artifact:RuntimeArtifact):Readonly<Record<string,number>> {
+  return Object.freeze({...artifact.publishTimeoutMs===undefined?{}:{'relay.publish':artifact.publishTimeoutMs},
+    ...artifact.domains.includes('outbox')?{'outbox.publish':660_000}:{}});
+}
+
 function mount(artifact: RuntimeArtifact): void {
   let routingContext: ServiceRuntimeContext | null = null;
   const native = createNativeClient(hostWindow.HypergolicHost!, sessionId,
-    { ...(artifact.publishTimeoutMs === undefined ? {} : { requestTimeoutsMs: { 'relay.publish': artifact.publishTimeoutMs } }),
+    { requestTimeoutsMs: approvalTimeouts(artifact),
       onRouting: message => {
         if (stopped || !ready || frame.contentWindow !== source || !bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId)) return;
         const domain = message.type.split('.')[0]!;
@@ -241,10 +250,11 @@ function mount(artifact: RuntimeArtifact): void {
     if (!validEnvelope(event.data)) {
       // A denied subscribe acquires no Kehto/native authority. Reply only to the captured
       // registered frame with an independently validated caller correlation identifier.
-      if (ready && artifact.domains.includes('relay') && event.data?.type === 'relay.subscribe') {
+      if (ready && artifact.domains.includes('relay') && (event.data?.type === 'relay.subscribe' || artifact.domains.includes('outbox') && event.data?.type === 'outbox.subscribe')) {
         try {
-          const denied = parseRelayClose({type:'relay.close',id:event.data.id,subId:event.data.subId});
-          source.postMessage({type:'relay.closed',subId:denied.subId,reason:'invalid or unsupported relay subscription'}, '*');
+          const outbox=event.data.type==='outbox.subscribe';
+          const denied = outbox?parseOutboxClose({type:'outbox.close',id:event.data.id,subId:event.data.subId}):parseRelayClose({type:'relay.close',id:event.data.id,subId:event.data.subId});
+          source.postMessage({type:outbox?'outbox.closed':'relay.closed',subId:denied.subId,reason:'invalid or unsupported relay subscription'}, '*');
         } catch { /* An invalid correlation identifier has no SDK recipient. */ }
       }
       return;
@@ -285,7 +295,7 @@ function mount(artifact: RuntimeArtifact): void {
   frame.srcdoc = injectNappletNamespacePrelude(injectResourceMediaGate(artifact.published
     ? injectPublishedCsp(artifact.html, policy) : injectCsp(artifact.html, policy)), {
     ...environment.capabilities,
-    ...(artifact.publishTimeoutMs === undefined ? {} : { requestTimeoutsMs: { 'relay.publish': artifact.publishTimeoutMs } }),
+    requestTimeoutsMs: approvalTimeouts(artifact),
   });
 }
 

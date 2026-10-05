@@ -182,6 +182,12 @@ class NappletHostModule : Module() {
       PublishedArtifactTransfer.INSTANCE.revokeAllPublishedArtifacts()
     }
     Function("takeApproval") { token: String -> ApprovalTransport.leases.take(token) }
+    Function("prepareOutboxApproval") { token: String, plan: String -> ApprovalTransport.prepareOutbox(token, plan) }
+    Function("failOutboxApproval") { token: String, error: String -> ApprovalTransport.failOutbox(token, error) }
+    AsyncFunction("publishOutboxApproval") Coroutine { token: String, group: String, event: String, relay: String ->
+      val job = currentCoroutineContext()[Job]
+      withContext(Dispatchers.IO) { OutboxPublicationOwner.publish(token, group, event, relay) { job?.isActive == true } }
+    }
     Function("isApprovalLive") { token: String -> ApprovalTransport.leases.isLive(token) }
     Function("mayReviewApproval") { token: String -> ApprovalTransport.leases.mayReview(token) }
     Function("approveApproval") { token: String -> ApprovalTransport.leases.approve(token) }
@@ -205,6 +211,7 @@ class NappletHostModule : Module() {
     Function("acceptSubscription") { token: String -> RelaySubscriptionTransport.registry.accept(token) }
     Function("mayDeliverSubscription") { token: String -> RelaySubscriptionTransport.registry.mayDeliver(token) }
     Function("isSubscriptionActive") { token: String -> RelaySubscriptionTransport.registry.isActive(token) }
+    Function("subscriptionCapacity") { token: String -> RelaySubscriptionTransport.hasCapacity(token) }
     Function("sendSubscription") { token: String, response: String -> RelaySubscriptionTransport.send(token, response) }
     Function("closeSubscription") { token: String -> RelaySubscriptionTransport.close(token) }
     Function("synchronizeRoutingOwner") { user: String, epoch: Long, available: Boolean ->

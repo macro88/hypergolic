@@ -1,3 +1,5 @@
+import type { OutboxReadService } from '../outbox/read-service.ts';
+import { outboxReadFailure, OutboxQueryError, type OutboxReadRequest } from '../outbox/query-contract.ts';
 import type { IdentityDataPort } from '../identity/identity-service.ts';
 import { identityFailure, type IdentityRequest } from '../identity/identity-contract.ts';
 import { createResourceBroker, type ResourceHost } from '../resources/resource-broker.ts';
@@ -54,6 +56,27 @@ async function readQuery(request: Extract<CapabilityRequest, {type: 'relay.query
   try { return {type: 'relay.query.result', id: request.id, events: await watchedRead(pending, active, signal => queries.query(request.filters, signal, active))}; }
   catch { return queryFailure(request, 'relay query failed')!; }
 }
+async function readOutboxQuery(request: OutboxReadRequest, service: OutboxReadService | undefined, registration: NativeRegistration, pending: Set<AbortController>, active: () => void): Promise<CapabilityReply> {
+  if (!service || pending.size >= 2) return outboxReadFailure(request, 'policy denied')!;
+  try {
+    if (request.type === 'outbox.getEvent') {
+      if (!service.getEvent) return outboxReadFailure(request,'policy denied')!;
+      const result = await watchedRead(pending,active,signal => service.getEvent!(request,registration.user,signal,active));
+      return {type:'outbox.getEvent.result',id:request.id,...result};
+    }
+    if (request.type === 'outbox.resolveRelays') {
+      if (!service.resolveRelays) return outboxReadFailure(request,'policy denied')!;
+      const result = await watchedRead(pending,active,signal => service.resolveRelays!(request,registration.user,signal,active));
+      const {relays,source,missingAuthors} = result;
+      return {type:'outbox.resolveRelays.result',id:request.id,plan:{relays,source,...(missingAuthors.length ? {missingAuthors} : {})}};
+    }
+    const result = await watchedRead(pending, active, signal => service.query(request, registration.user, signal, active));
+    return {type: 'outbox.query.result', id: request.id, events: result.events, ...(result.incomplete ? {incomplete: true} : {})};
+  } catch (error) {
+    const allowed = ['invalid filter', 'relay timeout', 'relay list unavailable', 'policy denied', 'no authors', 'not found'];
+    return outboxReadFailure(request, error instanceof OutboxQueryError && allowed.includes(error.message) ? error.message : 'relay list unavailable')!;
+  }
+}
 async function readIdentity(request: IdentityRequest, service: IdentityDataPort | undefined, registration: NativeRegistration, pending: Set<AbortController>, active: () => void): Promise<CapabilityReply> {
   if (!service || request.type === 'identity.getPublicKey') return identityResult(request, registration.user);
   if (pending.size >= 2) return identityFailure(request, 'identity data busy');
@@ -61,7 +84,7 @@ async function readIdentity(request: IdentityRequest, service: IdentityDataPort 
   catch { return identityFailure(request, 'identity data unavailable'); }
 }
 /** One broker per registered native view. It is never passed into the WebView. */
-export function createCapabilityBroker(database: ShellDatabase, native: NativeCapabilityPort, owner: CapabilityOwner, queries?: RelayQueryService, closeRelay?: (request:unknown)=>void, resources?: ResourceHost, identityData?: IdentityDataPort) {
+export function createCapabilityBroker(database: ShellDatabase, native: NativeCapabilityPort, owner: CapabilityOwner, queries?: RelayQueryService, closeRelay?: (request:unknown)=>void, resources?: ResourceHost, identityData?: IdentityDataPort, outbox?: OutboxReadService, closeOutbox?: (request:unknown)=>void) {
   const registration = decodeNativeRegistration(owner.registration);
   const expected = JSON.stringify(registration);
   const resource = resources ? createResourceBroker(resources, owner) : null;
@@ -85,6 +108,10 @@ export function createCapabilityBroker(database: ShellDatabase, native: NativeCa
         const captured = decodeNativeRequest(raw);
         if (JSON.stringify(captured.registration) !== expected) return;
         assertActive(token);
+        if (captured.request && typeof captured.request === 'object' && 'type' in captured.request && captured.request.type === 'outbox.close') {
+          if(registration.domains.includes('outbox')&&registration.domains.includes('relay'))closeOutbox?.(captured.request);
+          return;
+        }
         if (captured.request && typeof captured.request === 'object' && 'type' in captured.request && captured.request.type === 'relay.close') {
           if (registration.domains.includes('relay')) closeRelay?.(captured.request);
           return;
@@ -99,20 +126,22 @@ export function createCapabilityBroker(database: ShellDatabase, native: NativeCa
         catch {
           const failure = registration.domains.includes('relay') ? queryFailure(captured.request, 'invalid relay query') : null;
           const storage = registration.domains.includes('storage') ? storageFailure(captured.request, 'invalid storage request') : null;
-          if (failure || storage) response = JSON.stringify(failure ?? storage);
+          const outboxFailure = registration.domains.includes('outbox') && registration.domains.includes('relay') ? outboxReadFailure(captured.request, 'invalid filter') : null;
+          if (failure || storage || outboxFailure) response = JSON.stringify(failure ?? storage ?? outboxFailure);
           return;
         }
         const domain = request.type.split('.')[0]!;
-        if (!registration.domains.includes(domain)) return;
+        if (!registration.domains.includes(domain) || (domain === 'outbox' && !registration.domains.includes('relay'))) return;
         const correlation = JSON.stringify([request.type, request.id]);
         if (seen.has(correlation) || seen.size >= CAPABILITY_LIMITS.sessionRequests) {
-          const failure = queryFailure(request, 'request already used or session limit reached') ?? storageFailure(request, 'request already used or session limit reached');
+          const failure = outboxReadFailure(request, 'policy denied') ?? queryFailure(request, 'request already used or session limit reached') ?? storageFailure(request, 'request already used or session limit reached');
           if (failure) response = JSON.stringify(failure);
           return;
         }
         seen.add(correlation);
         let result: CapabilityReply;
-        if (request.type === 'relay.query') result = await readQuery(request, queries, pending, () => assertActive(token));
+        if (request.type === 'outbox.query' || request.type === 'outbox.getEvent' || request.type === 'outbox.resolveRelays') result = await readOutboxQuery(request, outbox, registration, pending, () => assertActive(token));
+        else if (request.type === 'relay.query') result = await readQuery(request, queries, pending, () => assertActive(token));
         else if (domain === 'identity') result = await readIdentity(request as IdentityRequest, identityData, registration, pending, () => assertActive(token));
         else {
           const binding = database.bindStorage({ user: registration.user, publisher: registration.publisher,

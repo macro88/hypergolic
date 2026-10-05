@@ -17,6 +17,7 @@ final class ApprovalTransportRegistry: @unchecked Sendable {
     let wireId: String?
     let reply: Reply
     var claimed = false
+    var outboxPlan: NativeOutboxPlan?
     var approval: NativeApprovalHandle?
   }
   private struct Delivery: Sendable {
@@ -111,7 +112,7 @@ final class ApprovalTransportRegistry: @unchecked Sendable {
     let result = lock.withLock {
       deliveries = sweepLocked()
       guard let row = rows[token], row.claimed, sessionLiveLocked(row),
-        let review = authority.currentReview() else { return false }
+        !isOutbox(row) || row.outboxPlan != nil, let review = authority.currentReview() else { return false }
       return review.request == row.request && review.snapshot == row.snapshot
     }
     dispatch(deliveries)
@@ -123,7 +124,7 @@ final class ApprovalTransportRegistry: @unchecked Sendable {
     let result = lock.withLock {
       deliveries = sweepLocked()
       guard var row = rows[token], row.claimed, row.approval == nil, sessionLiveLocked(row),
-        let review = authority.currentReview(), review.request == row.request,
+        !isOutbox(row) || row.outboxPlan != nil, let review = authority.currentReview(), review.request == row.request,
         review.snapshot == row.snapshot, let approval = authority.approve(row.request) else { return false }
       guard authority.take(approval) == row.snapshot else {
         _ = authority.cancel(approval)
@@ -139,6 +140,46 @@ final class ApprovalTransportRegistry: @unchecked Sendable {
     return result
   }
 
+  func prepareOutbox(_ token: String, raw: String) -> Bool {
+    lock.withLock {
+      guard var row = rows[token], row.claimed, row.approval == nil, row.outboxPlan == nil,
+        sessionLiveLocked(row), authority.contains(row.request), isOutbox(row),
+        let plan = try? NativeOutboxPlan.capture(snapshot: row.snapshot, raw: raw) else { return false }
+      row.outboxPlan = plan; rows[token] = row; return true
+    }
+  }
+  func reserveOutbox(_ token: String, group: String, wire: String, relay: String) throws -> NativeOutboxPlan.Send {
+    try lock.withLock {
+      guard let row = rows[token], sessionLiveLocked(row), let approval = row.approval,
+        authority.isApproved(approval), let plan = row.outboxPlan else { throw NativeOutboxPlan.Failure.revoked }
+      return try plan.reserve(group: group, wire: wire, relay: relay)
+    }
+  }
+  /// Native revocation and exact EVENT enqueue share this lock.
+  func sendOutbox(_ token: String, operation: NativeOutboxPlan.Send, send: () -> Void) throws {
+    try lock.withLock {
+      guard let row = rows[token], sessionLiveLocked(row), let approval = row.approval,
+        authority.isApproved(approval), row.outboxPlan?.owns(operation) == true, !operation.wasAttempted,
+        ContinuousClock.now < operation.deadline else { throw NativeOutboxPlan.Failure.revoked }
+      operation.markAttempted(); send()
+    }
+  }
+  func failOutbox(_ token: String, error: String) {
+    let deliveries: [Delivery] = lock.withLock {
+      guard let row = rows[token], isOutbox(row) else { return [] }
+      rows.removeValue(forKey: token)
+      if let approval = row.approval { _ = authority.cancel(approval) } else { _ = authority.cancel(row.request) }
+      guard sessionLiveLocked(row) else { return [] }
+      return [denial(row, error: error.utf8.count <= 4096 && !error.isEmpty ? error : "approval denied")]
+    }
+    dispatch(deliveries)
+  }
+  private func isOutbox(_ row: Row) -> Bool {
+    guard let envelope = try? JSONSerialization.jsonObject(with: Data(row.snapshot.utf8)) as? [String: Any],
+      let raw = envelope["request"] as? String,
+      let request = try? JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any] else { return false }
+    return request["type"] as? String == "outbox.publish"
+  }
   func isApproved(_ token: String) -> Bool {
     var deliveries: [Delivery] = []
     let result = lock.withLock {
@@ -274,10 +315,10 @@ final class ApprovalTransportRegistry: @unchecked Sendable {
     sessions[row.generation] == row.session && leases.sessionActive(row.generation)
   }
 
-  private func denial(_ row: Row) -> Delivery {
+  private func denial(_ row: Row, error: String = "approval denied") -> Delivery {
     guard let id = row.wireId else { return Delivery(reply: row.reply, response: nil) }
-    let value: [String: Any] = ["type": "relay.publish.result", "id": id,
-      "ok": false, "error": "approval denied"]
+    let value: [String: Any] = ["type": isOutbox(row) ? "outbox.publish.result" : "relay.publish.result", "id": id,
+      "ok": false, "error": error]
     let data = try? JSONSerialization.data(withJSONObject: value)
     return Delivery(reply: row.reply, response: data.map { String(decoding: $0, as: UTF8.self) })
   }
@@ -286,7 +327,7 @@ final class ApprovalTransportRegistry: @unchecked Sendable {
     guard response.utf8.count <= CapabilityLeaseRegistry.maxBytes,
       let id = row.wireId, let data = response.data(using: .utf8),
       let value = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-      value["type"] as? String == "relay.publish.result", value["id"] as? String == id,
+      value["type"] as? String == (isOutbox(row) ? "outbox.publish.result" : "relay.publish.result"), value["id"] as? String == id,
       value["ok"] is Bool else { return false }
     return true
   }
@@ -338,6 +379,8 @@ private final class ApprovalApplicationLifecycle {
     // A real activation enables review; only a later background transition pauses it.
     if UIApplication.shared.applicationState == .active { registry.setForeground(true) }
     let center = NotificationCenter.default
+    observers.append(center.addObserver(forName: UIApplication.willResignActiveNotification,
+      object: nil, queue: .main) { [weak registry] _ in registry?.setForeground(false) })
     observers.append(center.addObserver(forName: UIApplication.didEnterBackgroundNotification,
       object: nil, queue: .main) { [weak registry] _ in registry?.setForeground(false) })
     observers.append(center.addObserver(forName: UIApplication.didBecomeActiveNotification,

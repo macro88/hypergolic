@@ -1,7 +1,7 @@
 import { fail, type SQLiteConnection } from './ports.ts';
 export const SHELL_DATABASE = 'hypergolic-shell-v1.db';
 const owner = 'user TEXT NOT NULL, publisher TEXT NOT NULL, app TEXT NOT NULL';
-export const TABLES: Readonly<Record<string, string>> = Object.freeze({
+export const TABLES = Object.freeze({
   app_versions: `CREATE TABLE app_versions (${owner}, version TEXT NOT NULL, PRIMARY KEY (user, publisher, app, version)) WITHOUT ROWID`,
   selected_versions: `CREATE TABLE selected_versions (${owner}, version TEXT NOT NULL, PRIMARY KEY (user, publisher, app), FOREIGN KEY (user, publisher, app, version) REFERENCES app_versions (user, publisher, app, version)) WITHOUT ROWID`,
   saved_strings: `CREATE TABLE saved_strings (${owner}, version TEXT NOT NULL, scope TEXT NOT NULL CHECK (scope IN ('shared', 'instance')), instance TEXT NOT NULL CHECK ((scope = 'shared' AND instance = '') OR (scope = 'instance' AND length(instance) BETWEEN 1 AND 80)), key TEXT NOT NULL CHECK (length(CAST(key AS BLOB)) BETWEEN 0 AND 1024), value TEXT NOT NULL CHECK (length(CAST(value AS BLOB)) <= 262144), PRIMARY KEY (user, publisher, app, version, scope, instance, key), FOREIGN KEY (user, publisher, app, version) REFERENCES app_versions (user, publisher, app, version)) WITHOUT ROWID`,

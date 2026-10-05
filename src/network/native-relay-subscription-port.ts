@@ -34,7 +34,7 @@ export function loadNativeRelayStreamPort():NativeRelayStreamPort {
   return Object.freeze(port);
 }
 /** Native epochs handle a whole background/return interval even when RN receives only its end. */
-export function attachNativeRelayLifecycle(manager:ReturnType<typeof createRelaySubscriptions>):()=>void {
+export function attachNativeRelayLifecycle(manager:Pick<ReturnType<typeof createRelaySubscriptions>,'setForeground'>):()=>void {
   const module=requireNativeModule<StreamModule>('HypergolicNappletHost');
   let revision=-1;
   manager.setForeground(false);

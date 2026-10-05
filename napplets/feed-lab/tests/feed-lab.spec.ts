@@ -11,23 +11,23 @@ async function mount(page: Page, mode = 'notes') {
 }
 test('genuine SDK query renders content as text with original filter and exact event id', async ({page})=>{
   const frame=await mount(page);await frame.getByRole('button',{name:'Query notes',exact:true}).click();
-  await expect(frame.getByRole('status')).toHaveText('Received 1 signed note.');
+  await expect(frame.locator('#status')).toHaveText('Received 1 signed note.');
   await expect(frame.locator('#events')).toContainText('<img src=x onerror=alert(1)> hello');
   await expect(frame.locator('#events img')).toHaveCount(0);
   expect(await frame.locator('body').evaluate(()=> (window as any).calls)).toEqual([[{kinds:[1],limit:8}]]);
 });
 test('empty query and failure remain distinct UI states',async({page})=>{
   let frame=await mount(page,'empty');await frame.getByRole('button',{name:'Query empty sample'}).click();
-  await expect(frame.getByRole('status')).toHaveText('Query completed. No matching notes.');
+  await expect(frame.locator('#status')).toHaveText('Query completed. No matching notes.');
   expect(await frame.locator('body').evaluate(()=> (window as any).calls)).toEqual([[{kinds:[1],limit:0}]]);
   frame=await mount(page,'error');await frame.getByRole('button',{name:'Query notes',exact:true}).click();
-  await expect(frame.getByRole('status')).toHaveText('Query failed: relay query failed');await expect(frame.locator('#lab')).toHaveAttribute('data-state','error');
+  await expect(frame.locator('#status')).toHaveText('Query failed: relay query failed');await expect(frame.locator('#lab')).toHaveAttribute('data-state','error');
 });
 test('invalid JSON does not call SDK and pending query prevents duplicate input',async({page})=>{
   let frame=await mount(page);await frame.locator('#filters').fill('invalid');await frame.getByRole('button',{name:'Query notes',exact:true}).click();
-  await expect(frame.getByRole('status')).toContainText('Query failed:');expect(await frame.locator('body').evaluate(()=> (window as any).calls)).toEqual([]);
+  await expect(frame.locator('#status')).toContainText('Query failed:');expect(await frame.locator('body').evaluate(()=> (window as any).calls)).toEqual([]);
   frame=await mount(page,'pending');await frame.getByRole('button',{name:'Query notes',exact:true}).click();
-  await expect(frame.getByRole('status')).toHaveText('Reading notes…');await expect(frame.getByRole('button',{name:'Query notes',exact:true})).toBeDisabled();
+  await expect(frame.locator('#status')).toHaveText('Reading notes…');await expect(frame.getByRole('button',{name:'Query notes',exact:true})).toBeDisabled();
 });
 
 async function streamMount(page:Page) {
@@ -64,4 +64,27 @@ test('optional follows is an explicit SDK read, makes no relay request and canno
  await frame.locator('body').evaluate(()=>{const proof=(window as unknown as Window & {proof:{calls:number;queries:number;change():void;resolve(value:string[]):void}}).proof;proof.change();proof.resolve(['old user']);});
  await expect(frame.locator('#follows-result')).toHaveText('');await expect(frame.locator('#follows-status')).toHaveText('No follows request yet.');
  expect(await frame.locator('body').evaluate(()=>{const proof=(window as unknown as Window & {proof:{calls:number;queries:number}}).proof;return [proof.calls,proof.queries];})).toEqual([1,0]);
+});
+
+async function publicationMount(page:Page) {
+ await page.setContent('<iframe id="fixture" sandbox="allow-scripts" style="width:390px;height:844px"></iframe>');
+ const mock=`<script>window.proof={calls:[]};window.napplet={identity:{onChanged:callback=>{window.proof.change=callback;return {close:()=>{}};}},relay:{query:async()=>[]},outbox:{publish:(event,options)=>{window.proof.calls.push({event,options});return new Promise((resolve,reject)=>{window.proof.resolve=resolve;window.proof.reject=reject;});}}};</script>`;
+ await page.locator('#fixture').evaluate((node,content)=>(node as HTMLIFrameElement).srcdoc=content,html.replace('<head>','<head>'+mock));
+ const frame=page.frameLocator('#fixture');await expect(frame.getByTestId('lab')).toHaveAttribute('data-ready','true');return frame;
+}
+test('draft publication uses the original SDK once with exact options and preserves an editable draft',async({page})=> {
+ const frame=await publicationMount(page);await frame.locator('#draft').fill('exact reviewed draft');await frame.locator('#outbox-publish-options').fill('{"toOutbox":false,"relays":["wss://nos.lol"]}');await frame.locator('#outbox-publish').click();
+ await expect(frame.locator('#outbox-publish')).toBeDisabled();await expect(frame.locator('#outbox-publish-status')).toHaveText('Waiting for shell review…');
+ expect(await frame.locator('body').evaluate(()=>(window as any).proof.calls)).toEqual([{event:{kind:1,content:'exact reviewed draft',tags:[],created_at:expect.any(Number)},options:{toOutbox:false,relays:['wss://nos.lol']}}]);
+ await frame.locator('body').evaluate(()=>(window as any).proof.resolve({ok:true,eventId:'a'.repeat(64),relays:{'wss://nos.lol/':true},event:{id:'a'.repeat(64),pubkey:'b'.repeat(64),sig:'c'.repeat(128),kind:1,content:'exact reviewed draft',tags:[],created_at:1}}));
+ await expect(frame.locator('#outbox-publish-status')).toContainText('Primary event accepted.');await expect(frame.locator('#outbox-publish')).toBeEnabled();await expect(frame.locator('#draft')).toHaveValue('exact reviewed draft');
+ expect(await frame.locator('body').evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+ await frame.locator('#outbox-publish').click();await expect(frame.locator('#outbox-publish-status')).toHaveText('Waiting for shell review…');
+});
+test('empty draft and malformed options make no publication request; identity change prevents old completion repaint',async({page})=> {
+ const frame=await publicationMount(page);await frame.locator('#outbox-publish').click();await expect(frame.locator('#outbox-publish-status')).toContainText('Write a draft');
+ await frame.locator('#draft').fill('private draft');await frame.locator('#outbox-publish-options').fill('invalid');await frame.locator('#outbox-publish').click();
+ expect(await frame.locator('body').evaluate(()=>(window as any).proof.calls)).toEqual([]);
+ await frame.locator('#outbox-publish-options').fill('{}');await frame.locator('#outbox-publish').click();await frame.locator('body').evaluate(()=>{const proof=(window as any).proof;proof.change();proof.resolve({ok:true,eventId:'old'});});
+ await expect(frame.locator('#outbox-publish-result')).toHaveText('');await expect(frame.locator('#outbox-publish-status')).toHaveText('No publication requested.');
 });

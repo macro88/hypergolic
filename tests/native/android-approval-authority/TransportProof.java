@@ -116,7 +116,27 @@ public final class TransportProof {
     f.approvals.cancel(approval);
   }
 
-  public static void main(String[] args) {
+  private static void preparedReviewAndAtomicRevocation() throws Exception {
+    Fixture f = new Fixture();
+    String token = f.approvals.admit("generation-a", "captured outbox request", true);
+    check(token != null); check(!f.approvals.prepare(token, new Object()));
+    check(f.approvals.take(token).equals("captured outbox request"));
+    check(!f.approvals.mayReview(token)); check(!f.approvals.approve(token));
+    Object plan = new Object(); check(f.approvals.prepare(token, plan));
+    check(!f.approvals.prepare(token, new Object())); check(f.approvals.prepared(token) == plan);
+    check(f.approvals.mayReview(token)); check(f.approvals.approve(token));
+    check(!f.approvals.prepare(token, new Object()));
+    int[] sends = {0}; f.approvals.performApproved(token, () -> sends[0]++); check(sends[0] == 1);
+    f.approvals.foreground(false);
+    try { f.approvals.performApproved(token, () -> sends[0]++); throw new AssertionError("Revoked send"); }
+    catch (java.io.IOException expected) { check(sends[0] == 1); }
+    f.approvals.foreground(true); f.approvals.resume();
+    try { f.approvals.performApproved(token, () -> sends[0]++); throw new AssertionError("Resumed old send"); }
+    catch (java.io.IOException expected) { check(sends[0] == 1); }
+  }
+
+  public static void main(String[] args) throws Exception {
+    preparedReviewAndAtomicRevocation();
     startupReviewAndLifecycle();
     dismissPauseAndResume();
     expiryAndDrain();

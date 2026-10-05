@@ -9,7 +9,7 @@ import org.json.JSONObject
 internal object ApprovalTransport {
   val leases = ApprovalLeaseRegistry(SystemClock::elapsedRealtime)
   private val main = Handler(Looper.getMainLooper())
-  private data class Pending(val generation: String, val id: String, val reply: (String?) -> Unit)
+  private data class Pending(val generation: String, val id: String, val resultType: String, val reply: (String?) -> Unit)
   private val pending = mutableMapOf<String, Pending>()
 
   fun register(generation: String): Boolean = leases.register(generation)
@@ -20,10 +20,27 @@ internal object ApprovalTransport {
   fun admit(generation: String, snapshot: String, id: String, reply: (String?) -> Unit): String? {
     check(Looper.myLooper() == Looper.getMainLooper())
     sweep()
-    val token = leases.admit(generation, snapshot) ?: return null
-    pending[token] = Pending(generation, id, reply)
+    val outbox = runCatching { JSONObject(JSONObject(snapshot).getString("request")).getString("type") == "outbox.publish" }.getOrDefault(false)
+    val token = leases.admit(generation, snapshot, outbox) ?: return null
+    pending[token] = Pending(generation, id, if (outbox) "outbox.publish.result" else "relay.publish.result", reply)
     main.postDelayed({ sweep() }, NativeApprovalAuthority.LIFETIME_MS)
     return token
+  }
+  fun prepareOutbox(token: String, raw: String): Boolean = runCatching {
+    synchronized(leases) {
+      val snapshot = leases.claimedSnapshot(token) ?: return false
+      leases.prepare(token, NativeOutboxPlan.capture(snapshot, raw))
+    }
+  }.getOrDefault(false)
+  fun failOutbox(token: String, error: String) {
+    val captured = error.takeIf { it.toByteArray(Charsets.UTF_8).size in 1..4096 } ?: "approval denied"
+    leases.cancel(token)
+    main.post {
+      val row = pending[token]
+      if (row?.resultType == "outbox.publish.result") deliver(token, JSONObject().put("type", row.resultType)
+        .put("id", row.id).put("ok", false).put("error", captured).toString())
+      else deliver(token, null)
+    }
   }
   fun dismiss(token: String) {
     leases.dismiss(token)
@@ -55,11 +72,11 @@ internal object ApprovalTransport {
     if (!CapabilityTransport.leases.sessionActive(request.generation)) { request.reply(null); return }
     val exact = runCatching {
       val parsed = JSONObject(response ?: error("Denied"))
-      require(parsed.optString("type") == "relay.publish.result" && parsed.optString("id") == request.id)
+      require(parsed.optString("type") == request.resultType && parsed.optString("id") == request.id)
       require(parsed.get("ok") is Boolean)
       response
     }.getOrNull()
-    request.reply(exact ?: JSONObject().put("type", "relay.publish.result").put("id", request.id)
+    request.reply(exact ?: JSONObject().put("type", request.resultType).put("id", request.id)
       .put("ok", false).put("error", "approval denied").toString())
   }
 }

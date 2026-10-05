@@ -87,6 +87,15 @@ function destination(value: unknown): string {
   } catch { return fail(); }
 }
 
+/** Capture only the unsigned template before asynchronous routing; no destination or signing authority is granted. */
+export function captureUnsignedEventTemplate(value: unknown, selectedPubkeyValue: unknown): UnsignedEventTemplate {
+  try { return event(value, publicKey(selectedPubkeyValue)); }
+  catch (error) {
+    if (error instanceof EventSnapshotError) throw error;
+    throw new EventSnapshotError();
+  }
+}
+
 /** NIP-01 reviewed at nostr-protocol/nips@01e707bacdc87cf262db80545aecaa8f17ac2a4f. */
 export function captureEventSnapshot(value: unknown, selectedPubkeyValue: unknown, writeDestinations: unknown): EventSnapshot {
   try {

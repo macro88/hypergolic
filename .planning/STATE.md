@@ -1,17 +1,17 @@
 ---
 gsd_state_version: "1.0"
-current_phase: "2.9"
-current_phase_name: Outbox routing
-status: awaiting_product_decisions
-stopped_at: Phase2.8 selected profile accepted; targeted local commit follows fresh quality. Next2.9 research/interview; pause at weekly50%.
-last_updated: "2026-10-04T13:21:02.644041+00:00"
-last_activity: 2026-10-04
-state_head: 25cf7ff7f4f0a76de759541feb1e8dac85abf81c
+current_phase: "2.11"
+current_phase_name: Complete published MVP acceptance
+status: ready_for_planning
+stopped_at: Phase2.9 implementation closed by owner decision; all remaining Plans03-04 acceptance transferred to2.11. CAP-12 final acceptance and CAP-14 open. Targeted local commit checkpoint; no source push. Weekly56%, pause75%.
+last_updated: "2026-10-05T10:00:35.114561+00:00"
+last_activity: 2026-10-05
+state_head: b4955efc11a8c6e6852e9701f5297c57fdb2a4e0
 progress:
   total_phases: 14
-  completed_phases: 9
-  total_plans: 32
-  completed_plans: 26
+  completed_phases: 10
+  total_plans: 36
+  completed_plans: 29
   percent: 81
 ---
 
@@ -22,7 +22,7 @@ progress:
 See: .planning/PROJECT.md (scope updated 2026-09-29)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Phase 2.9 — Outbox routing
+**Current focus:** Phase 2.11 — Complete published MVP acceptance
 
 ## MVP scope checkpoint — 29 September 2026
 
@@ -38,10 +38,9 @@ expansion cards are not executable PLAN files.
 
 ## Current Position
 
-Phase: 2.9 (Outbox routing) — OWNING RESEARCH AND PRODUCT INTERVIEW NEXT
-Plan: Phase2.8-01 through04 complete for accepted A1-G1 profile. CAP-10/CAP-11 accepted; Phase2.9 has no executable plans or selected policy yet.
-Status: Final Android40/iOS39 signed-local SDK/native checks pass across eight runs with identical408 inputs and stable installed products. Browser202, presentation33, capability55, routing43, storage92, shell27, security349/bootstrap13, quality-verifier74, carrier Swift18/Java11 and endpoint120 per host pass. Ordinary exports/prebuilds/Release packages pass. Complete Doctor100/aislop98 has only exact owner-approved Forge/braces findings; ordinary gates remain unchanged/red and Expo20/21 patch recommendations remain visible. Fresh source-bound quality and targeted local commit follow this documentation checkpoint. Physical/protected/full published/cross-capability integration CAP-14 remains open. Inline GSD fallback claims no independent planner/critic. Source mobile-revamp remains unpushed; weekly43%, pause50%. Progress26/32 counts executable plans, not MVP readiness.
-
+Phase: 2.11 (Complete published MVP acceptance)
+Plan: Integrated device/published acceptance planning next; transferred Outbox register is open.
+Status: Phase2.9 implementation closed by owner decision; CAP-12 final acceptance/CAP-14 open. Physical Android/iPhone journeys and complete faults/admission remain required. Local commit checkpoint; no source push. Progress counts implementation plans, not passed MVP acceptance; Plan04 was transferred, not executed.
 
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
@@ -62,7 +61,7 @@ See `docs/architecture.md` for confirmed requirements and unresolved policy.
 ### Blockers/Concerns
 
 First theme-only native contract is selected. Validate privileged adapters and delivery contracts before their dependent work. Preserve Expo 57.0.20 despite the existing Doctor patch-version mismatch. Source remote/push remains owner-only.
-Current budget (2026-09-30): the user authorized the build until weekly usage reaches 50% consumed, then pause. Check account usage after each small batch. This supersedes earlier budget limits. Keep source remote configuration and push owner-only.
+Current budget (2026-10-05): the user authorized continuation until weekly usage reaches 75% consumed, then pause. Check account usage between small batches. This supersedes the earlier 50% limit. Keep source remote configuration and push owner-only.
 Android emulator and iPhone Simulator scaffold checks are verified. Physical-iPhone signing and execution remain untested; native security acceptance is still open.
 See `docs/phase-zero.md` for actual checks and artifacts.
 
@@ -78,7 +77,7 @@ See `docs/phase-zero.md` for actual checks and artifacts.
 
 Targeted follow-up: iOS native erase/transport failures remain READBACK_FAILED even when subsequent reads return absence. Four new regressions pass; security is 295/295, bootstrap 13/13, storage 80/80, TypeScript and iOS export pass. Aislop remains 100/100 and local React Doctor has no findings.
 
-Last activity: 2026-10-02
+Last activity: 2026-10-05
 
 Current continuation (2026-09-22): authenticated manual backup is in progress. User approved native iOS reveal with an explicit screenshot warning: public APIs cannot prevent screenshots; hide on recording/mirroring, inactivity/background and app-switcher snapshots. Fresh device authentication remains mandatory. Android uses a native FLAG_SECURE panel. No secret is returned to the shared backup UI. Native execution evidence is pending; no v1 completion claim.
 
@@ -748,9 +747,9 @@ Phase 2.3 completion — 30 September 2026: all three resource plans pass the se
 
 ## Session
 
-**Last session:** 2026-10-02
-**Stopped at:** Phase2.5 selected acceptance complete; final doc/quality seal and targeted local commit, then2.6. Last weekly usage30%; continue until50% or Phase2 completes.
-**Resume file:** .planning/phases/02.5-public-identity-data/02.5-VERIFICATION.md
+**Last session:** 2026-10-05T08:10:18.825Z
+**Stopped at:** Phase2.9 implementation closed; all remaining acceptance transferred to2.11 by owner decision. CAP-12 final acceptance/CAP-14 open. Weekly56%, pause75%; no source push.
+**Resume file:** .planning/phases/02.11-published-mvp-acceptance/02.11-OUTBOX-HANDOFF.md
 
 Static photo checkpoint (2026-10-01): native preparation supports bounded static
 JPEG/PNG/WebP/GIF/HEIC with disclosed full-size PNG conversion, exact orientation,
@@ -783,7 +782,6 @@ Phase2.11. Next2.5 requires owning research and unresolved product interviews;
 continue one phase at a time, no source push, pause at50% usage. Metadata percent
 counts completed executable plans12/18, not product completion.
 
-
 ## Public identity selected completion — 2 October 2026
 
 All three Phase2.5 plans pass CAP-06 for the pinned selected profile. Final lists22
@@ -797,12 +795,9 @@ captured/synced separately. Finalize targeted local commit; next2.6 external lin
 needs owning research and material product decisions. No source push. Latest30%,
 continue one phase at a time until50% or complete Phase2.
 
-
 External links interview complete (2026-10-03): HTTPS only; approval for each opening; device normal handler (browser or associated app). NAP-LINK proposal53 e251433 selected for this bounded profile, still open/unmerged. Three tracer-first plans are authored inline under the Codex adapter, pending structure validation and execution; CAP-07 remains open. Phase2.5 targeted local commit f11dcdc is complete. Current weekly usage2%; continue through Phase2 or50%, no source push. Native accepted-handoff receipt must be proven across caused background without reviving ordinary leases.
 
-
 External links native/build checkpoint (2026-10-03): final signed Android03/iOS03 and lifecycle Android07/iOS05 pass. Published-artifact reader now admits all seven declared domains, including link; full runtime172 and native189/167 pass. Preserve earlier stale-denial, artifact-allowlist, address-entry, accessibility-readiness, timer and supplemental observer failures. Supplement03 shows actual focused Chrome first-run/AX/image then original SDK opened; page loading is not claimed. See phase-local VERIFICATION for the remaining two quality decisions. No phase commit or next-phase advance while they remain unresolved.
-
 
 ## Phase 2.7 first native tracer — 3 October 2026
 

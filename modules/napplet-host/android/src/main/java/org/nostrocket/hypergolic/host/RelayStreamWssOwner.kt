@@ -38,7 +38,7 @@ internal object RelayStreamWssOwner {
   @Synchronized fun start(id: String, token: String, url: String, request: String, subId: String,
     emit: (Map<String, Any>) -> Unit): Boolean {
     if (!foreground || !PublishedRelayWssRequestOwner.isCanonicalUuid(id) || consumed.size >= 65_536 ||
-      consumed.contains(id) || rows.size >= 16 || rows.values.count { it.token == token } >= 2 || !RelaySubscriptionTransport.registry.isActive(token)) return false
+      consumed.contains(id) || rows.size >= 16 || rows.values.count { it.token == token } >= RelaySubscriptionTransport.registry.connectionLimit(token) || !RelaySubscriptionTransport.registry.isActive(token)) return false
     try { PublishedRelayResponseClassifier.validateRequest(request, subId); PublishedRelayWssQuery.parseUrl(url) } catch (_: Exception) { return false }
     consumed.add(id)
     val row = Row(id, token, emit); rows[id] = row

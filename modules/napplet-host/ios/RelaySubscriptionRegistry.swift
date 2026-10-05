@@ -7,6 +7,7 @@ final class RelaySubscriptionRegistry: @unchecked Sendable {
     let generation: String
     let snapshot: String
     let expires: ContinuousClock.Instant
+    let outbox: Bool
     var claimed = false
     var accepted = false
   }
@@ -21,13 +22,13 @@ final class RelaySubscriptionRegistry: @unchecked Sendable {
   }
   func setForeground(_ value: Bool) { lock.withLock { foreground = value } }
   /// The host must consume its shared transport sequence before this admission.
-  func admit(_ generation: String, snapshot: String) -> String? {
+  func admit(_ generation: String, snapshot: String, outbox: Bool = false) -> String? {
     lock.withLock {
       prune()
       guard foreground, activeGeneration(generation), snapshot.utf8.count <= Self.maxSnapshotBytes,
         streams.count < 8, streams.values.filter({ $0.generation == generation }).count < 2 else { return nil }
       let token = UUID().uuidString.lowercased()
-      streams[token] = Stream(generation: generation, snapshot: snapshot, expires: now().advanced(by: .seconds(25)))
+      streams[token] = Stream(generation: generation, snapshot: snapshot, expires: now().advanced(by: .seconds(25)), outbox: outbox)
       return token
     }
   }
@@ -48,6 +49,9 @@ final class RelaySubscriptionRegistry: @unchecked Sendable {
   }
   func isActive(_ token: String) -> Bool {
     lock.withLock { prune(); return streams[token]?.claimed == true && streams[token]?.accepted == true }
+  }
+  func connectionLimit(_ token: String) -> Int {
+    lock.withLock { prune(); guard let stream = streams[token], stream.claimed, stream.accepted else { return 0 }; return stream.outbox ? 16 : 2 }
   }
   func mayDeliver(_ token: String) -> Bool {
     lock.withLock { prune(); return foreground && streams[token]?.claimed == true && streams[token]?.accepted == true }

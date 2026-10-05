@@ -111,3 +111,38 @@ test('response event count and aggregate byte limits fail instead of truncating'
   const many = harness(undefined, async (_, sub) => [...Array.from({ length: 12 }, (_, i) => signed(String(i) + 'x'.repeat(48_000))).map(e => JSON.stringify(['EVENT', sub, e])), JSON.stringify(['EOSE', sub])]);
   await assert.rejects(many.create().query(parseQueryFilters([{}]), signal(), () => {}));
 });
+
+test('detailed query preserves partial failure without changing legacy event wrapper', async () => {
+  const h = harness(['wss://bad.example.com', 'wss://one.example.com'], async (url, sub) => {
+    if (url.includes('bad')) throw Error('offline');
+    return [JSON.stringify(['EVENT', sub, signed()]), JSON.stringify(['EOSE', sub])];
+  });
+  const result = await h.create().queryDetailed(parseQueryFilters([{}]), signal(), () => {});
+  assert.equal(result.incomplete, true);
+  assert.equal(result.events.length, 1);
+  assert.deepEqual(Object.keys(result.events[0]!), ['event']);
+});
+test('detailed complete empty EOSE is distinct from partial or failed discovery', async () => {
+  const h = harness(undefined, async (_, sub) => [JSON.stringify(['EOSE', sub])]);
+  assert.deepEqual(await h.create().queryDetailed(parseQueryFilters([{}]), signal(), () => {}), {events: [], incomplete: false});
+});
+
+
+test('detailed total deadline preserves verified partial data and cancels exact pending relay; legacy still rejects', async () => {
+  for (const detailed of [false,true]) {
+    const h = harness(['wss://one.example.com','wss://slow.example.com'],async (url,sub) => url.includes('slow') ? new Promise(()=>{}) : [JSON.stringify(['EVENT',sub,signed()]),JSON.stringify(['EOSE',sub])]);
+    const service=h.create(20), filters=parseQueryFilters([{}]);
+    if(detailed){const result=await service.queryDetailed(filters,signal(),()=>{});assert.equal(result.incomplete,true);assert.equal(result.events[0]?.event.id,signed().id);}
+    else await assert.rejects(service.query(filters,signal(),()=>{}));
+    assert.deepEqual(h.cancelled,[h.calls[1]!.id]);
+  }
+});
+test('external cancellation or native owner revocation cannot return deadline partial data', async () => {
+  for(const revoke of [false,true]) {
+    const controller=new AbortController();let active=true;
+    const h=harness(['wss://one.example.com','wss://slow.example.com'],async(url,sub)=>{
+      if(url.includes('slow')){if(revoke)active=false;else controller.abort();return new Promise(()=>{});}
+      return [JSON.stringify(['EVENT',sub,signed()]),JSON.stringify(['EOSE',sub])];});
+    await assert.rejects(h.create(20).queryDetailed(parseQueryFilters([{}]),controller.signal,()=>{if(!active)throw Error('revoked');}));
+  }
+});

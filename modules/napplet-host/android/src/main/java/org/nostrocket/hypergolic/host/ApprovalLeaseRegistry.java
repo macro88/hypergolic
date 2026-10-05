@@ -18,6 +18,8 @@ public final class ApprovalLeaseRegistry {
     final String snapshot;
     final NativeApprovalAuthority.RequestHandle request;
     boolean claimed;
+    boolean requiresPlan;
+    Object preparedPlan;
     NativeApprovalAuthority.ApprovalHandle approval;
     Row(String generation, String snapshot, NativeApprovalAuthority.RequestHandle request) {
       this.generation = generation; this.snapshot = snapshot; this.request = request;
@@ -41,12 +43,16 @@ public final class ApprovalLeaseRegistry {
   }
   public synchronized void resume() { authority.resumeReview(); }
   public synchronized String admit(String generation, String snapshot) {
+    return admit(generation, snapshot, false);
+  }
+  public synchronized String admit(String generation, String snapshot, boolean requiresPlan) {
     var session = sessions.get(generation);
     if (session == null) return null;
     var request = authority.admit(session, snapshot);
     if (request == null) return null;
     String token = UUID.randomUUID().toString();
-    rows.put(token, new Row(generation, snapshot, request));
+    Row row = new Row(generation, snapshot, request);
+    row.requiresPlan = requiresPlan; rows.put(token, row);
     return token;
   }
   public synchronized String take(String token) {
@@ -60,17 +66,34 @@ public final class ApprovalLeaseRegistry {
   }
   public synchronized boolean mayReview(String token) {
     Row row = rows.get(token);
-    if (row == null || !row.claimed) return false;
+    if (row == null || !row.claimed || (row.requiresPlan && row.preparedPlan == null)) return false;
     var current = authority.currentReview();
     return current != null && current.request == row.request;
   }
   public synchronized boolean approve(String token) {
     Row row = rows.get(token);
-    if (row == null || !row.claimed || row.approval != null) return false;
+    if (row == null || !row.claimed || row.approval != null || (row.requiresPlan && row.preparedPlan == null)) return false;
     var approval = authority.approve(row.request);
     if (approval == null) return false;
     if (!row.snapshot.equals(authority.take(approval))) { authority.cancel(approval); return false; }
     row.approval = approval; return true;
+  }
+  public synchronized String claimedSnapshot(String token) {
+    return isLive(token) ? rows.get(token).snapshot : null;
+  }
+  public synchronized boolean prepare(String token, Object plan) {
+    Row row = rows.get(token);
+    if (plan == null || !isLive(token) || !row.requiresPlan || row.preparedPlan != null || row.approval != null) return false;
+    row.preparedPlan = plan; return true;
+  }
+  public synchronized Object prepared(String token) {
+    Row row = rows.get(token); return row == null ? null : row.preparedPlan;
+  }
+  @FunctionalInterface public interface ApprovedEffect { void run() throws java.io.IOException; }
+  /** Revocation and exact EVENT emission share this lock; no queued JS liveness race. */
+  public synchronized void performApproved(String token, ApprovedEffect effect) throws java.io.IOException {
+    if (!isApproved(token)) throw new java.io.IOException("Approval revoked");
+    effect.run();
   }
   public synchronized boolean isApproved(String token) {
     Row row = rows.get(token);

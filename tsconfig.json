@@ -13,7 +13,8 @@
     "tests/native/feed-subscription/**/*.tsx",
     "tests/native/upload/**/*.tsx",
     "tests/native/identity-data/**/*.tsx",
-    "tests/native/links/**/*.tsx"
+    "tests/native/links/**/*.tsx",
+    "tests/native/outbox/**/*.tsx"
   ],
   "exclude": [
     "src/**/*.test.ts"

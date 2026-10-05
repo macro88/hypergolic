@@ -55,7 +55,7 @@ struct CapabilityConfiguration {
     case "upload-lab", "upload-queue-lab": expected = ["upload", "theme"]
     case "resource-lab": expected = ["resource", "link", "theme"]
     case "routing-lab": expected = ["intent", "inc", "notify", "config", "theme"]
-    case "feed-lab": expected = ["identity", "relay", "theme"]
+    case "feed-lab": expected = Set(domains).contains("outbox") ? ["identity", "outbox", "relay", "theme"] : ["identity", "relay", "theme"]
     case "published":
       expected = Set(domains)
       let supported: Set<String> = ["identity", "storage", "theme", "relay", "resource", "upload", "link", "intent", "inc", "notify", "config"]
@@ -90,7 +90,8 @@ struct CapabilityConfiguration {
   func approvalWireId(_ message: String) -> (recognized: Bool, wireId: String?) {
     guard domains.contains("relay"), let data = message.data(using: .utf8),
       let value = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-      value["type"] as? String == "relay.publish" else { return (false, nil) }
+      let type = value["type"] as? String,
+      type == "relay.publish" || (type == "outbox.publish" && domains.contains("outbox")) else { return (false, nil) }
     guard let id = value["id"] as? String, (1...128).contains(id.utf8.count) else { return (true, nil) }
     return (true, id)
   }

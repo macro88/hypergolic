@@ -57,6 +57,16 @@ public final class PublishedRelayWssQuery {
         InetAddress::getAllByName, DNS, defaultFactory(), HttpsURLConnection.getDefaultHostnameVerifier());
   }
 
+  @FunctionalInterface interface SendAction { void run() throws IOException; }
+  interface PublicationControl extends PublishedHttpsTransport.Cancellation {
+    default void attach(Socket socket) throws IOException {}
+    void send(SendAction action) throws IOException;
+  }
+  /** App-only exact EVENT path retains the public DNS/TLS policy. */
+  static List<String> publish(String url, String event, PublicationControl control, TextStopPolicy stop) throws IOException {
+    return queryWithTransport(url, event, PublishedHttpsRequestOwner.addressPolicy(), control, stop,
+        InetAddress::getAllByName, DNS, defaultFactory(), HttpsURLConnection.getDefaultHostnameVerifier());
+  }
   /** Package-local inputs allow a controlled host-JVM TLS relay without changing the public query path. */
   static List<String> queryWithTransport(String rawUrl, String request, PublishedHttpsTransport.AddressPolicy policy,
       PublishedHttpsTransport.Cancellation cancellation, TextStopPolicy shouldStop,
@@ -86,8 +96,9 @@ public final class PublishedRelayWssQuery {
         try { PublishedRelayWebSocketHandshake.validate(headers, nonce); }
         catch (IllegalArgumentException invalid) { throw new IOException("Relay rejected WebSocket upgrade", invalid); }
         abort.check();
-        output.write(requestFrame);
-        output.flush();
+        if (cancellation instanceof PublicationControl) {
+          ((PublicationControl) cancellation).send(() -> { output.write(requestFrame); output.flush(); });
+        } else { output.write(requestFrame); output.flush(); }
         return readMessages(input, output, abort, shouldStop);
       }
     } finally { abort.close(); }

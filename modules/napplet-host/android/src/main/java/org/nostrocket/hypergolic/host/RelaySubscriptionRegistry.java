@@ -21,10 +21,11 @@ public final class RelaySubscriptionRegistry {
     final String generation;
     final String snapshot;
     final long expires;
+    final boolean outbox;
     boolean claimed;
     boolean accepted;
-    Stream(String generation, String snapshot, long expires) {
-      this.generation = generation; this.snapshot = snapshot; this.expires = expires;
+    Stream(String generation, String snapshot, long expires, boolean outbox) {
+      this.generation = generation; this.snapshot = snapshot; this.expires = expires; this.outbox = outbox;
     }
   }
   public RelaySubscriptionRegistry(LongSupplier now, Predicate<String> generationActive) {
@@ -33,7 +34,8 @@ public final class RelaySubscriptionRegistry {
   }
   public synchronized void setForeground(boolean value) { foreground = value; }
   /** Caller must first consume the native host's shared transport sequence. */
-  public synchronized String admit(String generation, String snapshot) {
+  public synchronized String admit(String generation, String snapshot) { return admit(generation, snapshot, false); }
+  public synchronized String admit(String generation, String snapshot, boolean outbox) {
     prune();
     long clock = now.getAsLong();
     if (!foreground || !activeGeneration(generation) || snapshot == null || snapshot.length() > MAX_SNAPSHOT_BYTES ||
@@ -42,7 +44,7 @@ public final class RelaySubscriptionRegistry {
     long own = streams.values().stream().filter(stream -> stream.generation.equals(generation)).count();
     if (own >= MAX_PER_GENERATION) return null;
     String token = UUID.randomUUID().toString();
-    streams.put(token, new Stream(generation, snapshot, clock + ADMISSION_MS));
+    streams.put(token, new Stream(generation, snapshot, clock + ADMISSION_MS, outbox));
     return token;
   }
   public synchronized String take(String token) {
@@ -58,6 +60,10 @@ public final class RelaySubscriptionRegistry {
   public synchronized boolean isActive(String token) {
     prune(); Stream stream = streams.get(token);
     return stream != null && stream.claimed && stream.accepted;
+  }
+  public synchronized int connectionLimit(String token) {
+    prune(); Stream stream = streams.get(token);
+    return stream != null && stream.claimed && stream.accepted ? (stream.outbox ? 16 : 2) : 0;
   }
   public synchronized boolean mayDeliver(String token) { return foreground && isActive(token); }
   public synchronized void close(String token) { streams.remove(token); }

@@ -112,6 +112,7 @@ public final class NappletHostModule: Module {
     Function("acceptSubscription") { (token: String) -> Bool in RelaySubscriptionTransport.shared.registry.accept(token) }
     Function("mayDeliverSubscription") { (token: String) -> Bool in RelaySubscriptionTransport.shared.registry.mayDeliver(token) }
     Function("isSubscriptionActive") { (token: String) -> Bool in RelaySubscriptionTransport.shared.registry.isActive(token) }
+    Function("subscriptionCapacity") { (token: String) -> Bool in RelaySubscriptionTransport.shared.hasCapacity(token) }
     Function("sendSubscription") { (token: String, response: String) -> Int in RelaySubscriptionTransport.shared.send(token, response: response) }
     Function("closeSubscription") { (token: String) in RelaySubscriptionTransport.shared.close(token) }
     Function("synchronizeRoutingOwner") { (user: String, epoch: Double, available: Bool) throws in
@@ -127,6 +128,11 @@ public final class NappletHostModule: Module {
     Function("replaceIdentityListAccess") { (raw: String) throws in try IdentityListAccess.shared.replaceJSON(raw) }
     Function("finishCapability") { (token: String, response: String?) in CapabilityTransport.finish(token, response: response) }
     Function("takeApproval") { (token: String) -> String? in ApprovalTransport.take(token) }
+    Function("prepareOutboxApproval") { (token: String, plan: String) -> Bool in ApprovalTransport.registry.prepareOutbox(token, raw: plan) }
+    Function("failOutboxApproval") { (token: String, error: String) in ApprovalTransport.registry.failOutbox(token, error: error) }
+    AsyncFunction("publishOutboxApproval") { (token: String, group: String, event: String, relay: String) async throws -> String in
+      try await OutboxPublicationOwner.shared.publish(token: token, group: group, event: event, relay: relay)
+    }
     Function("isApprovalLive") { (token: String) -> Bool in ApprovalTransport.isLive(token) }
     Function("mayReviewApproval") { (token: String) -> Bool in ApprovalTransport.mayReview(token) }
     Function("approveApproval") { (token: String) -> Bool in ApprovalTransport.approve(token) }

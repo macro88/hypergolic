@@ -1,24 +1,26 @@
+import { parseOutboxRead, type OutboxReadRequest } from '../outbox/query-contract.ts';
 import { identifier, publicKey, revision, text, utf8Bytes } from '../storage/codec.ts';
 import { parseRelayQuery, type RelayQueryRequest } from '../network/relay-query-contract.ts';
 import { LIMITS, type Scope } from '../storage/ports.ts';
 
 export const CAPABILITY_LIMITS = Object.freeze({ messageBytes: 2 * 1024 * 1024, sessionRequests: 1024 });
 export const SUPPORTED_CAPABILITY_DOMAINS = Object.freeze(['identity', 'storage', 'theme', 'relay', 'resource', 'upload', 'link', 'intent', 'inc', 'notify', 'config']);
-const NATIVE_CAPABILITY_DOMAINS = SUPPORTED_CAPABILITY_DOMAINS;
+// Outbox is a bundled tracer only until all selected operations pass native acceptance.
+const NATIVE_CAPABILITY_DOMAINS = Object.freeze([...SUPPORTED_CAPABILITY_DOMAINS, 'outbox']);
 export const IDENTITY_OPERATIONS = ['identity.getPublicKey', 'identity.getRelays', 'identity.getProfile',
   'identity.getFollows', 'identity.getMutes', 'identity.getBlocked', 'identity.getList',
   'identity.getZaps', 'identity.getBadges'] as const;
 export const STORAGE_OPERATIONS = ['storage.get', 'storage.set', 'storage.remove', 'storage.keys'] as const;
 export type IdentityOperation = typeof IDENTITY_OPERATIONS[number];
 export type StorageOperation = typeof STORAGE_OPERATIONS[number];
-export type CapabilityOperation = IdentityOperation | StorageOperation | 'relay.query';
+export type CapabilityOperation = IdentityOperation | StorageOperation | 'relay.query' | 'outbox.query' | 'outbox.getEvent' | 'outbox.resolveRelays';
 export interface NativeRegistration {
   readonly sessionId: string; readonly generation: string; readonly epoch: number;
   readonly user: string; readonly publisher: string; readonly appId: string;
   readonly version: string; readonly instanceId: string;
   readonly fixture: string; readonly domains: readonly string[];
 }
-export type CapabilityRequest = RelayQueryRequest | Readonly<{ type: IdentityOperation; id: string; listType?: string }>
+export type CapabilityRequest = OutboxReadRequest | RelayQueryRequest | Readonly<{ type: IdentityOperation; id: string; listType?: string }>
   | Readonly<{ type: StorageOperation; id: string; key?: string; value?: string; scope: Scope }>;
 export type CapabilityReply = Readonly<Record<string, unknown> & { type: string; id: string }>;
 export class CapabilityRequestError extends Error {
@@ -49,6 +51,7 @@ export function decodeNativeRegistration(value: unknown): NativeRegistration {
 export function parseCapabilityRequest(value: unknown): CapabilityRequest {
   const data = record(value);
   if (data.type === 'relay.query') return parseRelayQuery(data);
+  if (['outbox.query','outbox.getEvent','outbox.resolveRelays'].includes(data.type as string)) return parseOutboxRead(data);
   const id = text(data.id, 128);
   const type = data.type;
   if (IDENTITY_OPERATIONS.includes(type as IdentityOperation)) {

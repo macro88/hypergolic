@@ -44,7 +44,7 @@ final class RelayStreamBridgeOwner: @unchecked Sendable {
       value[0] as? String == "REQ", value[1] as? String == subId,
       value.dropFirst(2).allSatisfy({ $0 is [String: Any] }) else { return false }
     let admitted = lock.withLock { () -> Bool in
-      guard foreground, !consumed.contains(id), consumed.count < 65_536, rows.count < 16, rows.values.filter({ $0.token == token }).count < 2,
+      guard foreground, !consumed.contains(id), consumed.count < 65_536, rows.count < 16, rows.values.filter({ $0.token == token }).count < RelaySubscriptionTransport.shared.registry.connectionLimit(token),
         RelaySubscriptionTransport.shared.registry.isActive(token) else { return false }
       consumed.insert(id); rows[id] = Row(token: token, emit: emit); return true
     }

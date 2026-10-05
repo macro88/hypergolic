@@ -1,3 +1,4 @@
+import {OutboxReview} from './OutboxReview';
 import { useRef, useState } from 'react';
 import { AccessibilityInfo, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { formatNpub } from '../security/identity-crypto.ts';
@@ -41,8 +42,7 @@ function Review({ item, nappletTitle, busy, error, onApprove, onReject, onDismis
           <Text testID="approval-sheet-publisher" selectable style={styles.mono}>{item.origin.publisher}{'\n'}{publisherNpub}</Text>
           <Text style={styles.label}>Selected identity</Text>
           <Text testID="approval-sheet-identity" selectable style={styles.mono}>{identityNpub}</Text>
-          <Text style={styles.label}>Publish to</Text>
-          <Text selectable style={styles.destination}>{item.event.destinations.join('\n')}</Text>
+          {item.outbox ? <OutboxReview plan={item.outbox}/> : <><Text style={styles.label}>Publish to</Text><Text selectable style={styles.destination}>{item.event.destinations.join('\n')}</Text></>}
           <Pressable testID="approval-sheet-details" accessibilityRole="button" accessibilityState={{ expanded: details, disabled: busy }} disabled={busy} onPress={() => setDetails(value => !value)} style={({ pressed }) => [styles.details, pressed && styles.pressed]}>
             <Text style={styles.detailsText}>{details ? 'Hide exact event' : 'Show exact event'}</Text>
           </Pressable>

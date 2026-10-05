@@ -53,6 +53,9 @@ final class PublishedRelayWssIo {
       // Lifecycle cancellation closes raw TCP immediately. SSLSocket.close can write
       // close_notify, which belongs to worker cleanup rather than the Android UI thread.
       if (cancellation instanceof StreamControl && !(value instanceof SSLSocket)) ((StreamControl) cancellation).attach(value);
+      if (cancellation instanceof PublishedRelayWssQuery.PublicationControl && !(value instanceof SSLSocket)) {
+        ((PublishedRelayWssQuery.PublicationControl) cancellation).attach(value);
+      }
       check();
     }
     void check() throws IOException {

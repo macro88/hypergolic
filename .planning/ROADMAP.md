@@ -20,7 +20,7 @@ and resolve each phase's material policy decisions before generating those files
 - [x] **Phase 2.6: External links** — S–M; Resource Lab.
 - [x] **Phase 2.7: Intents and inter-napplet communication** — M + L; Routing Lab pair.
 - [ ] **Phase 2.8: Notifications and configuration** — M + M; Routing Lab.
-- [ ] **Phase 2.9: Outbox routing** — L; Feed Lab.
+- [x] **Phase 2.9: Outbox routing** — implementation closed; remaining acceptance transferred to 2.11 on 5 October 2026.
 - [ ] **Phase 2.11: Complete published MVP acceptance** — L; All MVP fixtures (excluding Value Lab) plus selected real napplets.
 - [ ] **Phase 3: External signing** — post-MVP NIP-55 and NIP-46 integrations.
 - [ ] **Phase 4: Value transfers and zaps** — post-MVP; L; Value Lab.
@@ -177,17 +177,17 @@ CAP-06 is selected-profile complete; broad CAP-14 gates remain open.
 **Requirements:** CAP-12
 **Fixture:** Feed Lab
 **Work and exit criteria:** Pin NIP-65/outbox behavior, cache, fallback and fan-out. Verify authors on disjoint relays, role flags, missing/stale lists, destination policy and receipts. Freeze actual write destinations before approval.
-**Plans:** Pending owning-contract research and phase-local decisions; no completion claimed.
+**Closeout:** Plans 01–02 have scoped native acceptance; Plan 03 implementation is closed and its remaining tests plus Plan 04 acceptance are transferred by owner decision to Phase 2.11. CAP-12 final acceptance remains open. See [closeout](phases/02.9-outbox-routing/02.9-VERIFICATION.md) and [transferred acceptance](phases/02.11-published-mvp-acceptance/02.11-OUTBOX-HANDOFF.md).
 
 ### Phase 2.11: Complete published MVP acceptance
 
 **Mode:** mvp
 **Effort:** L, including both native platforms, fixture and automation
-**Depends on:** Phase 2 and 2.1–2.9 accepted
+**Depends on:** Implemented Phase 2 and 2.1–2.9; outstanding foundation and Outbox acceptance are included here.
 **Requirements:** CAP-14
 **Fixture:** All MVP fixtures (excluding Value Lab) plus selected real napplets
 **Work and exit criteria:** Run the full published journey on standalone Android/iOS, close foundation/device gaps, verify update/restart/identity isolation, and satisfy both quality scores at 100/100. Record source/build/fixture/spec hashes and independent results.
-**Plans:** Pending owning-contract research and phase-local decisions; no completion claimed.
+**Next step:** Plan integrated physical Android/iPhone and full published MVP acceptance. The [Outbox register](phases/02.11-published-mvp-acceptance/02.11-OUTBOX-HANDOFF.md) owns all unrun Plans 03–04 device, native fault, lifecycle, admission and packaging checks. They remain open alongside CAP-14; no completion claimed.
 
 ### Phase 3: External signing
 

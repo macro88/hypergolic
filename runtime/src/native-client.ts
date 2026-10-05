@@ -1,3 +1,5 @@
+import {parseOutboxSubscribe,parseOutboxClose} from '../../src/outbox/subscription-contract';
+import {normalizeRelayUrl} from '../../src/network/relay-settings';
 import {captureConfigPush, captureConfigReply, type ConfigMessage} from '../../src/presentation/config-contract';
 import { captureNotifyPush, captureNotifyReply, type NotifyMessage } from '../../src/presentation/notify-contract';
 import { captureRoutingPush, captureRoutingReply } from './routing-adapter';
@@ -15,7 +17,7 @@ export interface NativeHost {
 }
 const maxBytes = 2 * 1024 * 1024;
 const ordinaryTimeoutMs = 27_000;
-type StreamState={subId:string; filters:readonly QueryFilter[]; timer:number; delivery:number; eose:boolean; controlRevision:number; deliver:(message:NappletMessage)=>void};
+type StreamState={domain:'relay'|'outbox';subId:string; filters:readonly QueryFilter[]; timer:number; delivery:number; eose:boolean; controlRevision:number; deliver:(message:NappletMessage)=>void};
 type StreamEnvelope={sequence:number;delivery:number;response:unknown};
 type NativeClientOptions = Readonly<{ requestTimeoutsMs?: Readonly<Record<string, number>>; onRouting?: (message: NappletMessage) => void }>;
 function receiveStream(envelope:StreamEnvelope,streams:Map<number,StreamState>,stopStream:(counter:number,notify:boolean)=>void,acknowledge:(envelope:StreamEnvelope)=>void):void {
@@ -26,14 +28,21 @@ function receiveStream(envelope:StreamEnvelope,streams:Map<number,StreamState>,s
     if(typeof envelope.response!=='string'||new TextEncoder().encode(envelope.response).length>66*1024)throw new Error('Stream denied');
     const message=JSON.parse(envelope.response);
     if(!message||message.subId!==stream.subId)throw new Error('Stream mismatch');
-    if(message.type==='relay.event') {
-      if(Object.keys(message).length!==3||!message.result||Object.keys(message.result).length!==1||!('event' in message.result))throw new Error('Invalid stream event');
-      const event=verifyQueryEvent(message.result.event,stream.filters);
+    if(message.type===stream.domain+'.event') {
+      const fields=new Set(['event',...(stream.domain==='outbox'?['sidecar']:[])]);
+      if(Object.keys(message).length!==3||!message.result||Object.keys(message.result).some(key=>!fields.has(key))||!('event' in message.result))throw new Error('Invalid stream event');
+      const event=verifyQueryEvent(message.result.event,stream.domain==='outbox'?stream.filters.map(filter=>({...filter,limit:32})):stream.filters);
+      let sidecar:Readonly<{relayHints:readonly string[]}>|undefined;
+      if(message.result.sidecar!==undefined){
+        const value=message.result.sidecar;
+        if(!value||Object.keys(value).length!==1||!Array.isArray(value.relayHints)||value.relayHints.length>16||new Set(value.relayHints).size!==value.relayHints.length)throw new Error('Invalid relay hints');
+        sidecar=Object.freeze({relayHints:Object.freeze(value.relayHints.map(normalizeRelayUrl))});
+      }
       if(event.kind===4||event.kind===1059)throw new Error('Unsupported encrypted stream');
-      stream.deliver({type:'relay.event',subId:stream.subId,result:{event}} as NappletMessage);
+      stream.deliver({type:stream.domain+'.event',subId:stream.subId,result:{event,...(sidecar?{sidecar}:{})}} as NappletMessage);
     }else if(message.type==='relay.eose'&&Object.keys(message).length===2) {
-      window.clearTimeout(stream.timer);stream.eose=true;stream.deliver(message);
-    }else if(message.type==='relay.closed'&&Object.keys(message).every(key=>['type','subId','reason'].includes(key))&&
+      window.clearTimeout(stream.timer);stream.eose=true;if(stream.domain==='relay')stream.deliver(message);
+    }else if(message.type===stream.domain+'.closed'&&Object.keys(message).every(key=>['type','subId','reason'].includes(key))&&
       (message.reason===undefined||typeof message.reason==='string'&&message.reason.length<=256)) {
       streams.delete(envelope.sequence);window.clearTimeout(stream.timer);stream.eose=true;stream.deliver(message);
     }else throw new Error('Invalid stream lifecycle');
@@ -165,16 +174,16 @@ export function createNativeClient(native: NativeHost, generation: string, optio
   const streams = new Map<number, StreamState>();
   const uploads = new Map<number, UploadState>();
   const callerIds = new Set<string>();
-  const closeNative = (subId:string,id?:string):void => {
+  const closeNative = (subId:string,domain:'relay'|'outbox',id?:string):void => {
     if(disposed || sequence >= Number.MAX_SAFE_INTEGER)return;
     const counter=++sequence;
     try { native.postMessage(JSON.stringify({type:'capability',sessionId:generation,sequence:counter,
-      message:JSON.stringify({type:'relay.close',id:id??'native-close-'+counter,subId})})); } catch { /* Native revocation also closes the stream. */ }
+      message:JSON.stringify({type:domain+'.close',id:id??'native-close-'+counter,subId})})); } catch { /* Native revocation also closes the stream. */ }
   };
   const stopStream = (counter:number,notify:boolean,id?:string):void => {
     const stream=streams.get(counter);if(!stream)return;
-    streams.delete(counter);window.clearTimeout(stream.timer);closeNative(stream.subId,id);
-    if(notify)stream.deliver({type:'relay.closed',subId:stream.subId,reason:'relay subscription unavailable'} as NappletMessage);
+    streams.delete(counter);window.clearTimeout(stream.timer);closeNative(stream.subId,stream.domain,id);
+    if(notify)stream.deliver({type:stream.domain+'.closed',subId:stream.subId,reason:'relay subscription unavailable'} as NappletMessage);
   };
   const acknowledge=(envelope:StreamEnvelope):void => {
     if(sequence>=Number.MAX_SAFE_INTEGER)throw new Error('Native sequence exhausted');
@@ -208,18 +217,18 @@ export function createNativeClient(native: NativeHost, generation: string, optio
   window.addEventListener('message', ios);
   return Object.freeze({
     subscribe(message:NappletMessage,deliver:(message:NappletMessage)=>void):void {
-      const request=parseRelaySubscribe(message);
+      const outbox=message.type==='outbox.subscribe',request=outbox?parseOutboxSubscribe(message):parseRelaySubscribe(message);
       if(disposed||streams.size>=2||callerIds.has(request.subId)||callerIds.size>=4096||sequence>=Number.MAX_SAFE_INTEGER)throw new Error('Native subscription unavailable');
       const counter=++sequence;
       callerIds.add(request.subId);
       const timer=window.setTimeout(()=>stopStream(counter,true),ordinaryTimeoutMs);
-      streams.set(counter,{subId:request.subId,filters:request.filters,timer,delivery:0,eose:false,controlRevision:-1,deliver});
+      streams.set(counter,{domain:outbox?'outbox':'relay',subId:request.subId,filters:request.filters,timer,delivery:0,eose:false,controlRevision:-1,deliver});
       try {native.postMessage(JSON.stringify({type:'relay-stream',sessionId:generation,sequence:counter,message:JSON.stringify(request)}));}
       catch{stopStream(counter,true);}
     },
     close(message:NappletMessage):void {
-      const request=parseRelayClose(message);
-      for(const [counter,stream] of streams)if(stream.subId===request.subId){stopStream(counter,false,request.id);return;}
+      const outbox=message.type==='outbox.close',request=outbox?parseOutboxClose(message):parseRelayClose(message);
+      for(const [counter,stream] of streams)if(stream.subId===request.subId&&stream.domain===(outbox?'outbox':'relay')){stopStream(counter,false,request.id);return;}
     },
     request,
     ...createPresentationRequests(request),

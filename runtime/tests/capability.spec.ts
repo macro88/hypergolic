@@ -216,3 +216,43 @@ test('secure correlation IDs use getRandomValues when randomUUID is unavailable'
   expect(await frame.evaluate(() => (window as any).napplet.storage.getItem('secure-id'))).toBeNull();
   expect((await state(page)).calls[0].message.id).toMatch(/^napplet-[a-f0-9]{32}$/);
 });
+
+
+test('Outbox original query reaches the override after ACL and firewall; ACL denial keeps required empty events', async ({page}) => {
+  const frame = await open(page, '?outbox');
+  expect(await frame.evaluate(async () => (window as any).napplet.outbox.query({kinds:[1],limit:0}))).toMatchObject({events:[],type:'outbox.query.result',id:expect.any(String)});
+  let result = await state(page);
+  expect(result.calls).toHaveLength(1);
+  expect(result.calls[0].message).toMatchObject({type:'outbox.query',filters:[{kinds:[1],limit:0}]});
+  expect(result.audit.slice(-3)).toEqual(['acl:outbox:read:allow','firewall:pass','operation:outbox.query']);
+  await page.evaluate(() => (window as any).lab.block());
+  const denied = await frame.evaluate(async () => (window as any).napplet.outbox.query({kinds:[1],limit:0}));
+  expect(denied).toMatchObject({events:[],error:'denied: outbox:read'});
+  result = await state(page);expect(result.calls).toHaveLength(1);expect(result.signerReads).toBe(0);
+});
+
+for (const policy of ['deny','ask'] as const) test(`Outbox firewall ${policy} returns canonical empty events without invoking native`, async ({page}) => {
+  const frame = await open(page, '?outbox');
+  await page.evaluate(policy => (window as any).lab.firewall(policy), policy);
+  const result = await frame.evaluate(async () => (window as any).napplet.outbox.query({kinds:[1],limit:0}));
+  expect(result).toMatchObject({events:[],error:expect.stringMatching(/^firewall:/)});
+  expect((await state(page)).calls).toEqual([]);
+});
+
+for(const operation of ['getEvent','resolveRelays'] as const)test(`Outbox ${operation} override respects ACL and firewall without builtin routing`,async({page})=> {
+  const frame=await open(page,'?outbox');
+  const read=()=>frame.evaluate(async operation=>operation==='getEvent'?(window as any).napplet.outbox.getEvent('a'.repeat(64)):(window as any).napplet.outbox.resolveRelays({pubkey:'b'.repeat(64)}),operation);
+  await read();expect((await state(page)).calls[0].message.type).toBe('outbox.'+operation);
+  await page.evaluate(()=>(window as any).lab.firewall('deny'));
+  const denied=await read();expect(denied).toMatchObject({error:expect.stringMatching(/^firewall:/)});expect((await state(page)).calls).toHaveLength(1);
+});
+
+for(const policy of ['acl','deny','ask'] as const)test(`Outbox publication ${policy} denial stays canonical and calls no native operation or signer`,async({page})=> {
+ const frame=await open(page,'?outbox');
+ if(policy==='acl')await page.evaluate(()=>(window as any).lab.block());else await page.evaluate(policy=>(window as any).lab.firewall(policy),policy);
+ const reply=await frame.evaluate(async template=>(window as any).napplet.outbox.publish(template),template);
+ const error=reply.error;expect(reply.ok).toBe(false);
+ expect(error).toMatch(policy==='acl'?/^denied: outbox:write/:/^firewall:/);
+ expect((await received(frame)).find((value:any)=>value.type==='outbox.publish.result')).toMatchObject({ok:false,error});
+ const result=await state(page);expect(result.calls).toEqual([]);expect(result.signerReads).toBe(0);
+});

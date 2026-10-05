@@ -12,6 +12,7 @@
     "title": "Feed Lab",
     "requires": [
       "identity",
+      "outbox",
       "relay"
     ]
   },

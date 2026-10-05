@@ -1,3 +1,6 @@
+import {createOutboxSubscriptionBroker} from '../outbox/subscription-broker.ts';
+import type {createOutboxSubscriptions} from '../outbox/subscriptions.ts';
+import type { OutboxReadService } from '../outbox/read-service';
 import type {ConfigBroker} from '../presentation/config-broker.ts';
 import type { NotifyBroker } from '../presentation/notify-broker.ts';
 import type { RoutingBroker } from '../routing/routing-broker.ts';
@@ -20,9 +23,9 @@ import { createPublishedSessionCoordinator, type PreparedPublishedSession, type 
 import type { NappletConsentReview } from '../napplets/first-open-consent.ts';
 import type { NativeRegistration } from './capability-protocol.ts';
 
-export interface NativeCapabilityEvent { type: 'capability'; sessionId: string; generation: string; token: string; lane?: 'approval' | 'subscription' | 'upload' | 'routing' | 'presentation' | 'configuration' }
+export interface NativeCapabilityEvent { type: 'capability'; sessionId: string; generation: string; token: string; lane?: 'approval' | 'outbox-subscription' | 'subscription' | 'upload' | 'routing' | 'presentation' | 'configuration' }
 export interface RuntimeBinding { readonly configuration: string; receive(event: NativeCapabilityEvent): void; revoke(): void }
-export interface PublishedRuntimeBinding { readonly publishedArtifact: string; receive(event: NativeCapabilityEvent): void; assertApproval(origin: ApprovalOrigin): void; assertUpload(origin: ApprovalOrigin): void; revoke(): void }
+export interface PublishedRuntimeBinding { readonly publishedArtifact: string; receive(event: NativeCapabilityEvent): void; assertApproval(origin: ApprovalOrigin,domain?:'outbox'): void; assertUpload(origin: ApprovalOrigin): void; revoke(): void }
 export interface RuntimeNativePort extends NativeCapabilityPort { newInstanceId(): string; subscriptions?: NativeRelaySubscriptionPort }
 export interface RuntimeOwner {
   open(session: NappletDescriptor): RuntimeBinding;
@@ -35,7 +38,7 @@ export interface RuntimeOwner {
   prepareInstalled(handler: CatalogHandler, signal: AbortSignal, review: (request: NappletConsentReview) => Promise<boolean>): Promise<NappletDescriptor>;
   discardPublished(sessionId: string): void;
   revokeAllPublished(): void;
-  assertPublishedApproval(origin: ApprovalOrigin): void;
+  assertPublishedApproval(origin: ApprovalOrigin,domain?:'outbox'): void;
   assertPublishedUpload(origin: ApprovalOrigin): void;
 }
 
@@ -49,12 +52,13 @@ function configurationUser(ready: PreparedPublishedSession): string {
 
 function capabilityReceiver(database: ShellDatabase, native: RuntimeNativePort,
   approvals: Readonly<{ service: ApprovalService; destinations: () => readonly string[] }> | undefined,
-  sessionId: string, configuration: Omit<NativeRegistration, 'generation'>, assertActive: () => void, queries?: RelayQueryService, subscriptions?: ReturnType<typeof createRelaySubscriptions>, resources?: ResourceHost, uploads?: UploadService, identityData?: IdentityDataPort, routing?: RoutingBroker, notify?: NotifyBroker, config?: ConfigBroker) {
+  sessionId: string, configuration: Omit<NativeRegistration, 'generation'>, assertActive: () => void, queries?: RelayQueryService, subscriptions?: ReturnType<typeof createRelaySubscriptions>, resources?: ResourceHost, uploads?: UploadService, identityData?: IdentityDataPort, routing?: RoutingBroker, notify?: NotifyBroker, config?: ConfigBroker, outbox?: OutboxReadService, outboxStreams?:ReturnType<typeof createOutboxSubscriptions>) {
   let generation: string | null = null;
   let broker: ReturnType<typeof createCapabilityBroker> | null = null;
   let streams:ReturnType<typeof createRelaySubscriptionBroker>|null=null;
+  let outboxSubscriptions:ReturnType<typeof createOutboxSubscriptionBroker>|null=null;
   return Object.freeze({
-    revoke: () => { broker?.revoke(); streams?.revoke(); if (generation) {routing?.close(generation); notify?.close(generation); config?.close(generation);} },
+    revoke: () => { broker?.revoke(); streams?.revoke(); outboxSubscriptions?.revoke(); if (generation) {routing?.close(generation); notify?.close(generation); config?.close(generation);} },
     assertGeneration: (candidate: string) => { if (generation === null || generation !== candidate) throw new ShellStorageError('REVOKED'); },
     receive(event: NativeCapabilityEvent): void {
       try {
@@ -65,7 +69,8 @@ function capabilityReceiver(database: ShellDatabase, native: RuntimeNativePort,
           generation = event.generation;
           const owner={registration:{...configuration,generation},assertActive};
           if(configuration.domains.includes('relay')&&native.subscriptions&&subscriptions)streams=createRelaySubscriptionBroker(native.subscriptions,subscriptions,owner);
-          broker = createCapabilityBroker(database, native, owner, queries, request=>streams?.close(request), resources, identityData);
+          if(configuration.domains.includes('outbox')&&configuration.domains.includes('relay')&&native.subscriptions&&outboxStreams)outboxSubscriptions=createOutboxSubscriptionBroker(native.subscriptions,outboxStreams,owner);
+          broker = createCapabilityBroker(database, native, owner, queries, request=>streams?.close(request), resources, identityData, outbox,request=>outboxSubscriptions?.close(request));
         }
         if (event.generation !== generation) return;
         if (event.lane === 'configuration') {
@@ -79,7 +84,8 @@ function capabilityReceiver(database: ShellDatabase, native: RuntimeNativePort,
         } else if (event.lane === 'approval') {
           if (!configuration.domains.includes('relay')) return;
           approvals?.service.enqueue(event.token, approvals.destinations(), { ...configuration, generation });
-        } else if(event.lane==='subscription')streams?.dispatch(event.token);
+        } else if(event.lane==='outbox-subscription')outboxSubscriptions?.dispatch(event.token);
+        else if(event.lane==='subscription')streams?.dispatch(event.token);
         else if (event.lane === undefined) void broker!.dispatch(event.token);
       } catch { /* Native expiry or teardown ends unclaimed requests. */ }
     },
@@ -89,7 +95,7 @@ function capabilityReceiver(database: ShellDatabase, native: RuntimeNativePort,
 export function createRuntimeOwner(database: ShellDatabase,
   identity: Pick<IdentityTransition, 'getSnapshot' | 'sessionAuthority'>, native: RuntimeNativePort,
   approvals?: Readonly<{ service: ApprovalService; destinations: () => readonly string[] }>,
-  published?: Omit<PublishedSessionDependencies, 'identity' | 'database' | 'newInstanceId'>, queries?: RelayQueryService, subscriptions?: ReturnType<typeof createRelaySubscriptions>, resources?: ResourceHost, uploads?: UploadService, identityData?: IdentityDataPort, routing?: Readonly<{broker: RoutingBroker; catalog: RoutingCatalog}>, notify?: NotifyBroker, config?: ConfigBroker): RuntimeOwner {
+  published?: Omit<PublishedSessionDependencies, 'identity' | 'database' | 'newInstanceId'>, queries?: RelayQueryService, subscriptions?: ReturnType<typeof createRelaySubscriptions>, resources?: ResourceHost, uploads?: UploadService, identityData?: IdentityDataPort, routing?: Readonly<{broker: RoutingBroker; catalog: RoutingCatalog}>, notify?: NotifyBroker, config?: ConfigBroker, outbox?: OutboxReadService, outboxStreams?:ReturnType<typeof createOutboxSubscriptions>): RuntimeOwner {
   const coordinator = published ? createPublishedSessionCoordinator({
     ...published, identity, database, newInstanceId: () => native.newInstanceId(),
   }) : null;
@@ -111,13 +117,13 @@ export function createRuntimeOwner(database: ShellDatabase,
       ready.assertActive();
       exactSession(selected);
     };
-    const receiver = capabilityReceiver(database, native, approvals, selected.id, configuration, assertActive, queries, subscriptions, resources, uploads, identityData, routing?.broker, notify, config);
+    const receiver = capabilityReceiver(database, native, approvals, selected.id, configuration, assertActive, queries, subscriptions, resources, uploads, identityData, routing?.broker, notify, config, outbox, outboxStreams);
     const binding: PublishedRuntimeBinding = Object.freeze({
       publishedArtifact: ready.hostInput,
-      assertApproval(origin: ApprovalOrigin): void {
+      assertApproval(origin: ApprovalOrigin,domain?:'outbox'): void {
         assertActive();
         receiver.assertGeneration(origin.generation);
-        if (!configuration.domains.includes('relay') ||
+        if ((domain==='outbox'&&!configuration.domains.includes('outbox'))||!configuration.domains.includes('relay') ||
             origin.sessionId !== configuration.sessionId || origin.epoch !== configuration.epoch ||
             origin.user !== configuration.user || origin.publisher !== configuration.publisher ||
             origin.appId !== configuration.appId || origin.version !== configuration.version ||
@@ -208,10 +214,10 @@ export function createRuntimeOwner(database: ShellDatabase,
       if (!binding) throw new ShellStorageError('REVOKED');
       binding.assertUpload(origin);
     },
-    assertPublishedApproval(origin: ApprovalOrigin) {
+    assertPublishedApproval(origin: ApprovalOrigin,domain?:'outbox') {
       const binding = running.get(origin.sessionId);
       if (!binding) throw new ShellStorageError('REVOKED');
-      binding.assertApproval(origin);
+      binding.assertApproval(origin,domain);
     },
     descriptor(variant: Exclude<BundledVariant, 'ux-lab'>, number: number): NappletDescriptor {
       const instance = native.newInstanceId();
@@ -234,7 +240,7 @@ export function createRuntimeOwner(database: ShellDatabase,
           current.version !== descriptor.version || current.source !== descriptor.source || current.title !== descriptor.title) throw new ShellStorageError('REVOKED');
     };
     assertActive();
-    const receiver = capabilityReceiver(database, native, approvals, descriptor.id, configuration, assertActive, queries, subscriptions, resources, uploads, identityData, routing?.broker, notify, config);
+    const receiver = capabilityReceiver(database, native, approvals, descriptor.id, configuration, assertActive, queries, subscriptions, resources, uploads, identityData, routing?.broker, notify, config, outbox, outboxStreams);
     return Object.freeze({ configuration: JSON.stringify(configuration),
       revoke(): void { revoked = true; receiver.revoke(); approvals?.service.close(descriptor.id); uploads?.close(descriptor.id); },
       receive: receiver.receive,

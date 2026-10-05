@@ -27,6 +27,10 @@ object CapabilityConfigurationProof {
     val old = CapabilityConfiguration(raw("ux-lab", listOf("theme")), "old-generation")
     checkProof(old.fixture == "ux-lab" && old.grantedDomains == listOf("theme"))
     checkProof(old.snapshot.contains("old-generation"))
+    checkProof(CapabilityConfiguration(raw("feed-lab", listOf("identity", "relay", "theme")), "feed-generation").grantedDomains.size == 3)
+    checkProof(CapabilityConfiguration(raw("feed-lab", listOf("identity", "outbox", "relay", "theme")), "outbox-generation").grantedDomains.size == 4)
+    denied(raw("feed-lab", listOf("identity", "outbox", "theme")))
+    denied(raw("published", listOf("outbox", "relay")))
     val published = CapabilityConfiguration(raw("published", listOf("identity", "storage", "theme", "relay")),
       "published-generation", allowPublished = true)
     checkProof(published.fixture == "published" && published.grantedDomains.size == 4)

@@ -1,0 +1,44 @@
+{
+  "android": {
+    "status": "passed",
+    "checks": [
+      "disjoint-native-wss-original-sdk",
+      "cold-native-sqlite-routing",
+      "native-missing-domain-no-transport",
+      "native-captured-owner-mismatch-no-transport"
+    ],
+    "sourceInputCount": 408,
+    "sourceFingerprint": "fdb808adb1c959236325f5ada775299d5eec926bc711033c3d995b5f72d1dcd1",
+    "sdkResultCounts": [
+      1,
+      1
+    ],
+    "sdkIncompleteFlags": [
+      true,
+      true
+    ],
+    "installedProductFingerprint": "fae2715ad3aae15ff6220be438fe274c8826d51fe95a397cda7b4911e756b0cf",
+    "visualInspection": true
+  },
+  "ios": {
+    "status": "passed",
+    "checks": [
+      "disjoint-native-wss-original-sdk",
+      "cold-native-sqlite-routing",
+      "native-missing-domain-no-transport",
+      "native-captured-owner-mismatch-no-transport"
+    ],
+    "sourceInputCount": 408,
+    "sourceFingerprint": "fdb808adb1c959236325f5ada775299d5eec926bc711033c3d995b5f72d1dcd1",
+    "sdkResultCounts": [
+      1,
+      1
+    ],
+    "sdkIncompleteFlags": [
+      true,
+      true
+    ],
+    "installedProductFingerprint": "993dde04d63eb853ed4de1abe45b493c80b067669ebb0946de0a90eb42f43bf6",
+    "visualInspection": true
+  }
+}

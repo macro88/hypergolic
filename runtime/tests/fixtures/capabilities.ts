@@ -16,7 +16,7 @@ const record = (label: string): void => { state.deniedAdapters.push(label); };
 const fail = (label: string): never => { record(label); throw new Error('Test-only unavailable adapter'); };
 const noSubscription = (): void => record('subscription-cleanup');
 const operations: HostOperation[] = ['storage.get', 'storage.set', 'storage.remove', 'storage.keys',
-  'relay.publish', 'relay.publishEncrypted', 'relay.query', 'relay.subscribe', 'relay.close'];
+  'relay.publish', 'relay.publishEncrypted', 'relay.query', 'relay.subscribe', 'relay.close', ...(selected.has('outbox') ? ['outbox.publish' as const,'outbox.query' as const,'outbox.getEvent' as const,'outbox.resolveRelays' as const,'outbox.subscribe' as const,'outbox.close' as const] : [])];
 const testOperation = (context: HostOperationContext): void | Promise<void> => {
   const { windowId, message, send } = context;
   state.calls.push({ windowId, message });
@@ -35,8 +35,11 @@ const testOperation = (context: HostOperationContext): void | Promise<void> => {
     send({ type: 'storage.remove.result', id: String(msg.id) });
   } else if (message.type === 'storage.keys') {
     send({ type: 'storage.keys.result', id: String(msg.id), keys: [...store.keys()] });
-  } else if (message.type === 'relay.query') {
-    send({ type: 'relay.query.result', id: String(msg.id), events: [] });
+  } else if(message.type==='outbox.getEvent'){send({type:'outbox.getEvent.result',id:message.id,error:'not found'});
+  } else if(message.type==='outbox.resolveRelays'){send({type:'outbox.resolveRelays.result',id:message.id,plan:{relays:['wss://nos.lol'],source:'cache'}});
+  } else if(message.type==='outbox.subscribe'||message.type==='outbox.close'){send({type:'outbox.closed',subId:message.subId,reason:'test-only closed'});
+  } else if (message.type === 'relay.query' || message.type === 'outbox.query') {
+    send({ type: `${message.type}.result`, id: String(msg.id), events: [] });
   } else if (message.type === 'relay.subscribe' || message.type === 'relay.close') {
     send({ type: 'relay.closed', subId: String(msg.subId), reason: 'test-only closed' });
   } else {
@@ -46,6 +49,7 @@ const testOperation = (context: HostOperationContext): void | Promise<void> => {
 const theme = createThemeService({ initialTheme: { colors: { background: '#140f0b', text: '#f3efeb', primary: '#e8805d' } } });
 const domains = selected.has('noRelay') ? ['theme', 'storage'] : ['theme', 'storage', 'relay'];
 if (selected.has('upload')) domains.push('upload');
+if (selected.has('outbox')) domains.push('outbox');
 const hooks: ShellAdapter = {
   relayPool: { getRelayPool: () => null, trackSubscription: () => fail('track'),
     untrackSubscription: noSubscription, openScopedRelay: () => fail('open'),
@@ -57,7 +61,7 @@ const hooks: ShellAdapter = {
   auth: { getUserPubkey: () => null, getSigner: () => { state.signerReads++; return null; } },
   config: { getNappUpdateBehavior: () => 'banner' }, hotkeys: { executeHotkeyFromForward: () => fail('hotkey') },
   workerRelay: { getWorkerRelay: () => null }, crypto: { verifyEvent: async () => false },
-  services: { theme: theme.handler, ...(selected.has('upload') ? {upload: {descriptor: {name: 'upload', version: 'test-only'}, handleMessage: () => {throw new Error('Builtin upload service must not run');}}} : {}), relay: { descriptor: { name: 'relay', version: 'test-only' }, handleMessage: () => { state.legacyRelayCalls++; throw new Error('Existing relay service called'); } } },
+  services: { theme: theme.handler, ...(selected.has('outbox') ? {outbox: {descriptor: {name: 'outbox', version: 'test-only'}, handleMessage: () => {throw new Error('Builtin Outbox service must not run');}}} : {}), ...(selected.has('upload') ? {upload: {descriptor: {name: 'upload', version: 'test-only'}, handleMessage: () => {throw new Error('Builtin upload service must not run');}}} : {}), relay: { descriptor: { name: 'relay', version: 'test-only' }, handleMessage: () => { state.legacyRelayCalls++; throw new Error('Existing relay service called'); } } },
   onAclCheck: event => state.audit.push(`acl:${event.capability}:${event.decision}`),
   capabilities: { disabledDomains: ['identity', 'inc', 'keys', 'media', 'notify'],
     resolveEnvironment: () => ({ domains, services: ['theme'] }) },

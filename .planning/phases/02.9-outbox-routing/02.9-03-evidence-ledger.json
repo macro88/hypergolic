@@ -1,0 +1,95 @@
+{
+  "phase": "2.9",
+  "plan": "03",
+  "status": "incomplete-native-acceptance",
+  "scope": "Separate shared/browser, native core, controlled host TLS, native presentation and actual production Android primary publication subset. Complete Android/iOS profile acceptance remains open.",
+  "sourceHead": "b4955efc11a8c6e6852e9701f5297c57fdb2a4e0",
+  "decisions": [
+    "D-07",
+    "D-08",
+    "D-09"
+  ],
+  "proofs": {
+    "androidPresentation": {
+      "path": "/tmp/hg-outbox-review-native-20261005/android-journey04/result.json",
+      "sha256": "c332cda4296a8bff6430f86a26d60454004d296eaceae29063ad24164fff97c6"
+    },
+    "iosPresentation": {
+      "path": "/tmp/hg-outbox-review-native-20261005/ios-journey03/result.json",
+      "sha256": "6d3a8f2b8dbbdec7981ea61d69200d547e872031676bd92dd56b643018e51488"
+    },
+    "nativeCore": {
+      "path": "/tmp/hg-outbox-native-publication-core09/receipt.json",
+      "sha256": "225d137db351a83021e86354cef10aada41b1a2fe51e53fa0eb78a5e06c9637a"
+    },
+    "controlledTLS": {
+      "path": "/tmp/hg-outbox-native-publication-tls03/receipt.json",
+      "sha256": "6a538a9493682ac2c87f7c1f343c0107c892631c865165161fa67cf905790af3"
+    },
+    "devices": {
+      "path": "/tmp/hg-outbox-native-devices-final-20261005.json",
+      "sha256": "d464cc6babb644c278643d36e272cdce32dfbbd2568381f059829374a82f8374"
+    },
+    "androidProduction": {
+      "path": "/tmp/hg-outbox-production-android-journey02/result.json",
+      "sha256": "6b3a59957a361e7bc63298eb4701cd14221fc28141bc4208d362a8452901ea2c"
+    },
+    "androidIndependentEvent": {
+      "path": "/tmp/hg-outbox-production-android-journey02/independent-event-match.json",
+      "sha256": "81463e596077668059529c00d73516d457b98c6224a5f5b5058512e6e6ef414c"
+    },
+    "currentDevices": {
+      "path": "/tmp/hg-outbox-native-devices-current-20261005.json",
+      "sha256": "9461ffdccfcb50d071a027f8a1971a3492c29293afedcd32c8255a85a140b642"
+    },
+    "androidExpandedMatrix": {
+      "path": "/tmp/hg-outbox-production-android-matrix03/result.json",
+      "sha256": "a35d613f01375cedbf84e92895c828e7f87447f6d8c5e7aa7b880d9b484200ac"
+    }
+  },
+  "presentation": {
+    "checksPerPlatform": 8,
+    "sourceInputsPerPlatform": 443,
+    "identicalInputs": true,
+    "inspectedScreenshots": 16,
+    "postProofChange": "Comment-only contract cleanup and later Feed Lab CSS/asset updates. Exact 443 historical presentation inputs are separately preserved; no approval/receipt UI component changed."
+  },
+  "sharedTests": 516,
+  "bootstrapTests": 13,
+  "legacyRelayTests": 6,
+  "outboxTests": 86,
+  "runtimeTests": 244,
+  "feedLabTests": 16,
+  "nativeCoreAssertions": {
+    "android": 36,
+    "ios": 50
+  },
+  "controlledTLSCases": 14,
+  "qualityFinal": "/tmp/hg-outbox-approval-quality08.json",
+  "qualityExceptionsVerification": "/tmp/hg-outbox-approval-quality08-exceptions.json",
+  "remaining": [
+    "corresponding iOS protected publication/ancillary/fanout on physical iPhone",
+    "complete native controlled fault and published admission matrix",
+    "Plan04 final admission matrix and phase acceptance"
+  ],
+  "sourceCommitted": false,
+  "sourcePushed": false,
+  "usageConsumedPercent": 55,
+  "usagePausePercent": 75,
+  "androidProduction": {
+    "checks": 10,
+    "sourceInputs": 1152,
+    "inspectedScreenshots": 10,
+    "scope": "Bundled original SDK guest; ordinary production App, native approval/WSS and protected Android identity; emulator; no full profile/published admission/iOS acceptance."
+  },
+  "androidExpandedMatrix": {
+    "checks": 16,
+    "sourceInputs": 1152,
+    "capturedImages": 51,
+    "inspectedImages": 25,
+    "scope": "Original bundled unsigned SDK guest and ordinary production App/native WSS/protected Android identity on owned emulator. Host-signed PUBLIC scalars2/3/4 lists are setup only; all new primary signatures originate in the real protected App lane. No physical device, published-manifest or iOS acceptance.",
+    "nativeSignedPrimaryEvents": 3,
+    "inconclusiveTracesRetained": true,
+    "nativeSignerFrameCountersObserved": false
+  }
+}

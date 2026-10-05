@@ -292,3 +292,139 @@ final class IdentityPublishedTests: XCTestCase {
  }
  private func appCount(_ app:XCUIApplication)->Int{let text=app.staticTexts.matching(NSPredicate(format:"label BEGINSWITH 'Identity request count: '")).firstMatch;guard text.exists else{return -1};return Int(text.label.split(separator:";")[0].split(separator:" ").last!) ?? -1}
 }
+
+
+final class OutboxQueryTests: XCTestCase {
+ func testRouting() throws {
+  continueAfterFailure=false
+  let raw=ProcessInfo.processInfo.environment["HG_OUTBOX_SAMPLE"] ?? ""
+  let sample=try JSONSerialization.jsonObject(with:Data(raw.utf8)) as! NSDictionary
+  let filter=String(data:try JSONSerialization.data(withJSONObject:sample["filter"]!,options:[.sortedKeys]),encoding:.utf8)!
+  let app=XCUIApplication(bundleIdentifier:"org.nostrocket.hypergolic.outboxfixture")
+  func capture(_ name:String){let shot=XCTAttachment(screenshot:app.screenshot());shot.name=name;shot.lifetime = .keepAlways;add(shot);let tree=XCTAttachment(string:app.debugDescription);tree.name=name+"-hierarchy";tree.lifetime = .keepAlways;add(tree)}
+  func scroll(_ control:XCUIElement){for _ in 0..<12{if control.exists && control.isHittable{return};app.webViews.firstMatch.swipeUp()};XCTFail(app.debugDescription)}
+  func json(_ key:String) throws -> NSDictionary {
+   for _ in 0..<8 {
+    for e in app.staticTexts.allElementsBoundByIndex {
+     if let data=e.label.data(using:.utf8),let value=(try? JSONSerialization.jsonObject(with:data)) as? NSDictionary,value[key] != nil{return value}
+    };app.webViews.firstMatch.swipeUp()
+   };XCTFail("Missing original JSON "+key+app.debugDescription);return [:]
+  }
+  for cold in [false,true] {
+   app.terminate();app.launch();XCTAssertTrue(app.staticTexts["Native Outbox host connected"].waitForExistence(timeout:30),app.debugDescription)
+   let field=app.textViews.firstMatch;XCTAssertTrue(field.waitForExistence(timeout:10));field.tap();field.press(forDuration:1.2)
+   let select=app.descendants(matching:.any).matching(NSPredicate(format:"label == %@","Select All")).firstMatch
+   XCTAssertTrue(select.waitForExistence(timeout:3),app.debugDescription);select.tap();field.typeText(filter);XCTAssertEqual(field.value as? String,filter)
+   if app.buttons["Done"].exists {app.buttons["Done"].tap()}
+   let button=app.buttons["Query author outbox"];scroll(button);button.tap()
+   XCTAssertTrue(app.staticTexts.matching(NSPredicate(format:"label BEGINSWITH %@","Outbox received 1 signed event")).firstMatch.waitForExistence(timeout:25),app.debugDescription)
+   let trace=try json("plan"),sdk=try json("events")
+   let rows=sdk["events"] as! [NSDictionary];XCTAssertEqual(rows.count,1);XCTAssertEqual(rows[0]["event"] as? NSDictionary,sample["event"] as? NSDictionary);XCTAssertNotNil((rows[0]["sidecar"] as? NSDictionary)?["relayHints"]);XCTAssertNil(sdk["error"]);XCTAssertEqual(sdk["incomplete"] as? Bool ?? false,trace["incomplete"] as? Bool)
+   let plan=trace["plan"] as! NSDictionary,calls=trace["calls"] as! [NSDictionary]
+   XCTAssertEqual(plan["relays"] as? NSArray,sample["writeRelays"] as? NSArray)
+   XCTAssertEqual(plan["source"] as? String,cold ? "cache":"nip65")
+   XCTAssertEqual(calls.filter{$0["role"] as? String == "discovery"}.map{$0["relay"] as! String},cold ? []:[sample["lookup"] as! String])
+   XCTAssertEqual(calls.filter{$0["role"] as? String == "data"}.map{$0["relay"] as! String},sample["writeRelays"] as! [String])
+   let name=cold ? "cold-native-sqlite-routing":"disjoint-native-wss-original-sdk"
+   capture(name)
+   print("OUTBOX_SDK:"+String(data:try JSONSerialization.data(withJSONObject:sdk,options:[.sortedKeys]),encoding:.utf8)!)
+   print("OUTBOX_NATIVE:"+String(data:try JSONSerialization.data(withJSONObject:trace,options:[.sortedKeys]),encoding:.utf8)!)
+   print("OUTBOX_CHECK:"+name);fflush(stdout)
+  }
+  for (control,name) in [("Without Outbox grant","native-missing-domain-no-transport"),("Mismatched owner","native-captured-owner-mismatch-no-transport")] {
+   app.buttons[control].tap();XCTAssertTrue(app.staticTexts["Native Outbox host connected"].waitForExistence(timeout:20))
+   let button=app.buttons["Query author outbox"];scroll(button);button.tap()
+   XCTAssertTrue(app.staticTexts["Outbox failed: operation failed"].waitForExistence(timeout:15),app.debugDescription)
+   XCTAssertTrue(app.staticTexts["{}"].exists,"Denied owner reached native transport: "+app.debugDescription)
+   capture(name);print("OUTBOX_CHECK:"+name);fflush(stdout)
+  };app.terminate()
+ }
+}
+
+/// Actual public SDK/native reads and native lifecycle; controlled public identity, no signing.
+final class OutboxReadStreamTests:XCTestCase {
+ func testReadLifecycle() throws {
+  continueAfterFailure=false
+  let sample=try JSONSerialization.jsonObject(with:Data((ProcessInfo.processInfo.environment["HG_OUTBOX_SAMPLE"] ?? "").utf8)) as! NSDictionary
+  let app=XCUIApplication(bundleIdentifier:"org.nostrocket.hypergolic.outboxfixture")
+  func encoded(_ value:Any) throws -> String {String(data:try JSONSerialization.data(withJSONObject:value,options:[.sortedKeys]),encoding:.utf8)!}
+  func record(_ name:String) {let shot=XCTAttachment(screenshot:app.screenshot());shot.name=name;shot.lifetime = .keepAlways;add(shot);let tree=XCTAttachment(string:app.debugDescription);tree.name=name+"-hierarchy";tree.lifetime = .keepAlways;add(tree);print("OUTBOX_CHECK:"+name);fflush(stdout)}
+  func scroll(_ control:XCUIElement){for down in [false,true]{for _ in 0..<12{if control.exists&&control.isHittable{return};if down{app.webViews.firstMatch.swipeDown()}else{app.webViews.firstMatch.swipeUp()}}};XCTFail("Native control unavailable: "+app.debugDescription)}
+  func tap(_ label:String){let button=app.buttons[label];scroll(button);button.tap()}
+  func input(_ index:Int,_ value:String){let field=app.textViews.element(boundBy:index);scroll(field);field.tap();if let current=field.value as? String,!current.isEmpty,current != "Write here while reading…"{field.press(forDuration:1.2);let select=app.descendants(matching:.any).matching(NSPredicate(format:"label == %@","Select All")).firstMatch;XCTAssertTrue(select.waitForExistence(timeout:3),app.debugDescription);select.tap()};field.typeText(value);XCTAssertEqual(field.value as? String,value);if app.buttons["Done"].exists{app.buttons["Done"].tap()}}
+  func json(_ key:String) throws -> NSDictionary {
+   let native=key == "plan" || key == "stream"
+   let predicate=NSPredicate(format:"label CONTAINS %@", "\""+key+"\":")
+   let element=native ? app.staticTexts["outbox-native-trace"] : app.webViews.staticTexts.matching(predicate).firstMatch
+   for down in [false,true]{for _ in 0..<12{
+    if element.exists,let data=element.label.data(using:.utf8),let value=(try? JSONSerialization.jsonObject(with:data)) as? NSDictionary,value[key] != nil{return value}
+    if down{app.webViews.firstMatch.swipeDown()}else{app.webViews.firstMatch.swipeUp()}
+   }};XCTFail("Native/SDK receipt unavailable: "+key+app.debugDescription);return [:]
+  }
+  func wait(_ label:String,_ timeout:TimeInterval=25){XCTAssertTrue(app.staticTexts[label].waitForExistence(timeout:timeout),app.debugDescription)}
+  func live(_ minimum:Int=1)->Int {let deadline=Date().addingTimeInterval(45);let status=app.staticTexts.matching(NSPredicate(format:"label BEGINSWITH %@","Live Outbox · ")).firstMatch;repeat{if status.exists{let parts=status.label.split(separator:" ");if parts.count>3,let number=Int(parts[3]),number>=minimum{return number}};Thread.sleep(forTimeInterval:0.3)}while Date()<deadline;XCTFail("No fresh SDK live event: "+app.debugDescription);return 0}
+  let filter=try encoded(sample["filter"]!)
+  for cold in [false,true] {
+   app.terminate();app.launch();wait("Native Outbox host connected",30);input(0,filter);tap("Query author outbox")
+   XCTAssertTrue(app.staticTexts.matching(NSPredicate(format:"label BEGINSWITH %@","Outbox received 1 signed event")).firstMatch.waitForExistence(timeout:25),app.debugDescription)
+   let sdk=try json("events"),trace=try json("plan"),rows=sdk["events"] as! [NSDictionary]
+   XCTAssertEqual(rows.count,1);XCTAssertEqual(rows[0]["event"] as? NSDictionary,sample["event"] as? NSDictionary);XCTAssertNotNil((rows[0]["sidecar"] as? NSDictionary)?["relayHints"])
+   let plan=trace["plan"] as! NSDictionary,calls=trace["calls"] as! [NSDictionary]
+   XCTAssertEqual(plan["relays"] as? NSArray,sample["writeRelays"] as? NSArray);XCTAssertEqual(plan["source"] as? String,cold ? "cache":"nip65")
+   XCTAssertEqual(calls.filter{$0["role"] as? String == "discovery"}.map{$0["relay"] as! String},cold ? []:[sample["lookup"] as! String]);XCTAssertEqual(calls.filter{$0["role"] as? String == "data"}.map{$0["relay"] as! String},sample["writeRelays"] as! [String])
+   print("OUTBOX_SDK:"+(try encoded(sdk)));record(cold ? "cold-native-sqlite-routing":"disjoint-native-wss-original-sdk")
+  }
+  var reads:[String]=[]
+  for tag in (sample["list"] as! NSDictionary)["tags"] as! [[String]]{if tag.count>=2&&tag[0]=="r"&&(tag.count==2||tag[2]=="read"){let value=tag[1].hasSuffix("/") ? String(tag[1].dropLast()):tag[1];if !reads.contains(value){reads.append(value)}}}
+  for (label,relays,name) in [("Resolve author write relays",sample["writeRelays"] as! [String],"resolve-read-write-roles"),("Resolve author inbox relays",reads,"resolve-write-read-roles")] {
+   tap(label);wait("Outbox relay plan resolved.");let sdk=try json("relays"),trace=try json("plan");XCTAssertEqual(sdk["relays"] as? [String],relays);XCTAssertEqual(sdk["source"] as? String,"cache");XCTAssertEqual((trace["calls"] as! [Any]).count,0);print("OUTBOX_READ:"+(try encoded(sdk)));record(name)
+  }
+  tap("Fetch signed event");wait("Outbox event read complete.");let fetched=try json("type");XCTAssertEqual(fetched["type"] as? String,"outbox.getEvent.result");XCTAssertEqual((fetched["result"] as! NSDictionary)["event"] as? NSDictionary,sample["event"] as? NSDictionary);print("OUTBOX_READ:"+(try encoded(fetched)));record("getEvent-exact-signed-id")
+  var missing=(sample["filter"] as! [[String:Any]])[0];missing["ids"]=[String(repeating:"0",count:64)];input(0,try encoded([missing]));tap("Fetch signed event");wait("Outbox failed: not found");let absent=try json("error");XCTAssertEqual(absent["error"] as? String,"not found");XCTAssertNil(absent["result"]);print("OUTBOX_READ:"+(try encoded(absent)));record("getEvent-not-found")
+  input(0,filter);input(1,"outbox-native-draft");tap("Start live outbox");_ = live();var stream=(try json("stream"))["stream"] as! NSDictionary;var before=(stream["opens"] as! [NSDictionary]).count
+  XCTAssertEqual(Array((stream["opens"] as! [NSDictionary]).prefix((sample["writeRelays"] as! [String]).count)).map{$0["relay"] as! String},sample["writeRelays"] as! [String]);let healthy=Set((stream["eose"] as! [String]).filter{!(stream["stops"] as! [String]).contains($0)});XCTAssertFalse(healthy.isEmpty);let planCount=(stream["plans"] as! [Any]).count;print("OUTBOX_NATIVE:"+(try encoded(stream)));record("original-live-handle-full-plan")
+  app.buttons["Switch loaded napplet"].tap();Thread.sleep(forTimeInterval:1);app.buttons["Return to Outbox"].tap();_ = live();stream=(try json("stream"))["stream"] as! NSDictionary;XCTAssertTrue(healthy.isDisjoint(with:stream["stops"] as! [String]));XCTAssertEqual((stream["plans"] as! [Any]).count,planCount);XCTAssertEqual(app.textViews.element(boundBy:1).value as? String,"outbox-native-draft");record("loaded-switch-preserves-stream-and-draft");before=(stream["opens"] as! [Any]).count
+  XCUIDevice.shared.press(.home);Thread.sleep(forTimeInterval:1);let parkedAt=Int64(Date().timeIntervalSince1970*1000);Thread.sleep(forTimeInterval:2);app.activate();let deadline=Date().addingTimeInterval(30)
+  repeat{stream=(try json("stream"))["stream"] as! NSDictionary;if let plan=(stream["plans"] as! [NSDictionary]).last,plan["refresh"] as? Bool == true,(stream["opens"] as! [NSDictionary]).contains(where:{($0["at"] as! NSNumber).int64Value >= (plan["at"] as! NSNumber).int64Value}){break};Thread.sleep(forTimeInterval:0.3)}while Date()<deadline
+  let opens=stream["opens"] as! [NSDictionary],plans=stream["plans"] as! [NSDictionary];XCTAssertGreaterThan(opens.count,before);XCTAssertTrue(healthy.isSubset(of:Set(stream["stops"] as! [String])));XCTAssertEqual(plans.last!["refresh"] as? Bool,true)
+  for row in opens.filter({($0["at"] as! NSNumber).int64Value>=parkedAt}){XCTAssertGreaterThanOrEqual((row["at"] as! NSNumber).int64Value,(plans.last!["at"] as! NSNumber).int64Value)}
+  XCTAssertTrue((stream["calls"] as! [NSDictionary]).contains{$0["role"] as? String == "discovery"&&$0["relay"] as? String == sample["lookup"] as? String});print("OUTBOX_NATIVE:"+(try encoded(stream)));record("native-background-fresh-plan-before-reconnect")
+  tap("Close live outbox");wait("Live Outbox closed.");stream=(try json("stream"))["stream"] as! NSDictionary;XCTAssertEqual((stream["stops"] as! [Any]).count,(stream["opens"] as! [Any]).count);record("original-close-stops-all-sockets")
+  print("OUTBOX_START_OBSERVER");fflush(stdout);Thread.sleep(forTimeInterval:1)
+  input(0,"[{\"kinds\":[1],\"limit\":0}]");input(2,"{\"limit\":0,\"relays\":[\"wss://nos.lol\"],\"timeoutMs\":15000}");tap("Start live outbox");_ = live();Thread.sleep(forTimeInterval:28);_ = live(2)
+  let sdk=try json("count");XCTAssertGreaterThanOrEqual((sdk["count"] as! NSNumber).intValue,2);let types=sdk["wireTypes"] as! [String];XCTAssertFalse(types.contains("outbox.eose"));XCTAssertFalse(types.contains("relay.eose"));print("OUTBOX_LIVE:"+(try encoded(sdk)));record("zero-backfill-public-live-after-ordinary-lease")
+  app.buttons["Change public identity"].tap();wait("Native Outbox host connected");wait("Live Outbox closed.");record("changed-public-owner-revokes-old-handle")
+  XCUIDevice.shared.press(.home);Thread.sleep(forTimeInterval:2);app.activate();wait("Live Outbox closed.");XCTAssertTrue(app.staticTexts["{}"].exists);record("revoked-intent-does-not-return")
+  for (control,name) in [("Without Outbox grant","native-missing-domain-no-transport"),("Mismatched owner","native-captured-owner-mismatch-no-transport")] {
+   app.buttons[control].tap();wait("Native Outbox host connected");tap("Query author outbox");wait("Outbox failed: operation failed");XCTAssertTrue(app.staticTexts["{}"].exists);record(name)
+  };app.terminate()
+ }
+}
+
+/// Presentation-only acceptance. This fixture owns no signer or publication transport.
+final class OutboxReviewPresentationTests:XCTestCase {
+ func testReviewAndReceipts() throws {
+  continueAfterFailure=false
+  let app=XCUIApplication(bundleIdentifier:"org.nostrocket.hypergolic.outboxreviewfixture")
+  func record(_ name:String){let shot=XCTAttachment(screenshot:app.screenshot());shot.name=name;shot.lifetime = .keepAlways;add(shot);let tree=XCTAttachment(string:app.debugDescription);tree.name=name+"-hierarchy";tree.lifetime = .keepAlways;add(tree);print("OUTBOX_REVIEW_CHECK:"+name);fflush(stdout)}
+  func tap(_ name:String){let button=app.buttons[name];XCTAssertTrue(button.waitForExistence(timeout:15),app.debugDescription);XCTAssertTrue(button.isHittable,app.debugDescription);button.tap()}
+  func reveal(_ element:XCUIElement){
+   let scroll=app.scrollViews.firstMatch
+   for _ in 0..<20{
+    var down=false
+    if element.exists{let frame=element.frame,viewport=scroll.frame;if frame.height>0&&viewport.contains(CGPoint(x:frame.midX,y:frame.midY)){return};down=frame.midY<viewport.minY}
+    let start=scroll.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:down ? 0.3:0.7)),end=scroll.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:down ? 0.55:0.45))
+    start.press(forDuration:0.1,thenDragTo:end,withVelocity:.slow,thenHoldForDuration:0.2)
+   };XCTFail("Review content unavailable: "+app.debugDescription)
+  }
+  app.terminate();app.launch();XCTAssertTrue(app.staticTexts["Presentation only · no signing or publication"].waitForExistence(timeout:30));record("presentation-only-launch")
+  tap("Review destinations");XCTAssertTrue(app.staticTexts["Approve signing request"].waitForExistence(timeout:10));record("exact-event-identity")
+  let destinations=app.staticTexts.matching(NSPredicate(format:"label == %@","Publication destinations")).firstMatch;reveal(destinations);record("exact-destinations-origins")
+  let ancillary=app.staticTexts.matching(NSPredicate(format:"label == %@","Also send your existing relay list")).firstMatch;reveal(ancillary);record("existing-list-review")
+  let details=app.buttons["Show exact event"];reveal(details);details.tap();app.scrollViews.firstMatch.swipeUp();record("exact-primary-template")
+  tap("Reject");tap("Show successful primary");XCTAssertTrue(app.staticTexts["Primary event accepted."].waitForExistence(timeout:10));record("primary-success-independent-list")
+  let list=app.staticTexts.matching(NSPredicate(format:"label == %@","Existing relay list")).firstMatch;reveal(list);record("separate-list-rejected-cancelled")
+  tap("Close results");tap("Show required inbox unknown");XCTAssertTrue(app.staticTexts["publication result unknown"].waitForExistence(timeout:10),app.debugDescription);record("required-inbox-unknown-failure")
+  tap("Close results");app.terminate()
+ }
+}

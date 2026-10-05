@@ -114,7 +114,7 @@ phase-2 evidence remains required. Phase 2.11 owns final integration acceptance.
 | CAP-09 | INC preserves sender/recipient identity and correlation; forged sender, replay, flood, closed/replaced target and cross-account traffic denied | 2.7 | Accepted selected profile; two approved dependency exceptions |
 | CAP-10 | Shell-rendered notifications are attributed, bounded and dismissible; focus/action ownership and hostile content tested; no assumed OS push | 2.8 | Accepted selected profile; exact dependency exceptions |
 | CAP-11 | Declarative config validates selected schema features, persists by owner, notifies the live app and handles restart/incompatible updates safely | 2.8 | Accepted selected profile; exact dependency exceptions |
-| CAP-12 | Outbox resolves and routes using selected NIP-65 cache/fallback rules; independent relay destinations and fixed-before-approval writes verified | 2.9 | Open |
+| CAP-12 | Outbox resolves and routes using selected NIP-65 cache/fallback rules; independent relay destinations and fixed-before-approval writes verified | 2.9 implementation; 2.11 acceptance | Implementation closed by owner decision on 5 October; remaining native/device/fault/admission/build acceptance open in 2.11 |
 | CAP-13 | Selected Value rails/provider pass quote/review/send/status/restart reconciliation; approval binding, unknown outcomes, duplicate prevention, credential isolation and recovery verified; distinguish payment from zap receipt | 4 | Deferred — outside MVP |
 | CAP-14 | All MVP groups (excluding Value Lab) pass embedded and verified-published journeys on standalone Android/iOS; current physical-device evidence, real compatibility sample, update/restart/isolation, and React Doctor/aislop 100/100 | 2.11 | Open |
 
@@ -125,3 +125,7 @@ External Nostr signers, configurable silent signing, catalogue, dedicated bundle
 ## Evidence discipline
 
 A test must exercise the actual behavior its row names. Fixture success text, browser-only tests, model/unit tests and static scanners do not prove native boundary safety or phone UX. Completion requires current code/artifact hashes, actual target-device interactions, independent relay/event verification, and recorded limitations. Never mark a row complete from a planned file or a generated manifest.
+
+## Outbox acceptance ownership — 5 October 2026
+
+The owner closed Phase 2.9 implementation and transferred all remaining tests to Phase 2.11. [Open register](phases/02.11-published-mvp-acceptance/02.11-OUTBOX-HANDOFF.md). CAP-12 final acceptance and CAP-14 stay open; this scope change waives no device/security/quality requirement and marks no unrun test as passed.
