@@ -1,0 +1,942 @@
+{
+  "phase": "2.11",
+  "status": "open",
+  "sourceRequirements": ".planning/REQUIREMENTS.md",
+  "inheritedOutbox": "02.11-OUTBOX-HANDOFF.md",
+  "policy": "Final physical evidence is required per platform. Historical scoped proofs do not auto-pass rows. Partial means actual supporting physical evidence exists but the complete required evidence remains open.",
+  "rows": [
+    {
+      "id": "UX-01",
+      "requirement": "Minimal header, supplied 32dp square logo without tap action, focused napplet name, avatar + shortened selected npub opening trusted settings",
+      "requiredEvidence": "Screenshot and accessibility tree on target phone; actual tap opens settings; full npub copies correctly; focused napplet fills remaining space",
+      "platforms": {
+        "android-physical": {
+          "status": "partial",
+          "evidence": [
+            "physical-android-tracer04/android-isolated-build/first-tracer08-receipt.json"
+          ],
+          "remaining": "Complete the named row requirements; this subset proves only normal first launch, input and public identity process-restart continuity."
+        },
+        "ios-physical": {
+          "status": "partial",
+          "evidence": [
+            "physical-iphone-tracer06/hg-phase211-iphone-tracer09/receipt.json"
+          ],
+          "remaining": "Complete all named row requirements; this subset proves ordinary signed Release launch, real input and independently compared public identity process-restart continuity only."
+        }
+      }
+    },
+    {
+      "id": "UX-02",
+      "requirement": "Profile avatar when available; deterministic local fallback otherwise",
+      "requiredEvidence": "Two controlled identities, valid/missing/broken profile image cases; avatar and short/full keys match after switch and restart",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "UX-03",
+      "requirement": "Multiple loaded napplets, stable opening order/new appended, focus does not reorder",
+      "requiredEvidence": "At least three UX instances with distinct values; list order assertions after navigation/open/close",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "UX-04",
+      "requirement": "Inset thumb-height handles: left inward previous/right inward next; follow drag; cancel early; resistance at ends, no wrap",
+      "requiredEvidence": "Actual touch input and frame/video observations at both ends and middle; early-release return; no false switch while using near-edge fixture controls",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "UX-05",
+      "requirement": "Tap either handle -> zoom to two-column overview; card tap zooms into focused app, including at ends",
+      "requiredEvidence": "Phone screenshots and transition recording establishing focused view-to-card geometry in both directions, plus reduced-motion behavior",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "UX-06",
+      "requirement": "Live switching retains unsent input and both scroll positions",
+      "requiredEvidence": "Fill/counter/scroll three fixtures; switch through all; independently observe exact values and visible markers on return",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "UX-07",
+      "requirement": "Upward card swipe closes; clean closes without prompt; unsaved/unknown warns Keep open(default)/Close anyway",
+      "requiredEvidence": "Clean/dirty/unknown cases via selected contract; cancel preserves session; accepted close tears it down and cancels approvals; no guessed dirty-state NAP",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "UX-08",
+      "requirement": "Closing preserves saved data, remains in overview; last close -> quiet empty view with Open napplet/settings",
+      "requiredEvidence": "Close/reopen State Lab and inspect saved values; close last and verify accessible identity and existing Open napplet settings flow",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "UX-09",
+      "requirement": "Ordinary restart restores order, last active verified view; lazy reload others; deliberate empty survives restart",
+      "requiredEvidence": "Force-stop/relaunch with same identity/data; compare order/focus/version/empty state; do not claim unsaved draft process-death recovery",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "UX-10",
+      "requirement": "Keyboard, Back, accessibility and motion tuning",
+      "requiredEvidence": "Real keyboard entry/occlusion, focus restoration, screen-reader controls and Back from focused/settings/overview/approval; phone conflict observations",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "ID-01",
+      "requirement": "First launch creates and securely persists one key without onboarding/external signer; subsequent launches reuse",
+      "requiredEvidence": "Fresh disposable app profile; independent npub derivation; repeated process/reboot reuse; failure-injection proves failed read never creates replacement",
+      "platforms": {
+        "android-physical": {
+          "status": "partial",
+          "evidence": [
+            "physical-android-tracer04/android-isolated-build/first-tracer08-receipt.json"
+          ],
+          "remaining": "Complete the named row requirements; this subset proves only normal first launch, input and public identity process-restart continuity."
+        },
+        "ios-physical": {
+          "status": "partial",
+          "evidence": [
+            "physical-iphone-tracer06/hg-phase211-iphone-tracer09/receipt.json"
+          ],
+          "remaining": "Complete all named row requirements; this subset proves ordinary signed Release launch, real input and independently compared public identity process-restart continuity only."
+        }
+      }
+    },
+    {
+      "id": "ID-02",
+      "requirement": "Authenticated encrypted storage with native key protection; no secret leaks or automatic backup",
+      "requiredEvidence": "Native code/config inspection, at-rest ciphertext/tamper tests, backup exclusion, secret absence in WebView/React persistence/logs/crash artifacts, controlled failure paths",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "ID-03",
+      "requirement": "Trusted-settings nsec import validates, selects and persists; previous keys remain encrypted/selectable",
+      "requiredEvidence": "Valid/cancelled/malformed/out-of-range import tests; same npub after restart; switching back works; hex import not required",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "ID-04",
+      "requirement": "One identity across every loaded napplet; switch confirms once, warns unsaved loss, cancels all old requests/restarts sessions",
+      "requiredEvidence": "Three sessions + pending approval, cancel-switch preservation, confirm-switch isolation, stale callback/replay rejection and no old event under new identity",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "ID-05",
+      "requirement": "Optional manual nsec backup after explanation/device auth; no export on cancel/failure",
+      "requiredEvidence": "Native auth success/cancel/unavailable cases, exact exported/imported public identity comparison, secret handling observations without recording raw key",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "ID-06",
+      "requirement": "Deletion separate/explicit/device-authenticated; another saved identity required",
+      "requiredEvidence": "Delete cancel/failure/success tests, last-identity action unavailable, ciphertext removed and surviving identity/session behavior correct",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "STATE-01",
+      "requirement": "User + verified publisher + stable napplet storage scope; same verified app versions retain data",
+      "requiredEvidence": "State Lab A/B d-tags, publisher A/B, identity A/B cross-product; update/reopen comparisons, quota/type errors, no namespace supplied by untrusted caller",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "SIGN-01",
+      "requirement": "Every supported update explicitly approved in trusted sheet",
+      "requiredEvidence": "At least note and another supported kind, full action/content/napplet/publisher/identity plus exact expandable event; Approve once/Reject; no silent route",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "SIGN-02",
+      "requirement": "One request at a time, no Approve all; dismiss rejects current and pauses remainder",
+      "requiredEvidence": "Multiple requests same/different sessions; actual dismissal/back/swipe behavior; only deliberate resume shows next",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "SIGN-03",
+      "requirement": "Background/unfocused requests wait for focus and overview indicates pending",
+      "requiredEvidence": "Arm delayed Approval Lab request, switch before emission, prove no signing/dialog theft, focus/review afterward",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "SIGN-04",
+      "requirement": "Cancel on close, identity change or process termination; never replay approvals",
+      "requiredEvidence": "Pending/current/in-flight race tests and restart fresh-request requirement; bound queue/expiry/resource handling and deterministic native cancellation errors",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "SIGN-05",
+      "requirement": "Exact approval payload bound through asynchronous signing/publication",
+      "requiredEvidence": "Mutate/reorder/duplicate/replay submissions, request ID/session/version/key binding; independently verify event ID/signature/tags/content/pubkey and relay receipt",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "SIGN-06",
+      "requirement": "Denial prevents signing/publication; clear network outcomes",
+      "requiredEvidence": "Independent local relay counts/logs for approve, reject, delay, disconnect, timeout/interrupted or partial publication; UI must not report unobserved success",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "LOAD-01",
+      "requirement": "Settings accepts chosen published link; manifests/signatures/content hashes verified before execute",
+      "requiredEvidence": "Valid supported identifier; malformed/wrong-kind/wrong-publisher/missing/tampered/oversized artifacts rejected before code marker; no fallback to unrelated code",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "LOAD-02",
+      "requirement": "Any compatible publisher after first-open publisher/access confirmation",
+      "requiredEvidence": "Two controlled publishers; cancel prevents execution; unknown/denied/unsupported capability handling; verification not displayed as personal trust",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "LOAD-03",
+      "requirement": "Version pin until explicit verified update, respecting unsaved/session rules",
+      "requiredEvidence": "Serve old/new valid versions and invalid update; no silent replacement, cancellation keeps current, accepted update storage continuity, revoked pending old requests",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "RELAY-01",
+      "requirement": "RocketShell startup network and lookup roles, editable persisted lists",
+      "requiredEvidence": "Exact default arrays, distinct roles, first-run seed only, edit/remove/add/restart, invalid URLs, restore defaults only via explicit action; explicit defaults form the baseline; automatic NIP-65 routing is separately required by CAP-12",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "RELAY-02",
+      "requirement": "Required relay authentication/errors handled",
+      "requiredEvidence": "Detect selected service auth requirements; native NIP-42 only if needed and consistent with explicit v1 approval; offline/reject/timeout UI observed",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "SEC-01",
+      "requirement": "Trusted bundled Kehto host, verified untrusted sandbox, source-window/native sender binding",
+      "requiredEvidence": "Pin selected contracts; native tests forged sibling/frame/main-frame messages, navigation generation/stale sessions, ungranted operation and malformed/oversized envelopes",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "SEC-02",
+      "requirement": "No private key, generic native bridge or unrestricted network from napplet",
+      "requiredEvidence": "Native malicious fixtures probe parent/native APIs, origin/storage, fetch/XHR/WS/forms/images/navigation/popups/downloads/file/content URLs; external receiver confirms blocked escapes",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "SEC-03",
+      "requirement": "Navigation/content-process/resource failures fail closed",
+      "requiredEvidence": "Renderer termination/reload, redirect/navigation attempts, cleanup/subscription teardown, queue/byte/session limits; no inherited privilege after failure",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "FIX-01",
+      "requirement": "UX Lab -> State Lab -> Approval Lab, controlled local relay, stable UI identifiers",
+      "requiredEvidence": "All fixtures build/conform; tests use public napplet APIs and user-visible shell controls, no privileged fixture approval/storage bypass",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "FIX-02",
+      "requirement": "Same fixture bytes embedded and published under designated project key",
+      "requiredEvidence": "Artifact hash parity, signed release metadata/publisher plus real Nostr/Blossom retrieval; repeat representative behavior through published route",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "FIX-03",
+      "requirement": "Disposable run identities separate from release publisher, retained across restart",
+      "requiredEvidence": "Evidence records public test IDs + fixture versions/hashes; reset only between independent runs; project key never used for routine generated events",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "BUILD-01",
+      "requirement": "Pinned compatible dependencies/protocols/licenses, checks + native build",
+      "requiredEvidence": "Lockfiles/ref inventory and scope-limited conformance; typecheck, React Doctor 100/100, aislop 100/100, audit, fixture verify, Android Gradle and iOS Xcode build/export from current state; no finding suppression",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "BUILD-02",
+      "requirement": "Locally built standalone Android APK and iOS app, installed/cold-launched without Metro/Expo hosted services",
+      "requiredEvidence": "Current Android/iOS payload, signing/provisioning, hash and permissions inspection; no-Metro launch and full journey on both platforms; retained commands, exact device/OS, artifact and failures",
+      "platforms": {
+        "android-physical": {
+          "status": "partial",
+          "evidence": [
+            "physical-android-tracer04/android-isolated-build/first-tracer08-receipt.json"
+          ],
+          "remaining": "Complete the named row requirements; this subset proves only normal first launch, input and public identity process-restart continuity."
+        },
+        "ios-physical": {
+          "status": "partial",
+          "evidence": [
+            "physical-iphone-tracer06/hg-phase211-iphone-tracer09/receipt.json"
+          ],
+          "remaining": "Complete all named row requirements; this subset proves ordinary signed Release launch, real input and independently compared public identity process-restart continuity only."
+        }
+      }
+    },
+    {
+      "id": "BUILD-03",
+      "requirement": "Preserve current branch/checkout until ready; owner handles new remote/push",
+      "requiredEvidence": "Final branch/remotes/status prove no source remote mutation/push; coherent local commits preserve pre-existing edits",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "CAP-01",
+      "requirement": "Pinned operation profiles and truthful compatibility/admission; unsupported required domains fail before execution; no invented wire fields or full-support claim from domain admission alone",
+      "requiredEvidence": "Pinned operation profiles and truthful compatibility/admission; unsupported required domains fail before execution; no invented wire fields or full-support claim from domain admission alone",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "CAP-02",
+      "requirement": "Query expected valid events with bounded filters/destinations/results; distinguish empty success from failure; verify EOSE, timeout, denial and revoked owner",
+      "requiredEvidence": "Query expected valid events with bounded filters/destinations/results; distinguish empty success from failure; verify EOSE, timeout, denial and revoked owner",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "CAP-03",
+      "requirement": "Subscribe/close with caller-owned IDs, bounded buffering, selected reconnect/background behavior and no stale delivery after close/identity change",
+      "requiredEvidence": "Subscribe/close with caller-owned IDs, bounded buffering, selected reconnect/background behavior and no stale delivery after close/identity change",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "CAP-04",
+      "requirement": "Selected resource schemes deliver verified expected bytes/rendering; destination, MIME, size, cancellation, cache and handle lifetime tests",
+      "requiredEvidence": "Selected resource schemes deliver verified expected bytes/rendering; destination, MIME, size, cancellation, cache and handle lifetime tests",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "CAP-05",
+      "requirement": "Selected upload protocols send only approved bytes/destination; independent hash/receipt, cancellation, interruption and unknown-outcome handling",
+      "requiredEvidence": "Selected upload protocols send only approved bytes/destination; independent hash/receipt, cancellation, interruption and unknown-outcome handling",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "CAP-06",
+      "requirement": "Selected identity reads return validated profile/relay/public social data with canonical missing/error behavior, freshness and account isolation",
+      "requiredEvidence": "Selected identity reads return validated profile/relay/public social data with canonical missing/error behavior, freshness and account isolation",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "CAP-07",
+      "requirement": "Deliberate permitted external links open through native controls; forbidden schemes, floods, denial and missing handler are tested",
+      "requiredEvidence": "Deliberate permitted external links open through native controls; forbidden schemes, floods, denial and missing handler are tested",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "CAP-08",
+      "requirement": "Intent dispatch resolves authorized verified targets and exact payloads; handler choice, absent target, first-open consent and cancellation tested",
+      "requiredEvidence": "Intent dispatch resolves authorized verified targets and exact payloads; handler choice, absent target, first-open consent and cancellation tested",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "CAP-09",
+      "requirement": "INC preserves sender/recipient identity and correlation; forged sender, replay, flood, closed/replaced target and cross-account traffic denied",
+      "requiredEvidence": "INC preserves sender/recipient identity and correlation; forged sender, replay, flood, closed/replaced target and cross-account traffic denied",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "CAP-10",
+      "requirement": "Shell-rendered notifications are attributed, bounded and dismissible; focus/action ownership and hostile content tested; no assumed OS push",
+      "requiredEvidence": "Shell-rendered notifications are attributed, bounded and dismissible; focus/action ownership and hostile content tested; no assumed OS push",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "CAP-11",
+      "requirement": "Declarative config validates selected schema features, persists by owner, notifies the live app and handles restart/incompatible updates safely",
+      "requiredEvidence": "Declarative config validates selected schema features, persists by owner, notifies the live app and handles restart/incompatible updates safely",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "CAP-12",
+      "requirement": "Outbox resolves and routes using selected NIP-65 cache/fallback rules; independent relay destinations and fixed-before-approval writes verified",
+      "requiredEvidence": "Outbox resolves and routes using selected NIP-65 cache/fallback rules; independent relay destinations and fixed-before-approval writes verified",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "CAP-14",
+      "requirement": "All MVP groups (excluding Value Lab) pass embedded and verified-published journeys on standalone Android/iOS; current physical-device evidence, real compatibility sample, update/restart/isolation, and React Doctor/aislop 100/100",
+      "requiredEvidence": "All MVP groups (excluding Value Lab) pass embedded and verified-published journeys on standalone Android/iOS; current physical-device evidence, real compatibility sample, update/restart/isolation, and React Doctor/aislop 100/100",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "OB-01",
+      "requirement": "Physical protected publication",
+      "requiredEvidence": "Standalone physical Android and iPhone: ordinary entry, persisted disposable identity after cold launch, exact native review, protected primary signature, public WSS ACK and independently verified exact event/template/ID",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "OB-02",
+      "requirement": "Primary and existing-list fanout",
+      "requiredEvidence": "Both hosts review the full immutable union and exact existing signed kind10002; one new primary signature, approved targets only, distinct primary/list receipts, ancillary failure preserves primary success",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "OB-03",
+      "requirement": "Required inbox delivery and omission",
+      "requiredEvidence": "All-required success; rejected/unknown/cancelled required target makes primary fail despite unrelated ACK; dedup, missing required inbox and union/frame overflow deny before review/sign/send; toOutbox:false omits own discovery/list only",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "OB-04",
+      "requirement": "Frozen approval and stale metadata",
+      "requiredEvidence": "Expired publication cache refreshes before review; stale publication refuses when refresh fails; missing-own Network fallback is labelled; mutate/change relay settings or refresh while review is pending without changing approved targets/event",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "OB-05",
+      "requirement": "Native authority and correlation",
+      "requiredEvidence": "Wrong source/domain/view/identity/generation, foreign event/ACK ID, replay and malformed payload fail closed, including concurrent wrong-view and late callback probes",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "OB-06",
+      "requirement": "Complete native receipt faults",
+      "requiredEvidence": "Controlled accept/reject/auth-required/disconnect/accept-then-close/missing/foreign/malformed ACK, deadline, slow/flood/backpressure and partial fanout; keep unknown distinct from cancelled-before-send; independently observe exact frames and zero emission where claimed",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "OB-07",
+      "requirement": "Complete publication lifecycle",
+      "requiredEvidence": "Rejection, background/return, loaded-view switch, close, verified update, identity change and process death at pending/signing/send/receipt boundaries; old authority never revives and retry needs a fresh review; deterministic observations distinguish race outcomes",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "OB-08",
+      "requirement": "Read/stream and cache regression",
+      "requiredEvidence": "Fresh/stale/corrupt/cross-identity/cold cache, disjoint role routing, sustained live delivery, duplicate/flood, foreground refresh, close/update/identity revoke and truthful incomplete results through the final published product",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "OB-09",
+      "requirement": "Ordinary signed published admission",
+      "requiredEvidence": "Real verified Feed Lab manifest and exact fixture bytes; relay/outbox grant dependency, first-open consent/revoke, unsupported-operation denial, original SDK reads/streams/publication, pinned update and restart; selected real napplet compatibility",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "OB-10",
+      "requirement": "Review and result usability",
+      "requiredEvidence": "Physical keyboard/Back/focus/screen-reader and reduced-motion checks; exact destinations and signed list remain readable; complete SDK JSON never hides the next action; receipt groups and uncertainty stay distinguishable",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "OB-11",
+      "requirement": "Ordinary packaging and final quality",
+      "requiredEvidence": "Current Android/iOS exports, prebuilds, native standalone packages, provisioned physical installation/cold launch without Metro; permissions/signing/config inspection and affected regressions; full React Doctor/aislop 100/100 or only the exact explicitly approved exception while applicable",
+      "platforms": {
+        "android-physical": {
+          "status": "not-run",
+          "evidence": []
+        },
+        "ios-physical": {
+          "status": "not-run",
+          "evidence": []
+        }
+      }
+    }
+  ]
+}

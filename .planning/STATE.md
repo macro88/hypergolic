@@ -2,17 +2,17 @@
 gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
-status: ready_for_planning
-stopped_at: Phase2.9 implementation closed by owner decision; all remaining Plans03-04 acceptance transferred to2.11. CAP-12 final acceptance and CAP-14 open. Targeted local commit checkpoint; no source push. Weekly56%, pause75%.
-last_updated: "2026-10-05T10:00:35.114561+00:00"
+status: executing
+stopped_at: Phase2.11 Plan01 complete for ordinary signed physical Android/iPhone builds and seven-check first input/public-identity restart tracers. Plan02 unsigned ten-fixture release set prepared; owner publisher/signing access and public destinations/samples needed.61 full rows per platform open, three per host partial; CAP12 final/CAP14 open. Weekly66%, pause75%; no source push.
+last_updated: "2026-10-05T12:18:19.678512+00:00"
 last_activity: 2026-10-05
-state_head: b4955efc11a8c6e6852e9701f5297c57fdb2a4e0
+state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
 progress:
   total_phases: 14
   completed_phases: 10
-  total_plans: 36
-  completed_plans: 29
-  percent: 81
+  total_plans: 40
+  completed_plans: 30
+  percent: 75
 ---
 
 # Project State
@@ -39,7 +39,7 @@ expansion cards are not executable PLAN files.
 ## Current Position
 
 Phase: 2.11 (Complete published MVP acceptance)
-Plan: Integrated device/published acceptance planning next; transferred Outbox register is open.
+Plan: 02 verified published fixture tracer; Plan01 ordinary signed physical builds/first tracers complete. Release publisher/signing access and destinations are needed.
 Status: Phase2.9 implementation closed by owner decision; CAP-12 final acceptance/CAP-14 open. Physical Android/iPhone journeys and complete faults/admission remain required. Local commit checkpoint; no source push. Progress counts implementation plans, not passed MVP acceptance; Plan04 was transferred, not executed.
 
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
@@ -748,8 +748,8 @@ Phase 2.3 completion — 30 September 2026: all three resource plans pass the se
 ## Session
 
 **Last session:** 2026-10-05T08:10:18.825Z
-**Stopped at:** Phase2.9 implementation closed; all remaining acceptance transferred to2.11 by owner decision. CAP-12 final acceptance/CAP-14 open. Weekly56%, pause75%; no source push.
-**Resume file:** .planning/phases/02.11-published-mvp-acceptance/02.11-OUTBOX-HANDOFF.md
+**Stopped at:** Phase2.11 Plan01 complete for ordinary signed physical Android/iPhone builds and seven-check first input/public-identity restart tracers. Plan02 unsigned ten-fixture release set prepared; owner publisher/signing access and public destinations/samples needed.61 full rows per platform open, three per host partial; CAP12 final/CAP14 open. Weekly66%, pause75%; no source push.
+**Resume file:** .planning/phases/02.11-published-mvp-acceptance/02.11-01-CHECKPOINT.md
 
 Static photo checkpoint (2026-10-01): native preparation supports bounded static
 JPEG/PNG/WebP/GIF/HEIC with disclosed full-size PNG conversion, exact orientation,
