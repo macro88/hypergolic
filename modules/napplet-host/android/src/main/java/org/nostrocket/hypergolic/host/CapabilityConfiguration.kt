@@ -36,6 +36,7 @@ internal class CapabilityConfiguration(raw: String, generation: String, allowPub
       "approval-lab" -> setOf("identity", "relay", "theme")
       "upload-lab", "upload-queue-lab" -> setOf("upload", "theme")
       "resource-lab" -> setOf("resource", "link", "theme")
+      "nap-support" -> setOf("link", "theme")
       "routing-lab" -> setOf("intent", "inc", "notify", "config", "theme")
       "feed-lab" -> if ("outbox" in granted) setOf("identity", "outbox", "relay", "theme") else setOf("identity", "relay", "theme")
       "published" -> {

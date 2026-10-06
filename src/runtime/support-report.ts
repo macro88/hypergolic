@@ -1,0 +1,35 @@
+import { SUPPORTED_CAPABILITY_DOMAINS } from './capability-protocol.ts';
+
+export type SupportStatus = 'full' | 'partial' | 'unsupported' | 'unverified';
+// Bump when public availability, operations or limits change: this identifies reviewed support.
+export const SUPPORT_PROFILE = 'hypergolic-native-2026-10-06-v1';
+const notes: Readonly<Record<string, string>> = Object.freeze({
+  shell: 'Handshake and scoped discovery are implemented. Complete current-revision conformance is not established.',
+  theme: 'Shell colours are delivered; the selected theme profile is bounded.',
+  identity: 'Read-only public identity data; protected or encrypted data is unavailable.',
+  storage: 'Scoped get, set, remove and keys; version and instance isolation apply.',
+  relay: 'Bounded query, subscriptions and approved publication. Encrypted publication is unavailable.',
+  resource: 'Bounded HTTPS, Blossom, one-hop Nostr and data bytes; selected audio/video playback. Hashtree, SVG and streaming are unavailable.',
+  upload: 'Blossom only; selected files, metadata sanitation and approval for every upload.',
+  link: 'Approved HTTPS links use the device handler. Other schemes are unavailable.',
+  intent: 'Selected loaded-napplet routing; arbitrary discovery and automatic opening are unavailable.',
+  inc: 'Selected session-bound messages and channels; no background delivery.',
+  notify: 'Foreground shell notifications. OS push is unavailable.',
+  config: 'Selected bounded schemas and retained settings; unrestricted schema support is unavailable.',
+  outbox: 'Native bundled tracer exists. Published access is unavailable pending acceptance.',
+});
+
+export function supportForDomain(domain: string): Readonly<{status: SupportStatus; available: boolean; detail: string}> {
+  const available = SUPPORTED_CAPABILITY_DOMAINS.includes(domain);
+  const status: SupportStatus = domain === 'shell' ? 'unverified' : available ? 'partial' : domain === 'outbox' ? 'unverified' : 'unsupported';
+  return Object.freeze({status, available: domain === 'shell' || available,
+    detail: notes[domain] ?? 'This shell does not provide this NAP. No permission can enable it.'});
+}
+
+export function capabilityCompatibility(requested: readonly string[], available: readonly string[] = SUPPORTED_CAPABILITY_DOMAINS) {
+  const offered = new Set(available);
+  const domains = Object.freeze([...requested].filter(domain => offered.has(domain)).sort());
+  const unsupportedDomains = Object.freeze([...requested].filter(domain => domain !== 'shell' && !offered.has(domain)).sort());
+  return Object.freeze({domains, unsupportedDomains,
+    review: JSON.stringify({profile: SUPPORT_PROFILE, requested: [...requested].sort(), domains})});
+}

@@ -25,9 +25,10 @@ import type { NativeRegistration } from './capability-protocol.ts';
 
 export interface NativeCapabilityEvent { type: 'capability'; sessionId: string; generation: string; token: string; lane?: 'approval' | 'outbox-subscription' | 'subscription' | 'upload' | 'routing' | 'presentation' | 'configuration' }
 export interface RuntimeBinding { readonly configuration: string; receive(event: NativeCapabilityEvent): void; revoke(): void }
-export interface PublishedRuntimeBinding { readonly publishedArtifact: string; receive(event: NativeCapabilityEvent): void; assertApproval(origin: ApprovalOrigin,domain?:'outbox'): void; assertUpload(origin: ApprovalOrigin): void; revoke(): void }
+export interface PublishedRuntimeBinding { readonly publishedArtifact: string; readonly requestedDomains: readonly string[]; receive(event: NativeCapabilityEvent): void; assertApproval(origin: ApprovalOrigin,domain?:'outbox'): void; assertUpload(origin: ApprovalOrigin): void; revoke(): void }
 export interface RuntimeNativePort extends NativeCapabilityPort { newInstanceId(): string; subscriptions?: NativeRelaySubscriptionPort }
 export interface RuntimeOwner {
+  publishedCapabilities(session: NappletDescriptor): readonly string[] | null;
   open(session: NappletDescriptor): RuntimeBinding;
   descriptor(variant: Exclude<BundledVariant, 'ux-lab'>, number: number): NappletDescriptor;
   openPublishedLink(link: string, signal: AbortSignal, review: (request: NappletConsentReview) => Promise<boolean>): Promise<NappletDescriptor>;
@@ -120,6 +121,7 @@ export function createRuntimeOwner(database: ShellDatabase,
     const receiver = capabilityReceiver(database, native, approvals, selected.id, configuration, assertActive, queries, subscriptions, resources, uploads, identityData, routing?.broker, notify, config, outbox, outboxStreams);
     const binding: PublishedRuntimeBinding = Object.freeze({
       publishedArtifact: ready.hostInput,
+      requestedDomains: ready.artifact.manifest.requiredDomains,
       assertApproval(origin: ApprovalOrigin,domain?:'outbox'): void {
         assertActive();
         receiver.assertGeneration(origin.generation);
@@ -152,6 +154,10 @@ export function createRuntimeOwner(database: ShellDatabase,
       if (prepared.has(id) || running.has(id)) { ready.revoke(); throw new ShellStorageError('CONFLICT'); }
       prepared.set(id, ready);
       return ready.descriptor;
+    },
+    publishedCapabilities(session: NappletDescriptor) {
+      exactSession(session);
+      return running.get(session.id)?.requestedDomains ?? prepared.get(session.id)?.artifact.manifest.requiredDomains ?? null;
     },
     async preparePublishedUpdate(session: NappletDescriptor, signal: AbortSignal,
       reviewUpdate: (request: PublishedUpdateReview) => Promise<boolean>,

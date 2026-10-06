@@ -5,8 +5,18 @@ import type { NappletDescriptor } from './workspace';
 import type { NappletConsentReview } from '../napplets/first-open-consent';
 import type { PublishedUpdateReview } from '../napplets/published-session';
 import { colors } from './theme';
+import { capabilityCompatibility } from '../runtime/support-report';
+import { useIdentityOwner } from './IdentityShell';
 
 type Review = { kind: 'update'; request: PublishedUpdateReview } | { kind: 'access'; request: NappletConsentReview };
+
+function PublishedCapabilityDetails({session}: {session: NappletDescriptor}) {
+  const {runtime} = useIdentityOwner();
+  let requested: readonly string[] | null = null;
+  try { requested = runtime?.publishedCapabilities(session) ?? null; } catch { /* Closed or stale sessions have no live claims. */ }
+  if (!requested) return null;
+  return <Text testID={`published-capabilities-${session.id}`} style={styles.detail}>Requested: {requested.join(', ') || 'none'}. Unavailable: {capabilityCompatibility(requested).unsupportedDomains.join(', ') || 'none'}.</Text>;
+}
 
 /** Discover first; a verified candidate never changes the running pin without a separate decision. */
 export function UpdatePublishedNapplet({ session, check }: {
@@ -52,6 +62,7 @@ export function UpdatePublishedNapplet({ session, check }: {
     <Text style={styles.detail}>New event</Text><Text selectable style={styles.claim}>{review.request.nextEventId}</Text>
     {review.request.domains.includes('resource') && <Text style={styles.detail}>Resource access allows bounded public HTTPS downloads and your configured Blossom servers, retained in memory while loaded.</Text>}
     <Text style={styles.detail}>Requested access: {review.request.domains.length ? review.request.domains.join(', ') : 'none'}</Text>
+    <Text style={styles.warning}>Unavailable: {capabilityCompatibility(review.request.domains).unsupportedDomains.join(', ') || 'none'}. Features using unavailable capabilities will not work.</Text>
     <Text style={styles.warning}>The current napplet will close. Unsaved changes and pending signing requests will be lost; saved napplet data stays available.</Text>
     <Pressable accessibilityRole="button" testID={`published-update-accept-${session.id}`} onPress={() => decide(true)} style={styles.action}><Text style={styles.actionText}>Close and use update</Text></Pressable>
     <Pressable accessibilityRole="button" testID={`published-update-cancel-${session.id}`} onPress={() => decide(false)} style={styles.secondary}><Text style={styles.secondaryText}>Keep current version</Text></Pressable>
@@ -61,12 +72,14 @@ export function UpdatePublishedNapplet({ session, check }: {
     <Text style={styles.detail}>Publisher</Text><Text selectable style={styles.claim}>{review.request.publisher}</Text>
     <Text style={styles.detail}>Napplet</Text><Text selectable style={styles.claim}>{review.request.appId}</Text>
     <Text style={styles.detail}>The update requests: {review.request.domains.length ? review.request.domains.join(', ') : 'none'}</Text>
+    <Text style={styles.warning}>Unavailable: {review.request.unsupportedDomains.join(', ') || 'none'}. These capabilities will not be granted.</Text>
     <Pressable accessibilityRole="button" testID={`published-update-access-accept-${session.id}`} onPress={() => decide(true)} style={styles.action}><Text style={styles.actionText}>Allow and update</Text></Pressable>
     <Pressable accessibilityRole="button" testID={`published-update-access-cancel-${session.id}`} onPress={() => decide(false)} style={styles.secondary}><Text style={styles.secondaryText}>Keep current version</Text></Pressable>
   </View>;
   return <View style={styles.card}>
     <Text style={styles.title}>{session.title}</Text>
     <Text selectable style={styles.claim}>Pinned event {session.eventId}</Text>
+    <PublishedCapabilityDetails session={session} />
     {status !== '' && <Text accessibilityLiveRegion="polite" style={styles.detail}>{status}</Text>}
     <Pressable accessibilityRole="button" testID={`published-update-check-${session.id}`} disabled={busy} accessibilityState={{ disabled: busy }} onPress={start} style={styles.secondary}>
       {busy ? <ActivityIndicator color={colors.accent} /> : <Text style={styles.secondaryText}>Check for update</Text>}

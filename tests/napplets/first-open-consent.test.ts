@@ -35,7 +35,7 @@ test('only explicit trusted review persists the exact publisher, signed coordina
   const candidate = await artifact(); let seen: unknown;
   const admission = await requestFirstOpenConsent(candidate, owner, storage, new AbortController().signal, owner.assertActive,
     async request => { seen = request; return true; });
-  assert.deepEqual(seen, { user, publisher, appId: 'hello', eventId: candidate.manifest.eventId, domains: ['theme'] });
+  assert.deepEqual(seen, { user, publisher, appId: 'hello', eventId: candidate.manifest.eventId, domains: ['theme'], unsupportedDomains: [] });
   assert.equal(Object.isFrozen(seen), true);
   assert.deepEqual((await storage.readAccessGrant())?.domains, ['theme']);
   assertVerifiedNappletAdmission(admission, candidate);
@@ -144,4 +144,27 @@ test('native staging refuses a forged admission and revokes an upload after iden
   await assert.rejects(stageAdmittedPublishedArtifact(admission, candidate, 'session_1', native,
     new AbortController().signal, owner.assertActive));
   assert.deepEqual(calls, ['begin', 'append', 'cancel']);
+});
+
+test('unsupported names remain warning-only and a changed requested set or host profile requires review', async t => {
+  const { database } = await setup(t); const { owner, storage } = control(database);
+  const first = await artifact(['theme', 'fs', 'media']);
+  let prompts = 0;
+  const accept = async (request: import('../../src/napplets/first-open-consent.ts').NappletConsentReview) => {
+    prompts++; assert.deepEqual(request.unsupportedDomains, ['fs', 'media']); return true;
+  };
+  const admitted = await requestFirstOpenConsent(first, owner, storage, new AbortController().signal, owner.assertActive, accept);
+  assert.deepEqual(admitted.domains, ['theme']);
+  assert.deepEqual((await storage.readAccessGrant())?.domains, ['theme']);
+  await requestFirstOpenConsent(first, owner, storage, new AbortController().signal, owner.assertActive, accept);
+  assert.equal(prompts, 1);
+  const current = (await storage.readAccessGrant())!;
+  await storage.replaceAccessGrant(current.domains, current.revision, {}, 'older-host-profile');
+  await requestFirstOpenConsent(first, owner, storage, new AbortController().signal, owner.assertActive, accept);
+  assert.equal(prompts, 2);
+  const changed = await artifact(['theme', 'media']);
+  await requestFirstOpenConsent(changed, owner, storage, new AbortController().signal, owner.assertActive, async request => {
+    prompts++; assert.deepEqual(request.unsupportedDomains, ['media']); return true;
+  });
+  assert.equal(prompts, 3);
 });

@@ -24,7 +24,7 @@ export interface AppStorageControl {
   acceptUpdate(update: AcceptedUpdate, options?: RequestOptions): Promise<UpdateReceipt>;
   receipt(receiptId: string, options?: RequestOptions): Promise<UpdateReceipt | null>;
   readAccessGrant(options?: RequestOptions): Promise<AccessGrant | null>;
-  replaceAccessGrant(domains: readonly string[], expectedRevision: number | null, options?: RequestOptions): Promise<AccessGrant>;
+  replaceAccessGrant(domains: readonly string[], expectedRevision: number | null, options?: RequestOptions, supportReview?: string): Promise<AccessGrant>;
   revokeAccessGrant(expectedRevision: number, options?: RequestOptions): Promise<void>;
 }
 /** Trusted-shell factory. Never expose this object, binding/revoke controls or SQL to a napplet. */
@@ -118,28 +118,29 @@ function canonicalDomains(value: unknown): readonly string[] {
   if (new Set(result).size !== result.length) return fail('INVALID_INPUT');
   return Object.freeze(result);
 }
-function decodeAccessGrant(row: { revision: number; domains: string }): AccessGrant {
+function decodeAccessGrant(row: { revision: number; domains: string; support_review: string }): AccessGrant {
   try {
     const rowRevision = revision(row.revision), parsed: unknown = JSON.parse(row.domains), domains = canonicalDomains(parsed);
     if (JSON.stringify(domains) !== row.domains) fail('CORRUPT_STORAGE');
-    return Object.freeze({ revision: rowRevision, domains });
+    const supportReview = text(row.support_review, 16384, true);
+    return Object.freeze({ revision: rowRevision, domains, ...(supportReview ? {supportReview} : {}) });
   } catch { return fail('CORRUPT_STORAGE'); }
 }
 async function readAccessGrant(io: Access, owner: Params): Promise<AccessGrant | null> {
-  const rows = await io.all<{ revision: number; domains: string }>(`SELECT revision, domains FROM access_grants WHERE ${OWNER}`, ...owner);
+  const rows = await io.all<{ revision: number; domains: string; support_review: string }>(`SELECT revision, domains, support_review FROM access_grants WHERE ${OWNER}`, ...owner);
   if (rows.length === 0) return null;
   if (rows.length !== 1) return fail('CORRUPT_STORAGE');
   return decodeAccessGrant(rows[0]!);
 }
-async function replaceAccessGrant(io: Access, owner: Params, domains: readonly string[], expected: number | null): Promise<AccessGrant> {
+async function replaceAccessGrant(io: Access, owner: Params, domains: readonly string[], expected: number | null, supportReview: string): Promise<AccessGrant> {
   const current = await readAccessGrant(io, owner);
   if ((current?.revision ?? null) !== expected) return fail('CONFLICT');
   const nextRevision = revision(expected === null ? 0 : expected + 1), payload = JSON.stringify(domains);
   const changed = expected === null
-    ? await io.run('INSERT INTO access_grants (user, publisher, app, revision, domains) VALUES (?, ?, ?, ?, ?)', ...owner, nextRevision, payload)
-    : await io.run(`UPDATE access_grants SET revision = ?, domains = ? WHERE ${OWNER} AND revision = ?`, nextRevision, payload, ...owner, expected);
+    ? await io.run('INSERT INTO access_grants (user, publisher, app, revision, domains, support_review) VALUES (?, ?, ?, ?, ?, ?)', ...owner, nextRevision, payload, supportReview)
+    : await io.run(`UPDATE access_grants SET revision = ?, domains = ?, support_review = ? WHERE ${OWNER} AND revision = ?`, nextRevision, payload, supportReview, ...owner, expected);
   if (changed !== 1) fail('STORAGE_FAILURE');
-  return Object.freeze({ revision: nextRevision, domains });
+  return Object.freeze({ revision: nextRevision, domains, ...(supportReview ? {supportReview} : {}) });
 }
 async function revokeAccessGrant(io: Access, owner: Params, expected: number): Promise<void> {
   const current = await readAccessGrant(io, owner);
@@ -262,10 +263,10 @@ function bindApp(connection: StorageConnection, context: TrustedApp): Binding<Ap
   const owner = appParams(context);
   const binding = lease(liveFunction(context.assertActive));
   function grantRead(options?: RequestOptions) { return binding.submit(options, check => readAccessGrant(access(check), owner)); }
-  function grantReplace(domains: readonly string[], expected: number | null, options?: RequestOptions) {
+  function grantReplace(domains: readonly string[], expected: number | null, options?: RequestOptions, supportReview = '') {
     // Snapshot the trusted UI's reviewed capability set before queuing any SQLite work.
-    const canonical = canonicalDomains(domains), selectedExpected = expected === null ? null : revision(expected);
-    return binding.submit(options, check => transaction(check, io => replaceAccessGrant(io, owner, canonical, selectedExpected)));
+    const canonical = canonicalDomains(domains), selectedExpected = expected === null ? null : revision(expected), reviewed = text(supportReview, 16384, true);
+    return binding.submit(options, check => transaction(check, io => replaceAccessGrant(io, owner, canonical, selectedExpected, reviewed)));
   }
   function grantRevoke(expected: number, options?: RequestOptions) {
     return binding.submit(options, check => transaction(check, io => revokeAccessGrant(io, owner, revision(expected))));

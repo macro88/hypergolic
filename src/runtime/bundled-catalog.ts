@@ -1,5 +1,7 @@
 /** Reviewed unsigned test artifacts. These records confer no remote publisher trust. */
 export const BUNDLED_FIXTURES = Object.freeze({
+  'nap-support': Object.freeze({title: 'NAP Support', appId: 'nap-support',
+    sha256: '3ff57dc9a09ad1fda3447c8b1964e22370b95f5b11754e2cb0127a641c2dcbd6', aggregateHash: 'd580bdedb19857d66a4b5f2928016c3f756960f42e56f7d98f8fb98df90f1653', domains: Object.freeze(['link', 'theme'])}),
   'routing-lab': Object.freeze({title: 'Routing Lab', appId: 'routing-lab', sha256: 'e52489d7e52c6649b258312efe85d5e5206622551d95de117e0791bcbac7184c', aggregateHash: 'ca599ba52c91fcf8e5adff7e51312e2bacbda205bca57df613041ca46c2abe7e', domains: Object.freeze(['intent', 'inc', 'notify', 'config', 'theme'])}),
   'upload-queue-lab': Object.freeze({title: 'Upload Queue Lab', appId: 'upload-queue-lab',
     sha256: 'c1d196a6a4913290a9dcf40adfa216922e21dc86a11d94c8902ec536a0e3dbd9', aggregateHash: '945fad95c24b8e5ce032d64110a30d9245e55b0a904742320677713697e05d3a', domains: Object.freeze(['upload', 'theme'])}),

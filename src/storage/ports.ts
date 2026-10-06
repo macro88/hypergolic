@@ -18,7 +18,7 @@ export interface TrustedUser { readonly user: string; readonly assertActive: () 
 export interface TrustedApp extends TrustedUser { readonly publisher: string; readonly appId: string }
 export interface TrustedRegistration extends TrustedApp { readonly version: string; readonly instanceId: string }
 /** Exact NAP capability-domain identifiers granted for one identity, publisher and app. */
-export interface AccessGrant { readonly revision: number; readonly domains: readonly string[] }
+export interface AccessGrant { readonly revision: number; readonly domains: readonly string[]; readonly supportReview?: string }
 export interface StringStorage {
   get(key: string, scope?: Scope, options?: RequestOptions): Promise<string | null>;
   set(key: string, value: string, scope?: Scope, options?: RequestOptions): Promise<void>;

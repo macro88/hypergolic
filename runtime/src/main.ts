@@ -1,4 +1,5 @@
 import { ensureObjectHasOwn } from './legacy-webview';
+import { injectSupportReport } from './support-report';
 import {parseOutboxSubscribe,parseOutboxClose} from '../../src/outbox/subscription-contract';
 import {createConfigAdapter} from './config-adapter';
 import {parseConfigMessage} from '../../src/presentation/config-contract';
@@ -292,8 +293,8 @@ function mount(artifact: RuntimeArtifact): void {
   };
   window.addEventListener('message', receive);
   frame.addEventListener('load', loaded);
-  frame.srcdoc = injectNappletNamespacePrelude(injectResourceMediaGate(artifact.published
-    ? injectPublishedCsp(artifact.html, policy) : injectCsp(artifact.html, policy)), {
+  frame.srcdoc = injectNappletNamespacePrelude(injectSupportReport(injectResourceMediaGate(artifact.published
+    ? injectPublishedCsp(artifact.html, policy) : injectCsp(artifact.html, policy))), {
     ...environment.capabilities,
     requestTimeoutsMs: approvalTimeouts(artifact),
   });

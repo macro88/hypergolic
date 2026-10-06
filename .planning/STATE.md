@@ -3,9 +3,9 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Phase2.11 Plan01 complete for ordinary signed physical Android/iPhone builds and seven-check first input/public-identity restart tracers. Plan02 unsigned ten-fixture release set prepared; owner publisher/signing access and public destinations/samples needed.61 full rows per platform open, three per host partial; CAP12 final/CAP14 open. Weekly66%, pause75%; no source push.
-last_updated: "2026-10-05T12:18:19.678512+00:00"
-last_activity: 2026-10-05
+stopped_at: NAP Support quick task implemented; browser and Android emulator UI pass, physical Android install rejected and iPhone observer blocked by device lock. Phase2.11/CAP12/CAP14 open. Weekly76%, pause90%; no source push.
+last_updated: "2026-10-06"
+last_activity: 2026-10-06
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
 progress:
   total_phases: 14
@@ -61,7 +61,7 @@ See `docs/architecture.md` for confirmed requirements and unresolved policy.
 ### Blockers/Concerns
 
 First theme-only native contract is selected. Validate privileged adapters and delivery contracts before their dependent work. Preserve Expo 57.0.20 despite the existing Doctor patch-version mismatch. Source remote/push remains owner-only.
-Current budget (2026-10-05): the user authorized continuation until weekly usage reaches 75% consumed, then pause. Check account usage between small batches. This supersedes the earlier 50% limit. Keep source remote configuration and push owner-only.
+Current budget (2026-10-06): the user authorized continuation until weekly usage reaches 90% consumed, then pause. Check account usage between small batches. This supersedes the earlier 75% limit. Keep source remote configuration and push owner-only.
 Android emulator and iPhone Simulator scaffold checks are verified. Physical-iPhone signing and execution remain untested; native security acceptance is still open.
 See `docs/phase-zero.md` for actual checks and artifacts.
 
@@ -74,6 +74,7 @@ See `docs/phase-zero.md` for actual checks and artifacts.
 | 260914-ujk | Accepted v1 defaults and RocketShell relay configuration | 2026-09-14 | a304450 | [260914-ujk-adopt-accepted-v1-defaults-and-rocketshe](./quick/260914-ujk-adopt-accepted-v1-defaults-and-rocketshe/) |
 | 260916-dwb | Logo-led README with verified scope, setup and trust limits | 2026-09-16 | See task summary | [260916-dwb-rewrite-the-hypergolic-readme-with-the-s](./quick/260916-dwb-rewrite-the-hypergolic-readme-with-the-s/) |
 | 260917-dg2 | Signed tester APK command and sharing instructions | 2026-09-17 | See task summary | [260917-dg2-add-a-signed-tester-apk-build-command-an](./quick/260917-dg2-add-a-signed-tester-apk-build-command-an/) |
+| 261006-i62 | NAP Support catalogue and tolerant admission; physical verification pending | 2026-10-06 | See task summary | [261006-i62-nap-support-catalogue-and-tolerant-publi](./quick/261006-i62-nap-support-catalogue-and-tolerant-publi/) |
 
 Targeted follow-up: iOS native erase/transport failures remain READBACK_FAILED even when subsequent reads return absence. Four new regressions pass; security is 295/295, bootstrap 13/13, storage 80/80, TypeScript and iOS export pass. Aislop remains 100/100 and local React Doctor has no findings.
 

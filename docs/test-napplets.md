@@ -9,6 +9,7 @@ example, not a required product napplet.
 
 | Fixture | Status | Intended coverage |
 | --- | --- | --- |
+| [NAP Support](../napplets/nap-support/README.md) | Embedded; portable unsigned candidate; browser and Android emulator UI checks pass, physical checks pending | Living reviewed proposal catalogue, shell-reported support, search/filter/disclosure and honest fallback discovery |
 | [UX Lab](../napplets/ux-lab/README.md) | Standalone artifact and browser checks implemented | Temporary input/counter, horizontal and vertical content, instance lifecycle, optional colors |
 | [State Lab](../napplets/state-lab/README.md) | Embedded; native storage/identity journeys recorded on Android and iOS | Unsaved/saved state, close/reopen and user + publisher + stable napplet isolation |
 | [Approval Lab](../napplets/approval-lab/README.md) | Standalone unsigned artifact; native integration remains open | Explicit approve/deny, background deferral, cancellation and independently verified results |
@@ -56,8 +57,10 @@ remain regressions and gain relevant cases.
 | Routing Lab pair | intent, inc, notify, config | 2.7, 2.8 | Two distinct app identities, handler selection, sender binding, denial/replay, notification bounds and config persistence |
 | Value Lab — deferred, outside MVP | value and selected rail dependencies | 4 | Quote/approval/send/status, fee/recipient binding, duplicate prevention, restart reconciliation and provider recovery |
 
-Build minimal manifest variants so an unsupported optional group does not block
-testing another. Test through public SDK calls and trusted visible shell controls;
+Build minimal manifest variants to isolate each capability group's behavior.
+The [tolerant admission policy](nap-support.md) permits launch with unavailable
+requested groups after review, while withholding their native authority.
+Test through public SDK calls and trusted visible shell controls;
 never add privileged fixture bypasses. Use disposable identities and deterministic
 local relay/resource/upload/payment services for faults. Publish the same verified
 artifact bytes using the existing approved release process, then repeat native

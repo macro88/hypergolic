@@ -16,6 +16,11 @@ outbox routing is now required MVP work while its implementation remains disable
 Earlier checkpoint statements below describe their dated scope, not completion of
 the expanded MVP.
 
+The [living NAP Support catalogue and admission policy](nap-support.md) records
+current reviewed availability independently from these historical implementation
+profiles. Verified published napplets may launch with unavailable requested domains
+after trusted warning review; native grants still contain only supported domains.
+
 ## Owning specifications and supported profile
 
 Checked on 15 September 2026. Pin these exact bytes; do not promote a package type

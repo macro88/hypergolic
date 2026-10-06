@@ -29,6 +29,8 @@ object CapabilityConfigurationProof {
     checkProof(old.snapshot.contains("old-generation"))
     checkProof(CapabilityConfiguration(raw("feed-lab", listOf("identity", "relay", "theme")), "feed-generation").grantedDomains.size == 3)
     checkProof(CapabilityConfiguration(raw("feed-lab", listOf("identity", "outbox", "relay", "theme")), "outbox-generation").grantedDomains.size == 4)
+    checkProof(CapabilityConfiguration(raw("nap-support", listOf("link", "theme")), "support-generation").grantedDomains == listOf("link", "theme"))
+    denied(raw("nap-support", listOf("link", "theme", "fs")))
     denied(raw("feed-lab", listOf("identity", "outbox", "theme")))
     denied(raw("published", listOf("outbox", "relay")))
     val published = CapabilityConfiguration(raw("published", listOf("identity", "storage", "theme", "relay")),

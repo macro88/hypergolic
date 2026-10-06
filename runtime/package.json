@@ -33,7 +33,8 @@
       "@kehto/firewall": "0.5.0",
       "@kehto/runtime": "0.22.0",
       "@napplet/core": "0.31.1",
-      "@napplet/nap": "0.31.1"
+      "@napplet/nap": "0.31.1",
+      "source-map-js": "1.2.2"
     },
     "patchedDependencies": {
       "@kehto/shell@0.20.0": "patches/@kehto__shell@0.20.0.patch",

@@ -70,7 +70,7 @@ test('noncanonical or malformed persisted grants fail closed on read and replace
   await assert.rejects(grant.replaceAccessGrant(['profile'], 0), assertCode('CORRUPT_STORAGE'));
 });
 
-test('v2 database migrates to v3 without changing retained app data', async t => {
+test('v2 database migrates to v4 without changing retained app data', async t => {
   const sqlite = new DiskSQLite(); t.after(() => sqlite.cleanup());
   const raw = sqlite.raw();
   const v2Tables = Object.entries(TABLES).filter(([name]) => name !== 'access_grants').map(([, sql]) => sql);
@@ -84,7 +84,7 @@ test('v2 database migrates to v3 without changing retained app data', async t =>
   assert.equal(await controlPort.selectedVersion(), hex(3));
   assert.equal(await controlPort.readAccessGrant(), null);
   const migrated = sqlite.raw();
-  assert.equal(migrated.prepare('PRAGMA user_version').get()!['user_version'], 3);
+  assert.equal(migrated.prepare('PRAGMA user_version').get()!['user_version'], 4);
   assert.equal(migrated.prepare('SELECT count(*) AS n FROM app_versions').get()!['n'], 1);
   assert.equal(migrated.prepare('SELECT count(*) AS n FROM selected_versions').get()!['n'], 1);
   migrated.close(); sqlite.connections.delete(migrated);
@@ -101,4 +101,21 @@ test('version 2 with an unexpected access table is a schema mismatch and is pres
   await assert.rejects(openShellDatabase(sqlite, 'ios'), assertCode('CORRUPT_STORAGE'));
   assert.equal(raw.prepare('PRAGMA user_version').get()!['user_version'], 2);
   assert(raw.prepare("SELECT name FROM sqlite_schema WHERE name = 'access_grants'").get());
+});
+
+test('v3 grants retain revisions and domains; support review persists across restart', async t => {
+  const sqlite = new DiskSQLite(); t.after(() => sqlite.cleanup());
+  const raw = sqlite.raw();
+  const legacy = Object.values(TABLES).map(sql => sql.replace(', support_review TEXT NOT NULL CHECK (length(CAST(support_review AS BLOB)) <= 16384)', ''));
+  raw.exec(legacy.join(';')); raw.exec('PRAGMA user_version = 3');
+  raw.prepare('INSERT INTO access_grants (user, publisher, app, revision, domains) VALUES (?, ?, ?, ?, ?)').run(hex(1), hex(2), 'test-app', 7, '["theme"]');
+  raw.close(); sqlite.connections.delete(raw);
+  const database = await openShellDatabase(sqlite, 'android');
+  const grant = control(database);
+  assert.deepEqual(await grant.readAccessGrant(), {revision: 7, domains: ['theme']});
+  await grant.replaceAccessGrant(['theme'], 7, {}, 'reviewed-host-profile');
+  await database.close();
+  const reopened = await openShellDatabase(sqlite, 'ios');
+  assert.deepEqual(await control(reopened).readAccessGrant(), {revision: 8, domains: ['theme'], supportReview: 'reviewed-host-profile'});
+  await reopened.close();
 });

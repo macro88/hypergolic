@@ -3,7 +3,6 @@ import type { IdentityTransition } from '../security/identity-transition.ts';
 import type { ShellDatabase } from '../storage/database.ts';
 import type { SQLiteModule, TrustedApp } from '../storage/ports.ts';
 import type { NappletDescriptor } from '../shell/workspace.ts';
-import { SUPPORTED_CAPABILITY_DOMAINS } from '../runtime/capability-protocol.ts';
 import { requestFirstOpenConsent, type NappletConsentReview } from './first-open-consent.ts';
 import { loadPublishedArtifact, type PublishedArtifactSource } from './loader.ts';
 import { openPublishedArtifactCache } from './published-artifact-cache.ts';
@@ -11,16 +10,6 @@ import { descriptorForPublishedArtifact, publishedHostInput } from './published-
 import { stageAdmittedPublishedArtifact } from './admitted-transfer.ts';
 import type { NativePublishedTransferPort } from './native-transfer.ts';
 import { assertVerifiedArtifact, type VerifiedNappletArtifact } from './verified-artifact.ts';
-
-export class UnsupportedNappletCapabilitiesError extends Error {
-  readonly code = 'UNSUPPORTED_NAPPLET_CAPABILITIES';
-  readonly domains: readonly string[];
-  constructor(domains: readonly string[]) {
-    super('This napplet requires capabilities this version does not support');
-    this.name = 'UnsupportedNappletCapabilitiesError';
-    this.domains = Object.freeze([...domains].sort());
-  }
-}
 
 export class PublishedSessionError extends Error {
   readonly code = 'PUBLISHED_SESSION_FAILED';
@@ -51,11 +40,6 @@ export interface PublishedSessionDependencies {
   readonly lookupRelays: () => readonly string[];
   readonly native: NativePublishedTransferPort;
   readonly newInstanceId: () => string;
-}
-
-function assertSupportedDomains(artifact: VerifiedNappletArtifact): void {
-  const unsupported = artifact.manifest.requiredDomains.filter(domain => !SUPPORTED_CAPABILITY_DOMAINS.includes(domain));
-  if (unsupported.length) throw new UnsupportedNappletCapabilitiesError(unsupported);
 }
 
 function identifier(artifact: VerifiedNappletArtifact): string {
@@ -117,7 +101,6 @@ async function preparePublishedSession(ports: PublishedSessionDependencies, requ
     const coordinate = selected ?? updateOf;
     const link = request.link ?? naddrEncode({ kind: 35129, pubkey: coordinate!.publisher, identifier: coordinate!.appId });
     const artifact = await loadSessionArtifact(ports, request, link, authority, controller.signal, active);
-    assertSupportedDomains(artifact);
     const id = selected?.id ?? ports.newInstanceId();
     if (!SESSION.test(id)) fail();
     const descriptor = descriptorForPublishedArtifact(artifact, id);
@@ -152,8 +135,7 @@ async function preparePublishedSession(ports: PublishedSessionDependencies, requ
       assertActive: () => { active(); admission.assertActive(); },
       revoke: () => { controller.abort(); ports.native.revokePublishedSession(id); },
     });
-  } catch (error) {
-    if (error instanceof UnsupportedNappletCapabilitiesError) throw error;
+  } catch {
     return fail();
   }
   finally {
@@ -193,7 +175,6 @@ async function preparePublishedUpdate(ports: PublishedSessionDependencies, selec
   const candidate = await loadPublishedArtifact(link, { source: ports.source,
     lookupRelays: ports.lookupRelays(), signal, assertActive: active });
   active();
-  assertSupportedDomains(candidate);
   if (candidate.manifest.eventId === selected.eventId) return null;
   if (candidate.manifest.created_at <= previous.manifest.created_at ||
       candidate.manifest.pubkey !== selected.publisher ||

@@ -83,13 +83,18 @@ native hosts. Ordinary workspace entry now resolves a pasted `naddr` through the
 configured Lookup relays and native HTTPS transport, verifies the signed event
 and HTML, requests first-open consent, pins the exact event and saves its grant.
 The NIP-19 decoder accepts valid `naddr` TLV field orderings; re-encoding an
-address must not be used as a byte-for-byte admission rule. Unsupported
-`requires` domains are identified before consent, and Settings names them to
-the user rather than offering access the native host cannot supply. The current
-host admits `identity`, `storage`, `theme`, `relay`, `resource`, `upload` and `link` for
-verified napplets. Upload admission has scoped normal-shell native evidence;
-its selected acceptance uses the documented patched-tooling exception. A verified napplet that
-requires `cvm` or `webrtc` remains incompatible. This follows
+address must not be used as a byte-for-byte admission rule. The owner-approved
+[tolerant admission policy](nap-support.md) lets verified napplets launch after
+trusted review even when requested domains are unavailable. Review lists every
+requested domain and warns about unavailable features; only the supported
+intersection becomes native authority. Request-set or support-profile changes
+require fresh review, and Settings retains capability details. The host admits
+`identity`, `storage`, `theme`, `relay`, `resource`, `upload`, `link`, `intent`,
+`inc`, `notify` and `config` for verified napplets. Published Outbox access is
+withheld pending acceptance. Upload admission has scoped normal-shell native
+evidence; its selected acceptance uses the documented patched-tooling exception.
+Requests for `cvm`, `webrtc`, `fs` or `media` no longer block launch, but their
+services remain unavailable. The address decoder follows
 [NIP-19 at revision 0046368](https://github.com/nostr-protocol/nips/blob/0046368a747c5c25ae2bec28bae0e537744c8f10/19.md),
 which defines address TLV fields and does not prescribe their ordering.
 Settings can check for a newer signed event; a separate explicit update review

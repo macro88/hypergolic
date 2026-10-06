@@ -3,7 +3,6 @@ import { ActivityIndicator, Keyboard, Pressable, StyleSheet, Text, TextInput, Vi
 import type { SettingsActions } from './Shell';
 import type { NappletConsentReview } from '../napplets/first-open-consent';
 import { resolveNappletLink } from '../napplets/resolve-link';
-import { UnsupportedNappletCapabilitiesError } from '../napplets/published-session';
 import { colors } from './theme';
 
 /** A trusted settings surface for one explicit naddr open, never rendered inside guest content. */
@@ -33,10 +32,8 @@ export function OpenPublishedNapplet({ open }: { open: SettingsActions['openPubl
       if (controller.signal.aborted) { resolve(false); return; }
       decision.current = resolve;
       setReview(request);
-    })).catch(error => {
-      if (!controller.signal.aborted) setError(error instanceof UnsupportedNappletCapabilitiesError
-        ? `This napplet requires capabilities Hypergolic does not yet support: ${error.domains.join(', ')}.`
-        : 'The napplet could not be verified or opened. Check your Lookup relays and connection, then try again.');
+    })).catch(() => {
+      if (!controller.signal.aborted) setError('The napplet could not be verified or opened. Check your Lookup relays and connection, then try again.');
     }).finally(() => {
       if (pending.current === controller) pending.current = null;
       if (!controller.signal.aborted) setBusy(false);
@@ -50,6 +47,7 @@ export function OpenPublishedNapplet({ open }: { open: SettingsActions['openPubl
     {review.domains.includes('resource') && <Text style={styles.detail}>Resource access allows bounded downloads from public HTTPS sites and your configured Blossom servers. Files stay in memory while this napplet is loaded.</Text>}
     {review.domains.includes('upload') && <Text style={styles.detail}>Upload access allows this napplet to read files you select. Every upload still needs your separate approval of the file, identity and server.</Text>}
     <Text style={styles.detail}>Requested access: {review.domains.length ? review.domains.join(', ') : 'none'}</Text>
+    {review.unsupportedDomains.length > 0 && <Text testID="settings-napplet-unsupported" accessibilityLiveRegion="polite" style={styles.error}>Unavailable: {review.unsupportedDomains.join(', ')}. This napplet can open, but features using these capabilities will not work. They will not be granted.</Text>}
     <Pressable accessibilityRole="button" testID="settings-napplet-approve" onPress={() => decide(true)} style={styles.action}><Text style={styles.actionText}>Allow and open</Text></Pressable>
     <Pressable accessibilityRole="button" testID="settings-napplet-reject" onPress={() => decide(false)} style={styles.secondary}><Text style={styles.secondaryText}>Cancel</Text></Pressable>
   </View>;

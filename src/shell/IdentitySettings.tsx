@@ -144,6 +144,7 @@ function SettingsHome({session, onBackup, onCloseBackup, onDelete, onImport, onS
       {actions && <IdentityBackup actions={actions} session={session} npub={formatNpub(session.vault.selectedPubkey)} reviewing={false}
         onReview={onBackup} onClose={onCloseBackup} Action={Action} />}
       <PublishedNappletSettings available={Boolean(runtime)} openPublished={openPublished} publishedSessions={publishedSessions} checkPublishedUpdate={checkPublishedUpdate} />
+      {runtime && <Action title="Open NAP Support" testID="settings-open-nap-support" onPress={() => openStateLab('nap-support')} subdued />}
       {routing && <RoutingSettings key={session.epoch} service={routing.settings} />}
       {notificationSettings && <NotificationSettings key={session.epoch} service={notificationSettings} />}
       <SavedIdentities session={session} transition={transition} format={formatNpub} canDelete={Boolean(actions)}

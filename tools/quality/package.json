@@ -9,7 +9,10 @@
   "pnpm": {
     "overrides": {
       "fast-uri@3.1.7": "3.1.8",
-      "ip-address@10.7.0": "10.7.1"
+      "ip-address@10.7.0": "10.7.1",
+      "source-map-js": "1.2.2",
+      "proxy-addr": "2.0.8",
+      "smol-toml": "1.9.0"
     },
     "patchedDependencies": {
       "braces@3.0.3": "patches/braces@3.0.3.patch"

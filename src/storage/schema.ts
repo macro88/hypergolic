@@ -7,8 +7,9 @@ export const TABLES = Object.freeze({
   saved_strings: `CREATE TABLE saved_strings (${owner}, version TEXT NOT NULL, scope TEXT NOT NULL CHECK (scope IN ('shared', 'instance')), instance TEXT NOT NULL CHECK ((scope = 'shared' AND instance = '') OR (scope = 'instance' AND length(instance) BETWEEN 1 AND 80)), key TEXT NOT NULL CHECK (length(CAST(key AS BLOB)) BETWEEN 0 AND 1024), value TEXT NOT NULL CHECK (length(CAST(value AS BLOB)) <= 262144), PRIMARY KEY (user, publisher, app, version, scope, instance, key), FOREIGN KEY (user, publisher, app, version) REFERENCES app_versions (user, publisher, app, version)) WITHOUT ROWID`,
   update_receipts: `CREATE TABLE update_receipts (${owner}, receipt TEXT NOT NULL, previous_version TEXT NOT NULL, version TEXT NOT NULL, row_count INTEGER NOT NULL CHECK (row_count >= 0), byte_count INTEGER NOT NULL CHECK (byte_count >= 0), workspace_revision INTEGER CHECK (workspace_revision >= 0), target_event_id TEXT, PRIMARY KEY (user, publisher, app, receipt), UNIQUE (user, publisher, app, version), FOREIGN KEY (user, publisher, app, previous_version) REFERENCES app_versions (user, publisher, app, version), FOREIGN KEY (user, publisher, app, version) REFERENCES app_versions (user, publisher, app, version)) WITHOUT ROWID`,
   workspaces: 'CREATE TABLE workspaces (user TEXT PRIMARY KEY NOT NULL, revision INTEGER NOT NULL CHECK (revision >= 0), payload TEXT NOT NULL CHECK (length(CAST(payload AS BLOB)) <= 524288)) WITHOUT ROWID',
-  access_grants: `CREATE TABLE access_grants (${owner}, revision INTEGER NOT NULL CHECK (revision >= 0), domains TEXT NOT NULL CHECK (length(CAST(domains AS BLOB)) <= 16384), PRIMARY KEY (user, publisher, app)) WITHOUT ROWID`,
+  access_grants: `CREATE TABLE access_grants (${owner}, revision INTEGER NOT NULL CHECK (revision >= 0), domains TEXT NOT NULL CHECK (length(CAST(domains AS BLOB)) <= 16384), support_review TEXT NOT NULL CHECK (length(CAST(support_review AS BLOB)) <= 16384), PRIMARY KEY (user, publisher, app)) WITHOUT ROWID`,
 });
+const VERSION_3_TABLES = Object.freeze({...TABLES, access_grants: TABLES.access_grants.replace(', support_review TEXT NOT NULL CHECK (length(CAST(support_review AS BLOB)) <= 16384)', '')});
 const VERSION_2_TABLES: Readonly<Record<string, string>> = Object.freeze(Object.fromEntries(Object.entries(TABLES).filter(([name]) => name !== 'access_grants')));
 const VERSION_1_TABLES: Readonly<Record<string, string>> = Object.freeze({
   ...VERSION_2_TABLES,
@@ -39,12 +40,12 @@ export async function configure(db: SQLiteConnection, platform: 'android' | 'ios
 }
 export async function schema(db: SQLiteConnection): Promise<void> {
   const version = await db.getAllAsync<{ user_version: number }>('PRAGMA user_version');
-  if (version.length !== 1 || ![0, 1, 2, 3].includes(version[0]!.user_version)) fail('CORRUPT_STORAGE');
+  if (version.length !== 1 || ![0, 1, 2, 3, 4].includes(version[0]!.user_version)) fail('CORRUPT_STORAGE');
   let objects = await db.getAllAsync<{ type: string; name: string; sql: string }>("SELECT type, name, sql FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY name");
   if (version[0]!.user_version === 0 && objects.length === 0) {
     // All definitions are fixed source constants, created on this same transaction/connection.
     await db.execAsync(Object.values(TABLES).join(';'));
-    await db.execAsync('PRAGMA user_version = 3');
+    await db.execAsync('PRAGMA user_version = 4');
   } else if (version[0]!.user_version === 1) {
     if (!matches(objects, VERSION_1_TABLES)) fail('CORRUPT_STORAGE');
     // v1 receipts lack the selected manifest pin. Keep them explicitly unknown so replay
@@ -57,16 +58,26 @@ export async function schema(db: SQLiteConnection): Promise<void> {
     objects = await db.getAllAsync<{ type: string; name: string; sql: string }>("SELECT type, name, sql FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY name");
     if (!matches(objects, VERSION_2_TABLES)) fail('CORRUPT_STORAGE');
     await db.execAsync(TABLES.access_grants!);
-    await db.execAsync('PRAGMA user_version = 3');
+    await db.execAsync('PRAGMA user_version = 4');
     objects = await db.getAllAsync<{ type: string; name: string; sql: string }>("SELECT type, name, sql FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY name");
     if (!matches(objects, TABLES)) fail('CORRUPT_STORAGE');
   } else if (version[0]!.user_version === 2) {
     if (!matches(objects, VERSION_2_TABLES)) fail('CORRUPT_STORAGE');
     await db.execAsync(TABLES.access_grants!);
-    await db.execAsync('PRAGMA user_version = 3');
+    await db.execAsync('PRAGMA user_version = 4');
     objects = await db.getAllAsync<{ type: string; name: string; sql: string }>("SELECT type, name, sql FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY name");
     if (!matches(objects, TABLES)) fail('CORRUPT_STORAGE');
-  } else if (version[0]!.user_version !== 3 || !matches(objects, TABLES)) fail('CORRUPT_STORAGE');
+  } else if (version[0]!.user_version === 3) {
+    if (!matches(objects, VERSION_3_TABLES)) fail('CORRUPT_STORAGE');
+    // Rebuild only grants; preserve every owner, revision and previously approved domain.
+    await db.execAsync('ALTER TABLE access_grants RENAME TO access_grants_v3');
+    await db.execAsync(TABLES.access_grants);
+    await db.execAsync("INSERT INTO access_grants (user, publisher, app, revision, domains, support_review) SELECT user, publisher, app, revision, domains, '' FROM access_grants_v3");
+    await db.execAsync('DROP TABLE access_grants_v3');
+    await db.execAsync('PRAGMA user_version = 4');
+    objects = await db.getAllAsync<{ type: string; name: string; sql: string }>("SELECT type, name, sql FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY name");
+    if (!matches(objects, TABLES)) fail('CORRUPT_STORAGE');
+  } else if (version[0]!.user_version !== 4 || !matches(objects, TABLES)) fail('CORRUPT_STORAGE');
   const failures = await db.getAllAsync('PRAGMA foreign_key_check');
   if (failures.length !== 0) fail('CORRUPT_STORAGE');
 }

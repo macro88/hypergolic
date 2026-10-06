@@ -54,6 +54,7 @@ struct CapabilityConfiguration {
     case "approval-lab": expected = ["identity", "relay", "theme"]
     case "upload-lab", "upload-queue-lab": expected = ["upload", "theme"]
     case "resource-lab": expected = ["resource", "link", "theme"]
+    case "nap-support": expected = ["link", "theme"]
     case "routing-lab": expected = ["intent", "inc", "notify", "config", "theme"]
     case "feed-lab": expected = Set(domains).contains("outbox") ? ["identity", "outbox", "relay", "theme"] : ["identity", "relay", "theme"]
     case "published":

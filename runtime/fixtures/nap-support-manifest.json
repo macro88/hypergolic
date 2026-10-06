@@ -1,0 +1,26 @@
+{
+  "kind": 35129,
+  "created_at": 1791244800,
+  "tags": [
+    [
+      "d",
+      "nap-support"
+    ],
+    [
+      "path",
+      "/index.html",
+      "3ff57dc9a09ad1fda3447c8b1964e22370b95f5b11754e2cb0127a641c2dcbd6"
+    ],
+    [
+      "x",
+      "d580bdedb19857d66a4b5f2928016c3f756960f42e56f7d98f8fb98df90f1653",
+      "aggregate"
+    ],
+    [
+      "requires",
+      "link"
+    ]
+  ],
+  "content": "",
+  "aggregateHash": "d580bdedb19857d66a4b5f2928016c3f756960f42e56f7d98f8fb98df90f1653"
+}

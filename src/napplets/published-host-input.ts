@@ -3,8 +3,6 @@ import type { NappletDescriptor } from '../shell/workspace.ts';
 import { assertVerifiedNappletAdmission, type VerifiedNappletAdmission } from './first-open-consent.ts';
 import { assertVerifiedArtifact, type VerifiedNappletArtifact } from './verified-artifact.ts';
 
-/** The selected NAP subset; unknown required domains cannot be silently granted. */
-const SUPPORTED_DOMAINS = new Set(SUPPORTED_CAPABILITY_DOMAINS);
 const HEX64 = /^[0-9a-f]{64}$/;
 const SESSION = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const HANDLE = /^[A-Za-z0-9-]{1,80}$/;
@@ -17,8 +15,7 @@ const fail = (): never => { throw new PublishedHostInputError(); };
 
 function claims(artifact: VerifiedNappletArtifact): { publisher: string; appId: string; version: string; eventId: string; htmlHash: string } {
   const appId = artifact.manifest.tags.find(tag => tag[0] === 'd')?.[1];
-  if (!appId || artifact.manifest.requiredDomains.length > SUPPORTED_DOMAINS.size ||
-      artifact.manifest.requiredDomains.some(domain => !SUPPORTED_DOMAINS.has(domain))) return fail();
+  if (!appId) return fail();
   return { publisher: artifact.manifest.pubkey, appId, version: artifact.aggregateHash,
     eventId: artifact.manifest.eventId, htmlHash: artifact.htmlHash };
 }
@@ -56,8 +53,8 @@ export function publishedHostInput(artifactInput: unknown, admissionInput: unkno
       admission.publisher !== verified.publisher || admission.appId !== verified.appId ||
       admission.eventId !== verified.eventId) return fail();
   const domains = [...admission.domains].sort();
-  if (domains.length !== artifact.manifest.requiredDomains.length ||
-      domains.some((domain, index) => domain !== [...artifact.manifest.requiredDomains].sort()[index])) return fail();
+  const expected = artifact.manifest.requiredDomains.filter(domain => SUPPORTED_CAPABILITY_DOMAINS.includes(domain)).sort();
+  if (domains.length !== expected.length || domains.some((domain, index) => domain !== expected[index])) return fail();
   const configuration = JSON.stringify({ sessionId: descriptor.id, epoch: authority.epoch,
     user: authority.user, publisher: verified.publisher, appId: verified.appId,
     version: verified.version, instanceId: descriptor.id, fixture: 'published', domains });

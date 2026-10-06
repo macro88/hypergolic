@@ -1,6 +1,7 @@
 import { assertVerifiedArtifact, type VerifiedNappletArtifact } from './verified-artifact.ts';
 import type { AppStorageControl } from '../storage/database.ts';
 import type { TrustedApp } from '../storage/ports.ts';
+import { capabilityCompatibility } from '../runtime/support-report.ts';
 
 export class FirstOpenConsentError extends Error {
   readonly code = 'NAPPLET_CONSENT_DENIED';
@@ -13,6 +14,7 @@ export type NappletConsentReview = Readonly<{
   appId: string;
   eventId: string;
   domains: readonly string[];
+  unsupportedDomains: readonly string[];
 }>;
 
 export type VerifiedNappletAdmission = Readonly<{
@@ -70,7 +72,8 @@ export async function requestFirstOpenConsent(
   const ownerCheck = owner.assertActive;
   if (typeof ownerCheck !== 'function' || publisher !== ownerPublisher || appId !== identifier ||
       typeof user !== 'string' || typeof appId !== 'string') return fail();
-  const domains = Object.freeze([...artifact.manifest.requiredDomains].sort());
+  const requestedDomains = Object.freeze([...artifact.manifest.requiredDomains].sort());
+  const {domains, unsupportedDomains, review: supportReview} = capabilityCompatibility(requestedDomains);
   const identity = Object.freeze({ user, publisher: ownerPublisher, appId, check: ownerCheck });
   active(signal, owner, identity, assertActive);
 
@@ -80,17 +83,17 @@ export async function requestFirstOpenConsent(
   } catch { return fail(); }
   active(signal, owner, identity, assertActive);
   const existing = current ? [...current.domains].sort() : null;
-  let admitted = current !== null && existing !== null && sameSet(existing, domains);
+  let admitted = current !== null && existing !== null && sameSet(existing, domains) && current.supportReview === supportReview;
 
   if (!admitted) {
-    const request = Object.freeze({ user, publisher, appId, eventId, domains });
+    const request = Object.freeze({ user, publisher, appId, eventId, domains: requestedDomains, unsupportedDomains });
     let approved = false;
     try { approved = await review(request) === true; }
     catch { return fail(); }
     active(signal, owner, identity, assertActive);
     if (!approved) return fail();
     try {
-      await storage.replaceAccessGrant(domains, current?.revision ?? null, { signal });
+      await storage.replaceAccessGrant(domains, current?.revision ?? null, { signal }, supportReview);
     } catch { return fail(); }
     active(signal, owner, identity, assertActive);
     admitted = true;
@@ -114,6 +117,6 @@ export function assertVerifiedNappletAdmission(
   const artifact: VerifiedNappletArtifact = artifactInput;
   const verified = admission as VerifiedNappletAdmission;
   if (verified.publisher !== artifact.manifest.pubkey || verified.appId !== exactIdentifier(artifact) ||
-      verified.eventId !== artifact.manifest.eventId || !sameSet(verified.domains, [...artifact.manifest.requiredDomains].sort())) return fail();
+      verified.eventId !== artifact.manifest.eventId || !sameSet(verified.domains, capabilityCompatibility(artifact.manifest.requiredDomains).domains)) return fail();
   verified.assertActive();
 }

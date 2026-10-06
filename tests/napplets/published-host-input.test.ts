@@ -53,7 +53,7 @@ test('stale identity, denied or forged consent and substituted descriptor cannot
   assert.throws(() => prepare());
 });
 
-test('unknown required NAP domains are rejected before a published session is created', async () => {
+test('unknown required NAP domains do not prevent a verified descriptor', async () => {
   const secret = new Uint8Array(32); secret[31] = 34;
   const publisher = getPublicKey(secret);
   const bytes = new TextEncoder().encode('<!doctype html><html><head><title>Unknown</title></head><body>ok</body></html>');
@@ -65,7 +65,7 @@ test('unknown required NAP domains are rejected before a published session is cr
   ] }, secret);
   const coordinate = { kind: 35129 as const, pubkey: publisher, identifier: 'future-domain', relayHints: [] };
   const artifact = await verifyArtifact(await verifyManifest(coordinate, JSON.parse(JSON.stringify(event))), bytes);
-  assert.throws(() => descriptorForPublishedArtifact(artifact, SESSION));
+  assert.equal(descriptorForPublishedArtifact(artifact, SESSION).appId, 'future-domain');
 });
 
 
