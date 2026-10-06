@@ -43,3 +43,8 @@ affected capability/admission/security suites pass. The aggregate check still
 stops at the existing Expo patch mismatch. Final scored reports and the exact
 approved-exception verifier are retained in the correction evidence checkpoint;
 the ordinary quality gate is not reclassified as passing.
+
+The later owner-requested physical Android update now passes exact installed APK
+equality and all five corrected UI/cold-reopening checks. Actual screenshots were
+inspected. This supersedes the pending corrected Android row above; physical
+iPhone and complete MVP acceptance remain pending. No app source changed.

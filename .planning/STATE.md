@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Bundled NAP availability corrected and standalone spec written; five corrected Android emulator checks pass. Physical Android loaded draft untouched, new physical UI proof pending. Phase2.11/CAP12/CAP14 open. Weekly77%, pause90%; no source push.
+stopped_at: Corrected bundled NAP availability installed on physical Android by owner request; exact APK bytes and five UI/cold-reopen checks pass. Standalone spec ready. iPhone and Phase2.11/CAP12/CAP14 remain open. Weekly77%, pause90%; no source push.
 last_updated: "2026-10-06"
 last_activity: 2026-10-06
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
