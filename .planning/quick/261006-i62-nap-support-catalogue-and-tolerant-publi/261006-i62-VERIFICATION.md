@@ -22,3 +22,24 @@ verified: 2026-10-06
 No full-conformance tick is assigned without complete cited-revision and native
 evidence. No new FS/media/Outbox published authority is introduced. No public
 publication, source push or Phase 2.11 completion is claimed.
+
+## Corrected availability presentation
+
+The original table records the first implementation. The corrected artifact uses
+ticks for availability only and makes scope and concrete limits explicit.
+
+| Requirement | Current evidence | Result |
+| --- | --- | --- |
+| Reported availability is distinct from conformance | Schema-v2 published-napplet report, specific relay/Outbox limits, browser and inspected native rows | Pass |
+| Standard discovery is scoped and failure-aware | Eight Chromium/WebKit focused checks, including missing/rejected/late readiness and Unknown filter | Pass |
+| Previously saved Support opens after upgrade | Real SQLite restoration regression, exact old-version compatibility and retained emulator workspace | Pass |
+| Version compatibility adds no authority | Exact Support-only version/source/instance checks; unchanged link/theme request; published/other-fixture substitutions rejected | Pass |
+| Corrected native UI | Android Release plus exact installed bytes; five emulator launch/limits/FS/media/cold-reopen checks | Pass for emulator subset |
+| Corrected physical UI | Physical Android deliberately untouched to preserve a loaded draft; no new iPhone run | Pending |
+| Independent project handoff | Self-contained spec with discovery, permissions, maintenance and published cross-shell acceptance | Written; independent build not started |
+
+Full runtime is 252/252; storage is 94/94. Both production JS exports and the
+affected capability/admission/security suites pass. The aggregate check still
+stops at the existing Expo patch mismatch. Final scored reports and the exact
+approved-exception verifier are retained in the correction evidence checkpoint;
+the ordinary quality gate is not reclassified as passing.

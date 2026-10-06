@@ -1,5 +1,5 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Reviewed NAP proposals and this shell's capability support."><title>NAP Support</title><style>:root{color-scheme:dark;--background:#140f0b;--surface:#241c17;--text:#f3efeb;--muted:#d0bbb0;--accent:#e8805d;--border:#58443a;font-family:system-ui,-apple-system,sans-serif;color:var(--text);background:var(--background)}*{box-sizing:border-box}body{margin:0}main{max-width:720px;margin:auto;padding:24px 18px 40px}header{margin-bottom:22px}.eyebrow{color:var(--accent);font:600 12px ui-monospace,monospace;letter-spacing:.07em;margin:0 0 12px}h1{font-size:27px;line-height:1.2;margin:0 0 10px;font-weight:650}p{line-height:1.5}#host{color:var(--muted);font-size:14px;margin:0}.legend{font-size:12px;color:var(--muted);padding:12px 0;border-block:1px solid var(--border)}.search{display:block;font-size:13px;font-weight:600}.search input{display:block;width:100%;margin-top:8px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);padding:12px;font:inherit;min-height:44px}.filters{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.filters button{background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--muted);min-height:44px;padding:8px 14px;font:inherit;font-size:13px}.filters button[aria-pressed=true]{color:var(--text);border-color:var(--accent);background:var(--surface)}:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.caption{font-size:12px;color:var(--muted);margin:17px 0 8px}ul{list-style:none;padding:0;margin:0}li{border-bottom:1px solid var(--border)}summary{display:flex;align-items:center;gap:12px;cursor:pointer;min-height:70px;padding:12px 0;list-style:none}summary::-webkit-details-marker{display:none}.icon{width:21px;height:21px;flex:none;color:var(--muted)}.name{flex:1;min-width:0}.domain{display:block;font:600 16px ui-monospace,monospace}.proposal{font-size:11px;color:var(--muted);display:block;margin-top:4px}.support{display:flex;gap:6px;align-items:center;font-size:12px;white-space:nowrap}.symbol{font-size:21px;line-height:1}.partial{color:var(--accent)}.full{color:#a8d5b5}.unsupported,.unverified{color:var(--muted)}.chevron{color:var(--muted);font-size:13px}details[open] .chevron{transform:rotate(90deg)}.detail{padding:0 0 18px 33px;font-size:13px;color:var(--muted);overflow-wrap:anywhere}.detail p{margin:8px 0}.detail code{font-size:11px}.detail a{color:var(--accent);text-underline-offset:3px}.detail .source{font-size:11px;user-select:all}.detail .availability{color:var(--text)}footer{font-size:12px;color:var(--muted);padding-top:20px}footer p{margin:8px 0}#empty{font-size:14px;padding:20px 0}@media(prefers-reduced-motion:no-preference){.chevron{transition:transform .15s}}@media(max-width:340px){main{padding-inline:12px}.support{font-size:11px}summary{gap:9px}}
-</style></head><body><main><header><p class="eyebrow">NAP Support</p><h1>What this shell supports</h1><p id="host" role="status">Waiting for shell…</p></header><p class="legend">✓ Full · ◐ Partial · ✕ Unsupported · ? Unverified</p><label class="search" for="search">Find a NAP<input id="search" type="search" placeholder="fs, media, relay…" autocomplete="off"></label><div class="filters" aria-label="Filter by availability"><button type="button" data-filter="all" aria-pressed="true">All</button><button type="button" data-filter="available" aria-pressed="false">Available</button><button type="button" data-filter="unavailable" aria-pressed="false">Unavailable</button></div><p id="count" class="caption" role="status"></p><ul id="naps" aria-label="NAP proposals and shell support"></ul><p id="empty" hidden>No matching NAPs. Try another name or filter.</p><footer><p id="reviewed"></p><p>Proposal status and shell support are separate. Availability does not grant this napplet access.</p></footer></main><script>(function() {
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Reviewed NAP proposals and this shell's capability support."><title>NAP Support</title><style>:root{color-scheme:dark;--background:#140f0b;--surface:#241c17;--text:#f3efeb;--muted:#d0bbb0;--accent:#e8805d;--border:#58443a;font-family:system-ui,-apple-system,sans-serif;color:var(--text);background:var(--background)}*{box-sizing:border-box}body{margin:0}main{max-width:720px;margin:auto;padding:24px 18px 40px}header{margin-bottom:22px}.eyebrow{color:var(--accent);font:600 12px ui-monospace,monospace;letter-spacing:.07em;margin:0 0 12px}h1{font-size:27px;line-height:1.2;margin:0 0 10px;font-weight:650}p{line-height:1.5}#host{color:var(--muted);font-size:14px;margin:0}.legend{font-size:12px;color:var(--muted);padding:12px 0;border-block:1px solid var(--border)}.search{display:block;font-size:13px;font-weight:600}.search input{display:block;width:100%;margin-top:8px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);padding:12px;font:inherit;min-height:44px}.filters{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.filters button{background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--muted);min-height:44px;padding:8px 14px;font:inherit;font-size:13px}.filters button[aria-pressed=true]{color:var(--text);border-color:var(--accent);background:var(--surface)}:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.caption{font-size:12px;color:var(--muted);margin:17px 0 8px}ul{list-style:none;padding:0;margin:0}li{border-bottom:1px solid var(--border)}summary{display:flex;align-items:center;gap:12px;cursor:pointer;min-height:70px;padding:12px 0;list-style:none}summary::-webkit-details-marker{display:none}.icon{width:21px;height:21px;flex:none;color:var(--muted)}.name{flex:1;min-width:0}.domain{display:block;font:600 16px ui-monospace,monospace}.proposal{font-size:11px;color:var(--muted);display:block;margin-top:4px}.support{display:flex;gap:6px;align-items:center;font-size:12px;white-space:nowrap}.symbol{font-size:21px;line-height:1}.available{color:var(--accent)}.unavailable,.unknown{color:var(--muted)}.chevron{color:var(--muted);font-size:13px}details[open] .chevron{transform:rotate(90deg)}.detail{padding:0 0 18px 33px;font-size:13px;color:var(--muted);overflow-wrap:anywhere}.detail p{margin:8px 0}.detail code{font-size:11px}.detail a{color:var(--accent);text-underline-offset:3px}.detail .source{font-size:11px;user-select:all}.detail .availability{color:var(--text)}footer{font-size:12px;color:var(--muted);padding-top:20px}footer p{margin:8px 0}#empty{font-size:14px;padding:20px 0}@media(prefers-reduced-motion:no-preference){.chevron{transition:transform .15s}}@media(max-width:340px){main{padding-inline:12px}.support{font-size:11px}summary{gap:9px}}
+</style></head><body><main><header><p class="eyebrow">NAP Support</p><h1>NAP availability</h1><p id="host" role="status">Waiting for shell…</p></header><p class="legend">✓ Available · ✕ Unavailable · ? Unknown<br>Availability is not full conformance.</p><label class="search" for="search">Find a NAP<input id="search" type="search" placeholder="fs, media, relay…" autocomplete="off"></label><div class="filters" aria-label="Filter by availability"><button type="button" data-filter="all" aria-pressed="true">All</button><button type="button" data-filter="available" aria-pressed="false">Available</button><button type="button" id="unavailable-filter" data-filter="unavailable" aria-pressed="false">Unavailable</button><button type="button" data-filter="unknown" aria-pressed="false">Unknown</button></div><p id="count" class="caption" role="status"></p><ul id="naps" aria-label="NAP proposals and shell support"></ul><p id="empty" hidden>No matching NAPs. Try another name or filter.</p><footer><p id="reviewed"></p><p>Proposal status and availability are separate. Shell reports describe published napplets; standard discovery describes this napplet’s granted environment. Availability does not grant access.</p></footer></main><script>(function() {
   "use strict";
   const NAP_CATALOGUE_REVIEWED = "2026-10-06";
   const NAP_REGISTRY_REVISION = "a040914b4bbd3a5cd8a14b0f316a723c968ebfb2";
@@ -286,8 +286,8 @@
     }
   ].map((row) => Object.freeze(row)));
   const surface = window;
-  const labels = { full: "Full", partial: "Partial", unsupported: "Unsupported", unverified: "Unverified" };
-  const symbols = { full: "✓", partial: "◐", unsupported: "✕", unverified: "?" };
+  const labels = { available: "Available", unavailable: "Unavailable", unknown: "Unknown" };
+  const symbols = { available: "✓", unavailable: "✕", unknown: "?" };
   function element(id) {
     const node = document.getElementById(id);
     if (!node) throw new Error("Missing support control");
@@ -298,6 +298,7 @@
   const empty = element("empty");
   let filter = "all";
   let report;
+  let discoveryReady = false;
   const icons = {
     fs: "M3 6h6l2 2h10v12H3Z",
     media: "M4 4h16v16H4Z M10 8l6 4-6 4Z",
@@ -333,18 +334,40 @@
   }
   function support(domain) {
     const row = report?.domains.find((value) => value.domain === domain);
-    return row ?? {
+    if (row && ["available", "unavailable", "unknown"].includes(row.status) && typeof row.detail === "string") return {
+      ...row,
+      label: labels[row.status],
+      scope: "Published napplets",
+      source: "Shell-reported availability and reviewed limits"
+    };
+    if (discoveryReady) {
+      try {
+        const available = domain === "shell" ? true : surface.napplet?.shell?.supports(domain);
+        if (typeof available === "boolean") return {
+          domain,
+          status: available ? "available" : "unavailable",
+          label: available ? "Available" : "Not offered",
+          scope: "This napplet",
+          source: "Shell handshake and scoped discovery",
+          detail: available ? "Available to this napplet. Discovery does not establish complete conformance." : "Not offered to this napplet. The shell may lack this NAP or may not have granted it to this napplet."
+        };
+      } catch {
+      }
+    }
+    return {
       domain,
-      status: "unverified",
-      available: surface.napplet?.shell?.supports(domain) === true,
-      detail: "This shell has not supplied a detailed support report. Scoped discovery alone cannot establish full support or global absence."
+      status: "unknown",
+      label: "Unknown",
+      scope: "This napplet",
+      source: "No completed discovery result",
+      detail: "Availability is unknown until shell discovery completes successfully."
     };
   }
   function render() {
     const query = search.value.trim().toLowerCase();
     const rows = NAP_CATALOGUE.filter((row) => {
       const current = support(row.domain);
-      return `${row.domain} ${row.name} ${row.description}`.toLowerCase().includes(query) && (filter === "all" || (filter === "available" ? current.available : !current.available));
+      return `${row.domain} ${row.name} ${row.description}`.toLowerCase().includes(query) && (filter === "all" || current.status === filter);
     });
     list.replaceChildren();
     for (const row of rows) {
@@ -357,13 +380,14 @@
       const badge = text("span", "", `support ${current.status}`);
       const mark = text("span", symbols[current.status], "symbol");
       mark.setAttribute("aria-hidden", "true");
-      badge.append(mark, text("span", labels[current.status]));
+      badge.append(mark, text("span", current.label));
       summary.append(icon(row.domain), name, badge, text("span", "›", "chevron"));
       const detail = text("div", "", "detail");
       detail.append(
         text("p", row.description),
         text("p", current.detail),
-        text("p", `Published napplet availability: ${current.available ? "Available, subject to permission" : "Unavailable"}.`, "availability"),
+        text("p", `${current.scope}: ${current.label}${current.status === "available" ? ", subject to permission" : ""}.`, "availability"),
+        text("p", `Source: ${current.source}. Availability is not a full conformance result.`),
         text("p", `Upstream status: ${row.status}. Catalogue reviewed ${NAP_CATALOGUE_REVIEWED}.`)
       );
       const source = document.createElement("a");
@@ -393,11 +417,27 @@
   for (const button of document.querySelectorAll("[data-filter]")) button.onclick = () => chooseFilter(button);
   element("reviewed").textContent = `Registry ${NAP_REGISTRY_REVISION.slice(0, 8)} · reviewed ${NAP_CATALOGUE_REVIEWED}`;
   async function start() {
-    if (surface.napplet?.shell) {
-      await Promise.race([surface.napplet.shell.ready(), new Promise((resolve) => window.setTimeout(resolve, 4e3))]);
-      report = surface.hypergolicSupportReport;
+    const shell = surface.napplet?.shell;
+    if (!shell) {
+      host.textContent = "No shell environment. Availability is unknown.";
+      return;
     }
-    host.textContent = report ? `${report.shell} · reviewed support reported by this shell` : "Detailed shell support is unverified. Availability is scoped to this napplet.";
+    const deadline = window.setTimeout(() => {
+      host.textContent = "Shell discovery has not completed. Availability is unknown.";
+      render();
+    }, 4e3);
+    try {
+      await shell.ready();
+      discoveryReady = true;
+      const supplied = surface.hypergolicSupportReport;
+      if (supplied?.schemaVersion === 2 && supplied.scope === "published-napplets" && Array.isArray(supplied.domains)) report = supplied;
+      host.textContent = report ? `${report.shell} · shell-reported availability for published napplets` : "Availability for this napplet · standard shell discovery";
+      element("unavailable-filter").textContent = report ? "Unavailable" : "Not offered";
+    } catch {
+      host.textContent = "Shell discovery failed. Availability is unknown.";
+    } finally {
+      window.clearTimeout(deadline);
+    }
     render();
   }
   render();

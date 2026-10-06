@@ -1,10 +1,10 @@
 import { SUPPORTED_CAPABILITY_DOMAINS } from './capability-protocol.ts';
 
-export type SupportStatus = 'full' | 'partial' | 'unsupported' | 'unverified';
+export type SupportAvailability = 'available' | 'unavailable' | 'unknown';
 // Bump when public availability, operations or limits change: this identifies reviewed support.
 export const SUPPORT_PROFILE = 'hypergolic-native-2026-10-06-v1';
 const notes: Readonly<Record<string, string>> = Object.freeze({
-  shell: 'Handshake and scoped discovery are implemented. Complete current-revision conformance is not established.',
+  shell: 'Handshake and scoped discovery are implemented. Availability is not a full conformance assessment.',
   theme: 'Shell colours are delivered; the selected theme profile is bounded.',
   identity: 'Read-only public identity data; protected or encrypted data is unavailable.',
   storage: 'Scoped get, set, remove and keys; version and instance isolation apply.',
@@ -19,10 +19,9 @@ const notes: Readonly<Record<string, string>> = Object.freeze({
   outbox: 'Native bundled tracer exists. Published access is unavailable pending acceptance.',
 });
 
-export function supportForDomain(domain: string): Readonly<{status: SupportStatus; available: boolean; detail: string}> {
-  const available = SUPPORTED_CAPABILITY_DOMAINS.includes(domain);
-  const status: SupportStatus = domain === 'shell' ? 'unverified' : available ? 'partial' : domain === 'outbox' ? 'unverified' : 'unsupported';
-  return Object.freeze({status, available: domain === 'shell' || available,
+export function supportForDomain(domain: string): Readonly<{status: SupportAvailability; detail: string}> {
+  const available = domain === 'shell' || SUPPORTED_CAPABILITY_DOMAINS.includes(domain);
+  return Object.freeze({status: available ? 'available' : 'unavailable',
     detail: notes[domain] ?? 'This shell does not provide this NAP. No permission can enable it.'});
 }
 

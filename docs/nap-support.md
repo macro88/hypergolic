@@ -14,7 +14,9 @@ Trusted Settings shows current requested/unavailable capabilities for a loaded p
 
 ## Support napplet
 
-See [portable source and maintenance instructions](../napplets/nap-support/README.md). The compact icon list has four support states with text labels, independent proposal status, expandable limits/sources, search and filters. The public host report is advisory, separate from permission discovery and native enforcement. `Full` is reserved for complete cited-revision conformance and native evidence. Current implemented profiles are conservatively Partial; foundational current-revision SHELL and the withheld Outbox profile are Unverified. Unimplemented domains, including fs/media, are Unsupported.
+See [bundled source and maintenance instructions](../napplets/nap-support/README.md). The owner-requested accuracy correction replaces the blanket Partial grade with Available/Unavailable/Unknown. A tick denotes the shell's configured availability for published napplets; it does not assert full conformance or grant this napplet access. Concrete operation limitations remain expanded details. The report is reviewed metadata from the running shell, not live operation tests. FS/media and withheld published Outbox access are Unavailable.
+
+The public host report is advisory, separate from permission discovery and native enforcement, and schema v2 explicitly names its scope. Without it, standard discovery uses Available/Not offered for this napplet only. Incomplete or failed discovery remains Unknown; late readiness refreshes the display. This reporting correction preserves the admission profile/fingerprint because authority and operation limits are unchanged. The [independent portable project specification](nap-capability-napplet-spec.md) records the cross-shell product requirements.
 
 The reviewed catalogue includes 35 contracts from the registry and open contract proposals as of 6 October. Catalogue status does not approve implementation of a draft, change MVP scope or assign new phases. Public publication remains a separate reviewed release.
 

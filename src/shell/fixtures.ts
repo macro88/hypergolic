@@ -4,6 +4,9 @@ import { BUNDLED_FIXTURES, type BundledFixture } from '../runtime/bundled-catalo
 export type BundledVariant = BundledFixture | 'state-lab-other-publisher';
 const variants: readonly BundledVariant[] = ['nap-support', 'routing-lab', 'upload-lab', 'state-lab-other-publisher', 'resource-lab', 'feed-lab', 'approval-lab', 'state-lab-peer', 'state-lab', 'ux-lab'];
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+// Exact previous stateless Support fixture, with the same link/theme authority.
+// Retained descriptors load current hash-verified packaged bytes; no remote pin is relaxed.
+const previousSupportVersion = 'd580bdedb19857d66a4b5f2928016c3f756960f42e56f7d98f8fb98df90f1653';
 export function bundledDescriptor(variant: BundledVariant, number: number, instance = String(number)): NappletDescriptor {
   const fixture = variant === 'state-lab-other-publisher' ? 'state-lab' : variant;
   const entry = BUNDLED_FIXTURES[fixture];
@@ -27,8 +30,9 @@ export function resolveBundledSession(session: NappletDescriptor) {
   if (instance !== String(number) && !uuid.test(instance)) throw new Error('Unavailable saved napplet');
   if (variant === 'ux-lab' && instance !== String(number)) throw new Error('Unavailable saved napplet');
   const expected = bundledDescriptor(variant, number, instance);
+  const compatibleSupport = variant === 'nap-support' && session.version === previousSupportVersion;
   if (session.title !== expected.title || session.publisher !== expected.publisher || session.appId !== expected.appId ||
-      session.version !== expected.version || session.source !== expected.source) throw new Error('Unavailable saved napplet');
+      (session.version !== expected.version && !compatibleSupport) || session.source !== expected.source) throw new Error('Unavailable saved napplet');
   const fixture = variant === 'state-lab-other-publisher' ? 'state-lab' : variant;
   const entry = BUNDLED_FIXTURES[fixture];
   return Object.freeze({ fixture, appId: entry.appId, version: entry.aggregateHash, domains: entry.domains,

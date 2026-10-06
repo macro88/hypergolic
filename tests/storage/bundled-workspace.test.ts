@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { assertBundledWorkspace, assertWorkspaceAvailability, initialTestWorkspace } from '../../src/shell/fixtures.ts';
-import { emptyWorkspace, type NappletDescriptor } from '../../src/shell/workspace.ts';
+import { assertBundledWorkspace, assertWorkspaceAvailability, bundledDescriptor, resolveBundledSession, initialTestWorkspace } from '../../src/shell/fixtures.ts';
+import { emptyWorkspace, openNapplet, snapshotWorkspace, type NappletDescriptor } from '../../src/shell/workspace.ts';
+import { openWorkspaceController } from '../../src/storage/workspace-controller.ts';
+import { registration, setup } from './harness.ts';
 
 test('bundled admission accepts the exact shipped fixture and explicit empty workspace', () => {
   assert.doesNotThrow(() => assertBundledWorkspace(initialTestWorkspace()));
@@ -35,4 +37,24 @@ test('published workspace descriptors reject changed pins, identity fields and u
     { appId: '' }, { appId: ' test-napplet' }, { appId: `bad\u0000id` }, { appId: 'a'.repeat(256) },
     { title: '' }, { title: 'n'.repeat(129) }, { title: '💫'.repeat(33) },
   ]) assert.throws(() => assertWorkspaceAvailability({ ...emptyWorkspace(), sessions: [{ ...published, ...patch }] }), /Unavailable saved napplet/);
+});
+
+test('the exact prior Support descriptor survives upgrade without reseeding or changing other sessions', async t => {
+  const {database} = await setup(t);
+  const current = bundledDescriptor('nap-support', 4, '58274370-ec8f-4058-a4cc-b63e7e75ca4b');
+  const previous = {...current, version: 'd580bdedb19857d66a4b5f2928016c3f756960f42e56f7d98f8fb98df90f1653'};
+  const original = openNapplet(initialTestWorkspace(), previous);
+  const binding = database.bindWorkspace(registration());
+  await binding.port.save(snapshotWorkspace(original), null);
+  const controller = await openWorkspaceController(binding, () => {throw Error('do not replace retained workspace');}, assertWorkspaceAvailability);
+  assert.deepEqual(controller.getSnapshot().workspace, original);
+  assert.deepEqual(resolveBundledSession(previous), resolveBundledSession(current));
+  assert.deepEqual(resolveBundledSession(previous).domains, ['link', 'theme']);
+  assert.deepEqual((await binding.port.load())?.snapshot, snapshotWorkspace(original));
+  for (const patch of [{version:'a'.repeat(64)}, {publisher:'bundled-unsigned-peer'}, {appId:'state-lab'},
+    {source:'published' as const}, {eventId:'b'.repeat(64)}, {title:'Other 4'}]) {
+    assert.throws(() => resolveBundledSession({...previous,...patch}), /Unavailable saved napplet/);
+  }
+  const other = {...bundledDescriptor('state-lab', 4), version: previous.version};
+  assert.throws(() => resolveBundledSession(other), /Unavailable saved napplet/);
 });

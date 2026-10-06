@@ -1,12 +1,12 @@
 import './style.css';
 import { NAP_CATALOGUE, NAP_CATALOGUE_REVIEWED, NAP_REGISTRY_REVISION } from '../../../src/runtime/nap-catalogue.ts';
-import type { SupportStatus } from '../../../src/runtime/support-report.ts';
+import type { SupportAvailability } from '../../../src/runtime/support-report.ts';
 
-type Report = {shell: string; profile: string; domains: readonly {domain: string; status: SupportStatus; available: boolean; detail: string}[]};
+type Report = {schemaVersion: 2; scope: 'published-napplets'; shell: string; profile: string; domains: readonly {domain: string; status: SupportAvailability; detail: string}[]};
 type Shell = {ready(): Promise<unknown>; supports(domain: string): boolean};
 const surface = window as Window & {hypergolicSupportReport?: Report; napplet?: {shell?: Shell; link?: {open(url: string): Promise<unknown>}}};
-const labels: Record<SupportStatus, string> = {full: 'Full', partial: 'Partial', unsupported: 'Unsupported', unverified: 'Unverified'};
-const symbols: Record<SupportStatus, string> = {full: '✓', partial: '◐', unsupported: '✕', unverified: '?'};
+const labels: Record<SupportAvailability, string> = {available: 'Available', unavailable: 'Unavailable', unknown: 'Unknown'};
+const symbols: Record<SupportAvailability, string> = {available: '✓', unavailable: '✕', unknown: '?'};
 function element<T extends HTMLElement>(id: string): T {
   const node = document.getElementById(id);
   if (!node) throw new Error('Missing support control');
@@ -17,6 +17,7 @@ const search = element<HTMLInputElement>('search');
 const empty = element('empty');
 let filter = 'all';
 let report: Report | undefined;
+let discoveryReady = false;
 const icons: Record<string, string> = {
   fs: 'M3 6h6l2 2h10v12H3Z',
   media: 'M4 4h16v16H4Z M10 8l6 4-6 4Z',
@@ -43,16 +44,26 @@ function text(tag: string, value: string, className = ''): HTMLElement {
 }
 function support(domain: string) {
   const row = report?.domains.find(value => value.domain === domain);
-  // Scoped supports(false) cannot distinguish absent implementation from missing permission.
-  return row ?? {domain, status: 'unverified' as const, available: surface.napplet?.shell?.supports(domain) === true,
-    detail: 'This shell has not supplied a detailed support report. Scoped discovery alone cannot establish full support or global absence.'};
+  if (row && ['available', 'unavailable', 'unknown'].includes(row.status) && typeof row.detail === 'string') return {...row, label: labels[row.status],
+    scope: 'Published napplets', source: 'Shell-reported availability and reviewed limits'};
+  if (discoveryReady) {
+    try {
+      const available = domain === 'shell' ? true : surface.napplet?.shell?.supports(domain);
+      if (typeof available === 'boolean') return {domain, status: available ? 'available' as const : 'unavailable' as const,
+        label: available ? 'Available' : 'Not offered', scope: 'This napplet', source: 'Shell handshake and scoped discovery',
+        detail: available ? 'Available to this napplet. Discovery does not establish complete conformance.'
+          : 'Not offered to this napplet. The shell may lack this NAP or may not have granted it to this napplet.'};
+    } catch { /* A failed query is unknown, not evidence of missing support. */ }
+  }
+  return {domain, status: 'unknown' as const, label: 'Unknown', scope: 'This napplet', source: 'No completed discovery result',
+    detail: 'Availability is unknown until shell discovery completes successfully.'};
 }
 function render(): void {
   const query = search.value.trim().toLowerCase();
   const rows = NAP_CATALOGUE.filter(row => {
     const current = support(row.domain);
     return `${row.domain} ${row.name} ${row.description}`.toLowerCase().includes(query) &&
-      (filter === 'all' || (filter === 'available' ? current.available : !current.available));
+      (filter === 'all' || current.status === filter);
   });
   list.replaceChildren();
   for (const row of rows) {
@@ -62,11 +73,12 @@ function render(): void {
     const name = text('span', '', 'name'); name.append(text('span', row.domain, 'domain'), text('span', `${row.name} · ${row.status}`, 'proposal'));
     const badge = text('span', '', `support ${current.status}`);
     const mark = text('span', symbols[current.status], 'symbol'); mark.setAttribute('aria-hidden', 'true');
-    badge.append(mark, text('span', labels[current.status]));
+    badge.append(mark, text('span', current.label));
     summary.append(icon(row.domain), name, badge, text('span', '›', 'chevron'));
     const detail = text('div', '', 'detail');
     detail.append(text('p', row.description), text('p', current.detail),
-      text('p', `Published napplet availability: ${current.available ? 'Available, subject to permission' : 'Unavailable'}.`, 'availability'),
+      text('p', `${current.scope}: ${current.label}${current.status === 'available' ? ', subject to permission' : ''}.`, 'availability'),
+      text('p', `Source: ${current.source}. Availability is not a full conformance result.`),
       text('p', `Upstream status: ${row.status}. Catalogue reviewed ${NAP_CATALOGUE_REVIEWED}.`));
     const source = document.createElement('a'); source.href = row.source; source.textContent = 'View proposal';
     source.addEventListener('click', event => {
@@ -89,11 +101,22 @@ search.addEventListener('input', render);
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-filter]')) button.onclick = () => chooseFilter(button);
 element('reviewed').textContent = `Registry ${NAP_REGISTRY_REVISION.slice(0, 8)} · reviewed ${NAP_CATALOGUE_REVIEWED}`;
 async function start(): Promise<void> {
-  if (surface.napplet?.shell) {
-    await Promise.race([surface.napplet.shell.ready(), new Promise(resolve => window.setTimeout(resolve, 4000))]);
-    report = surface.hypergolicSupportReport;
-  }
-  host.textContent = report ? `${report.shell} · reviewed support reported by this shell` : 'Detailed shell support is unverified. Availability is scoped to this napplet.';
+  const shell = surface.napplet?.shell;
+  if (!shell) { host.textContent = 'No shell environment. Availability is unknown.'; return; }
+  const deadline = window.setTimeout(() => {
+    host.textContent = 'Shell discovery has not completed. Availability is unknown.';
+    render();
+  }, 4000);
+  try {
+    await shell.ready();
+    discoveryReady = true;
+    const supplied = surface.hypergolicSupportReport;
+    if (supplied?.schemaVersion === 2 && supplied.scope === 'published-napplets' && Array.isArray(supplied.domains)) report = supplied;
+    host.textContent = report ? `${report.shell} · shell-reported availability for published napplets`
+      : 'Availability for this napplet · standard shell discovery';
+    element('unavailable-filter').textContent = report ? 'Unavailable' : 'Not offered';
+  } catch { host.textContent = 'Shell discovery failed. Availability is unknown.'; }
+  finally { window.clearTimeout(deadline); }
   render();
 }
 render(); void start();
