@@ -128,6 +128,24 @@ production release. At that phase-zero checkpoint, device checks were awaiting
 local security-prompt approval. Later emulator checks are recorded separately;
 physical-device and seed security acceptance still need their own evidence.
 
+## Stable physical test installs
+
+Use **Hypergolic** as the display name on both platforms. Update the existing
+physical test packages in place: `org.nostrocket.hypergolic.napsupportfixture` on
+Android and `org.nostrocket.hypergolic.mvpacceptance` on iOS. Retain each package's
+existing signing identity; do not append a phase number to its name or identifier.
+This preserves app data and gives device installation permissions a consistent
+package to apply to. Device policy may still require an installation prompt.
+
+These are established development test packages, separate from a production
+release identity. Do not uninstall or clear their data as part of an update.
+Restore temporary generated packaging changes after building. Keep durable
+configuration in the app configuration or plugins, not the ignored native trees.
+The 6 October Android in-place update succeeded without another installer prompt;
+the signed iPhone update still needs an unlocked device. See the
+[Plan02 checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-02-CHECKPOINT.md)
+for the acceptance scope.
+
 ## iOS development
 
 The app enables iOS with development bundle identifier

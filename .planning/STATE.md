@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Corrected bundled NAP availability installed on physical Android by owner request; exact APK bytes and five UI/cold-reopen checks pass. Standalone spec ready. iPhone and Phase2.11/CAP12/CAP14 remain open. Weekly77%, pause90%; no source push.
+stopped_at: Stable Hypergolic Android update installed in place; Outbox exact signed read and approval-denial subset pass. Signed stable iPhone build awaits unlock; explicit public QA approval and release resources pending. Plan02 and CAP12/CAP14 open. Weekly79%, pause90%; no source push.
 last_updated: "2026-10-06"
 last_activity: 2026-10-06
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
