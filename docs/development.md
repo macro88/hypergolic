@@ -142,7 +142,7 @@ release identity. Do not uninstall or clear their data as part of an update.
 Restore temporary generated packaging changes after building. Keep durable
 configuration in the app configuration or plugins, not the ignored native trees.
 The 6 October Android in-place update succeeded without another installer prompt;
-the signed iPhone update still needs an unlocked device. See the
+the signed iPhone update subsequently installed in place after unlocking. See the
 [Plan02 checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-02-CHECKPOINT.md)
 for the acceptance scope.
 

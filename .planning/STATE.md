@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Stable Hypergolic Android update installed in place; Outbox exact signed read and approval-denial subset pass. Signed stable iPhone build awaits unlock; explicit public QA approval and release resources pending. Plan02 and CAP12/CAP14 open. Weekly79%, pause90%; no source push.
+stopped_at: Stable Hypergolic installed on both phones; iPhone original SDK signed read and native exact review/rejection subset pass. Exact Android QA publication approved but ADB disconnected; chosen Blossom/WSS packet unsigned, release signer access pending. Plan02/CAP12/CAP14 open. Weekly81%, pause90%; no source push.
 last_updated: "2026-10-06"
 last_activity: 2026-10-06
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
@@ -748,9 +748,9 @@ Phase 2.3 completion — 30 September 2026: all three resource plans pass the se
 
 ## Session
 
-**Last session:** 2026-10-05T08:10:18.825Z
-**Stopped at:** Phase2.11 Plan01 complete for ordinary signed physical Android/iPhone builds and seven-check first input/public-identity restart tracers. Plan02 unsigned ten-fixture release set prepared; owner publisher/signing access and public destinations/samples needed.61 full rows per platform open, three per host partial; CAP12 final/CAP14 open. Weekly66%, pause75%; no source push.
-**Resume file:** .planning/phases/02.11-published-mvp-acceptance/02.11-01-CHECKPOINT.md
+**Last session:** 2026-10-06T13:21:25.532555+00:00
+**Stopped at:** Stable Hypergolic installed on both phones. Six physical iPhone read/identity/native review-denial checks pass. Android QA note explicitly approved but device disconnected; release destinations selected, unsigned packet ready, existing release signer access pending. Plan02/CAP12/CAP14 open; weekly81%, pause90%; no source push.
+**Resume file:** .planning/phases/02.11-published-mvp-acceptance/02.11-02-CHECKPOINT.md
 
 Static photo checkpoint (2026-10-01): native preparation supports bounded static
 JPEG/PNG/WebP/GIF/HEIC with disclosed full-size PNG conversion, exact orientation,
