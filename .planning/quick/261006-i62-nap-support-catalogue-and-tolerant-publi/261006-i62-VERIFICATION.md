@@ -14,7 +14,7 @@ verified: 2026-10-06
 | First/change-only review and denial | Exact support fingerprint, changed-request/host-profile and denial/update regressions | Pass |
 | Existing operation approvals and revocation preserved | Security, bootstrap, storage and capability regressions | Pass within tested boundaries |
 | Native packaging | Both exports and Android/iOS Release builds; matching trusted runtime bytes | Pass |
-| Physical Android UI | OS rejected install; no current physical Support UI receipt | Pending |
+| Physical Android UI | Owner-approved install, exact APK byte equality, four launch/search/disclosure/cold-restart checks and inspected screenshots; earlier rejection retained | Pass for Support UI subset |
 | Physical iPhone UI | Installed app/observer; device-lock execution timeout | Pending |
 | Complete scored quality | Doctor 100; aislop 98, exactly two existing approved patched advisories | Accepted only under existing exceptions; ordinary gate red |
 | Aggregate check | Existing pinned Expo patch mismatch | Existing failure retained |

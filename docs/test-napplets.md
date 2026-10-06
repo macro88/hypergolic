@@ -9,7 +9,7 @@ example, not a required product napplet.
 
 | Fixture | Status | Intended coverage |
 | --- | --- | --- |
-| [NAP Support](../napplets/nap-support/README.md) | Embedded; portable unsigned candidate; browser and Android emulator UI checks pass, physical checks pending | Living reviewed proposal catalogue, shell-reported support, search/filter/disclosure and honest fallback discovery |
+| [NAP Support](../napplets/nap-support/README.md) | Embedded; portable unsigned candidate; browser, Android emulator and physical Android UI checks pass, physical iPhone pending | Living reviewed proposal catalogue, shell-reported support, search/filter/disclosure and honest fallback discovery |
 | [UX Lab](../napplets/ux-lab/README.md) | Standalone artifact and browser checks implemented | Temporary input/counter, horizontal and vertical content, instance lifecycle, optional colors |
 | [State Lab](../napplets/state-lab/README.md) | Embedded; native storage/identity journeys recorded on Android and iOS | Unsaved/saved state, close/reopen and user + publisher + stable napplet isolation |
 | [Approval Lab](../napplets/approval-lab/README.md) | Standalone unsigned artifact; native integration remains open | Explicit approve/deny, background deferral, cancellation and independently verified results |
