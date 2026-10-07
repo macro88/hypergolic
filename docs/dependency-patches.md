@@ -129,3 +129,38 @@ regression fails in Chromium/WebKit before the fix and passes afterward; all254
 runtime cases and ten ordinary physical iPhone configuration checks pass.
 This is a functional compatibility fix, not a new dependency advisory exception.
 See [notifications and configuration](notifications-configuration.md).
+
+
+## Phase2.11 local recheck — 8 October 2026
+
+Current registry queries still return node-forge1.4.0 and braces3.0.3. The
+[Forge advisory](https://github.com/advisories/GHSA-86w9-cpqp-85rv) and
+[braces advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) still list no
+patched release; Forge PR1152 remains open. No version, patch, lockfile, scanner,
+suppression or normal gate changes. The upstream supplemental PR1157 is a separate
+unmerged proposal, not part of this local patch or a verified installed result.
+
+All74 installed-consumer/verifier regressions pass. Forge RSA bytes match the
+approved hash in both actual Expo consumers, and all five patched braces library
+files match across Metro and the scanner. The locked patch hashes remain exactly
+approved. This proves the selected local checks, not an upstream security review.
+
+A source-bound diagnostic run on commit4ca36e5 completes full local ReactDoctor425
+with zero findings and numeric scoring explicitly disabled. An independent source
+inventory comparison confirms every analyzed path, no skipped projects/checks and
+unchanged before/after source fingerprint. Complete aislop scores98 over417 supported
+files with97 unsupported, predominantly Swift, and only the two approved dependency
+findings. All applicable configured engines complete; native Swift correctness is
+not established by this scanner coverage.
+
+All ten current lockfile audits complete: eight clean, root reports exactly Forge
+and braces, quality tools reports exactly braces. Raw reports/hashes and the exact
+scope review are retained privately as quality-local01. This is a diagnostic bundle,
+not a passing normal verifier bundle: ReactDoctor has null score and the ordinary
+aislop/audit gates remain red. No current numeric100 or clean-all-audits claim.
+No new exports, prebuilds, signed products, ExpoDoctor or physical rows are claimed.
+
+Phase2 stays open. Upload MIMEalias/recovery-redirect choices, iPhone automation
+readiness, Android availability, published release/parity and remaining native
+acceptance still require their own evidence. Expo57.0.20 remains pinned; numeric
+Doctor permission is unresolved. Weekly44%, ceiling about98%; source push owner-only.
