@@ -43,7 +43,7 @@ verified published parity and Phase2 acceptance remain open. Private originals:
 iphone-upload-interruption01. GSD debugging used inline; no subagent proof claimed.
 
 
-## Proposed decisions, awaiting selection
+## Accepted decisions (2026-10-08)
 
 A. Accept audio/x-wav as equivalent to reviewed audio/wav only for a native-validated
 WAV body with exact reviewed hash/size. Preserve the reviewed MIME in the SDK
@@ -69,3 +69,31 @@ third hop, private/DNS-rebound hosts, credential/query/hash changes, alternate40
 truncation, expired/background/identity/replacement reads stay unknown. Verify the
 existing physical unknown record through ordinary UI, then confirm a complete
 native/SDK provider receipt without silently retrying the uncertain attempt.
+
+
+Owner reply "I accept all" selects A1 and B1 above, approves the remaining Phase 2
+zero-diagnostic React Doctor numeric score requests to the reviewed HTTPS endpoint
+with the disclosed gzip metadata payload, and selects the six exact SDK57 patch
+updates (Expo 57.0.27, build-properties 57.0.22, crypto 57.0.3, image 57.0.5,
+secure-store 57.0.4 and sqlite 57.0.4). The earlier retain-57.0.20 choice is superseded.
+These are selected shell policies; pinned draft revisions and final acceptance remain unchanged.
+
+
+## Implemented checkpoint
+
+Native WAV reviews now verify RIFF/chunk structure before alias admission; shared
+completion retains canonical MIME and repeats byte classification. Recovery has a
+separate bounded two-redirect same-hash public HTTPS GET profile. Alternate-origin
+404 cannot prove original absence; exact full bytes/hash/size settle presence.
+Native authority, parser and real TLS regressions pass (62 recovery/26 PUT), along
+with 52 shared tests, types and 74 installed quality/patch tests. Ordinary exports,
+prebuilds, Android Release and same-identity signed iPhone Release pass. No install.
+
+Fresh complete Doctor425 actual100; aislop98 only existing two approved findings,
+ten audits exact existing exceptions; normal gate red. SDK57 install remains held
+by a newly observed publisher trust downgrade; selected versions and trust policy
+unchanged. A fresh physical identity observer fails before setup with the same
+XCTest automation timeout. Runtime verification of the old unknown record remains
+open. Raw original PUT descriptor still uncaptured; MIME mismatch remains a
+hypothesis about that old upload. Implemented interoperability does not prove its
+cause or close CAP-05. Canonical evidence: upload-interop01.

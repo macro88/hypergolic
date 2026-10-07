@@ -71,6 +71,9 @@ enum PublishedPinnedHTTPS {
       self.port = UInt16(components.port ?? 443)
       self.target = target
       guard !(resourceProfile && recoveryProfile) else { throw Failure.invalidURL }
+      if recoveryProfile {
+        guard components.query == nil, target.range(of: "^/[0-9a-f]{64}(\\.[A-Za-z0-9]{1,16})?$", options: .regularExpression) != nil else { throw Failure.invalidURL }
+      }
       self.resourceProfile = resourceProfile; self.recoveryProfile = recoveryProfile
     }
 
@@ -155,7 +158,7 @@ enum PublishedPinnedHTTPS {
 #if HYPERGOLIC_NETWORK_PROOF
   /// Host-only proof seam. Production builds never compile address or trust overrides.
   static func fetchForProof(_ input: String, maximumBodyBytes: Int, timeout: TimeInterval = 5,
-                            addresses: [Address], anchorDER: Data?, recoveryProfile: Bool = false, active: @escaping @Sendable () -> Bool = {true},
+                            addresses: [Address], anchorDER: Data?, resolverForProof: (@Sendable (String) throws -> [Address])? = nil, recoveryProfile: Bool = false, active: @escaping @Sendable () -> Bool = {true},
                             completion: @escaping @Sendable (Result<PublishedHTTPResponse, Error>) -> Void) throws -> Operation {
     let request = try Request(input, recoveryProfile: recoveryProfile)
     guard (1...(recoveryProfile ? PublishedHTTPResponse.maximumResourceBodyBytes : PublishedHTTPResponse.maximumBodyBytes)).contains(maximumBodyBytes),
@@ -164,7 +167,7 @@ enum PublishedPinnedHTTPS {
                                   timeout: timeout, completion: completion)
     operation.setActiveForProof(active)
     operation.proofAddresses = addresses
-    operation.proofAnchorDER = anchorDER
+    operation.proofAnchorDER = anchorDER; operation.proofResolver = resolverForProof
     operation.start()
     return operation
   }
@@ -177,6 +180,7 @@ enum PublishedPinnedHTTPS {
     private let completion: @Sendable (Result<PublishedHTTPResponse, Error>) -> Void
     private var accumulator: PublishedHTTPResponseAccumulator
     private let maximumBodyBytes: Int
+    private let originalRequest: Request
     private var redirects = 0
     private var visited: Set<String> = []
     private var connection: NWConnection?
@@ -185,13 +189,14 @@ enum PublishedPinnedHTTPS {
     private var active: @Sendable () -> Bool
     private var recoveryTimer: DispatchSourceTimer?
 #if HYPERGOLIC_NETWORK_PROOF
+    fileprivate var proofResolver: (@Sendable (String) throws -> [Address])?
     fileprivate var proofAddresses: [Address]?
     fileprivate var proofAnchorDER: Data?
 #endif
 
     fileprivate init(request: Request, maximumBodyBytes: Int, timeout: TimeInterval, active: @escaping @Sendable () -> Bool = {true},
                      completion: @escaping @Sendable (Result<PublishedHTTPResponse, Error>) -> Void) throws {
-      self.request = request; self.active = active
+      self.request = request; self.originalRequest = request; self.active = active
       self.maximumBodyBytes = maximumBodyBytes
       self.visited.insert(request.source)
       self.timeout = timeout
@@ -228,7 +233,12 @@ enum PublishedPinnedHTTPS {
       guard !recovery || PublishedPinnedHTTPS.recoveryResolutionSlots.acquire() else { finish(.failure(Failure.resolution)); return }
       let host = request.host
       DispatchQueue.global(qos: .utility).async {
-        let result = Result { try PublishedPinnedHTTPS.resolve(host) }
+        let result = Result {
+#if HYPERGOLIC_NETWORK_PROOF
+          if let resolver = self.proofResolver { return try resolver(host) }
+#endif
+          return try PublishedPinnedHTTPS.resolve(host)
+        }
         if recovery { PublishedPinnedHTTPS.recoveryResolutionSlots.release() }
         self.queue.async {
           guard !self.ended else { return }
@@ -308,24 +318,36 @@ enum PublishedPinnedHTTPS {
         if error != nil { self.finish(.failure(Failure.connection)); return }
         do {
           if let data { try self.accumulator.append(data) }
-          if complete { self.finish(.success(try self.accumulator.finish())) }
+          if complete {
+            let response = try self.accumulator.finish()
+            // An alternate origin cannot prove absence at the saved provider.
+            guard !self.request.recoveryProfile || response.status != 404 ||
+              self.request.host == self.originalRequest.host && self.request.port == self.originalRequest.port else { throw Failure.invalidURL }
+            self.finish(.success(response))
+          }
           else if data == nil || data?.isEmpty == true { self.finish(.failure(Failure.connection)) }
           else { self.receive() }
         } catch PublishedHTTPResponse.Failure.resourceRedirect(let location) {
+          self.followRedirect(location)
+        } catch PublishedHTTPResponse.Failure.recoveryRedirect(let location) {
           self.followRedirect(location)
         } catch { self.finish(.failure(error)) }
       }
     }
 
     private func followRedirect(_ location: String) {
-      guard request.resourceProfile, redirects < 2,
+      guard active(), request.resourceProfile || request.recoveryProfile, redirects < 2,
         let base = URL(string: request.source), let url = URL(string: location, relativeTo: base)?.absoluteURL,
         !visited.contains(url.absoluteString) else { finish(.failure(PublishedHTTPResponse.Failure.resourcePolicy)); return }
       do {
-        let next = try Request(url.absoluteString, resourceProfile: true)
+        let next = try Request(url.absoluteString, resourceProfile: request.resourceProfile, recoveryProfile: request.recoveryProfile)
+        if request.recoveryProfile {
+          let hash = originalRequest.target.dropFirst().prefix(64)
+          guard next.target.dropFirst().prefix(64) == hash else { throw Failure.invalidURL }
+        }
         connection?.stateUpdateHandler = nil;connection?.cancel();connection = nil
         redirects += 1;visited.insert(next.source);request = next
-        accumulator = try PublishedHTTPResponseAccumulator(maximumBodyBytes:maximumBodyBytes,resourceProfile:true)
+        accumulator = try PublishedHTTPResponseAccumulator(maximumBodyBytes:maximumBodyBytes,resourceProfile:next.resourceProfile,recoveryProfile:next.recoveryProfile)
         addresses = nil
         resolveCurrent()
       } catch { finish(.failure(error)) }

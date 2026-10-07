@@ -46,6 +46,11 @@ import Foundation
       catch { check(true) }
       denied { _ = try PublishedHTTPResponse.parse(wire(status, "Content-Length: 2\r\n", "{}trailing"), maximumBodyBytes: 32768, uploadProfile: true) }
     }
+    for status in [301,302,303,307,308] {
+      do { _ = try PublishedHTTPResponse.parse(wire(status, "Location: https://other.example.com/file\r\nContent-Length: 0\r\n", ""), maximumBodyBytes: 10485760, recoveryProfile: true); preconditionFailure("Redirect not classified") }
+      catch PublishedHTTPResponse.Failure.recoveryRedirect(let location) { check(location == "https://other.example.com/file") }
+      denied { _ = try PublishedHTTPResponse.parse(wire(status, "Location: https://other.example.com/file\r\nLocation: https://other.example.com/file\r\nContent-Length: 0\r\n", ""), maximumBodyBytes: 10485760, recoveryProfile: true) }
+    }
     for status in [200,404] {
       let response = try PublishedHTTPResponse.parse(wire(status, "Content-Length: 4\r\n", "file"), maximumBodyBytes: 10485760, recoveryProfile: true)
       check(response.status == status); check(response.body == Data("file".utf8))

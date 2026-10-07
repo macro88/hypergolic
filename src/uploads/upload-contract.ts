@@ -130,6 +130,25 @@ export function captureUploadBytes(value: Blob | ArrayBuffer): Promise<Uint8Arra
     }, () => fail());
   } catch { return Promise.reject(new UploadError('invalid request')); }
 }
+/** Only structurally validated WAV bytes qualify for the selected provider MIME alias. */
+export function matchesUploadMime(provider: string, reviewed: string, bytes: Uint8Array): boolean {
+  if (provider === reviewed) return true;
+  if (reviewed !== 'audio/wav' || provider !== 'audio/x-wav' || bytes.length < 12) return false;
+  const tag = (at: number) => String.fromCharCode(...bytes.subarray(at, at + 4));
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  if (tag(0) !== 'RIFF' || tag(8) !== 'WAVE' || view.getUint32(4, true) !== bytes.length - 8) return false;
+  let cursor = 12, chunks = 0, format = false, data = false;
+  while (cursor <= bytes.length - 8) {
+    if (++chunks > 4096) return false;
+    const length = view.getUint32(cursor + 4, true), name = tag(cursor);
+    if (length > bytes.length - cursor - 8) return false;
+    if (name === 'fmt ') {if (format || length < 16) return false; format = true;}
+    if (name === 'data') {if (data || length < 1) return false; data = true;}
+    cursor += 8 + length + (length & 1);
+  }
+  return cursor === bytes.length && format && data;
+}
+
 /** Untrusted provider receipt: advisory fields do not grant a second upload destination. */
 export function captureBlobDescriptor(value: unknown, hash: string, size: number): BlobDescriptor {
   try {

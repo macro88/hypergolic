@@ -42,6 +42,11 @@ public final class UploadResponseProof {
       }
       denied(() -> PublishedHttpsResponseReader.readUpload(wire(status, "Content-Length: 2\r\n", "{}trailing"), () -> false));
     }
+    for (int status : new int[]{301,302,303,307,308}) {
+      try { PublishedHttpsResponseReader.readRecovery(wire(status, "Location: https://other.example.com/file\r\nContent-Length: 0\r\n", ""), () -> false, 10485760); throw new AssertionError("Redirect not classified"); }
+      catch (PublishedHttpsResponseReader.RecoveryRedirect redirect) { check(redirect.location.equals("https://other.example.com/file")); }
+      denied(() -> PublishedHttpsResponseReader.readRecovery(wire(status, "Location: https://other.example.com/file\r\nLocation: https://other.example.com/file\r\nContent-Length: 0\r\n", ""), () -> false, 10485760));
+    }
     for (int status : new int[]{200,404}) {
       var response = PublishedHttpsResponseReader.readRecovery(wire(status, "Content-Length: 4\r\n", "file"), () -> false, 10485760);
       check(response.status == status); check(new String(response.body, StandardCharsets.US_ASCII).equals("file"));

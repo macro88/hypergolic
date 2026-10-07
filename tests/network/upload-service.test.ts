@@ -17,11 +17,11 @@ class Native implements UploadNativePort {
   states = new Map<UploadLease, State>(); tokens = new Map<string, TakenUpload>(); results: UploadResult[] = [];
   focused: string | null = null; puts = 0; reads = 0; cancels = 0;
   putOverride: ((state: State) => Promise<unknown>) | null = null;
-  async issue(token: string, identity = owner(token), bytes = new Uint8Array([1, 2, 3])) {
+  async issue(token: string, identity = owner(token), bytes = new Uint8Array([1, 2, 3]), mimeType = 'application/octet-stream') {
     const lease = {}, taken: TakenUpload = Object.freeze({lease, origin: identity, uploadId: 'public-' + token,
       filename: 'file.bin', caption: 'selected attachment', request: Object.freeze({rail: 'blossom', filename: 'file.bin', caption: 'selected attachment'}), review: Object.freeze({purpose: 'blossom-upload', identity: identity.user,
         destination: 'https://files.example.org', sha256: await hash(bytes), size: bytes.length,
-        mimeType: 'application/octet-stream', metadataPolicy: 'attachment-unchanged'})});
+        mimeType, metadataPolicy: 'attachment-unchanged'})});
     this.tokens.set(token, taken); this.states.set(lease, {taken, bytes: new Uint8Array(bytes), live: true, approved: false, signing: false, dispatched: false});
     return taken;
   }
@@ -203,4 +203,24 @@ test('unchanged review and active polling retain snapshots without hiding cancel
   assert.equal(service.getSnapshot(), active); assert.equal(updates, before);
   service.cancel(id); assert.equal(service.getSnapshot().active.length, 0); assert(updates > before);
   held.resolve(null); await completion; assert.equal(service.getSnapshot().outcomes.at(-1)?.result.error, 'outcome unknown');
+});
+
+
+test('validated WAV alias retains canonical SDK MIME and every other receipt check', async () => {
+  const wav = new Uint8Array(46), view = new DataView(wav.buffer);
+  for (const [at, text] of [[0,'RIFF'],[8,'WAVE'],[12,'fmt '],[36,'data']] as const) wav.set(new TextEncoder().encode(text), at);
+  view.setUint32(4, 38, true); view.setUint32(16, 16, true); view.setUint32(40, 2, true);
+  for (const mode of ['valid','invalid-body','other-mime','wrong-hash','wrong-size','wrong-url','stale']) {
+    const native = new Native(), bytes = wav.slice(); if (mode === 'invalid-body') bytes[8] = 0;
+    await native.issue('one', owner('one'), bytes, 'audio/wav');
+    native.putOverride = async state => {
+      if (mode === 'stale') state.live = false;
+      return {url: 'https://files.example.org/' + (mode === 'wrong-url' ? '00'.repeat(32) : state.taken.review.sha256) + '.wav',
+        sha256: mode === 'wrong-hash' ? '00'.repeat(32) : state.taken.review.sha256,
+        size: state.bytes.length + (mode === 'wrong-size' ? 1 : 0), type: mode === 'other-mime' ? 'audio/mpeg' : 'audio/x-wav', uploaded: 1};
+    };
+    const service = make(native), result = await service.approve(await ready(service, native));
+    if (mode === 'valid') {assert.equal(result.status, 'complete'); assert.equal(result.mimeType, 'audio/wav');}
+    else {assert.equal(result.error, 'outcome unknown', mode); assert.equal(result.url, undefined);}
+  }
 });

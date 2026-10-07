@@ -27,6 +27,11 @@ final class PublishedHttpsResponseReader {
     final String location;
     ResourceRedirect(String location) { super("Resource HTTPS redirect"); this.location = location; }
   }
+  static final class RecoveryRedirect extends IOException {
+    private static final long serialVersionUID = 1L;
+    final String location;
+    RecoveryRedirect(String location) { super("Recovery HTTPS redirect"); this.location = location; }
+  }
   static final class UploadResponse {
     final int status;
     final byte[] body;
@@ -46,7 +51,7 @@ final class PublishedHttpsResponseReader {
   static byte[] readBounded(InputStream input, PublishedHttpsTransport.Cancellation cancellation, int maximumBytes) throws IOException {
     return readProfile(input, cancellation, maximumBytes, false, false).body;
   }
-  /** Purpose-specific same-server reconciliation; only complete 200/404 responses can resolve uncertainty. */
+  /** Purpose-specific fixed-hash reconciliation; only complete 200/404 responses can resolve uncertainty. */
   static UploadResponse readRecovery(InputStream input, PublishedHttpsTransport.Cancellation cancellation, int maximumBytes) throws IOException {
     return readProfile(input, cancellation, maximumBytes, false, true);
   }
@@ -67,6 +72,11 @@ final class PublishedHttpsResponseReader {
       String location = uniqueHeader(parseHeaders(lines), "location");
       if (location == null || location.isEmpty() || location.length() > 8192) throw new ResourceFailure("blocked-by-policy", "Invalid resource redirect");
       throw new ResourceRedirect(location);
+    }
+    if (recoveryProfile && (status == 301 || status == 302 || status == 303 || status == 307 || status == 308)) {
+      String location = uniqueHeader(parseHeaders(lines), "location");
+      if (location == null || location.isEmpty() || location.length() > 8192) throw new ResourceFailure("blocked-by-policy", "Invalid recovery redirect");
+      throw new RecoveryRedirect(location);
     }
     if (status >= 300 && status < 400) throw new ResourceFailure("blocked-by-policy", "HTTPS redirects are not followed");
     if (!uploadProfile && !recoveryProfile && status != 200) throw new ResourceFailure(status == 404 ? "not-found" : status == 401 || status == 403 ? "blocked-by-policy" : "network-error", "HTTPS response status " + status);

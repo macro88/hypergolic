@@ -304,3 +304,10 @@ for separate native QA builds. It retains the real reservation, atomic send gate
 ACK classifier and receipt completion while selecting a controlled TLS receiver.
 Ordinary builds exclude the route and use the existing public relay policy.
 See the [physical transport evidence and limits](../.planning/phases/02.11-published-mvp-acceptance/02.11-04-CHECKPOINT.md#physical-owning-publication-transport).
+
+
+The selected upload interoperability profile accepts a WAV MIME alias only after
+native byte validation and retains canonical SDK MIME separately from the provider
+receipt. Recovery owns a distinct two-redirect fixed-hash GET profile with fresh
+public DNS/TLS per hop; alternate-origin absence stays unknown. Approved PUTs
+remain exact one-use transfers without redirects. See [upload access](upload-access.md).

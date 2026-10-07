@@ -20,7 +20,7 @@ private final class Box: @unchecked Sendable {
     let authority = UploadRecoveryReadAuthority(clock: {Int64(ProcessInfo.processInfo.systemUptime * 1000)})
     precondition(authority.register("realm", identity: identity)); authority.foreground(true); let lease = authority.capture(record)!
     if mode == "cancel-before" {authority.foreground(false); authority.foreground(true)}
-    if mode == "cancel-read" {DispatchQueue.global().async { let deadline = ProcessInfo.processInfo.systemUptime + 5; while !FileManager.default.fileExists(atPath: args[4]) && ProcessInfo.processInfo.systemUptime < deadline {Thread.sleep(forTimeInterval: 0.005)}; authority.foreground(false); authority.foreground(true) }}
+    if (mode == "cancel-read" || mode == "redirect-cancel") {DispatchQueue.global().async { let deadline = ProcessInfo.processInfo.systemUptime + 5; while !FileManager.default.fileExists(atPath: args[4]) && ProcessInfo.processInfo.systemUptime < deadline {Thread.sleep(forTimeInterval: 0.005)}; authority.foreground(false); authority.foreground(true) }}
     var state = UploadRecoveryLedger.State.unknown
     do {
       if mode == "mixed-dns" {
@@ -31,7 +31,11 @@ private final class Box: @unchecked Sendable {
       let anchor = mode == "untrusted" ? nil : try Data(contentsOf: URL(fileURLWithPath: args[2]))
       let operation = try PublishedPinnedHTTPS.fetchForProof(record.destination + "/" + record.sha256, maximumBodyBytes: NativeUploadAuthority.maxBytes, timeout: 5,
         addresses: [.init(host: NWEndpoint.Host("127.0.0.1"), bytes: Data([127,0,0,1]))], anchorDER: anchor,
-        recoveryProfile: true, active: {authority.live(lease)}, completion: {box.set($0); semaphore.signal()})
+        resolverForProof: {host in
+          guard ["files.example.com", "other.example.com"].contains(host) else { throw PublishedPinnedHTTPS.Failure.resolution }
+          if mode == "redirect-mixed-dns" {return try PublishedPinnedHTTPS.vetResolvedAddresses([.init(host: NWEndpoint.Host("8.8.8.8"), bytes: Data([8,8,8,8])), .init(host: NWEndpoint.Host("10.0.0.1"), bytes: Data([10,0,0,1]))])}
+          return [.init(host: NWEndpoint.Host("127.0.0.1"), bytes: Data([127,0,0,1]))]
+        }, recoveryProfile: true, active: {authority.live(lease)}, completion: {box.set($0); semaphore.signal()})
       precondition(semaphore.wait(timeout: .now() + 8) == .success, "Recovery timeout")
       withExtendedLifetime(operation) {}
       let response = try box.get()!.get(); state = try authority.finish(lease, status: response.status, body: response.body, ledger: ledger)

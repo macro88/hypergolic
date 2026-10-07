@@ -31,8 +31,13 @@ public final class NativeUploadAuthority {
     public final String purpose = "blossom-upload";
     public final String identity, destination, mimeType, sha256, metadataPolicy;
     public final int size;
+    private final boolean validatedWav;
+    public boolean acceptsDescriptorType(String type) {
+      return mimeType.equals(type) || validatedWav && "audio/x-wav".equals(type);
+    }
     private Review(Row row, String hash) {
       identity = row.session.identity; destination = row.destination; mimeType = row.mimeType; metadataPolicy = row.metadataPolicy;
+      validatedWav = "audio/wav".equals(mimeType) && "audio/wav".equals(UploadFileProfile.attachmentType(row.body));
       sha256 = hash; size = row.body.length;
     }
   }

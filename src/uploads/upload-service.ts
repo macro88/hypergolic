@@ -3,7 +3,7 @@ import type { ApprovalOrigin, EffectAuthority, TrustedApprovalOwner } from '../s
 import { publicKey, text } from '../storage/codec.ts';
 import { captureUploadAuthorization } from './upload-authorization.ts';
 import { captureUploadSnapshot, type UploadSnapshot } from './upload-snapshot.ts';
-import { captureBlobDescriptor, normalizeUploadServer, parseUploadRequest, uploadHash, uploadMime, UploadError, UPLOAD_LIMITS,
+import { captureBlobDescriptor, matchesUploadMime, normalizeUploadServer, parseUploadRequest, uploadHash, uploadMime, UploadError, UPLOAD_LIMITS,
   type UploadErrorCode, type UploadResult, type UploadPayload } from './upload-contract.ts';
 
 export type UploadReview = Readonly<{ purpose: 'blossom-upload'; identity: string; destination: string; sha256: string;
@@ -217,9 +217,9 @@ export class UploadService {
       const response = await this.native.put(entry.lease, credential.token);
       execution.assertActive();
       const descriptor = captureBlobDescriptor(response, entry.review.sha256, entry.review.size);
-      if (descriptor.type !== entry.review.mimeType) throw new UploadError('upload failed');
+      if (!matchesUploadMime(descriptor.type, entry.review.mimeType, entry.body)) throw new UploadError('upload failed');
       return this.end(entry, null, Object.freeze({ok: true, uploadId: entry.uploadId, status: 'complete', rail: 'blossom',
-        url: descriptor.url, sha256: descriptor.sha256, size: descriptor.size, mimeType: descriptor.type}));
+        url: descriptor.url, sha256: descriptor.sha256, size: descriptor.size, mimeType: entry.review.mimeType}));
     } catch (error) {
       if (!this.entries.includes(entry)) return this.outcomes.find(value => value.id === entry.id)?.result ??
         Object.freeze({ok: false, uploadId: entry.uploadId, status: 'cancelled', rail: 'blossom', error: 'user cancelled'});

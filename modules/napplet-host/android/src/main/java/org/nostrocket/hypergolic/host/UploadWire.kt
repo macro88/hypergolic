@@ -87,7 +87,7 @@ internal object UploadWire {
     require(descriptor.length() <= 32)
     metadata(descriptor)
     require(descriptor.get("sha256") == review.sha256 && integer(descriptor.get("size"), NativeUploadAuthority.MAX_BYTES.toLong()) == review.size.toLong()
-      && descriptor.get("type") == review.mimeType)
+      && review.acceptsDescriptorType(descriptor.get("type") as? String))
     integer(descriptor.get("uploaded"), 9_007_199_254_740_991L)
     val url = text(descriptor.get("url"), 2048)
     val parsed = PublishedHttpsTransport.validateRequest(url, PublishedHttpsRequestOwner.addressPolicy())

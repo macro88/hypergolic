@@ -28,8 +28,13 @@ final class NativeUploadAuthority: @unchecked Sendable {
     let metadataPolicy: String
     let sha256: String
     let size: Int
+    private let validatedWav: Bool
+    func acceptsDescriptorType(_ type: String?) -> Bool {
+      type == mimeType || validatedWav && type == "audio/x-wav"
+    }
     fileprivate init(_ row: Row) {
       identity = row.session.identity; destination = row.destination; mimeType = row.mimeType; metadataPolicy = row.metadataPolicy
+      validatedWav = row.mimeType == "audio/wav" && UploadFileProfile.attachmentType([UInt8](row.body)) == "audio/wav"
       size = row.body.count; sha256 = SHA256.hash(data: row.body).map { String(format: "%02x", $0) }.joined()
     }
   }

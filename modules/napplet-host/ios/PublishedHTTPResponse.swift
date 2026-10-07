@@ -9,7 +9,7 @@ struct PublishedHTTPResponse {
   static let maximumUploadBodyBytes = 32 * 1024
   static let maximumResourceBodyBytes = 10 * 1024 * 1024
 
-  enum Failure: Error { case invalidResponse, tooLarge, resourceStatus(Int), resourcePolicy, resourceRedirect(String), uploadStatus(Int), uploadPolicy, recoveryStatus(Int) }
+  enum Failure: Error { case invalidResponse, tooLarge, resourceStatus(Int), resourcePolicy, resourceRedirect(String), uploadStatus(Int), uploadPolicy, recoveryStatus(Int), recoveryRedirect(String) }
 
   let status: Int
   let headers: [String: String]
@@ -47,6 +47,10 @@ struct PublishedHTTPResponse {
     if resourceProfile && [301,302,303,307,308].contains(status) {
       guard let location = headers["location"], !location.isEmpty, location.utf8.count <= 8192 else { throw Failure.resourcePolicy }
       throw Failure.resourceRedirect(location)
+    }
+    if recoveryProfile && [301,302,303,307,308].contains(status) {
+      guard let location = headers["location"], !location.isEmpty, location.utf8.count <= 8192 else { throw Failure.uploadPolicy }
+      throw Failure.recoveryRedirect(location)
     }
     if (uploadProfile || recoveryProfile) && (300...399).contains(status) { throw Failure.uploadPolicy }
     guard uploadProfile || recoveryProfile || status == 200 else {
@@ -135,7 +139,7 @@ final class PublishedHTTPResponseAccumulator {
     if let boundary = wire.range(of: separator) {
       guard boundary.lowerBound <= PublishedHTTPResponse.maximumHeaderBytes else { throw PublishedHTTPResponse.Failure.tooLarge }
       if wire.count >= 12, let status = Int(String(decoding: wire[9..<12], as: UTF8.self)),
-        (resourceProfile && status != 200) {
+        (resourceProfile && status != 200 || recoveryProfile && [301,302,303,307,308].contains(status)) {
         _ = try PublishedHTTPResponse.parse(wire, maximumBodyBytes: maximumBodyBytes, resourceProfile: resourceProfile, uploadProfile: uploadProfile, recoveryProfile: recoveryProfile)
       }
     } else if wire.count > PublishedHTTPResponse.maximumHeaderBytes + separator.count {

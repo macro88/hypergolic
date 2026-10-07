@@ -19,11 +19,16 @@ public final class UploadFileProof {
       check(request != null); check(authority.append(request, 0, bytes));
       var review = authority.sealPreparedFile(request); check(review != null);
       check(review.mimeType.equals(item[1])); check(review.metadataPolicy.equals("attachment-unchanged")); check(review.size == bytes.length);
+      check(review.acceptsDescriptorType(item[1])); check(review.acceptsDescriptorType("audio/x-wav") == item[0].equals("wav")); check(!review.acceptsDescriptorType("audio/mpeg-unknown"));
       check(Arrays.equals(authority.preview(request, review), bytes));
       var grant = authority.approve(request, review); check(grant != null); check(authority.claimSigning(grant) == review);
       check(authority.claimTransfer(grant)); check(Arrays.equals(authority.dispatch(grant), bytes));
       authority.setForeground(false); check(authority.preview(request, review) == null); check(!authority.isApproved(grant));
     }
+    var spoof = new NativeUploadAuthority(() -> 1000); var spoofSession = spoof.register("spoof", "a".repeat(64));
+    spoof.setForeground(true); spoof.focus(spoofSession);
+    var spoofRequest = spoof.admit(spoofSession, 3, "https://files.example.com", "audio/wav");
+    check(spoof.append(spoofRequest, 0, new byte[]{1,2,3})); check(!spoof.seal(spoofRequest).acceptsDescriptorType("audio/x-wav"));
     for (String value : new String[] {"<svg>private</svg>", "\uFEFF<svg>private</svg>", "GIF89aPHOTO", "II*private", "MMprivate"})
       check(UploadFileProfile.prepare(value.getBytes(java.nio.charset.StandardCharsets.UTF_8)) == null);
     check(UploadFileProfile.prepare(new byte[NativeUploadAuthority.MAX_BYTES + 1]) == null);

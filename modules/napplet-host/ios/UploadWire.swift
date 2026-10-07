@@ -87,7 +87,7 @@ enum UploadWire {
     let descriptor = try object(raw)
     guard descriptor.count <= 32 else { throw Invalid.value }; try validateMetadata(descriptor)
     guard descriptor["sha256"] as? String == review.sha256, try integer(descriptor["size"], Int64(NativeUploadAuthority.maxBytes)) == review.size,
-      descriptor["type"] as? String == review.mimeType else { throw Invalid.value }
+      review.acceptsDescriptorType(descriptor["type"] as? String) else { throw Invalid.value }
     _ = try integer(descriptor["uploaded"], 9_007_199_254_740_991)
     let url = try text(descriptor["url"], 2048), request = try PublishedPinnedHTTPS.Request(url)
     guard request.target.range(of: "^/" + review.sha256 + "\\.[A-Za-z0-9]{1,16}$", options: .regularExpression) != nil else { throw Invalid.value }

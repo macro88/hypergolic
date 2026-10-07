@@ -571,3 +571,52 @@ read-only public HTTPS recovery redirects. Both remain proposals. Recovery/picke
 approved interruption, native fault/queue/identity, published and Android parity
 remain open. All 61 final rows and Phase 2 remain open. Weekly usage is 44%, below
 the approximately 98% ceiling.
+
+
+## Accepted WAV interoperability profile — 8 October 2026
+
+The owner selected narrow WAV alias equivalence and guarded recovery redirects.
+Native reviews validate the full bounded RIFF/WAVE container before accepting
+`audio/x-wav` for canonical `audio/wav`; shared receipt handling independently
+checks the reviewed bytes. The provider descriptor retains its reported type;
+the SDK completion keeps the canonical reviewed MIME. Exact hash, size, public
+hash URL, bounded metadata and current native authority checks still apply.
+Other MIME mismatches remain uncertain after dispatch.
+
+App-only recovery starts at the captured provider/hash and follows at most two
+read-only HTTPS redirects. Every hop retains the same hash path, with an optional
+1–16 character alphanumeric extension, no credentials/query/fragment, fresh
+public DNS pinning and exact hostname TLS verification. One overall deadline,
+body bound and native foreground/identity/generation lease span all hops. No
+signature, credential or upload body is forwarded. Only complete exact size/hash
+bytes settle presence. A 404 from another origin cannot settle absence at the
+saved provider. PUT redirects and automatic retries remain denied.
+
+These are selected shell refinements to the existing pinned drafts, not a new
+upstream status. Owning local proofs do not close physical or published CAP-05.
+The original physical unknown record must be reconciled through ordinary UI
+before any replacement upload of the same file is approved.
+
+
+The accepted implementation passes 52 shared upload tests, both native authority
+suites, 62 actual recovery TLS cases and 26 PUT TLS cases. Test TLS endpoints and
+recovery metadata stores are injected; this is transport/core evidence, not a
+physical app journey. Ordinary Android/iOS exports and prebuilds, Android Release,
+and a signed iPhone Release build pass. The iPhone product retains Hypergolic,
+the existing bundle identity and identical entitlements; it is not installed.
+
+A fresh complete 425-file React Doctor scan now reports an actual 100/100 after
+the owner-approved numeric request. Aislop remains 98/100 with only the existing
+Forge/braces findings. All ten audits retain only those exact existing exceptions;
+the unmodified normal verifier remains red. The installed patch/verifier suite
+passes 74 tests. Subsequent checkpoint documentation does not alter scanned code.
+Expo Doctor remains 20/21 because the six selected updates are not installed:
+`expo-sqlite@57.0.4` triggers pnpm's existing publisher-trust downgrade guard.
+Neither dependency pins nor the trust policy are changed. Resolving this new
+provenance issue requires a separate concrete choice.
+
+The current physical identity observer again times out enabling XCTest automation
+before setup. No current retained-identity/recovery/picker result is claimed and
+no app data is changed. Private upload-interop01 retains the exact local proof,
+quality, build and initialization-failure evidence. CAP-05 and every final physical
+acceptance row remain open; the original unknown WAV is not silently reuploaded.

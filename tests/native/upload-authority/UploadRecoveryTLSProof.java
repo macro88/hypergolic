@@ -25,10 +25,10 @@ public final class UploadRecoveryTLSProof {
     var ledger = new UploadRecoveryLedger(new Memory()); if (!ledger.start(record)) throw new AssertionError("Record start failed");
     var authority = new UploadRecoveryReadAuthority(() -> System.nanoTime()/1_000_000); authority.register("realm", identity); authority.foreground(true); var lease = authority.capture(record);
     if (mode.equals("cancel-before")) { authority.foreground(false); authority.foreground(true); }
-    if (mode.equals("cancel-read")) new Thread(() -> { try { long deadline = System.nanoTime() + 5_000_000_000L; while (!Files.exists(Path.of(args[3])) && System.nanoTime() < deadline) Thread.sleep(5); } catch (InterruptedException ignored) {Thread.currentThread().interrupt();} authority.foreground(false); authority.foreground(true); }).start();
+    if ((mode.equals("cancel-read") || mode.equals("redirect-cancel"))) new Thread(() -> { try { long deadline = System.nanoTime() + 5_000_000_000L; while (!Files.exists(Path.of(args[3])) && System.nanoTime() < deadline) Thread.sleep(5); } catch (InterruptedException ignored) {Thread.currentThread().interrupt();} authority.foreground(false); authority.foreground(true); }).start();
     var address = InetAddress.getByAddress(new byte[]{127,0,0,1});
     var policy = new PublishedHttpsTransport.AddressPolicy() {
-      public boolean isAllowedHost(String host) { return host.equals("files.example.com"); }
+      public boolean isAllowedHost(String host) { return host.equals("files.example.com") || host.equals("other.example.com"); }
       public boolean isAllowedAddress(InetAddress value) { return value.equals(address); }
     };
     var certificate = CertificateFactory.getInstance("X.509").generateCertificate(Files.newInputStream(Path.of(args[1])));
@@ -39,7 +39,7 @@ public final class UploadRecoveryTLSProof {
     var state = UploadRecoveryLedger.State.UNKNOWN;
     try {
       var response = UploadRecoveryHttps.getWithTransport(authority, lease, policy,
-        host -> mode.equals("mixed-dns") ? new InetAddress[]{address, InetAddress.getByAddress(new byte[]{10,0,0,1})} : new InetAddress[]{address}, dns,
+        host -> (mode.equals("mixed-dns") || mode.equals("redirect-mixed-dns") && host.equals("other.example.com")) ? new InetAddress[]{address, InetAddress.getByAddress(new byte[]{10,0,0,1})} : new InetAddress[]{address}, dns,
         mode.equals("untrusted") ? SSLContext.getDefault().getSocketFactory() : tls.getSocketFactory(), (host, session) -> {
           try { for (List<?> name : ((X509Certificate)session.getPeerCertificates()[0]).getSubjectAlternativeNames())
             if (name.size() >= 2 && Integer.valueOf(2).equals(name.get(0)) && host.equals(name.get(1))) return true;
