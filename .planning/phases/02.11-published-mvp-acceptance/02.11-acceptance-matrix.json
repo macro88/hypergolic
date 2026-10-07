@@ -780,8 +780,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-routing01/physical/hg-routing-physical-iphone04/receipt.json"
+          ],
+          "remaining": "Complete authorized verified handler dispatch/chooser/cancel/defaults, closed handler readiness, exact target payload and first-open/update/published parity. This ordinary thirteen-check bundled subset proves missing-handler availability/structured denial only for intent. Android physical remains required."
         }
       }
     },
@@ -795,8 +798,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-routing01/physical/hg-routing-physical-iphone04/receipt.json"
+          ],
+          "remaining": "Complete channels/inbound ordering/terminal lifecycle, distinct app/publisher/identity and replaced/closed-target isolation, flood/backpressure/expiry/replay, concurrent modal and published parity on both phones. This ordinary thirteen-check bundled subset proves same-app cross-view exact topic payload/sender/no-echo, separate session reviews, forged controls with positive delivery, unsubscribe, confirmed background/return and cold fresh topic review. It does not emit during OS suspension or prove native zero effects."
         }
       }
     },

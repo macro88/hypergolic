@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone notification13-check run and state-confirmed configuration background pass after bounded denial fix. Home-only OS assumptions corrected, original failures retained. iOS33 partial28 not-run; full phase and quality remain open. Guard around98%, no source push.
+stopped_at: Physical iPhone bundled intent/INC thirteen-check run passes with retained identity and confirmed OS states; CAP08/CAP09 partial. All final rows, verified handler/channel and Android parity remain open. Usage43%, guard around98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
@@ -826,3 +826,12 @@ retained. Local stable app seal/installed metadata remain unchanged; no applicat
 source edits/reinstall. Full61-row acceptance remains open on each platform.
 Published Outbox stays withheld, Android disconnected, latest usage22% consumed;
 continue under the owner ceiling around98%. Source push remains owner-only.
+
+
+Physical routing checkpoint8October: ordinary bundled intent/INC thirteen-check
+subset passes in one physical iPhone run; missing-handler/peer errors, exact
+symmetric topics, source controls, background/return, unsubscribe and cold fresh
+approval observed. Main source/product remain unchanged; prior view restored and
+only run-created views closed. CAP08/CAP09 now partial, with successful verified
+handler/channel/published/native fault and Android parity gates still open.
+All61 final rows and Phase2 remain open. Weekly43%, ceiling about98%; no source push.

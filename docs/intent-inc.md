@@ -39,3 +39,38 @@ Catalog bounds are 64 apps per identity, 256 total and 4MiB signed events. Routi
 `pnpm test:routing` exercises strict contracts, real signed events and SQLite catalog transactions, identity/default/removal/corruption/revocation and app broker routing. Its native port is a labelled double. `pnpm test:routing:native` compiles production Java/Swift endpoint cores; shared native lease proofs separately exercise continuous-clock expiry, sequence and one-use bounds. Browser SDK tests prove the adapters and original SDK channel retention, not mobile security.
 
 Input-driven signed-local Android/iOS Release journeys are in `tests/native/routing`, using the ordinary IdentityShell/native hosts and disposable documented public identities. They seal actual installed products and source before/after, preserve SDK receipts and capture screenshots/accessibility. Each host passes routing/fault (24), Settings/cold14 and absent/ambiguous-target5 cases. All 293 production/native/runtime inputs match final source across those sealed runs. QA observer/fixture differences are separately recorded; full cross-run fingerprints are not claimed identical. Both ordinary production Release builds compile and packaged runtime bytes match. Routing (43) and full browser runtime (188) pass. React Doctor 100 and aislop97 are accepted only under the existing exact Forge/braces exceptions, with ordinary gates still red. CAP-08/CAP-09 are accepted for this selected profile. Physical devices, protected production identities, remote discovery/publication and full MVP parity remain CAP-14. See [the final verification record](../.planning/phases/02.7-intents-and-inter-napplet-communication/02.7-VERIFICATION.md) for acceptance rather than inferring it from successful packaging.
+
+
+## Physical iPhone bundled intent/INC subset — 8 October 2026
+
+One green thirteen-check run uses the ordinary signed app, retained protected
+identity and genuine bundled SDK. It proves unavailable role/candidates, structured
+`no handler` dispatch denial, absent channel-peer denial and empty channel list;
+separate exact-topic approval for two loaded views; exact symmetric topic/payload/
+sender with no echo; forged sender/native-control rejection with a subsequent
+live positive delivery; unsubscribe with an independent positive control; actual
+OS background (state3 then suspended2), retained topic approval on return without
+replay; and process-death identity continuity with empty receipts and fresh topic
+review. Only newly created run views are closed; prior focus is restored.
+No retained secret, signing or public write is used. No payload is attempted while
+OS-suspended, so that transition is not a background-emission fault proof.
+
+Three failed observer attempts are preserved separately: JSON field-order
+assumption, expecting the notification review's selected-user field in a routing
+review, and treating the fixed review footer as part of its scroll area. The
+corrected observer preserves exact SDK assertions and native visibility/hittability.
+The green result is one complete run, not a combined sum of earlier observations.
+
+All408 source inputs and the existing local normal-product seal match before/
+after. Main-app metadata and saved public identity remain; main is not reinstalled
+or changed. Installed iOS executable bytes are not retrieved. Private
+`iphone-routing01` retains exact drafts, drivers, receipts and inspected PNG/AX.
+The selected NAP-INTENT/NAP-INC revision remains
+`a040914b4bbd3a5cd8a14b0f316a723c968ebfb2`.
+
+CAP-08/CAP-09 are partial on iOS. The bundled caller has no registered role handler
+or distinct channel peer; verified handler success/choice/default/cold admission,
+channels, distinct identity/publisher/app/version faults, flood/replay and published
+parity remain required. Physical Android is absent from current ADB inventory.
+No final matrix row, plan or Phase2 is closed. No app code changed; previous
+quality/packaging results remain historical, not rerun here. Source push is owner-only.
