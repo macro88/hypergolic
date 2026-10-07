@@ -1,9 +1,16 @@
 import type { HostOperationContext } from '@kehto/runtime';
-import { parseNotifyMessage } from '../../src/presentation/notify-contract';
+import { captureNotifyRejection, parseNotifyMessage, type NotifyMessage } from '../../src/presentation/notify-contract';
 import { NativeRequestRevoked, type createNativeClient } from './native-client';
 export function createNotifyAdapter(native: ReturnType<typeof createNativeClient>, captureRecipient: () => () => boolean) {
   return async ({message, send}: HostOperationContext): Promise<void> => {
-    const live = captureRecipient(), request = parseNotifyMessage(message);
+    const live = captureRecipient();
+    let request: NotifyMessage;
+    try {request = parseNotifyMessage(message);}
+    catch {
+      const rejection = captureNotifyRejection(message);
+      if (live() && rejection !== null) send({...rejection});
+      return;
+    }
     try {const response = await native.notify(request); if (live() && response !== null) send({...response});}
     catch (error) {
       if (!live() || error instanceof NativeRequestRevoked) return;

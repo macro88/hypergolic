@@ -32,3 +32,10 @@ test('foreign generation, malformed push and guest spoof cannot deliver callback
  await guest.locator('#notify-malformed').click();await expect(guest.locator('#notify-events')).toBeEmpty();expect((await page.evaluate(()=>(window as any).notifyNative.calls)).filter((row:any)=>row.title==='Forged source')).toHaveLength(0);
  await page.evaluate(()=>(window as any).notifyPush({type:'notify.clicked',notificationId:'native-positive'}));await expect(guest.locator('#notify-events')).toContainText('native-positive');
 });
+
+test('bounded oversized SDK send returns a correlated denial promptly without crossing the native boundary',async({page})=>{
+ const guest=await open(page);await guest.locator('#notify-oversized').click();
+ await expect(guest.locator('#notify-oversized-result')).toContainText('"accepted":false',{timeout:5000});
+ expect((await page.evaluate(()=>(window as any).notifyNative.calls)).filter((row:any)=>row.type==='notify.send')).toHaveLength(0);
+ await guest.locator('#notify-send').click();await expect(guest.locator('#notify-result')).toHaveText('{"notificationId":"native-notify-1"}');
+});

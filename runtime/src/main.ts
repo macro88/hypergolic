@@ -4,7 +4,7 @@ import {parseOutboxSubscribe,parseOutboxClose} from '../../src/outbox/subscripti
 import {createConfigAdapter} from './config-adapter';
 import {parseConfigMessage} from '../../src/presentation/config-contract';
 import {createNotifyAdapter} from './notify-adapter';
-import {parseNotifyMessage} from '../../src/presentation/notify-contract';
+import {captureNotifyRejection, parseNotifyMessage} from '../../src/presentation/notify-contract';
 import { createRoutingAdapter } from './routing-adapter';
 import { parseRoutingMessage } from '../../src/routing/routing-contract';
 import { createLinkAdapter } from './link-adapter';
@@ -248,7 +248,13 @@ function mount(artifact: RuntimeArtifact): void {
 
   const receive = (event: MessageEvent): void => {
     if (stopped || !event.isTrusted || event.source !== source || frame.contentWindow !== source) return;
+    if (performance.now() - windowStart > 1000) { operations = 0; windowStart = performance.now(); }
+    if (++operations > 64) return;
     if (!validEnvelope(event.data)) {
+      if (ready && artifact.domains.includes('notify') && bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId)) {
+        const rejection = captureNotifyRejection(event.data);
+        if (rejection !== null) source.postMessage({...rejection}, '*');
+      }
       // A denied subscribe acquires no Kehto/native authority. Reply only to the captured
       // registered frame with an independently validated caller correlation identifier.
       if (ready && artifact.domains.includes('relay') && (event.data?.type === 'relay.subscribe' || artifact.domains.includes('outbox') && event.data?.type === 'outbox.subscribe')) {
@@ -260,8 +266,6 @@ function mount(artifact: RuntimeArtifact): void {
       }
       return;
     }
-    if (performance.now() - windowStart > 1000) { operations = 0; windowStart = performance.now(); }
-    if (++operations > 64) return;
     // Kehto performs session gating, frozen capability enforcement and theme dispatch.
     bridge.handleMessage(event);
     if (!ready && bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId)) {

@@ -124,7 +124,7 @@ quality gates are unchanged.
 
 The ordinary physical iPhone Release app passes ten bundled original-SDK checks
 covering schema registration/defaults, initial and live subscription ordering,
-trusted editor cancel/save, background return, invalid/forged requests,
+trusted editor cancel/save, Home/return readback, invalid/forged requests,
 unsubscribe and cold restart with the retained protected public identity.
 A separate native-editor visual check passes. These are scoped physical results;
 full secret lifecycle, namespace/update isolation, published parity, faults and
@@ -138,3 +138,30 @@ The original physical assertions pass unchanged after the fix. Chromium and
 WebKit reproduce the defect before the patch and pass the new regression after it.
 See the [physical checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md)
 for installation, retained evidence and remaining limits.
+
+
+## Physical notification checkpoint — 7 October 2026
+
+The ordinary signed iPhone app passes one13-check bundled original-SDK run for
+trusted permission, exact attributed cards and action/body/dismiss callbacks,
+remembered permission, oversized/forged controls, loaded foreground retention,
+confirmed OS background cleanup, cold permission continuity and Settings revoke.
+The scoped general test grant is revoked afterward. Named-channel and complete
+identity/publisher/app/version isolation, hostile/flood/expiry and lifecycle races,
+published parity, modal integration and physical Android remain CAP-14 work.
+
+Bounded invalid notification sends previously failed the outer runtime envelope
+gate without a correlated SDK denial. The captured registered notify frame now
+receives a bounded generic rejection; malformed authority/unknown or unbounded
+headers acquire neither a reply path nor a native operation. The existing64-per-
+second incoming-message limit includes rejected messages. Both browser engines
+reproduce the defect before the fix and pass the regression plus a positive send
+afterward. This is a local runtime denial, not a native permission grant.
+
+The external iPhone observer now confirms both background and suspended states
+through explicit OS launcher activation. A focused probe demonstrates that Home
+input alone stays foreground in that run. The earlier ten-check configuration
+run's Home/return observation therefore does not prove background; a separate
+state-confirmed configuration run now passes exact saved-value readback.
+See the [physical checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md)
+for failed attempts, repaired observers and remaining limits.

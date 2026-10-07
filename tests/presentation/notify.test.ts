@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseNotifyMessage, captureNotifyPush, captureNotifyReply} from '../../src/presentation/notify-contract.ts';
+import {parseNotifyMessage, captureNotifyPush, captureNotifyReply, captureNotifyRejection} from '../../src/presentation/notify-contract.ts';
 import {openNotifyPermissions} from '../../src/presentation/notify-permissions.ts';
 import {setup, tick} from './harness.ts';
 test('notify parser captures immutable data and rejects foreign authority, accessors, duplicate actions and oversize', () => {
@@ -66,4 +66,15 @@ test('badge attribution and toast clock come from captured source; expiry clears
  const h=await setup(t);await h.allow();await h.dispatch(h.source,{type:'notify.badge',count:3}).promise;await h.dispatch(h.source,{type:'notify.send',id:'toast',title:'Transient toast'}).promise;
  const snapshot=h.broker.getSnapshot();assert.deepEqual(snapshot.attributedBadges[0]!.origin,h.source);assert.equal(snapshot.attributedBadges[0]!.count,3);assert.equal(snapshot.toast!.title,'Transient toast');
  h.advance(8001);assert.equal(h.broker.getSnapshot().toast,null);assert.equal(h.broker.getSnapshot().cards.length,1);h.lifecycle({foreground:false,available:false});assert.deepEqual(h.broker.getSnapshot().attributedBadges,[]);
+});
+
+
+test('invalid notifications deny only bounded authority-free correlated requests without invoking accessors', () => {
+ const request={type:'notify.send',id:'oversized',title:'Test',body:'x'.repeat(4097)};
+ assert.deepEqual(captureNotifyRejection(request),{type:'notify.send.result',id:'oversized',error:'invalid notification'});
+ assert.deepEqual(captureNotifyRejection({type:'notify.permission.request',id:'p',channel:3}),{type:'notify.permission.result',id:'p',granted:false});
+ for (const patch of [{publisher:'forged'},{sender:'forged'},{generation:'forged'},{id:''},{id:'x'.repeat(129)},{id:'control\n'},{body:'x'.repeat(32769)}]) assert.equal(captureNotifyRejection({...request,...patch}),null);
+ assert.equal(captureNotifyRejection({type:'notify.permission.request',id:'p',title:'foreign'}),null);
+ assert.equal(captureNotifyRejection({type:'notify.action',id:'p'}),null);
+ assert.equal(captureNotifyRejection({type:'notify.send',id:'p',get title(){throw Error('Getter must not run');}}),null);
 });

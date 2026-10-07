@@ -635,7 +635,8 @@
           "status": "partial",
           "evidence": [
             "physical-iphone-tracer06/hg-phase211-iphone-tracer09/receipt.json",
-            "iphone-configuration01/physical/hg-routing-configuration-physical-iphone02/receipt.json"
+            "iphone-configuration01/physical/hg-routing-configuration-physical-iphone02/receipt.json",
+            "iphone-notifications01/physical/hg-routing-notification-physical-iphone05/receipt.json"
           ],
           "remaining": "Current ordinary signed Release installs in place with unchanged bundle/team/entitlements and retained public identity, then cold-launches and passes the configuration subset. Local product and408 input seals are retained; installed iOS executable bytes were not retrieved. Complete both-platform payload/permission inspections and full native journeys remain required."
         }
@@ -809,8 +810,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-notifications01/physical/hg-routing-notification-physical-iphone05/receipt.json",
+            "iphone-notifications01/physical/hg-routing-notification-physical-iphone-background01/receipt.json"
+          ],
+          "remaining": "One green13-check ordinary bundled original-SDK run covers trusted permission, exact callbacks, invalid/forged controls, foreground retention, confirmed OS background, cold restart and revoke. Named-channel and complete identity/publisher/app/version isolation, hostile/flood/expiry/close/replacement races, published parity, modal integration and Android physical remain required."
         }
       }
     },
@@ -827,7 +832,8 @@
           "status": "partial",
           "evidence": [
             "iphone-configuration01/physical/hg-routing-configuration-physical-iphone02/receipt.json",
-            "iphone-configuration01/physical/hg-routing-configuration-physical-iphone-editor01/receipt.json"
+            "iphone-configuration01/physical/hg-routing-configuration-physical-iphone-editor01/receipt.json",
+            "iphone-notifications01/physical/hg-routing-configuration-physical-iphone-background01/receipt.json"
           ],
           "remaining": "Ten ordinary bundled original-SDK configuration checks and a separate native-editor visual check pass after the correlated-reply defect fix. Full secret editing/purge, identity/publisher/app/version isolation, verified updates, faults/races, published and Android physical parity remain required."
         }

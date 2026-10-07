@@ -35,6 +35,19 @@ export function parseNotifyMessage(value: unknown): NotifyMessage {
   }
   throw new Error('Unknown notification operation');
 }
+/** A denial needs a bounded, authority-free correlation header, never a valid payload. */
+export function captureNotifyRejection(value: unknown): Readonly<Record<string, unknown>> | null {
+  try {
+    const row = routingRecord(routingPayload(value), ['type', 'id'], ['title', 'body', 'icon', 'actions', 'channel', 'priority']);
+    const id = routingText(row.id, 128);
+    if (row.type === 'notify.send') return Object.freeze({type: 'notify.send.result', id, error: 'invalid notification'});
+    if (row.type === 'notify.permission.request') {
+      routingRecord(row, ['type', 'id'], ['channel']);
+      return Object.freeze({type: 'notify.permission.result', id, granted: false});
+    }
+  } catch { /* Unknown authority, accessors and unbounded headers have no reply path. */ }
+  return null;
+}
 export const NOTIFY_CONTROLS = Object.freeze(['toasts', 'badges', 'actions', 'channels']);
 export function captureNotifyPush(value: unknown): Readonly<Record<string, unknown> & {type: string}> {
   const row = routingRecord(routingPayload(value), ['type'], ['notificationId', 'actionId', 'reason', 'controls']);
