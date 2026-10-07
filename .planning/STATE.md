@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone bundled protected Outbox five-check publication and independent live/stored proof pass; workspace nine-check and separate scroll five-check subsets pass. Close-confirmation six-check subset passes. Existing app/identity preserved; full Phase2 acceptance open; usage16%, guard around98%; no source push.
+stopped_at: Physical iPhone pending Outbox nine-check subset plus separate four-check close pass; bounded relay absence verifies six distinct reviewed hashes. Source-linked native WK17 physical methods pass; all final rows open. Existing Hypergolic unchanged, usage22%, guard around98%, no source push.
 last_updated: "2026-10-07"
 last_activity: 2026-10-07
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
@@ -813,3 +813,16 @@ assumptions are retained. Final published Outbox remains withheld pending native
 prerequisites; its final admission tests follow those prerequisites, resolving the
 circular plan order without reducing scope. Physical workspace nine-check and separate scroll five-check subsets pass; close
 confirmation six-check subset also passes. Full Phase2 remains open. Source pushes remain owner-only.
+
+
+Physical pending/native checkpoint (2026-10-07): nine observed passing pending
+Outbox checks remain inside a failed ten-check suite; corrected separate four-check
+requester-close run passes. Canonical denial, explicit pause/resume/attribution and
+process death are observed; bounded live/stored absence covers five plus one distinct
+review hashes, without native zero-effect claims. All17 current source-linked WK
+core methods pass physically in a separate QA app; no Expo/protected signer or
+packet-level claim. Historical baseline and failed driver/build evidence are
+retained. Local stable app seal/installed metadata remain unchanged; no application
+source edits/reinstall. Full61-row acceptance remains open on each platform.
+Published Outbox stays withheld, Android disconnected, latest usage22% consumed;
+continue under the owner ceiling around98%. Source push remains owner-only.

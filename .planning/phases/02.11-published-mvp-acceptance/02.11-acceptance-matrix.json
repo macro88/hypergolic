@@ -324,8 +324,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone03/trace-report.json",
+            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone04/receipt.json"
+          ],
+          "remaining": "Complete all named row requirements. Observed single-request dismissal and canonical SDK denial; multi-request queues, all dismissal inputs and remainder-only resume remain open."
         }
       }
     },
@@ -339,8 +343,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone03/trace-report.json",
+            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone04/receipt.json"
+          ],
+          "remaining": "Complete all named row requirements. Observed pending review paused across actual background/return and loaded-view switch, no foreign review, explicit unchanged-event resume. Delayed-before-emission, overview indication for all queue cases and native signer counters remain open."
         }
       }
     },
@@ -354,8 +362,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone03/trace-report.json",
+            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone04/receipt.json"
+          ],
+          "remaining": "Complete all named row requirements. Observed pending process-death removal/identity retention and separate pending requester close. Identity/update, approved/in-flight races, expiry/queue and native zero-effect evidence remain open."
         }
       }
     },
@@ -474,8 +486,13 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-boundary01/receipt.json",
+            "iphone-boundary01/input-review.json",
+            "iphone-boundary01/test-summary.json"
+          ],
+          "remaining": "Complete all named row requirements. Current source-linked separate QA app passes17 physical WK methods, including actual child frame/source/world/schema/generation/size and lease checks. Privileged native stimuli; owning Expo, all domain authority, concurrent malicious sources and final published parity remain open."
         }
       }
     },
@@ -489,8 +506,13 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-boundary01/receipt.json",
+            "iphone-boundary01/input-review.json",
+            "iphone-boundary01/test-summary.json"
+          ],
+          "remaining": "Complete all named row requirements. Physical source-linked core observes opaque parent/storage/generic bridge denial and individually attributed CSP fetch/WS/image/script/worker failures. No packet-level external receiver or protected-key absence claim; complete malicious/published/owning-app escapes remain open."
         }
       }
     },
@@ -504,8 +526,13 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-boundary01/receipt.json",
+            "iphone-boundary01/input-review.json",
+            "iphone-boundary01/test-summary.json"
+          ],
+          "remaining": "Complete all named row requirements. Physical source-linked core observes top/self navigation, admitted native error, unmount/reuse and lease revocation. Renderer termination, complete resource/redirect/reload/queue/byte limits and owning-app/published cleanup remain open."
         }
       }
     },
@@ -924,8 +951,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone03/trace-report.json",
+            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone04/receipt.json"
+          ],
+          "remaining": "Complete all named row requirements. Nine checks pass in a failed ten-check pending-review suite; separate four-check pending-close rerun passes. Canonical reject/dismiss, background pause/explicit unchanged resume, loaded-view attribution and process death observed. Independent bounded live/stored absence is not native zero signing/emission. Signing/send/receipt races, identity/update and published lifecycle remain open."
         }
       }
     },
