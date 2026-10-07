@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical USB iPhone review/cancel/background/cold identity passes six checks; ordinary published Feed consent and exact SDK relay query/cold restore observed, corrected saved-session four-check run passes. Same installed app and identity retained; Plan02/CAP12/CAP14 and full Outbox acceptance remain open; usage12%, guard around98%; no source push.
+stopped_at: Physical iPhone bundled protected Outbox five-check publication and independent live/stored proof pass; workspace nine-check and separate scroll five-check subsets pass. Close-confirmation six-check subset passes. Existing app/identity preserved; full Phase2 acceptance open; usage16%, guard around98%; no source push.
 last_updated: "2026-10-07"
 last_activity: 2026-10-07
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
@@ -62,7 +62,7 @@ See `docs/architecture.md` for confirmed requirements and unresolved policy.
 
 First theme-only native contract is selected. Validate privileged adapters and delivery contracts before their dependent work. Preserve Expo 57.0.20 despite the existing Doctor patch-version mismatch. Source remote/push remains owner-only.
 Current budget (2026-10-07): the user authorized continuation to about2% remaining, approximately98% consumed, then pause. Check account usage between small batches. This supersedes the earlier90% limit. Keep source remote configuration and push owner-only.
-Android emulator and iPhone Simulator scaffold checks are verified. Physical-iPhone signing and execution remain untested; native security acceptance is still open.
+Android emulator and iPhone Simulator scaffold checks are verified. Physical iPhone ordinary bundled protected signing and published relay-query subsets are now observed; full native security and published Outbox acceptance remain open.
 See `docs/phase-zero.md` for actual checks and artifacts.
 
 ### Quick Tasks Completed
@@ -803,3 +803,13 @@ External links native/build checkpoint (2026-10-03): final signed Android03/iOS0
 ## Phase 2.7 first native tracer — 3 October 2026
 
 The seven signed-local SDK/native intent cases pass on Android API36 Release and iOS26.5 Release. Sealed installed products and unchanged source inputs were checked; native review, exact target payload and original caller result were inspected. TypeScript, capability55, routing22 and browser12 pass. The pinned ACL recipient mapping gap is covered by the opt-in locked runtime patch with existing domain/session/ACL checks preserved. Earlier observer failures remain visible. Plan01 complete; general INC plan02 is executing. CAP-08/CAP-09 and physical/protected/full CAP-14 acceptance remain open. Weekly usage22% at the checkpoint; no source commit/push.
+
+
+Physical iPhone Outbox checkpoint (2026-10-07): five ordinary bundled original-SDK
+checks pass with the retained protected development identity, exact native
+review, sole public relay ACK and independent exact live/stored signature/event
+verification. No app reinstall or source code change. Failed driver/verifier
+assumptions are retained. Final published Outbox remains withheld pending native
+prerequisites; its final admission tests follow those prerequisites, resolving the
+circular plan order without reducing scope. Physical workspace nine-check and separate scroll five-check subsets pass; close
+confirmation six-check subset also passes. Full Phase2 remains open. Source pushes remain owner-only.

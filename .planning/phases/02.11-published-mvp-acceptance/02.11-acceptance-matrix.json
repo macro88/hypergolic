@@ -51,8 +51,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json"
+          ],
+          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases."
         }
       }
     },
@@ -66,8 +69,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json"
+          ],
+          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases."
         }
       }
     },
@@ -81,8 +87,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json"
+          ],
+          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases."
         }
       }
     },
@@ -96,8 +105,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json",
+            "iphone-workspace01/hg-scroll-physical-iphone02/trace-report.json"
+          ],
+          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases. Separate five-check run proves both scroll positions and marker selection across a two-view roundtrip after cold launch; all-three simultaneous draft/scroll coverage remains open."
         }
       }
     },
@@ -111,8 +124,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json",
+            "iphone-workspace01/hg-close-physical-iphone01/trace-report.json"
+          ],
+          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases. Six-check physical close subset proves exact warning/confirmation, target removal with overview/two observed neighbors retained, neighbor live draft/counter and cold remaining focus/identity. Full inventory/order, saved-data, deliberate-empty and closed-target absence after cold restart remain open."
         }
       }
     },
@@ -126,8 +143,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-workspace01/hg-close-physical-iphone01/trace-report.json"
+          ],
+          "remaining": "Complete all named row requirements. Six-check physical close subset proves exact warning/confirmation, target removal with overview/two observed neighbors retained, neighbor live draft/counter and cold remaining focus/identity. Full inventory/order, saved-data, deliberate-empty and closed-target absence after cold restart remain open."
         }
       }
     },
@@ -141,8 +161,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json",
+            "iphone-workspace01/hg-close-physical-iphone01/trace-report.json"
+          ],
+          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases. Six-check physical close subset proves exact warning/confirmation, target removal with overview/two observed neighbors retained, neighbor live draft/counter and cold remaining focus/identity. Full inventory/order, saved-data, deliberate-empty and closed-target absence after cold restart remain open."
         }
       }
     },
@@ -156,8 +180,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json"
+          ],
+          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases."
         }
       }
     },
@@ -507,8 +534,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-connected01/hg-fixture-published-iphone02/trace-report.json",
+            "iphone-connected01/hg-fixture-published-iphone03/trace-report.json"
+          ],
+          "remaining": "Complete all named row requirements. First-open exact publisher/event consent, unavailable-Outbox warning, decline/fresh accept and exact original-SDK relay query were observed; initial suite fails its friendly-title assumption. Corrected saved-session query/cold identity run passes. Published Outbox, all fixture parity and complete operation/lifecycle coverage remain open."
         }
       }
     },
@@ -522,8 +553,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-outbox01/hg-outbox-physical-iphone-publication02/trace-report.json",
+            "iphone-outbox01/hg-outbox-physical-iphone-publication02/publication-proof.json"
+          ],
+          "remaining": "Complete all named row requirements. This subset proves retained physical development identity, exact native review and bundled original-SDK protected explicit-only publication with independent live/stored verification; final published Outbox and full routing/lifecycle/fault acceptance remain open."
         }
       }
     },
@@ -580,16 +615,20 @@
     },
     {
       "id": "CAP-01",
-      "requirement": "Pinned operation profiles and truthful compatibility/admission; unsupported required domains fail before execution; no invented wire fields or full-support claim from domain admission alone",
-      "requiredEvidence": "Pinned operation profiles and truthful compatibility/admission; unsupported required domains fail before execution; no invented wire fields or full-support claim from domain admission alone",
+      "requirement": "Pinned operation profiles and truthful compatibility/admission; verified napplets launch after review with supported requested domains only; unavailable domains are reported and their operations remain unavailable; no invented wire fields or full-support claim from admission alone",
+      "requiredEvidence": "Pinned operation/profile references; physical exact manifest/support review, tolerant verified launch with unavailable warning, supported grant intersection and original-SDK unavailable/denied operation outcomes; signature/hash and per-operation authority remain enforced.",
       "platforms": {
         "android-physical": {
           "status": "not-run",
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-connected01/hg-fixture-published-iphone02/trace-report.json",
+            "iphone-connected01/hg-fixture-published-iphone03/trace-report.json"
+          ],
+          "remaining": "Complete all named row requirements. First-open exact publisher/event consent, unavailable-Outbox warning, decline/fresh accept and exact original-SDK relay query were observed; initial suite fails its friendly-title assumption. Corrected saved-session query/cold identity run passes. Published Outbox, all fixture parity and complete operation/lifecycle coverage remain open."
         }
       }
     },
@@ -603,8 +642,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-connected01/hg-fixture-published-iphone02/trace-report.json",
+            "iphone-connected01/hg-fixture-published-iphone03/trace-report.json"
+          ],
+          "remaining": "Complete all named row requirements. First-open exact publisher/event consent, unavailable-Outbox warning, decline/fresh accept and exact original-SDK relay query were observed; initial suite fails its friendly-title assumption. Corrected saved-session query/cold identity run passes. Published Outbox, all fixture parity and complete operation/lifecycle coverage remain open."
         }
       }
     },
@@ -753,8 +796,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-outbox01/hg-outbox-physical-iphone-publication02/trace-report.json",
+            "iphone-outbox01/hg-outbox-physical-iphone-publication02/publication-proof.json"
+          ],
+          "remaining": "Complete all named row requirements. This subset proves retained physical development identity, exact native review and bundled original-SDK protected explicit-only publication with independent live/stored verification; final published Outbox and full routing/lifecycle/fault acceptance remain open."
         }
       }
     },
@@ -783,8 +830,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-outbox01/hg-outbox-physical-iphone-publication02/trace-report.json",
+            "iphone-outbox01/hg-outbox-physical-iphone-publication02/publication-proof.json"
+          ],
+          "remaining": "Complete all named row requirements. This subset proves retained physical development identity, exact native review and bundled original-SDK protected explicit-only publication with independent live/stored verification; final published Outbox and full routing/lifecycle/fault acceptance remain open."
         }
       }
     },
@@ -903,8 +954,12 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-connected01/hg-fixture-published-iphone02/trace-report.json",
+            "iphone-connected01/hg-fixture-published-iphone03/trace-report.json"
+          ],
+          "remaining": "Complete all named row requirements. First-open exact publisher/event consent, unavailable-Outbox warning, decline/fresh accept and exact original-SDK relay query were observed; initial suite fails its friendly-title assumption. Corrected saved-session query/cold identity run passes. Published Outbox, all fixture parity and complete operation/lifecycle coverage remain open."
         }
       }
     },
