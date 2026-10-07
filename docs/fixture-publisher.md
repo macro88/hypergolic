@@ -77,9 +77,15 @@ note, and restoration after the stable in-place update and cold launch. This is
 supporting evidence for Phase 2.11, not full published Outbox acceptance. Android
 installed bytes match the signed build and the existing test certificate. The
 same fixes compile in signed/provisioned iPhoneOS Release; that corrected product
-is installed in place on iPhone. A fresh XCTest attempt still fails while
-enabling automation, before any of its six checks; no iPhone release/UI pass
-is inferred from installation or ordinary process launch.
+is installed in place on iPhone. With the physical device connected over USB,
+public XCTest input now passes all six exact review/cancel/background/cold-identity
+checks. The driver confirms background and foreground states before testing
+revocation. A separate published run observes exact consent and decline, the
+unavailable-Outbox warning, SDK relay query and cold restore. Its friendly-title
+assertion fails because the signed app ID is `feed-lab`; a corrected four-check
+saved-session run passes with the exact QA result visibly readable. Original
+failed runs remain recorded. These checks approve no iPhone upload or manifest,
+perform no signing/publication and do not close full Outbox acceptance.
 
 Owning native recovery/fixture tests pass 50 Android and 46 Swift assertions;
 111 combined publisher/Outbox/relay tests pass, including a real guarded relay

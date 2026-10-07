@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Android Feed Lab public bytes/manifest independently verified and ordinary published consent/query/cold restore pass. Recovery metadata, single transfer claim and canonical relay ACK fixes verified; State Lab native release completes. Corrected iPhone build installs in place, but XCTest automation setup fails before checks; Plan02/CAP12/CAP14 remain open; usage9%, guard around98%; no source push.
+stopped_at: Physical USB iPhone review/cancel/background/cold identity passes six checks; ordinary published Feed consent and exact SDK relay query/cold restore observed, corrected saved-session four-check run passes. Same installed app and identity retained; Plan02/CAP12/CAP14 and full Outbox acceptance remain open; usage12%, guard around98%; no source push.
 last_updated: "2026-10-07"
 last_activity: 2026-10-07
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
@@ -39,7 +39,7 @@ expansion cards are not executable PLAN files.
 ## Current Position
 
 Phase: 2.11 (Complete published MVP acceptance)
-Plan: 02 verified published fixture tracer; Plan01 ordinary signed physical builds/first tracers complete. Development publisher and destinations are selected; trusted protected fixture release tool is built and installed; Feed Lab public release and Android published relay-query subset pass; full Outbox and iPhone acceptance remain needed.
+Plan: 02 verified published fixture tracer; Plan01 ordinary signed physical builds/first tracers complete. Development publisher and destinations are selected; trusted protected fixture release tool is built and installed; Feed Lab public release and Android/iPhone published relay-query subsets pass; physical iPhone review/cancel/background/cold-identity subset passes. Full Outbox and remaining native acceptance remain needed.
 Status: Phase2.9 implementation closed by owner decision; CAP-12 final acceptance/CAP-14 open. Physical Android/iPhone journeys and complete faults/admission remain required. Local commit checkpoint; no source push. Progress counts implementation plans, not passed MVP acceptance; Plan04 was transferred, not executed.
 
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
