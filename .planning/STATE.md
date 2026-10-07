@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Exact Feed Lab HTML upload and manifest publication approved; standing sensible non-sensitive development-key test writes authorized. Android absent from ADB/USB inventory, so no fixture signing/upload/publication attempted. Fixture tool commit0448cdc installed previously; Plan02/CAP12/CAP14 open; weekly96%, guard around98%; no source push.
+stopped_at: Android Feed Lab public bytes/manifest independently verified and ordinary published consent/query/cold restore pass. Recovery metadata, single transfer claim and canonical relay ACK fixes verified; State Lab native release completes. Corrected iPhone build not installed; Plan02/CAP12/CAP14 remain open; usage9%, guard around98%; no source push.
 last_updated: "2026-10-07"
 last_activity: 2026-10-07
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
@@ -39,7 +39,7 @@ expansion cards are not executable PLAN files.
 ## Current Position
 
 Phase: 2.11 (Complete published MVP acceptance)
-Plan: 02 verified published fixture tracer; Plan01 ordinary signed physical builds/first tracers complete. Development publisher and destinations are selected; trusted protected fixture release tool is built and installed; public release approval and final acceptance remain needed.
+Plan: 02 verified published fixture tracer; Plan01 ordinary signed physical builds/first tracers complete. Development publisher and destinations are selected; trusted protected fixture release tool is built and installed; Feed Lab public release and Android published relay-query subset pass; full Outbox and iPhone acceptance remain needed.
 Status: Phase2.9 implementation closed by owner decision; CAP-12 final acceptance/CAP-14 open. Physical Android/iPhone journeys and complete faults/admission remain required. Local commit checkpoint; no source push. Progress counts implementation plans, not passed MVP acceptance; Plan04 was transferred, not executed.
 
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
@@ -748,8 +748,8 @@ Phase 2.3 completion — 30 September 2026: all three resource plans pass the se
 
 ## Session
 
-**Last session:** 2026-10-07T00:39:16.313941+00:00
-**Stopped at:** Trusted fixture publisher implemented, built and installed on both physical hosts. Android exact review, cancel, background and cold-launch subset pass; iPhone automation initialization fails before six checks. Exact public release approval and Expo compatibility gap remain open. Plan02/CAP12/CAP14 open; weekly95%, pause around98%; no source push.
+**Last session:** 2026-10-07T09:50:21.746209+00:00
+**Stopped at:** Android public release and published relay-query subset pass after three owning publisher fixes; corrected iPhone product builds but is not installed. Plan02/CAP12/CAP14, iPhone automation, Outbox register and Expo compatibility remain open. Weekly9%, guard around98%; no source push.
 **Resume file:** .planning/phases/02.11-published-mvp-acceptance/02.11-02-CHECKPOINT.md
 
 Static photo checkpoint (2026-10-01): native preparation supports bounded static

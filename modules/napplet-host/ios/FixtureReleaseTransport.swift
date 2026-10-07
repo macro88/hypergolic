@@ -50,7 +50,6 @@ final class FixtureReleaseTransport: @unchecked Sendable {
   func put(_ token: String, credential: String) async -> String {
     guard let row=owner.current(token), let grant=row.grant, owner.uploadApproved(token),
       let permit=NativeBlossomPermit.capture(row.review,token:credential,now:Int64(Date().timeIntervalSince1970)),
-      owner.uploads.claimTransfer(grant),
       let registration=try? UploadWire.json(["user":row.identity,"publisher":row.identity,"appId":row.fixture]) else {return "{\"ok\":false,\"error\":\"policy denied\"}"}
     let transfer=UploadLeaseRegistry.Transfer(authority:owner.uploads,grant:grant,permit:permit,registration:registration,uploadId:UUID().uuidString.lowercased())
     let raw=await UploadTransport.putTrustedFixture(transfer)

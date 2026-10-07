@@ -144,7 +144,7 @@ export class FixturePublisher {
       const authority=this.authority(pending,'manifest');authority.assertActive();
       const event=validateSignedEvent(snapshot,await this.effects.signManifest(snapshot,authority));authority.assertActive();
       const receipts=await this.effects.publish(event,review.relays,authority);authority.assertActive();
-      const approvedRelays=new Set(review.relays);
+      const approvedRelays=new Set(snapshot.destinations);
       if(!receipts.some(receipt=>approvedRelays.has(receipt.relay) && receipt.eventId===event.id && receipt.status==='accepted'))deny();
       const stored: string[]=[];
       for(const relay of review.relays) {

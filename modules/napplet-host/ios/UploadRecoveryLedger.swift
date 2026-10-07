@@ -18,7 +18,7 @@ final class UploadRecoveryLedger: @unchecked Sendable {
         UploadRecoveryLedger.hex(identity), UploadRecoveryLedger.hex(publisher), UploadRecoveryLedger.hex(sha256),
         !appId.isEmpty, appId.utf8.count <= 1024, NativeUploadAuthority.validDestination(destination),
         (1...NativeUploadAuthority.maxBytes).contains(size),
-        ["image/png", "audio/wav", "audio/mpeg", "video/mp4", "application/pdf", "application/zip", "text/plain"].contains(mimeType)
+        ["image/png", "audio/wav", "audio/mpeg", "video/mp4", "application/pdf", "application/zip", "text/plain", "text/html"].contains(mimeType)
       else { throw Failure.invalidMetadata }
       self.uploadId = uploadId; self.identity = identity; self.publisher = publisher; self.appId = appId
       self.destination = destination; self.sha256 = sha256; self.mimeType = mimeType; self.size = size; self.state = state

@@ -7,6 +7,7 @@ import {FixturePublisher,type FixtureReleasePort,type FixturePublisherEffects} f
 import type {EventSnapshot} from '../../src/security/event-snapshot.ts';
 import type {UploadSnapshot} from '../../src/uploads/upload-snapshot.ts';
 import type {VerifiedSignedEvent} from '../../src/security/signed-event.ts';
+import {publishEvent} from '../../src/network/relay-service.ts';
 import {BUNDLED_FIXTURES} from '../../src/runtime/bundled-catalog.ts';
 
 // Public deterministic test scalar; unit-only effects never send to a real server or relay.
@@ -20,9 +21,23 @@ function sign(snapshot: EventSnapshot|UploadSnapshot): VerifiedSignedEvent {
   const signed=finalizeEvent({...input,tags:input.tags.map(tag=>[...tag])},secret);
   return {id:signed.id,pubkey:signed.pubkey,created_at:signed.created_at,kind:signed.kind,content:signed.content,tags:signed.tags,sig:signed.sig};
 }
+// Exercise the existing guarded relay adapter with strict wire ACKs, without network I/O.
+class AckWebSocket {
+  static sent: unknown[]=[];
+  readyState=0;
+  onopen: ((event: unknown)=>void)|null=null;
+  onmessage: ((event: {data: string})=>void)|null=null;
+  onclose: ((event: {wasClean: boolean})=>void)|null=null;
+  constructor(_url: string) {setImmediate(()=>{this.readyState=1;this.onopen?.({});});}
+  send(frame: string): void {
+    const parsed=JSON.parse(frame);AckWebSocket.sent.push(parsed);
+    setImmediate(()=>this.onmessage?.({data:JSON.stringify(['OK',parsed[1].id,true,'stored'])}));
+  }
+  close(): void {this.readyState=3;this.onclose?.({wasClean:true});}
+}
 function setup() {
   const state={epoch:0,identity:user,upload:false,manifest:false,signUploads:0,puts:0,signManifests:0,publishes:0,queries:0,
-    unavailableRelay:"",damagedBytes:false,damagedStoredBytes:false,changedClaim:false,relayAccepted:true,wrongStoredEvent:false,
+    realTransport:false,receiptRelay:"",receiptId:"",unavailableRelay:"",damagedBytes:false,damagedStoredBytes:false,changedClaim:false,relayAccepted:true,wrongStoredEvent:false,
     waitForSign:null as Promise<void>|null, signed:null as VerifiedSignedEvent|null};
   let capture='';
   const native: FixtureReleasePort={synchronizeFixturePublisher(){},
@@ -41,7 +56,7 @@ function setup() {
     async hash(bytes){return createHash('sha256').update(bytes).digest('hex');},now(){return 1000;},
     async signUpload(snapshot,authority){authority.assertActive();state.signUploads++;await state.waitForSign;return sign(snapshot);},
     async signManifest(snapshot,authority){authority.assertActive();state.signManifests++;return sign(snapshot);},
-    async publish(event,destinations,authority){authority.assertActive();state.publishes++;state.signed=event;return destinations.map(relay=>({relay,eventId:event.id,status:state.relayAccepted?'accepted':'rejected',reason:''}));},
+    async publish(event,destinations,authority){authority.assertActive();state.publishes++;state.signed=event;if(state.realTransport)return publishEvent(event,destinations,authority,{WebSocket:AckWebSocket as never,timeoutMs:1000});return destinations.map(relay=>({relay:state.receiptRelay || new URL(relay).href,eventId:state.receiptId || event.id,status:state.relayAccepted?'accepted':'rejected',reason:''}));},
     source:{async query(_coordinate,destinations){state.queries++;if(destinations.includes(state.unavailableRelay))throw new Error("unavailable");return state.signed?[state.wrongStoredEvent?{...state.signed,content:'changed'}:state.signed]:[];},async readHtml(){throw new Error('unused');}},
   };
   return {service:new FixturePublisher(native,effects),state,native};
@@ -104,4 +119,25 @@ test('one unavailable relay does not erase verified storage on another approved 
   state.unavailableRelay=targets[0];await service.approveManifest(service.getSnapshot().review!);
   assert.equal(service.getSnapshot().phase,'complete');assert.equal(state.queries,2);
   assert.deepEqual(JSON.parse(service.getSnapshot().result).independentlyStored,[targets[1]]);
+});
+
+test('real guarded relay adapter canonical root URL receipt completes fixture publication',async()=>{
+  const {service,state}=await manifestReady();state.realTransport=true;AckWebSocket.sent=[];
+  assert.deepEqual(service.getSnapshot().review!.relays,relays);
+  await service.approveManifest(service.getSnapshot().review!);
+  assert.equal(service.getSnapshot().phase,'complete');
+  const result=JSON.parse(service.getSnapshot().result);
+  assert.equal(result.receipts[0].relay,relays[0]+'/');
+  assert.equal(result.receipts[0].status,'accepted');assert.equal(state.queries,1);
+  assert.deepEqual(AckWebSocket.sent,[['EVENT',state.signed]]);
+});
+test('accepted receipts for an unapproved host, path or event do not start stored verification',async()=>{
+  for(const relay of ['wss://other.example.com/','wss://relay.example.com/unapproved']) {
+    const {service,state}=await manifestReady();state.receiptRelay=relay;
+    await service.approveManifest(service.getSnapshot().review!);
+    assert.equal(service.getSnapshot().phase,'failed');assert.equal(state.queries,0);
+  }
+  const {service,state}=await manifestReady();state.receiptId='00'.repeat(32);
+  await service.approveManifest(service.getSnapshot().review!);
+  assert.equal(service.getSnapshot().phase,'failed');assert.equal(state.queries,0);
 });

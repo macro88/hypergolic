@@ -49,7 +49,7 @@ internal object FixtureReleaseTransport {
     val grant = row.grant ?: return "{\"ok\":false,\"error\":\"policy denied\"}"
     val permit = NativeBlossomPermit.capture(row.review,credential,System.currentTimeMillis()/1000)
       ?: return "{\"ok\":false,\"error\":\"policy denied\"}"
-    if(!owner.uploadApproved(token) || !owner.uploads.claimTransfer(grant)) return "{\"ok\":false,\"error\":\"policy denied\"}"
+    if(!owner.uploadApproved(token)) return "{\"ok\":false,\"error\":\"policy denied\"}"
     val registration = JSONObject().put("user",row.identity).put("publisher",row.identity).put("appId",row.fixture).toString()
     val transfer = UploadLeaseRegistry.Transfer(owner.uploads,grant,permit,registration,UUID.randomUUID().toString())
     val result = JSONObject(UploadTransport.putTrustedFixture(transfer))

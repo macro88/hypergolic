@@ -30,7 +30,7 @@ final class UploadRecoveryLedger {
       if (uploadId == null || !UUID.fromString(uploadId).toString().equals(uploadId) ||
           !hex(identity) || !hex(publisher) || !hex(sha256) || !validText(appId, 1024) || appId.isEmpty() ||
           !NativeUploadAuthority.validDestination(destination) || size < 1 || size > NativeUploadAuthority.MAX_BYTES || state == null ||
-          mimeType == null || !Set.of("image/png", "audio/wav", "audio/mpeg", "video/mp4", "application/pdf", "application/zip", "text/plain").contains(mimeType)) {
+          mimeType == null || !Set.of("image/png", "audio/wav", "audio/mpeg", "video/mp4", "application/pdf", "application/zip", "text/plain", "text/html").contains(mimeType)) {
         throw new IllegalArgumentException("Invalid recovery metadata");
       }
     }

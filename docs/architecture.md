@@ -290,3 +290,10 @@ public DNS/TLS owners. Guest transports never receive this registry or its
 opaque tokens. Upload approval, stored-byte verification, manifest approval and
 independent signed-event retrieval are distinct stages. This development tool
 confers no published Outbox admission or additional guest upload formats.
+
+The trusted release recovery codec persists HTML metadata while guest HTML byte
+admission stays denied. The private HTTPS owner retains the single transfer
+claim, and relay ACKs are compared to the reviewed snapshot's canonical URL set.
+The first protected public Android fixture releases and ordinary published Feed
+Lab relay query are verified; full iPhone release and published Outbox acceptance
+remain open. See the scoped checkpoint in the owning fixture publication document.
