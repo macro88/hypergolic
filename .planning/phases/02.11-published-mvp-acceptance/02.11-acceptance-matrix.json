@@ -800,9 +800,10 @@
         "ios-physical": {
           "status": "partial",
           "evidence": [
-            "iphone-routing01/physical/hg-routing-physical-iphone04/receipt.json"
+            "iphone-routing01/physical/hg-routing-physical-iphone04/receipt.json",
+            "iphone-channels01/physical/hg-routing-channels-physical-iphone04/receipt.json"
           ],
-          "remaining": "Complete channels/inbound ordering/terminal lifecycle, distinct app/publisher/identity and replaced/closed-target isolation, flood/backpressure/expiry/replay, concurrent modal and published parity on both phones. This ordinary thirteen-check bundled subset proves same-app cross-view exact topic payload/sender/no-echo, separate session reviews, forged controls with positive delivery, unsubscribe, confirmed background/return and cold fresh topic review. It does not emit during OS suspension or prove native zero effects."
+          "remaining": "Complete native enqueue ordering, distinct publisher/account and replaced-target isolation, full flood/backpressure/expiry/replay/concurrent-modal faults, verified published parity and Android physical. The new nineteen-check ordinary bundled cross-app channel run proves cancel/approval/inbound correlation, exact symmetric sender/id/payload, local/remote/late closure, confirmed background and fresh return review, bounded review flood, foreign-id/forged controls with live positive delivery, peer destruction and cold no-replay. Previous exact-topic evidence remains. No OS-suspended emission or native zero-effect proof is claimed."
         }
       }
     },

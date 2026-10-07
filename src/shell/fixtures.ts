@@ -2,7 +2,7 @@ import { emptyWorkspace, focusNapplet, openNapplet, type NappletDescriptor, type
 import { BUNDLED_FIXTURES, type BundledFixture } from '../runtime/bundled-catalog.ts';
 
 export type BundledVariant = BundledFixture | 'state-lab-other-publisher';
-const variants: readonly BundledVariant[] = ['nap-support', 'routing-lab', 'upload-lab', 'state-lab-other-publisher', 'resource-lab', 'feed-lab', 'approval-lab', 'state-lab-peer', 'state-lab', 'ux-lab'];
+const variants: readonly BundledVariant[] = ['nap-support', 'routing-lab-peer', 'routing-lab', 'upload-lab', 'state-lab-other-publisher', 'resource-lab', 'feed-lab', 'approval-lab', 'state-lab-peer', 'state-lab', 'ux-lab'];
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 // Exact previous stateless Support fixture, with the same link/theme authority.
 // Retained descriptors load current hash-verified packaged bytes; no remote pin is relaxed.

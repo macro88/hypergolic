@@ -60,3 +60,17 @@ test('corrupt saved state fails instead of silently choosing or generating a ses
     assert.throws(() => restoreWorkspace(value));
   }
 });
+
+
+test('bundled routing peer has a distinct native session identity despite its shared HTML', async () => {
+  const {bundledDescriptor, resolveBundledSession} = await import('./fixtures.ts');
+  const peer = bundledDescriptor('routing-lab-peer', 1, '12345678-1234-4123-8123-123456789abc');
+  const caller = bundledDescriptor('routing-lab', 2, '12345678-1234-4123-8123-123456789abd');
+  const bound = resolveBundledSession(peer);
+  assert.equal(bound.fixture, 'routing-lab-peer');
+  assert.equal(bound.appId, 'routing-lab-peer');
+  assert.notEqual(bound.appId, resolveBundledSession(caller).appId);
+  assert.equal(bound.instanceId, peer.id);
+  assert.equal(peer.version, caller.version);
+  assert.throws(() => resolveBundledSession({...peer, appId: caller.appId}));
+});

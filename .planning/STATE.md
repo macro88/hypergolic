@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone bundled intent/INC thirteen-check run passes with retained identity and confirmed OS states; CAP08/CAP09 partial. All final rows, verified handler/channel and Android parity remain open. Usage43%, guard around98%, no source push.
+stopped_at: Distinct bundled Routing peer added; physical iPhone nineteen-check channel run passes. CAP09 partial; verified handler/published/Android/final quality gates open. Weekly43%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
@@ -835,3 +835,13 @@ approval observed. Main source/product remain unchanged; prior view restored and
 only run-created views closed. CAP08/CAP09 now partial, with successful verified
 handler/channel/published/native fault and Android parity gates still open.
 All61 final rows and Phase2 remain open. Weekly43%, ceiling about98%; no source push.
+
+
+Channel checkpoint8October: Settings/native catalogue exposes a distinct unsigned
+Routing peer with reviewed original HTML. One nineteen-check physical iPhone run
+passes with retained identity and confirmed background. Failed input observers
+remain separate. Shared/native/browser checks and ordinary native builds pass in
+the documented scope. CAP09 stays partial; all61 final rows and Phase2 open.
+Verified handler needs the Android publisher, not the iPhone QA key. Exact approved
+Forge/braces exceptions remain visible; numeric Doctor/Expo choices pending.
+Weekly43%, ceiling about98%; no source push. See docs/intent-inc.md.

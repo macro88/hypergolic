@@ -74,3 +74,51 @@ channels, distinct identity/publisher/app/version faults, flood/replay and publi
 parity remain required. Physical Android is absent from current ADB inventory.
 No final matrix row, plan or Phase2 is closed. No app code changed; previous
 quality/packaging results remain historical, not rerun here. Source push is owner-only.
+
+
+## Bundled channel peer and physical iPhone scope — 8 October 2026
+
+Settings now opens distinct `routing-lab-peer`, running the exact reviewed
+original-SDK HTML as Routing Lab with its own dTag/native session and matching
+grants. Prefix resolution checks the peer first and rejects swapped appId.
+It remains unsigned and registers no intent handler. The release builder still
+produces ten artifacts with its existing separately derived signed peer manifest.
+No protocol, verified-handler trust or published admission policy changes.
+
+One ordinary signed physical iPhone run passes nineteen checks: retained public
+identity, distinct peer readiness and exact native target input; Cancel/empty list;
+fresh approval and matching inbound handle; exact messages in both directions;
+local/remote close and late terminal listener; review for each new channel;
+confirmed OS background3/suspended2 and original `background` close; fresh return
+approval; eight-request review flood with no approvals; foreign-id/forged controls
+followed by live positive delivery; peer view closure with `peer destroyed`; cold
+launch without channel replay; cleanup only of run-created views and restored
+prior focus. Exact receipts/AX/SDK assertions and inspected PNGs are privately
+retained in `iphone-channels01`. The delivery PNG is blank, and the symmetric PNG
+shows controls rather than receipts; those images alone do not prove payloads.
+The later inspected live-positive PNG shows both exact received messages.
+Three failed input observers remain separate: tap entered overview, deletion at
+an interior caret left a suffix, and Select All was unavailable. The passing
+observer requires an empty field and exact replacement before channel work.
+
+Main is updated in place once as Hypergolic, retaining bundle/team/entitlements
+and selected identity. No key read/export, signing, storage injection or public
+write. All410 source inputs and the local normal app product seal match before/
+after; installed executable bytes are not retrieved. Draft contracts remain
+revision `a040914b4bbd3a5cd8a14b0f316a723c968ebfb2`.
+
+TypeScript, shell28, capability57, routing43, native routing120 per host,
+runtime256, security349/preflight13, quality74 and Outbox99 pass. Android prebuild, both JS
+exports, ordinary Android ARM64 Release and signed iPhoneOS Release compile.
+Android physical parity is not tested. Local Doctor has zero findings with no
+numeric score; aislop98 and root/quality audits retain only exact approved
+Forge/braces exceptions, runtime audit clean. No suppression or dependency change.
+Expo Doctor20/21 reports six SDK57 patch mismatches. The existing pin and numeric
+scoring authorization remain pending; no score API retry.
+
+CAP09 stays partial: native enqueue ordering, distinct publisher/account and
+replaced-target isolation, full flood/backpressure/expiry/replay/concurrent-modal
+faults, verified published parity and Android physical remain open. CAP08 verified
+handler success/chooser/default/cold admission still needs the designated Android
+publisher; the retained iPhone QA identity is not a replacement publisher.
+All61 final rows and Phase2 remain open. Source push remains owner-only.

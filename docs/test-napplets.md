@@ -262,3 +262,11 @@ artifacts are supplied locally; no external fixture publication is claimed. See
 ## Routing Lab source
 
 `napplets/routing-lab` uses the pinned genuine SDK for intent availability/dispatch, exact topics and symmetric channels. Its boundary controls issue labelled malformed guest requests and an observed foreign channel id, then use a valid topic message as a positive control. The compiled unsigned embedded fixture grants intent/inc only; saved-data controls therefore require a separately signed storage-enabled variant. Native staging signs exact compiled bytes with documented disposable public scalars 2 and 3 and never publishes. The auto-peer variant requests its topic on load so cold target readiness can be proved with fresh trusted approval. The theme-only variant tests genuine missing-domain failure. The collision variant has the peer dTag under a distinct signed publisher and proves explicit-handler/live-peer ambiguity.
+
+
+The ordinary Settings catalogue also exposes unsigned Routing Lab Peer with
+its own `routing-lab-peer` dTag/native session, matching HTML bytes and grants.
+Set the caller's peer field to `routing-lab-peer` for a bundled channel pair.
+This registers no verified intent handler and publishes no artifact; the release
+builder still derives its existing signed peer. See [intent/INC](intent-inc.md)
+for the nineteen-check physical iPhone scope and remaining acceptance.

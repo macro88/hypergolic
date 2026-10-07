@@ -165,6 +165,7 @@ function SettingsHome({session, onBackup, onCloseBackup, onDelete, onImport, onS
       {runtime && <>
         <Action title="Open Resource Lab" testID="settings-open-resource-lab" onPress={() => openStateLab('resource-lab')} subdued />
         <Action title="Open Routing Lab" testID="settings-open-routing-lab" onPress={() => openStateLab('routing-lab')} subdued />
+        <Action title="Open Routing Lab Peer" testID="settings-open-routing-lab-peer" onPress={() => openStateLab('routing-lab-peer')} subdued />
         <Action title="Open Feed Lab" testID="settings-open-feed-lab" onPress={() => openStateLab('feed-lab')} subdued />
         <Action title="Open Approval Lab" testID="settings-open-approval-lab" onPress={() => openStateLab('approval-lab')} subdued />
         <Action title="Open State Lab" testID="settings-open-state-lab" onPress={() => openStateLab('state-lab')} subdued />
