@@ -113,3 +113,19 @@ An actual Android system-PIN journey retains all three loaded napplet drafts aft
 deleting the inactive identity; its inventory and current workspace survive restart.
 See [native authentication evidence](identity-storage.md#native-authentication-and-settings-integration)
 for source/artifact boundaries and the remaining iOS physical-device acceptance.
+
+
+## Ordinary physical iPhone import checkpoint — 7 October 2026
+
+The existing protected Release app now passes a combined 12-check original SDK
+storage/import journey. Malformed and zero-scalar imports fail; cancellation
+retains the original identity and data; secure input masks a publicly known test
+fixture. Approved import selects its independently derived public identity and
+isolated saved data, survives process restart, and saved selection restores the
+retained original identity and values. The test driver never receives or exports
+the retained private key.
+
+The [physical checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md#ordinary-storage-and-protected-identity-import)
+records all actions, original driver failures, source/product bounds and remaining
+work. Full multi-session/pending-authority switching, native protection/backup/
+delete and Android parity remain open; this is not final Phase 2 acceptance.

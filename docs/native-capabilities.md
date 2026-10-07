@@ -229,3 +229,14 @@ remain Phase2.11 gates. Both ordinary exports/Release builds and regressions pas
 Full numeric quality is ReactDoctor100/aislop99 with only the approved locked Forge
 exception: the normal root audit stays red and the other eight audits are clean.
 See [verification](../.planning/phases/02.5-public-identity-data/02.5-VERIFICATION.md).
+
+
+## Ordinary physical iPhone storage checkpoint — 7 October 2026
+
+Bundled State Lab now exercises genuine SDK storage through the existing protected
+Release app: missing/empty values, get/set/keys/remove, shared/instance separation,
+process persistence and app/publisher/user namespace isolation subsets pass in
+one combined 12-check storage/import run. The original identity and saved values
+are restored after a public test fixture import. The [physical checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md#ordinary-storage-and-protected-identity-import)
+retains exact evidence and limits. Published updates, full cross-product,
+close/reopen, quota/type faults, native protection and Android parity remain open.

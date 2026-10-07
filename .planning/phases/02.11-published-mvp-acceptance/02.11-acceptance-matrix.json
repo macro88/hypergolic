@@ -203,9 +203,10 @@
         "ios-physical": {
           "status": "partial",
           "evidence": [
-            "physical-iphone-tracer06/hg-phase211-iphone-tracer09/receipt.json"
+            "physical-iphone-tracer06/hg-phase211-iphone-tracer09/receipt.json",
+            "iphone-storage01/hg-storage-physical-iphone04/receipt.json"
           ],
-          "remaining": "Complete all named row requirements; this subset proves ordinary signed Release launch, real input and independently compared public identity process-restart continuity only."
+          "remaining": "Additional ordinary process-restart public identity continuity passes; fresh-profile/reboot and failed-read no-replacement evidence remain required."
         }
       }
     },
@@ -234,8 +235,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-storage01/hg-storage-physical-iphone04/receipt.json"
+          ],
+          "remaining": "Ordinary valid/cancelled/malformed/zero-scalar import, secure-field masking, public identity persistence and original saved selection pass. Full protection/at-rest and complete row acceptance remain open."
         }
       }
     },
@@ -249,8 +253,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-storage01/hg-storage-physical-iphone04/receipt.json"
+          ],
+          "remaining": "Focused original SDK identity, warning/cancel-preserved saved data, approved import isolation and original selection restore pass. Three-session drafts plus pending approval, complete session restart and stale callback/replay/no-old-event evidence remain required."
         }
       }
     },
@@ -294,8 +301,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-storage01/hg-storage-physical-iphone04/receipt.json"
+          ],
+          "remaining": "Bundled original SDK missing/empty/get/set/keys/remove, shared/instance isolation, process persistence and app/publisher/user namespace subset pass. Full cross-product, published update/reopen, quota/type errors and untrusted namespace faults remain required."
         }
       }
     },

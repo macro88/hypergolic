@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone pending Outbox nine-check subset plus separate four-check close pass; bounded relay absence verifies six distinct reviewed hashes. Source-linked native WK17 physical methods pass; all final rows open. Existing Hypergolic unchanged, usage22%, guard around98%, no source push.
+stopped_at: Ordinary physical iPhone storage/import12-check suite passes; original protected identity restored. WK17 and pending Outbox subsets retained; all final rows open. Stable app unchanged, guard around98%, no source push.
 last_updated: "2026-10-07"
 last_activity: 2026-10-07
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
