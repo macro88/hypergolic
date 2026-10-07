@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Trusted fixture publisher implemented and compiled on both hosts; stable installs and Android review/revocation/cold launch subset pass. Exact public fixture release approval pending; iPhone XCTest automation and live Expo compatibility remain open. Weekly95%, guard around98%; Plan02/CAP12/CAP14 open; no source push.
+stopped_at: Exact Feed Lab HTML upload and manifest publication approved; standing sensible non-sensitive development-key test writes authorized. Android absent from ADB/USB inventory, so no fixture signing/upload/publication attempted. Fixture tool commit0448cdc installed previously; Plan02/CAP12/CAP14 open; weekly96%, guard around98%; no source push.
 last_updated: "2026-10-07"
 last_activity: 2026-10-07
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
