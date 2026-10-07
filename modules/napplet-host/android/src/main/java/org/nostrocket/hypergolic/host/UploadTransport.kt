@@ -191,6 +191,17 @@ internal object UploadTransport {
   fun put(token: String, credential: String): String {
     val transfer = leases.transfer(token, credential, System.currentTimeMillis() / 1000)
       ?: return JSONObject().put("ok", false).put("error", "policy denied").toString()
+    return putTransfer(transfer, { leases.isApproved(token) }, { result ->
+      synchronized(completed) {
+        completed[token] = result
+        while (completed.size > 2) completed.remove(completed.keys.first())
+      }
+    }, { sent -> main.post { progress(token, sent) } })
+  }
+  fun putTrustedFixture(transfer: UploadLeaseRegistry.Transfer): String =
+    putTransfer(transfer, { transfer.authority.isApproved(transfer.grant) }, {}, {})
+  private fun putTransfer(transfer: UploadLeaseRegistry.Transfer, active: () -> Boolean,
+    completedReceipt: (JSONObject) -> Unit, progress: (Int) -> Unit): String {
     val ledger: UploadRecoveryLedger
     val record: UploadRecoveryLedger.Entry
     try {
@@ -199,14 +210,11 @@ internal object UploadTransport {
       if (!ledger.start(record)) { activeRecovery.remove(record.uploadId()); return JSONObject().put("ok", false).put("error", "recovery required").toString() }
     } catch (_: Exception) { activeRecovery.remove(transfer.uploadId); return JSONObject().put("ok", false).put("error", "recovery unavailable").toString() }
     return try {
-      val response = transfer(transfer) { sent -> main.post { progress(token, sent) } }
+      val response = transfer(transfer) { sent -> progress(sent) }
       val (descriptor, result) = UploadWire.receipt(response.body, transfer.permit.review, transfer.uploadId)
-      require(leases.isApproved(token))
+      require(active())
       require(ledger.settle(record, UploadRecoveryLedger.State.CONFIRMED))
-      synchronized(completed) {
-        completed[token] = result
-        while (completed.size > 2) completed.remove(completed.keys.first())
-      }
+      completedReceipt(result)
       JSONObject().put("ok", true).put("descriptor", descriptor).toString()
     } catch (failed: UploadPinnedHttpsTransport.Failure) {
       val state = if (!failed.dispatched) UploadRecoveryLedger.State.NOT_SENT else if (failed.code in setOf("server rejected", "file too large", "quota exceeded")) UploadRecoveryLedger.State.REJECTED else null

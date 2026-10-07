@@ -7,6 +7,7 @@ public final class NappletHostModule: Module {
   private let relayStreams = RelayStreamBridgeOwner.shared
   deinit {
     UploadTransport.foreground(false)
+    FixtureReleaseTransport.shared.cancel()
     publishedHTTPS.revokeAll()
     ResourceHTTPSBridgeOwner.shared.revokeAll()
     publishedRelay.revokeAll()
@@ -48,6 +49,18 @@ public final class NappletHostModule: Module {
     }
     Function("acknowledgeRelayStream") { (id: String, sequence: UInt64) in relayStreams.acknowledge(id, sequence: sequence) }
     Function("cancelRelayStream") { (id: String) in relayStreams.cancel(id) }
+    Function("synchronizeFixturePublisher") { (user: String, epoch: Double, available: Bool) throws in
+      guard epoch.isFinite, epoch >= 0, epoch <= 9_007_199_254_740_991, epoch.rounded(.towardZero) == epoch else {throw UploadWire.Invalid.value}
+      try FixtureReleaseTransport.shared.synchronize(user,epoch:UInt64(epoch),available:available)
+    }
+    Function("prepareFixtureUpload") { (fixture: String, server: String) throws -> String in try FixtureReleaseTransport.shared.prepare(fixture,server:server) }
+    Function("approveFixtureUpload") { (token: String) -> Bool in FixtureReleaseTransport.shared.approveUpload(token) }
+    Function("isFixtureUploadApproved") { (token: String) -> Bool in FixtureReleaseTransport.shared.uploadApproved(token) }
+    Function("prepareFixtureManifest") { (token: String, relays: [String]) throws -> String in try FixtureReleaseTransport.shared.prepareManifest(token,relays:relays) }
+    Function("approveFixtureManifest") { (token: String) -> String? in FixtureReleaseTransport.shared.approveManifest(token) }
+    Function("isFixtureManifestApproved") { (token: String) -> Bool in FixtureReleaseTransport.shared.manifestApproved(token) }
+    Function("cancelFixtureRelease") { FixtureReleaseTransport.shared.cancel() }
+    AsyncFunction("putFixtureUpload") { (token: String, credential: String) async -> String in await FixtureReleaseTransport.shared.put(token,credential:credential) }
     Function("configureUploadProof") { (anchor: String) throws in try UploadTransport.configureProof(anchor) }
     Function("configureUploadServer") { (server: String?) throws in try UploadTransport.configure(server) }
     Function("listUploadRecovery") { () -> String in UploadTransport.listRecovery() }

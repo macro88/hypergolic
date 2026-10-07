@@ -602,3 +602,19 @@ The required unsuppressed numeric quality report remains separate from local
 zero-finding scans. Current locked dependency exceptions and pending decisions
 are recorded in [dependency patches](dependency-patches.md); an existing exception
 does not authorize accepting a new advisory.
+
+## October 7 fixture publisher dependency checkpoint
+
+The trusted Settings release tool is described in [fixture-publisher.md](fixture-publisher.md).
+The root lockfile pins `shell-quote@1.11.0` and `@modelcontextprotocol/sdk@1.31.0`
+for the newly reported critical/high advisories. Both releases meet the existing
+seven-day minimum release age. Their public consumers are React DevTools and the
+GSD development tool, respectively. The independent quality-tool workspace also
+pins the same reviewed MCP SDK fix; no capability policy changed.
+
+Live Expo Doctor now recommends six newer SDK57 patch versions. The October6
+`expo-sqlite@57.0.4` release does not meet the seven-day policy, so an attempted
+compatible update was refused and the existing lockfile remains in use. Record
+this fresh compatibility failure separately from the two owner-approved patched
+Forge/braces advisory exceptions. Recheck the precise versions after maturation;
+do not suppress the check or broaden the release-age exclusions.

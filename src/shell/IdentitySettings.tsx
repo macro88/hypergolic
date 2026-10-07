@@ -1,3 +1,4 @@
+import {FixturePublisherLab} from './FixturePublisherLab';
 import {NotificationSettings} from './NotificationSettings';
 import { RoutingSettings } from './RoutingSettings';
 import {IdentityListSettings} from './IdentityListSettings';
@@ -138,7 +139,7 @@ function SavedIdentities({session, transition, format, canDelete, onDelete}: {
 function SettingsHome({session, onBackup, onCloseBackup, onDelete, onImport, onSignedLab, openBundledTest, openStateLab, openPublished, publishedSessions, checkPublishedUpdate}: Omit<SettingsActions, 'closeSettings'> & {
   session: IdentitySession; onBackup(): void; onCloseBackup(): void; onDelete(pubkey: string): void; onImport(): void; onSignedLab(): void;
 }) {
-  const {transition, formatNpub, runtime, actions, relaySettings, resourceSettings, uploadSettings, listAccess, routing, notificationSettings} = useIdentityOwner();
+  const {transition, formatNpub, runtime, actions, relaySettings, resourceSettings, uploadSettings, listAccess, routing, notificationSettings, fixturePublisher} = useIdentityOwner();
   return <>
       <Text selectable testID="settings-full-npub" style={styles.npub}>{formatNpub(session.vault.selectedPubkey)}</Text>
       {actions && <IdentityBackup actions={actions} session={session} npub={formatNpub(session.vault.selectedPubkey)} reviewing={false}
@@ -158,6 +159,7 @@ function SettingsHome({session, onBackup, onCloseBackup, onDelete, onImport, onS
         <Text accessibilityRole="header" style={styles.title}>Signed host test</Text>
         <Action title="Inspect signed test napplet" testID="settings-inspect-signed-test" onPress={onSignedLab} subdued />
       </>}
+      {fixturePublisher && <FixturePublisherLab service={fixturePublisher} format={formatNpub} />}
       <Text accessibilityRole="header" style={styles.title}>Bundled test napplets</Text>
       <Action title="Open UX Lab" testID="settings-open-ux-lab" onPress={openBundledTest} subdued />
       {runtime && <>

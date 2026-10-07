@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Android exact approved original SDK protected publication and independent ACK/store verification pass. Retained development publisher survives cold launch; ten publisher-bound release artifacts unsigned. Trusted development release flow next; Plan02/CAP12/CAP14 open. Weekly89%, pause90%; no source push.
+stopped_at: Trusted fixture publisher implemented and compiled on both hosts; stable installs and Android review/revocation/cold launch subset pass. Exact public fixture release approval pending; iPhone XCTest automation and live Expo compatibility remain open. Weekly95%, guard around98%; Plan02/CAP12/CAP14 open; no source push.
 last_updated: "2026-10-07"
 last_activity: 2026-10-07
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
@@ -39,7 +39,7 @@ expansion cards are not executable PLAN files.
 ## Current Position
 
 Phase: 2.11 (Complete published MVP acceptance)
-Plan: 02 verified published fixture tracer; Plan01 ordinary signed physical builds/first tracers complete. Development publisher and destinations are selected; trusted protected fixture release flow remains needed.
+Plan: 02 verified published fixture tracer; Plan01 ordinary signed physical builds/first tracers complete. Development publisher and destinations are selected; trusted protected fixture release tool is built and installed; public release approval and final acceptance remain needed.
 Status: Phase2.9 implementation closed by owner decision; CAP-12 final acceptance/CAP-14 open. Physical Android/iPhone journeys and complete faults/admission remain required. Local commit checkpoint; no source push. Progress counts implementation plans, not passed MVP acceptance; Plan04 was transferred, not executed.
 
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
@@ -61,7 +61,7 @@ See `docs/architecture.md` for confirmed requirements and unresolved policy.
 ### Blockers/Concerns
 
 First theme-only native contract is selected. Validate privileged adapters and delivery contracts before their dependent work. Preserve Expo 57.0.20 despite the existing Doctor patch-version mismatch. Source remote/push remains owner-only.
-Current budget (2026-10-06): the user authorized continuation until weekly usage reaches 90% consumed, then pause. Check account usage between small batches. This supersedes the earlier 75% limit. Keep source remote configuration and push owner-only.
+Current budget (2026-10-07): the user authorized continuation to about2% remaining, approximately98% consumed, then pause. Check account usage between small batches. This supersedes the earlier90% limit. Keep source remote configuration and push owner-only.
 Android emulator and iPhone Simulator scaffold checks are verified. Physical-iPhone signing and execution remain untested; native security acceptance is still open.
 See `docs/phase-zero.md` for actual checks and artifacts.
 
@@ -749,7 +749,7 @@ Phase 2.3 completion — 30 September 2026: all three resource plans pass the se
 ## Session
 
 **Last session:** 2026-10-07T00:39:16.313941+00:00
-**Stopped at:** Android exact approved original SDK protected publication and independent ACK/store verification pass. Retained development publisher survives cold launch; ten publisher-bound release artifacts unsigned. Trusted development release flow next; Plan02/CAP12/CAP14 open. Weekly89%, pause90%; no source push.
+**Stopped at:** Trusted fixture publisher implemented, built and installed on both physical hosts. Android exact review, cancel, background and cold-launch subset pass; iPhone automation initialization fails before six checks. Exact public release approval and Expo compatibility gap remain open. Plan02/CAP12/CAP14 open; weekly95%, pause around98%; no source push.
 **Resume file:** .planning/phases/02.11-published-mvp-acceptance/02.11-02-CHECKPOINT.md
 
 Static photo checkpoint (2026-10-01): native preparation supports bounded static

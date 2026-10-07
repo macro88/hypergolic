@@ -186,6 +186,20 @@ import Network
   nonisolated static func put(_ token: String, credential: String) async -> String {
     guard let transfer = leases.transfer(token, credential: credential, now: Int64(Date().timeIntervalSince1970)),
       let recovery else { return "{\"ok\":false,\"error\":\"policy denied\"}" }
+    return await putTransfer(transfer, token: token, recovery: recovery, active: {leases.isApproved(token)},
+      complete: { exact in store.lock.withLock {
+        store.completed[token] = exact
+        while store.completed.count > 2, let oldest = store.completed.keys.first {store.completed.removeValue(forKey:oldest)}
+      }}, progress: {sent in Task {@MainActor in progress(token,sent:sent)}})
+  }
+  nonisolated static func putTrustedFixture(_ transfer: UploadLeaseRegistry.Transfer) async -> String {
+    guard let recovery else {return "{\"ok\":false,\"error\":\"recovery unavailable\"}"}
+    return await putTransfer(transfer,token:transfer.uploadId,recovery:recovery,
+      active:{transfer.authority.isApproved(transfer.grant)},complete:{_ in},progress:{_ in})
+  }
+  nonisolated private static func putTransfer(_ transfer: UploadLeaseRegistry.Transfer, token: String, recovery: UploadRecoveryLedger,
+    active: @escaping @Sendable () -> Bool, complete: @escaping @Sendable (String) -> Void,
+    progress: @escaping @Sendable (Int) -> Void) async -> String {
     let record: UploadRecoveryLedger.Entry
     do {
       record = try recoveryEntry(transfer)
@@ -198,17 +212,14 @@ import Network
       await withCheckedContinuation { continuation in
         do {
           let operation = try Self.transfer(transfer,
-            progress: { sent in Task { @MainActor in progress(token, sent: sent) } }, completion: { response in
+            progress: progress, completion: { response in
               let encoded: String
               do {
                 let receipt = try response.get()
                 let captured = try UploadWire.receipt(receipt.body, review: transfer.permit.review, id: transfer.uploadId)
-                guard leases.isApproved(token), try recovery.settle(record, state: .confirmed) else { throw UploadWire.Invalid.value }
+                guard active(), try recovery.settle(record, state: .confirmed) else { throw UploadWire.Invalid.value }
                 let exact = try UploadWire.json(captured.result)
-                store.lock.withLock {
-                  store.completed[token] = exact
-                  while store.completed.count > 2, let oldest = store.completed.keys.first {store.completed.removeValue(forKey: oldest)}
-                }
+                complete(exact)
                 encoded = try UploadWire.json(["ok": true, "descriptor": captured.descriptor])
               } catch {
                 let dispatched = transfer.authority.wasDispatched(transfer.grant)
@@ -233,7 +244,7 @@ import Network
           continuation.resume(returning: "{\"ok\":false,\"error\":\"policy denied\"}")
         }
       }
-    } onCancel: { cancel(token) }
+    } onCancel: { transfer.authority.cancelGrant(transfer.grant); cancel(token) }
   }
   nonisolated static func finish(_ token: String, raw: String) {
     guard let publicId = leases.publicIdForApp(token) else { return }

@@ -22,6 +22,7 @@ class NappletHostModule : Module() {
       val foreground = appContext.runtime.reactContext?.lifecycleState == LifecycleState.RESUMED
       SelectedFilePicker.foreground(foreground)
       UploadTransport.foreground(foreground)
+      FixtureReleaseTransport.foreground(foreground)
       CapabilityTransport.foreground(foreground)
       NappletHostView.setMediaForeground(foreground)
       ApprovalTransport.foreground(foreground)
@@ -33,6 +34,7 @@ class NappletHostModule : Module() {
     OnActivityEntersForeground {
       SelectedFilePicker.foreground(true)
       UploadTransport.foreground(true)
+      FixtureReleaseTransport.foreground(true)
       CapabilityTransport.foreground(true)
       NappletHostView.setMediaForeground(true)
       ApprovalTransport.foreground(true)
@@ -44,6 +46,7 @@ class NappletHostModule : Module() {
     OnActivityEntersBackground {
       SelectedFilePicker.foreground(false)
       UploadTransport.foreground(false)
+      FixtureReleaseTransport.foreground(false)
       CapabilityTransport.foreground(false)
       NappletHostView.setMediaForeground(false)
       ApprovalTransport.foreground(false)
@@ -59,6 +62,7 @@ class NappletHostModule : Module() {
       SelectedFilePicker.cancel()
       SelectedFilePicker.foreground(false)
       UploadTransport.foreground(false)
+      FixtureReleaseTransport.foreground(false)
       CapabilityTransport.foreground(false)
       NappletHostView.setMediaForeground(false)
       ApprovalTransport.foreground(false)
@@ -73,6 +77,7 @@ class NappletHostModule : Module() {
       SelectedFilePicker.cancel()
       SelectedFilePicker.foreground(false)
       UploadTransport.foreground(false)
+      FixtureReleaseTransport.foreground(false)
       CapabilityTransport.foreground(false)
       NappletHostView.setMediaForeground(false)
       RelaySubscriptionTransport.foreground(false)
@@ -86,6 +91,7 @@ class NappletHostModule : Module() {
       UploadTransport.observeProgress(null)
       SelectedFilePicker.foreground(false)
       UploadTransport.foreground(false)
+      FixtureReleaseTransport.foreground(false)
       CapabilityTransport.foreground(false)
       RelaySubscriptionTransport.foreground(false)
       RelaySubscriptionTransport.revokeAll()
@@ -94,6 +100,19 @@ class NappletHostModule : Module() {
       PublishedHttpsRequestOwner.INSTANCE.revokeAll()
       ResourceHttpsRequestOwner.INSTANCE.revokeAll()
       PublishedRelayWssRequestOwner.INSTANCE.revokeAll()
+    }
+    Function("synchronizeFixturePublisher") { user: String, epoch: Long, available: Boolean -> FixtureReleaseTransport.synchronize(user,epoch,available) }
+    Function("prepareFixtureUpload") { fixture: String, server: String ->
+      FixtureReleaseTransport.prepare(requireNotNull(appContext.runtime.reactContext),fixture,server) }
+    Function("approveFixtureUpload") { token: String -> FixtureReleaseTransport.approveUpload(token) }
+    Function("isFixtureUploadApproved") { token: String -> FixtureReleaseTransport.uploadApproved(token) }
+    Function("prepareFixtureManifest") { token: String, relays: List<String> -> FixtureReleaseTransport.prepareManifest(token,relays) }
+    Function("approveFixtureManifest") { token: String -> FixtureReleaseTransport.approveManifest(token) }
+    Function("isFixtureManifestApproved") { token: String -> FixtureReleaseTransport.manifestApproved(token) }
+    Function("cancelFixtureRelease") { FixtureReleaseTransport.cancel() }
+    AsyncFunction("putFixtureUpload") Coroutine { token: String, credential: String ->
+      try { withContext(Dispatchers.IO) { FixtureReleaseTransport.put(token,credential) } }
+      catch(error: kotlinx.coroutines.CancellationException) { FixtureReleaseTransport.cancel();throw error }
     }
     Function("configureUploadProof") { anchor: String -> UploadTransport.configureProof(anchor) }
     Function("configureUploadServer") { server: String? -> UploadTransport.configure(server) }

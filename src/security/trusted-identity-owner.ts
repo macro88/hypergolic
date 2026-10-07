@@ -1,3 +1,5 @@
+import {createNativeFixturePublisher} from '../fixture-release/native-publisher';
+import type {FixturePublisher} from '../fixture-release/publisher';
 import {loadNativeOutboxSubscriptions} from '../outbox/native-subscription-port';
 import {openOutboxRelayListCache} from '../outbox/relay-list-cache';
 import {loadNativeOutboxReadService} from '../outbox/native-read-port';
@@ -62,6 +64,7 @@ export interface TrustedIdentityOwner {
   readonly runtime?: RuntimeOwner;
   readonly approvals?: ApprovalService;
   readonly uploads?: UploadService;
+  readonly fixturePublisher?: FixturePublisher;
   readonly uploadSettings?: NativeUploadSettings | null;
   readonly relaySettings: NativeRelaySettings | null;
   readonly resourceSettings: NativeResourceSettings | null;
@@ -70,7 +73,7 @@ export interface TrustedIdentityOwner {
 export class WorkspaceStartupError extends Error {
   constructor() { super('Workspace could not be opened'); this.name = 'WorkspaceStartupError'; }
 }
-async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<{ notificationSettings: NotificationSettingsService; config: ConfigBroker; notify: NotifyBroker; routing: Readonly<{broker: RoutingBroker; catalog: RoutingCatalog; reviews: RoutingReviewService; settings: RoutingSettingsService}>; listAccess: IdentityListAccess | null; transition: IdentityTransition; runtime: RuntimeOwner; approvals: ApprovalService; relaySettings: NativeRelaySettings | null; resourceSettings: NativeResourceSettings | null; uploadSettings: NativeUploadSettings | null; uploads: UploadService }> {
+async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'ios'): Promise<{ notificationSettings: NotificationSettingsService; config: ConfigBroker; notify: NotifyBroker; routing: Readonly<{broker: RoutingBroker; catalog: RoutingCatalog; reviews: RoutingReviewService; settings: RoutingSettingsService}>; listAccess: IdentityListAccess | null; transition: IdentityTransition; runtime: RuntimeOwner; approvals: ApprovalService; relaySettings: NativeRelaySettings | null; resourceSettings: NativeResourceSettings | null; uploadSettings: NativeUploadSettings | null; uploads: UploadService; fixturePublisher: FixturePublisher }> {
   const database = await openShellDatabase(SQLite, platform).catch(() => { throw new WorkspaceStartupError(); });
   let relaySettings: NativeRelaySettings | null = null;
   let resourceSettings: NativeResourceSettings | null = null;
@@ -136,7 +139,8 @@ async function openOwnerWorkspace(vault: IdentityVault, platform: 'android' | 'i
       queries,
       loadNativeRelaySubscriptions(() => relaySettings?.getSettings().networkRelays ?? []),
       loadNativeResourceHost(() => resourceSettings?.servers() ?? [], queries), uploads, createIdentityDataService(identityCache, queries, Date.now, listAccess ?? undefined), routing, notifyBroker, configBroker, outbox, loadNativeOutboxSubscriptions(outbox));
-    return { notificationSettings: createNotificationSettings(transition, routingNative, notifyBroker), config: configBroker, notify: notifyBroker, routing, listAccess, transition, approvals, relaySettings, resourceSettings, uploadSettings, uploads, runtime };
+    const fixturePublisher=createNativeFixturePublisher(vault,transition);
+    return { fixturePublisher, notificationSettings: createNotificationSettings(transition, routingNative, notifyBroker), config: configBroker, notify: notifyBroker, routing, listAccess, transition, approvals, relaySettings, resourceSettings, uploadSettings, uploads, runtime };
   } catch {
     releaseLinks?.(); releaseRouting?.(); routingBroker?.stop(); notifyBroker?.stop(); configBroker?.stop();
     try { await notifyPermissions?.close(); } catch { /* Preserve the workspace failure. */ }

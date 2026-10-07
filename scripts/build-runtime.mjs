@@ -21,3 +21,5 @@ for (const name of ['index.html', 'host.js']) {
 }
 await writeFile(new URL('assets-manifest.json', iosDestination), manifestBytes);
 console.log('Verified identical trusted runtime assets copied for Android and iOS.');
+
+await import('./build-fixture-release.mjs');
