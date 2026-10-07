@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Android Feed Lab public bytes/manifest independently verified and ordinary published consent/query/cold restore pass. Recovery metadata, single transfer claim and canonical relay ACK fixes verified; State Lab native release completes. Corrected iPhone build not installed; Plan02/CAP12/CAP14 remain open; usage9%, guard around98%; no source push.
+stopped_at: Android Feed Lab public bytes/manifest independently verified and ordinary published consent/query/cold restore pass. Recovery metadata, single transfer claim and canonical relay ACK fixes verified; State Lab native release completes. Corrected iPhone build installs in place, but XCTest automation setup fails before checks; Plan02/CAP12/CAP14 remain open; usage9%, guard around98%; no source push.
 last_updated: "2026-10-07"
 last_activity: 2026-10-07
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
@@ -749,7 +749,7 @@ Phase 2.3 completion — 30 September 2026: all three resource plans pass the se
 ## Session
 
 **Last session:** 2026-10-07T09:50:21.746209+00:00
-**Stopped at:** Android public release and published relay-query subset pass after three owning publisher fixes; corrected iPhone product builds but is not installed. Plan02/CAP12/CAP14, iPhone automation, Outbox register and Expo compatibility remain open. Weekly9%, guard around98%; no source push.
+**Stopped at:** Android public release and published relay-query subset pass after three owning publisher fixes; corrected iPhone product installs in place but XCTest setup fails before checks. Plan02/CAP12/CAP14, iPhone automation, Outbox register and Expo compatibility remain open. Weekly9%, guard around98%; no source push.
 **Resume file:** .planning/phases/02.11-published-mvp-acceptance/02.11-02-CHECKPOINT.md
 
 Static photo checkpoint (2026-10-01): native preparation supports bounded static

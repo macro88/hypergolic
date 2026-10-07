@@ -77,7 +77,9 @@ note, and restoration after the stable in-place update and cold launch. This is
 supporting evidence for Phase 2.11, not full published Outbox acceptance. Android
 installed bytes match the signed build and the existing test certificate. The
 same fixes compile in signed/provisioned iPhoneOS Release; that corrected product
-has not been installed or exercised on iPhone.
+is installed in place on iPhone. A fresh XCTest attempt still fails while
+enabling automation, before any of its six checks; no iPhone release/UI pass
+is inferred from installation or ordinary process launch.
 
 Owning native recovery/fixture tests pass 50 Android and 46 Swift assertions;
 111 combined publisher/Outbox/relay tests pass, including a real guarded relay
