@@ -62,3 +62,51 @@ Audio/video uses complete grant-scoped Blob bytes. Trusted native focus/backgrou
 Use `pnpm run test:resources`, `pnpm run typecheck`, `pnpm run test:capabilities`, `pnpm run runtime:test`, and the owning native proofs/journeys in [the resource test guide](../tests/native/resource/README.md). Preserve exact reference bytes, expected digest, source/runtime/fixture/product seals, native input, accessibility, screenshots and playback position evidence. Simulator fixtures and controlled faults are distinct from real DNS/TLS and physical-device acceptance.
 
 CAP-04 is accepted for this selected bounded profile. The [phase verification](../.planning/phases/02.3-resource-access/02.3-VERIFICATION.md) records all three plans, current-source native journeys, normal exports/prebuilds/Release builds and required sealed numeric React Doctor/aislop 100/100 plus all lockfile audits. Full published fixture parity, protected-identity device journeys and older/physical target coverage remain final CAP-14 gates. Hashtree/SVG and streaming/large-file gaps are not silently counted as completed.
+
+
+## Physical iPhone original-SDK resources — 8 October 2026
+
+Three separate ordinary signed iPhone suites pass: fifteen resource checks,
+thirteen media checks and a five-check background supplement. They use retained
+identity and normal Settings/guest inputs; no main reinstall, key access/export,
+signing or public write. Only run-created views are closed, restoring prior focus.
+All410 source inputs and the existing local normal product seal agree through
+all three runs; installed executable bytes are not retrieved.
+
+Resource info reports the exact selected schemes and10MiB/eight-URL bounds. Live
+HTTPS PNG bytes/MIME/hash match an independent download and visibly decode; image/
+receipt survive foreground navigation and release removes both. Host-mediated data
+PNG/UTF-8 JSON preserve exact bytes/MIME/hash. Active HTML with a text hint, private
+IP literal and unselected Hashtree yield canonical errors. Three bulk rows preserve
+exact input order, successful image/text siblings and unsupported error. Cold
+identity/view and fresh data reload pass after explicit release; this does not
+prove cache eviction or in-flight cancellation on process death.
+
+The complete4,372,373-byte MP4 exceeds the normal JSON ceiling and reaches the
+original SDK with exact independently verified hash/MIME. Video starts paused;
+trusted Play advances time. Switching pauses at retained position, requiring fresh
+Play. The thirteen-check background case observes state3/3 and stable paused
+position on return. It alone does not bound all time spent away. The five-check
+supplement holds confirmed state3 for8.002s: position0.908→1.159 (advance0.251s),
+stays paused on return, then fresh Play advances to1.826. This bounds continuity
+across that interval, not indefinite background silence or native zero effects.
+Exact39,868-byte MP3 requires Play and advances time. Release removes both players;
+after release, cold launch restores identity/view with no player. Live-player
+process-death destruction, all codecs and hostile media remain unproved.
+
+Private `iphone-resources01` retains original SDK/AX receipts, inspected PNGs,
+independent exact PNG/JSON/MP4/MP3 reference bytes, pinned NAP-RESOURCE revision
+`8c0645d32ceb159bc3e8bcec1107a92862b7e86a`, external observers and source seals.
+Image and data PNG screenshots visibly show previews and exact receipt text;
+bulk screenshot shows inputs/status with rows below the viewport, so exact AX/SDK
+validates those rows. Media PNGs show native controls/time, paused video and playing
+audio; some MP4 hash receipts are below the viewport and are verified by AX/SDK.
+
+Focused shared23, native Java48 and Swift18 resource checks pass. Main production
+code/packaging/quality remains unchanged, with no new full-build/quality claim.
+CAP04 is partial on iOS: full Blossom/Nostr/settings/cache, cancellation/private
+handles, DNS/TLS/redirect/size/MIME/flood/quota/native stale effects, identity/
+replacement, live-player close/death, verified published parity and Android physical
+remain required. No final row, plan or Phase2 is closed. Pending Expo/numeric Doctor
+choices and exact approved dependency exceptions remain. Weekly43%, ceiling about98%;
+source push stays owner-only.

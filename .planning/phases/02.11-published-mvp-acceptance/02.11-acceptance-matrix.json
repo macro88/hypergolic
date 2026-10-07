@@ -720,8 +720,13 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-resources01/physical/hg-resource-physical-iphone01/receipt.json",
+            "iphone-resources01/physical/hg-resource-media-physical-iphone01/receipt.json",
+            "iphone-resources01/physical/hg-resource-media-background-iphone01/receipt.json"
+          ],
+          "remaining": "Complete Blossom/Nostr/settings/cache and cancellation/private handles, DNS/TLS/redirect/size/MIME/flood/quota/native stale effects, identity/replacement and live-player close/process-death, verified published and Android physical parity. Separate ordinary SDK suites15/13/5 prove exact HTTPS/data image/JSON, ordered bulk/errors, visible rendering/release, full4.37MiB MP4 and MP3 playback, foreground retained pause/manual Play, eight-second confirmed background with0.251s advance and fresh Play, and cold identity/view/data reload after explicit release. Do not infer native zero effects, indefinite background silence, cache eviction or active-player process-death from these subsets."
         }
       }
     },

@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone channels19 and links14 original-SDK subsets pass; CAP07/CAP09 partial. All61 final rows, published/Android and final quality gates open. Weekly43%, ceiling about98%, no source push.
+stopped_at: Physical iPhone resource15/media13/background5 original-SDK suites pass; CAP04 partial. All61 final rows, provider/fault/published/Android/final quality gates open. Weekly43%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
@@ -854,3 +854,12 @@ fresh review. Existing main/protected identity unchanged; prior view restored.
 CAP07 now partial; iOS36partial/25not-run, Android3partial/58not-run, all61 final
 rows and Phase2 open. Scoped shared/native link checks pass; no main build/quality
 rerun. Weekly43%, ceiling about98%; no source push. See docs/external-links.md.
+
+
+Physical resource checkpoint8October: three independent ordinary original-SDK
+suites15/13/5 pass exact HTTPS/data/bulk/render/error checks, full4.37MiB MP4/MP3
+playback and bounded eight-second background pause with fresh manual Play. Saved
+identity/main unchanged, prior view restored. CAP04 partial; iOS37partial24not-run,
+Android3partial58not-run, all61 final rows and Phase2 open. Focused resource23/48/18
+checks pass; no production build/quality rerun. Pending Expo/numeric choices stay.
+Weekly43%, ceiling about98%; no source push. See docs/resource-access.md.
