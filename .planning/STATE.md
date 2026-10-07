@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Ordinary physical iPhone storage/import12-check suite passes; original protected identity restored. WK17 and pending Outbox subsets retained; all final rows open. Stable app unchanged, guard around98%, no source push.
+stopped_at: Physical iPhone identity/pending review10-check and encrypted native storage core5-method runs pass. Original identity restored; iOS29 partial32 not-run, no final row passed. Stable app unchanged, guard around98%, no source push.
 last_updated: "2026-10-07"
 last_activity: 2026-10-07
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3

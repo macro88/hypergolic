@@ -220,8 +220,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-atrest01/original-probe/physical-run01/receipt.json"
+          ],
+          "remaining": "Five physical real Keychain/file-policy/CryptoKit methods pass in a separate signed QA app compiling thirteen actual production sources. Protection/backup-exclusion attributes, encrypted roundtrip, tamper/slot/missing-key/missing-file/permission/symlink denials observed. Owning Expo composition, lock/unlock, real backup transport, full plaintext/log/crash absence, complete faults and Android parity remain required."
         }
       }
     },
@@ -255,9 +258,10 @@
         "ios-physical": {
           "status": "partial",
           "evidence": [
-            "iphone-storage01/hg-storage-physical-iphone04/receipt.json"
+            "iphone-storage01/hg-storage-physical-iphone04/receipt.json",
+            "iphone-identity-lifecycle01/hg-identity-lifecycle-physical-iphone03/receipt.json"
           ],
-          "remaining": "Focused original SDK identity, warning/cancel-preserved saved data, approved import isolation and original selection restore pass. Three-session drafts plus pending approval, complete session restart and stale callback/replay/no-old-event evidence remain required."
+          "remaining": "Ten ordinary physical checks pass in one run: three distinct live states plus pending SDK review, cancellation preservation, exact paused-event resume/rejection, confirmed switch resets all three/removes old review, fresh new-identity hash/denial and original restoration/cold launch. Three reviewed hashes have bounded live/stored public-relay absence. Stale callback/replay, owning native old-event/zero-effect proof and Android parity remain required."
         }
       }
     },
@@ -964,9 +968,10 @@
           "status": "partial",
           "evidence": [
             "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone03/trace-report.json",
-            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone04/receipt.json"
+            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone04/receipt.json",
+            "iphone-identity-lifecycle01/hg-identity-lifecycle-physical-iphone03/receipt.json"
           ],
-          "remaining": "Complete all named row requirements. Nine checks pass in a failed ten-check pending-review suite; separate four-check pending-close rerun passes. Canonical reject/dismiss, background pause/explicit unchanged resume, loaded-view attribution and process death observed. Independent bounded live/stored absence is not native zero signing/emission. Signing/send/receipt races, identity/update and published lifecycle remain open."
+          "remaining": "Pending review reject/dismiss/background/resume/loaded switch/close/process-death subsets retained; a single ten-check three-session identity-switch run now passes cancel preservation, confirmed removal, new identity hash/denial and original cold restoration. Bounded relay absence is not native zero signing/emission. Verified update, approved/in-flight signing/send/receipt race matrix and published lifecycle remain open."
         }
       }
     },
