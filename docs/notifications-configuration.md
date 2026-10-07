@@ -118,3 +118,23 @@ part of final CAP-14 acceptance.
 Complete published, physical-device and protected-identity acceptance remains
 CAP-14. Existing exact Forge/braces quality exceptions remain visible; the ordinary
 quality gates are unchanged.
+
+
+## Physical configuration checkpoint — 7 October 2026
+
+The ordinary physical iPhone Release app passes ten bundled original-SDK checks
+covering schema registration/defaults, initial and live subscription ordering,
+trusted editor cancel/save, background return, invalid/forged requests,
+unsubscribe and cold restart with the retained protected public identity.
+A separate native-editor visual check passes. These are scoped physical results;
+full secret lifecycle, namespace/update isolation, published parity, faults and
+Android physical acceptance remain open.
+
+The injected runtime facade previously forwarded correlated config.get replies
+to config subscribers, producing an extra callback despite no saved change.
+The locked Kehto shell patch now forwards only no-id config.values pushes to
+subscribers, matching the selected draft and existing native broker/SDK shim.
+The original physical assertions pass unchanged after the fix. Chromium and
+WebKit reproduce the defect before the patch and pass the new regression after it.
+See the [physical checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md)
+for installation, retained evidence and remaining limits.

@@ -113,3 +113,19 @@ the resulting97/100 score and the root/quality audit failures. All other quality
 requirements remain. Any other finding, new dependency consumer, incomplete scan
 or changed patch requires fresh review. Phase2.6 acceptance requires a fresh full
 report and separate exact-scope review; the ordinary verifier stays unchanged.
+
+
+## Kehto shell0.20.0 — configuration subscription correlation
+
+The existing opt-in runtime patch also fixes the injected config facade's reply
+classification. config.values with an id is a correlated get reply; only no-id
+values are subscription pushes under the selected NAP-CONFIG draft. The facade
+now checks that distinction before calling subscribers. All existing source,
+session, domain and ACL checks and prior patch hunks remain.
+
+Patch SHA256: `37ece10deaf030c58de210e36e08a04b2c6d9f253473449973f7e566b1076a20`.
+The runtime lockfile pins the content and frozen installation succeeds. The new
+regression fails in Chromium/WebKit before the fix and passes afterward; all254
+runtime cases and ten ordinary physical iPhone configuration checks pass.
+This is a functional compatibility fix, not a new dependency advisory exception.
+See [notifications and configuration](notifications-configuration.md).

@@ -36,3 +36,15 @@ test('genuine SDK depth-four schema crosses the runtime into the captured native
  const guest=await open(page);await guest.locator('#config-depth-four').click();await expect(guest.locator('#config-status')).toHaveText('Depth-four schema accepted.');
  const call=await page.evaluate(()=>(window as any).configNative.calls.find((row:any)=>row.type==='config.registerSchema'));expect(call.schema.properties.deep.properties.child.properties.leaf.properties.values.items.enum).toEqual(['native-depth-four']);expect(call.version).toBe(2);
 });
+
+test('one-shot configuration snapshots stay correlated and cannot duplicate live subscription callbacks',async({page})=>{
+ const guest=await open(page);await guest.locator('#config-register').click();await expect(guest.locator('#config-status')).toHaveText('Configuration schema accepted.');
+ await guest.locator('#config-subscribe').click();await expect(guest.locator('#config-events')).toHaveText(JSON.stringify([defaults]));
+ await guest.locator('#config-get').click();await expect(guest.locator('#config-read-count')).toHaveText(JSON.stringify({reads:1}));await expect(guest.locator('#config-result')).toHaveText(JSON.stringify(defaults));
+ const next={...defaults,theme:'light'};await page.evaluate(values=>(window as any).configPush({type:'config.values',values}),next);
+ await expect(guest.locator('#config-events')).toHaveText(JSON.stringify([defaults,next]));
+ await guest.locator('#config-unsubscribe').click();await expect.poll(async()=>page.evaluate(()=>(window as any).configNative.calls.some((row:any)=>row.type==='config.unsubscribe'))).toBe(true);
+ await page.evaluate(values=>(window as any).configPush({type:'config.values',values}),defaults);
+ await guest.locator('#config-get').click();await expect(guest.locator('#config-read-count')).toHaveText(JSON.stringify({reads:2}));
+ await expect(guest.locator('#config-events')).toHaveText(JSON.stringify([defaults,next]));
+});

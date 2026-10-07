@@ -23,7 +23,7 @@ index 0ec36f0a861a096c6391bdae988ba8243bb3f021..a6bdd59f250582b9bf37cac8704465fc
  /**
   * Render the host-owned NIP-5D bootstrap that exposes available NAP domains
 diff --git a/dist/index.js b/dist/index.js
-index 523bcf16686659726604376dea98363a06f86049..5592da60f4fb6a9c51263c57d0d5b01e5de56a38 100644
+index 523bcf16686659726604376dea98363a06f86049..f7618d8add1c51ec77f9baa68f395d5499ff4623 100644
 --- a/dist/index.js
 +++ b/dist/index.js
 @@ -312,6 +312,7 @@ function adaptHooks(shellHooks, deps) {
@@ -90,6 +90,15 @@ index 523bcf16686659726604376dea98363a06f86049..5592da60f4fb6a9c51263c57d0d5b01e
        post(outbound);
      });
    }
+@@ -2047,7 +2062,7 @@ function nappletNamespacePrelude(domains) {
+         const off = listen((event) => {
+           if (!isParentMessage(event)) return;
+           const msg = event.data;
+-          if (typeof msg === "object" && msg !== null && msg.type === "config.values") callback(msg.values ?? {});
++          if (typeof msg === "object" && msg !== null && msg.type === "config.values" && msg.id === void 0) callback(msg.values ?? {});
+         });
+         fire({ type: "config.subscribe" });
+         return subscriptionHandle(() => {
 @@ -2071,18 +2086,36 @@ function nappletNamespacePrelude(domains) {
    }
    function makeResource() {
