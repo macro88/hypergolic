@@ -379,7 +379,8 @@
           "status": "partial",
           "evidence": [
             "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone03/trace-report.json",
-            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone04/receipt.json"
+            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone04/receipt.json",
+            "iphone-approval-core01/original-probe/physical-run02/receipt.json"
           ],
           "remaining": "Complete all named row requirements. Observed pending process-death removal/identity retention and separate pending requester close. Identity/update, approved/in-flight races, expiry/queue and native zero-effect evidence remain open."
         }
@@ -935,8 +936,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-approval-core01/original-probe/physical-run02/receipt.json"
+          ],
+          "remaining": "Separate signed QA run on physical iPhone passes existing actual approval/transport cores plus native50-assertion plan proof. One-use, stale/foreign owner and generation, exact author/hash/event/signature/targets, replay, terminal correlation and pre-main-actor-delivery revocation pass with deterministic clock/entropy/scheduler/reply doubles. Owning guest/frame/domain/composition, protected signer/emission counters, full concurrent/late-callback and published parity remain required."
         }
       }
     },
@@ -950,8 +954,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-approval-core01/original-probe/physical-run02/receipt.json"
+          ],
+          "remaining": "Existing native ACK parser on physical hardware covers foreign ID, malformed boolean, first accepted result retained after later malformed/contradictory data and rejection. Guarded plan callback counters cover live one-use and revocation, not network frames. No WSS writer invoked; actual accept/reject/auth/disconnect/timeout/slow/flood/backpressure/partial fanout, exact frame counts and owning race outcomes remain required."
         }
       }
     },
