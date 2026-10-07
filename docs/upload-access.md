@@ -462,3 +462,58 @@ setup. Fresh isolated-fixture installation passes28. The initial cold-launch
 screenshot captures an intermediate layout; a later settled Simulator screenshot
 shows the trusted header/identity and guest, with independently unchanged server
 counts. See the phase verification for all evidence limits.
+
+
+## Physical iPhone upload subset — 8 October 2026
+
+Settings now exposes the existing bundled Upload Lab through its ordinary launcher.
+A signed Release update preserves the Hypergolic bundle identity, team, entitlements
+and application data. The same retained development identity is verified before
+and after cold launch. The publisher used for public fixture releases stays separate.
+
+Two independent complete ordinary SDK suites pass: thirteen review/lifecycle checks
+and seven approved-upload checks. Upload info reports Blossom enabled, NIP-96
+disabled and a 10 MiB limit. The generated PNG review captures the selected identity,
+`https://blossom.nostr.build`, MIME, 71-byte size and independently calculated hash.
+Approval is enabled after the native preview decodes. Reject and subsequent status
+return the same upload ID and canonical cancellation. A second request needs a
+fresh ID and review. Actual OS background state 3 cancels a pending review, with no
+review replay on return. JPEG and HEIC originals reach decoded prepared PNG reviews
+with hashes different from their independently checked source files; both are
+rejected. Cold launch retains identity and view with no pending review. These
+physical checks do not retrieve the prepared JPEG/HEIC bytes or independently prove
+all metadata removal, dimensions or color fidelity.
+
+Under the standing approval for non-sensitive development-key data, the generated
+PNG is approved through the exact native review. The original SDK returns complete,
+matching hash/size/MIME and a public download URL. Fresh status returns the same
+receipt; the next request still needs review and is rejected. Cold identity
+continuity and cleanup restore the previous view. Independent retrieval observes a
+307 from the returned Blossom Band URL, checks the public HTTPS hash path, then
+retrieves 200 image/png from image.nostr.build. Its exact 71 bytes match the reviewed
+SHA-256 `5a852fbaaaecaf4cd14c01e150c7f881c5c5894b0a1e3c53be7e007c58374ee6`.
+No before-upload absence check was made; this proves provider confirmation and
+exact retrieval, not creation of a previously absent blob or exclusive ownership.
+
+Private `iphone-uploads01` preserves original SDK/AX receipts, inspected screenshots,
+source/product seals, external observers, provider reference bytes and pinned
+NAP-UPLOAD revision `a7cc17463cbf5d9cb87884b31071bc4fc826034c`. Earlier attempts remain
+separate: the missing launcher required the one-line app change; XCTest's long-label
+selector and an incorrect upload/download-host assumption required observer fixes.
+The first positive attempt already received complete from the provider before its
+host assertion failed. It was not an uncertain transfer retried silently. A failed
+pre-install entitlement parser performed no install; the corrected XML comparison
+passed before the in-place update. The first retrieval observed 307, not file bytes.
+
+TypeScript, shell 28, capability 57, uploads 51 and quality 74 checks pass. Both
+production JavaScript exports and the ordinary signed iPhoneOS Release build pass.
+Full local React Doctor scans 425 files with zero findings and numeric scoring
+disabled; aislop is 98 across 417 files with the same two approved dependency
+findings. Expo Doctor remains 20/21 with the six existing patch mismatches. No new
+Android native build, iOS prebuild or full native upload/fault suite is claimed.
+
+CAP-05 is partial on iOS. Physical system selection and unchanged attachments,
+approved transfer navigation/interruption, uncertainty recovery, queue/fault/stale
+native effects, identity/replacement, verified published parity and Android remain
+open. All final matrix rows and Phase 2 stay open. Weekly usage is 44%, below the
+approximately 98% ceiling. Source push remains owner-only.

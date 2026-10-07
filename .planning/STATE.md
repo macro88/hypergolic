@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone resource15/media13/background5 original-SDK suites pass; CAP04 partial. All61 final rows, provider/fault/published/Android/final quality gates open. Weekly43%, ceiling about98%, no source push.
+stopped_at: Physical iPhone upload review13/approved7 suites pass with independent exact provider retrieval; CAP05 partial. Same Hypergolic updated in place. All61 final rows/published/Android/quality gates open; weekly44%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
@@ -863,3 +863,16 @@ identity/main unchanged, prior view restored. CAP04 partial; iOS37partial24not-r
 Android3partial58not-run, all61 final rows and Phase2 open. Focused resource23/48/18
 checks pass; no production build/quality rerun. Pending Expo/numeric choices stay.
 Weekly43%, ceiling about98%; no source push. See docs/resource-access.md.
+
+
+Physical upload checkpoint8October: ordinary Upload Lab Settings launcher added;
+same signed Hypergolic bundle/team/entitlements updated in place. Complete original
+SDK suites13/7 pass review/reject/status, actual pending background cancellation,
+JPEG/HEIC decoded prepared review, approved development-key PNG confirmation and
+independent exact71-byte retrieval with observed307/direct200. Cold retained
+identity and prior focus restored. CAP05 partial; iOS38partial23not-run,
+Android3partial58not-run, all61 final rows and Phase2 open. TypeScript/shell28/
+capabilities57/uploads51/quality74, both exports and signed iPhoneOS Release pass.
+Doctor zero findings/no numeric score, aislop98 approved exceptions, Expo20/21.
+System picker/attachments, approved interruption/recovery/fault/native stale/
+identity/published/Android remain. Weekly44%, ceiling about98%; no source push.

@@ -163,6 +163,7 @@ function SettingsHome({session, onBackup, onCloseBackup, onDelete, onImport, onS
       <Text accessibilityRole="header" style={styles.title}>Bundled test napplets</Text>
       <Action title="Open UX Lab" testID="settings-open-ux-lab" onPress={openBundledTest} subdued />
       {runtime && <>
+        <Action title="Open Upload Lab" testID="settings-open-upload-lab" onPress={() => openStateLab('upload-lab')} subdued />
         <Action title="Open Resource Lab" testID="settings-open-resource-lab" onPress={() => openStateLab('resource-lab')} subdued />
         <Action title="Open Routing Lab" testID="settings-open-routing-lab" onPress={() => openStateLab('routing-lab')} subdued />
         <Action title="Open Routing Lab Peer" testID="settings-open-routing-lab-peer" onPress={() => openStateLab('routing-lab-peer')} subdued />

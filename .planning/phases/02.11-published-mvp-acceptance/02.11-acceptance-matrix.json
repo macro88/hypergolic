@@ -740,8 +740,13 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-uploads01/physical/hg-upload-physical-iphone03/receipt.json",
+            "iphone-uploads01/physical/hg-upload-positive-iphone02/receipt.json",
+            "iphone-uploads01/validation/hg-upload-provider-reference02/receipt.json"
+          ],
+          "remaining": "Complete physical system selection/unchanged attachments, approved navigation/interruption and uncertainty recovery, queue/fault/stale native effects, identity/replacement, verified published and Android parity. Separate complete original-SDK suites13/7 prove exact PNG native review/reject/status, actual background3 pending cancellation, decoded prepared JPEG/HEIC reviews, approved development-key PNG provider completion and independent exact71-byte retrieval after checked HTTPS redirect, per-request review and cold identity continuity. No prepared-photo byte sanitation/fidelity, before-upload absence or native zero-effects claim."
         }
       }
     },
