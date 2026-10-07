@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone upload review13/approved7 suites pass with independent exact provider retrieval; CAP05 partial. Same Hypergolic updated in place. All61 final rows/published/Android/quality gates open; weekly44%, ceiling about98%, no source push.
+stopped_at: Physical iPhone WAV upload stays active at focused peer then becomes unknown; exact public bytes verified after307. Two recovery/one picker observers fail initialization before tests. CAP05 partial; MIMEalias/recovery-redirect choices open. All61 final/Phase2 open; weekly44%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
-state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3
+state_head: 7ab5f5cc116a04b25a4913fbc314c2bf3ad7180b
 progress:
   total_phases: 14
   completed_phases: 10
@@ -876,3 +876,16 @@ capabilities57/uploads51/quality74, both exports and signed iPhoneOS Release pas
 Doctor zero findings/no numeric score, aislop98 approved exceptions, Expo20/21.
 System picker/attachments, approved interruption/recovery/fault/native stale/
 identity/published/Android remain. Weekly44%, ceiling about98%; no source push.
+
+
+Physical WAV continuation8October: four checks pass before navigation suite fails;
+approved4MiB attachment progresses with Routing peer focused, then outcome unknown.
+Public independent HEAD/307/direct200 confirms exact reviewed bytes; response WAV
+MIMEalias observed, rawPUT not captured. Native recovery denies redirects; alias
+receipt and bounded read-only recovery redirect proposals await owner decisions.
+Two recovery and one picker observers fail XCTest initialization before tests;
+no recovery/picker proof or duplicate approval. Main app cold-launched, retained
+identities untouched, no data erase or identity change, no owned runner remains. All410 executable inputs/local
+product unchanged. Documentation-only checkpoint; no fresh build/quality scan.
+CAP05 partial, iOS38partial23not-run and Android3partial58not-run; all61 final rows
+and Phase2 open. Weekly44%, ceiling about98%; source push remains owner-only.

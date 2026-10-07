@@ -517,3 +517,57 @@ approved transfer navigation/interruption, uncertainty recovery, queue/fault/sta
 native effects, identity/replacement, verified published parity and Android remain
 open. All final matrix rows and Phase 2 stay open. Weekly usage is 44%, below the
 approximately 98% ceiling. Source push remains owner-only.
+
+
+## Physical WAV navigation and unresolved recovery — 8 October 2026
+
+The ordinary iPhone app approves an unchanged, generated 4 MiB WAV under the
+standing development-key test authorization. Four checks pass before the suite
+fails: retained identity, exact native attachment review, original SDK progress
+and continued native progress with another loaded napplet focused. The native HUD
+shows over 1 MiB sent while that peer is focused. This is a sampled foreground
+navigation result; the suite does not complete or confirm the provider receipt.
+The app then reports outcome unknown. The uncertain record is preserved and this
+attempt is not approved again.
+
+An independent public HEAD reports the reviewed 4,194,304-byte size and hash, with
+Content-Type audio/x-wav. GET at the saved provider/hash returns 307 to a public
+HTTPS audio host. A separate direct GET of that observed target returns 200 and
+the exact independently generated WAV bytes and SHA-256. The initial GET's empty
+redirect body is retained separately from the successful retrieval. No pre-upload
+absence or exclusive ownership is established. An unauthenticated public list
+request returns 401; it supplies no stored descriptor. The original PUT response
+is not captured, so MIME alias rejection is a hypothesis rather than a confirmed
+cause of the unknown outcome.
+
+The current native receipt contract requires the provider's type to equal the
+reviewed MIME string. The current recovery profile starts at the saved provider
+and hash and deliberately follows no redirects. Its successful 200 settlement
+checks full size and SHA-256, not MIME. Therefore the observed GET redirect cannot
+settle through the selected recovery transport; the served WAV MIME alias does
+not itself explain a failed recovery read. No protocol policy has changed.
+
+Two recovery observers and one picker-cancellation observer fail to initialize
+XCTest automation before any test case or setup runs. The final attempt uses the
+explicit Xcode developer directory and executable path and encounters the same
+timeout. This supplies no physical proof of cold recovery persistence, duplicate
+blocking, recovery settlement, document/photo selection or cancellation. The
+controllers cold-launch the main app, so the earlier ephemeral guest receipt
+cannot be assumed to survive. No file is selected, app data cleared or duplicate
+upload approved. A final process check finds no owned UI runner left alive.
+
+Private iphone-upload-interruption01 preserves original receipts, selected public
+app screenshots/accessibility, observers, response headers, exact public bodies
+and post-attempt seals. All 410 executable inputs match the previous committed
+capture and all attempts. The local signed main product is unchanged; installed
+executable bytes are not retrieved. Automatic opaque system captures and the full
+device process inventory are excluded. NAP-UPLOAD a7cc174 and Blossom b5bd280 remain
+selected. This checkpoint changes documentation only; no fresh build, dependency
+scan or source push is claimed.
+
+CAP-05 remains partial. The next decisions are whether to recognize the observed
+WAV MIME alias in an otherwise exact receipt and whether to permit guarded,
+read-only public HTTPS recovery redirects. Both remain proposals. Recovery/picker,
+approved interruption, native fault/queue/identity, published and Android parity
+remain open. All 61 final rows and Phase 2 remain open. Weekly usage is 44%, below
+the approximately 98% ceiling.
