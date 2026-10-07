@@ -736,8 +736,14 @@
       "requiredEvidence": "Selected upload protocols send only approved bytes/destination; independent hash/receipt, cancellation, interruption and unknown-outcome handling",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-published-upload01/ui/receipt.json",
+            "android-published-upload01/build/installed-byte-proof.json",
+            "android-published-upload01/ui/upload-lab-release-independent.json",
+            "android-published-upload01/ui/public-wav-proof.json"
+          ],
+          "remaining": "Complete system selection/photos, active switching/background/interruption/recovery/queues/faults, native stale/zero effects, identity/replacement and full published parity. Eleven source-bound observations prove ordinary stable current Release installed bytes, retained protected development identity, native sealed fixture public release with independent HTML/signature/relay storage, ordinary signed first-open consent, generated unchanged 4MiB WAV exact review/complete original SDK receipt/status and independent body hash, fresh native rejection/cancelled SDK result and cold published-session restore. Served audio/x-wav preserves canonical SDK audio/wav; raw PUT descriptor unobserved. Bytes pre-existed and transfer XML was stale; no storage attribution or active navigation proof."
         },
         "ios-physical": {
           "status": "partial",
@@ -749,7 +755,7 @@
             "iphone-upload-interruption01/provider-observation/hg-upload-wav-provider-body02/receipt.json",
             "iphone-upload-interruption01/post-attempt-seals.json"
           ],
-          "remaining": "Complete physical system selection/unchanged attachments, approved navigation/interruption and uncertainty recovery, queue/fault/stale native effects, identity/replacement, verified published and Android parity. Separate complete original-SDK suites13/7 prove exact PNG native review/reject/status, actual background3 pending cancellation, decoded prepared JPEG/HEIC reviews, approved development-key PNG provider completion and independent exact71-byte retrieval after checked HTTPS redirect, per-request review and cold identity continuity. No prepared-photo byte sanitation/fidelity, before-upload absence or native zero-effects claim. Later4MiB WAV navigation attempt passes4 checks including active progress at focused peer, then app reports unknown. Independent exact provider GET succeeds after307; rawPUT unobserved, MIMEalias receipt hypothesis open. Native recovery currently denies redirects. Two recovery and one picker observers fail automation initialization before tests; no recovery/picker pass, no duplicate approval. Current410 executable inputs and local product unchanged. MIMEalias/read-only redirect decisions pending."
+          "remaining": "Complete system selection/unchanged attachments, approved navigation/interruption and uncertainty recovery, queues/faults/stale native effects, identity/replacement and full verified-published parity. Historical original-SDK suites13/7 prove PNG review/reject/status, background pending cancellation, decoded JPEG/HEIC reviews, protected PNG provider completion with independent71-byte retrieval and cold identity continuity. The later4MiB WAV navigation attempt passes4 checks including progress at a focused peer, then becomes unknown; independent provider GET307 retrieves exact bytes, but raw PUT descriptor type and the failure cause remain unobserved. That pre-fix product refuses recovery redirects. Owner-approved narrow WAV alias and bounded read-only redirects now pass local shared/native/TLS proofs; the new iPhone main product is not installed. The corrected identity observer still fails before setup; macOS Automation Mode is disabled/authentication required. A cold ordinary screenshot shows one saved unknown upload without native settlement. No photo sanitation/fidelity, picker, native zero effects or complete recovery claim. SDK upgrades stay held under A1."
         }
       }
     },

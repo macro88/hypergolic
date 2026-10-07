@@ -620,3 +620,31 @@ before setup. No current retained-identity/recovery/picker result is claimed and
 no app data is changed. Private upload-interop01 retains the exact local proof,
 quality, build and initialization-failure evidence. CAP-05 and every final physical
 acceptance row remain open; the original unknown WAV is not silently reuploaded.
+
+
+## Physical published Android WAV — 8 October 2026
+
+Current source 848b98d passes an ordinary physical Android subset after an in-place
+Hypergolic update with the existing package/certificate and matching installed APK
+bytes. The protected development identity survives update and cold launch. Native
+review releases the exact Upload Lab HTML/manifest; independent retrieval verifies
+HTML and signed manifest on both selected relays. Ordinary signed admission grants
+upload access. The generated 4 MiB WAV passes native exact identity/server/hash/size
+review, complete original SDK receipt and separate status read. Independent GET
+follows 307/200 to all 4,194,304 exact bytes served as audio/x-wav; the SDK retains
+reviewed audio/wav. A fresh request is rejected through native review and returns
+cancelled; cold launch restores the published runtime and identity.
+
+Eleven checked observations pass in private android-published-upload01. Provider
+bytes pre-existed; retrieval does not attribute storage to this attempt. Raw PUT
+descriptor type is unobserved. A stale transfer XML is excluded; fresh trees prove
+completion/status/cold results. No active navigation, native zero effects, picker,
+fault, isolation or full CAP-05 claim follows. iPhone recovery remains untested:
+XCTest fails before setup, macOS Automation Mode is disabled/authentication required,
+and no new main install occurs. Its original unknown record remains preserved.
+
+A1 holds all six SDK 57 upgrades with the publisher-trust guard and pins intact.
+Earlier Doctor 100/aislop 98 exact approved exceptions remains the last full quality
+result; executable inputs were unchanged before this documentation checkpoint.
+CAP-05 Android is partial; all 61 final rows and Phase 2 remain open. Weekly 47%,
+ceiling about 98%; no source push.

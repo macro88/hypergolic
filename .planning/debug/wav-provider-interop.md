@@ -97,3 +97,33 @@ XCTest automation timeout. Runtime verification of the old unknown record remain
 open. Raw original PUT descriptor still uncaptured; MIME mismatch remains a
 hypothesis about that old upload. Implemented interoperability does not prove its
 cause or close CAP-05. Canonical evidence: upload-interop01.
+
+
+## Current physical evidence — 8 October 2026
+
+The accepted fix now passes a physical published Android WAV subset on source
+848b98d: exact native review, original SDK complete receipt and separate status
+agree. Independent receipt-URL GET 307/200 verifies all 4,194,304 bytes, served as
+audio/x-wav while SDK MIME stays audio/wav. Raw PUT descriptor type is still
+unobserved, so the earlier iPhone failure's exact cause remains a hypothesis.
+Native release, ordinary signed admission, rejection and cold identity/runtime
+checks are included in private android-published-upload01/ui/receipt.json.
+
+A stale UIAutomator transfer tree is excluded from evidence. The external helper
+now uses unique dump paths and refuses failed idle observations. No active-transfer
+navigation assertion follows. Corrected iPhone identity observer03 contains the
+selected method but still fails before setup. Its recovery observer also now
+expects the settled-record check action to disappear; the corrected observer
+compiles, with no physical recovery execution. No new iPhone main install occurs.
+
+Apple diagnostics show iPhone connected, unlocked and Developer Mode enabled.
+Its cold ordinary screenshot shows the loaded Routing Lab and saved unknown upload.
+macOS reports Automation Mode disabled/authentication required and developer
+security disabled. This is a concrete host prerequisite consistent with the timeout,
+not yet a proved root cause. Obtain administrator authorization locally, then run
+identity preservation, in-place update and the original saved-record recovery.
+Do not bypass uncertainty by replacing identity/server, clearing data or retrying.
+No host security preference was changed; no owned test runner remains.
+
+Owner A1 holds all six SDK 57 upgrades with the existing publisher-trust guard.
+CAP-05 and full Phase 2 remain open; weekly 47%, ceiling about 98%, no source push.
