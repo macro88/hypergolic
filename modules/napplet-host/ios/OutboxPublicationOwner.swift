@@ -6,6 +6,18 @@ final class OutboxPublicationOwner: @unchecked Sendable {
   static let shared = OutboxPublicationOwner()
   private let lock = NSLock()
   private var active = 0
+#if HYPERGOLIC_NETWORK_PROOF
+  /// Only separate native QA builds may select a controlled endpoint or trust anchor.
+  struct ProofTarget: Sendable {
+    let url: String
+    let addresses: [PublishedPinnedHTTPS.Address]
+    let anchorDER: Data
+    let beforeSend: @Sendable () -> Void
+    var onFailure: (@Sendable (String) -> Void)? = nil
+  }
+  private let proofTarget: ProofTarget?
+  init(proofTarget: ProofTarget? = nil) { self.proofTarget = proofTarget }
+#endif
 
   func publish(token: String, group: String, event: String, relay: String) async throws -> String {
     let send = try ApprovalTransport.registry.reserveOutbox(token, group: group, wire: event, relay: relay)
@@ -14,6 +26,9 @@ final class OutboxPublicationOwner: @unchecked Sendable {
     }
     defer { lock.withLock { active -= 1 } }
     let run = Run(token: token, send: send)
+#if HYPERGOLIC_NETWORK_PROOF
+    run.proofTarget = proofTarget
+#endif
     return await withTaskCancellationHandler {
       await run.execute()
     } onCancel: { run.cancel() }
@@ -32,6 +47,9 @@ final class OutboxPublicationOwner: @unchecked Sendable {
     private var timer: DispatchSourceTimer?
     private var ended = false
     private var cancelled = false
+#if HYPERGOLIC_NETWORK_PROOF
+    fileprivate var proofTarget: ProofTarget?
+#endif
     init(token: String, send: NativeOutboxPlan.Send) { self.token = token; self.send = send; acknowledgement = OutboxAcknowledgement(send.eventId) }
     func mayContinue() -> Bool {
       !lock.withLock { cancelled || ended } && ContinuousClock.now < send.deadline && ApprovalTransport.isApproved(token)
@@ -41,10 +59,7 @@ final class OutboxPublicationOwner: @unchecked Sendable {
         lock.withLock { self.continuation = continuation }
         guard mayContinue() else { complete(.failure(NativeOutboxPlan.Failure.revoked)); return }
         do {
-          let operation = try PublishedRelayWebSocketQuery.query(send.relay, subscription: send.frame,
-            publication: .init(mayContinue: { self.mayContinue() }, send: { emit in
-              try self.performSend(emit)
-            }), classifyText: { try self.acknowledgement.classify($0) }, completion: { self.complete($0) })
+          let operation = try makeOperation()
           let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .utility))
           timer.schedule(deadline: .now(), repeating: .milliseconds(20))
           timer.setEventHandler { if !self.mayContinue() { self.cancel() } }
@@ -53,6 +68,22 @@ final class OutboxPublicationOwner: @unchecked Sendable {
           if stop { timer.cancel(); operation.cancel() }
         } catch { complete(.failure(error)) }
       }
+    }
+    private func makeOperation() throws -> PublishedRelayWebSocketQuery.Operation {
+#if HYPERGOLIC_NETWORK_PROOF
+      if let proofTarget {
+        return try PublishedRelayWebSocketQuery.queryForProof(proofTarget.url, subscription: send.frame,
+          addresses: proofTarget.addresses, anchorDER: proofTarget.anchorDER,
+          publication: .init(mayContinue: { self.mayContinue() }, send: { emit in
+            proofTarget.beforeSend()
+            try self.performSend(emit)
+          }), classifyText: { try self.acknowledgement.classify($0) }, completion: { self.complete($0) })
+      }
+#endif
+      return try PublishedRelayWebSocketQuery.query(send.relay, subscription: send.frame,
+        publication: .init(mayContinue: { self.mayContinue() }, send: { emit in
+          try self.performSend(emit)
+        }), classifyText: { try self.acknowledgement.classify($0) }, completion: { self.complete($0) })
     }
     private func performSend(_ emit: @Sendable () -> Void) throws {
       try lock.withLock {
@@ -66,6 +97,9 @@ final class OutboxPublicationOwner: @unchecked Sendable {
       complete(.failure(NativeOutboxPlan.Failure.revoked))
     }
     func complete(_ result: Result<[String], Error>) {
+#if HYPERGOLIC_NETWORK_PROOF
+      if case .failure(let error) = result { proofTarget?.onFailure?(String(describing: error)) }
+#endif
       let captured: (CheckedContinuation<String, Never>, DispatchSourceTimer?)? = lock.withLock {
         guard !ended, let continuation else { return nil }
         ended = true; let timer = self.timer; self.timer = nil; self.continuation = nil; self.operation = nil

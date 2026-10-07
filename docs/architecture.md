@@ -297,3 +297,10 @@ claim, and relay ACKs are compared to the reviewed snapshot's canonical URL set.
 The first protected public Android fixture releases and ordinary published Feed
 Lab relay query are verified; full iPhone release and published Outbox acceptance
 remain open. See the scoped checkpoint in the owning fixture publication document.
+
+
+The Outbox publication owner has a compile-time HYPERGOLIC_NETWORK_PROOF route
+for separate native QA builds. It retains the real reservation, atomic send gate,
+ACK classifier and receipt completion while selecting a controlled TLS receiver.
+Ordinary builds exclude the route and use the existing public relay policy.
+See the [physical transport evidence and limits](../.planning/phases/02.11-published-mvp-acceptance/02.11-04-CHECKPOINT.md#physical-owning-publication-transport).

@@ -48,6 +48,7 @@ def serve(listener,key,cert,mode,fixture,trace,errors):
    if mode=='missing':return
    if mode=='malformed':ack=['OK',event_id,1,'invalid boolean']
    elif mode=='wrong-id':ack=['OK','0'*64,True,'foreign']
+   elif mode=='auth-required':ack=['AUTH','temporary-proof-challenge']
    else:ack=['OK',event_id,mode!='rejected','blocked' if mode=='rejected' else 'stored']
    peer.sendall(frame(json.dumps(['NOTICE','ordinary'],separators=(',',':')))+frame(json.dumps(ack,separators=(',',':'))))
    trace.append({'phase':'ack','value':ack})

@@ -12,3 +12,16 @@ The companion `tls_run.py --output <fresh-external-directory>` uses disposable l
 The existing native WSS writers allow an 8192-byte text frame. Shared request capture and both native review captures enforce the complete signed EVENT size before review/signing, including signature overhead, UTF-8 and escaping. An oversized existing relay list blocks review rather than being silently omitted.
 
 `review.tsx`, `../android-review.py` and `../ios-review.py` exercise the production approval/receipt components with native inputs and sealed products. The fixture explicitly says presentation only, owns no signer and performs no publication. Keep this evidence separate from the required original SDK/native/protected-signing journey.
+
+`owning_tls_run.py --output <fresh-external-directory>` exercises the actual Swift
+publication owner through the same approval registry, final send gate, receipt
+classifier and WSS writer. Eight controlled host cases add an AUTH challenge to
+the seven cases above. The independent receiver checks the exact EVENT and records
+zero EVENT frames for revocation immediately before send.
+
+The `HYPERGOLIC_NETWORK_PROOF` compilation condition enables only the test route,
+public certificate anchor and pre-send revocation hook. Ordinary builds omit that
+condition and retain the public relay policy. This test uses an already signed
+public fixture; it does not exercise protected signing, guest admission, Expo
+composition, physical devices or public DNS. Physical owner evidence is recorded
+separately in the Phase 2.11 checkpoint.

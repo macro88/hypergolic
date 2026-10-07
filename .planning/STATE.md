@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone approval/transport/plan/ACK21 core methods pass after external fixture bundling repair; original identity/pending10 and encrypted storage5 retained. iOS31 partial30 not-run, no final pass. Stable app reopened, guard around98%, no source push.
+stopped_at: Physical iPhone owning native Outbox transport eight controlled TLS cases pass with independent exact/zero frame counts; protected signer, full faults and Android parity open. iOS31 partial30 not-run, no final pass. Numeric Doctor pending permission, Expo pin preserved, guard around98%, no source push.
 last_updated: "2026-10-07"
 last_activity: 2026-10-07
 state_head: f5a8e44a4bc7879a464ecafa367a4f185ffc05e3

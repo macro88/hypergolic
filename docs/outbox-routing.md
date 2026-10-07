@@ -29,3 +29,12 @@ Read/stream connections stay live across loaded foreground switches. Background 
 Those earlier proofs do not establish complete physical published/fault acceptance. The current [Phase2.11 checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-02-CHECKPOINT.md#physical-iphone-protected-publication--7-october-2026) adds ordinary bundled protected explicit-only publication on both physical hosts, with exact native review and independently verified live/stored signed events. Final published Outbox admission and the remaining fanout/lifecycle/fault rows stay open. The production iOS identity store excludes Simulator; never substitute a fixture signer. Phase 2.11 owns every open row, including ordinary exports/prebuilds/packages and physical input/accessibility. Complete source quality keeps only the two existing explicitly approved locked-patch exceptions visible; gates and findings are not suppressed.
 
 Checks already used for implementation include `pnpm run test:outbox`, `pnpm run typecheck`, original SDK Chromium/WebKit suites and the native runners documented in [tests/native/outbox](../tests/native/outbox/README.md) and [publication proofs](../tests/native/outbox/publication/README.md). Packaging alone cannot establish device acceptance.
+
+
+The [physical owning transport checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-04-CHECKPOINT.md#physical-owning-publication-transport)
+adds eight actual owner/approval/WSS cases in a separate iPhone QA app, with an
+independent exact EVENT observer and zero frames after final native revocation.
+Only HYPERGOLIC_NETWORK_PROOF builds can redirect that proof to a controlled
+address/certificate anchor. Ordinary public relay policy remains compiled by
+default. These already signed fixtures do not prove protected signing, owning
+Expo composition or complete lifecycle/fault acceptance.
