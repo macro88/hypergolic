@@ -765,8 +765,11 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-links01/physical/hg-links-physical-iphone01/receipt.json"
+          ],
+          "remaining": "Complete forbidden-URL/flood/native stale callback and close/replacement/account/concurrent-modal faults, missing-handler behavior, verified published parity and physical Android. One ordinary fourteen-check bundled original-SDK iPhone run proves HTTP/credential denial, full native captured review/Cancel, actual Safari foreground with main background and opened receipt on return, fresh per-opening review, confirmed pending background revocation, expiry, four-request flood, generation bound and cold identity/no-replay. OS handoff does not prove page loading."
         }
       }
     },
