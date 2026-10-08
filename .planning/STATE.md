@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical Android nine-check full workspace order passes; ordinary restart preserves exact15-card order/last focus/identity with temporary drafts reset. Android UX-03 passed, UX-09 partial; iPhone order observer timed out and full repeat is executing. UX-06 passes both phones; Phase2 open. Weekly53%, ceiling about98%, no source push.
+stopped_at: Physical Android six-check full header/copy acceptance passes; keyboard/Back five-check subset passes with original pixel proof. Android UX-01/UX-03 passed, UX-09/UX-10 partial; iPhone full order repeat confirmed running. UX-06 passes both phones; Phase2 open. Weekly53%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 3c5b8eddecf4b7f624d1f2c8dbd45cb94f24edd9
@@ -1059,3 +1059,40 @@ and the same compiled external observer repeats with a4500s watchdog. No iOS
 order pass is inferred. No main build/quality rerun or source push. UX-06 remains
 the only complete cross-platform final row; full Phase2 and clean quality remain
 open. Current weekly53%, owner ceiling about98%.
+
+
+Android header/Back checkpoint (2026-10-08)
+
+The unchanged ordinary installed Android Release passes the full UX-01 named
+header requirement in six physical checks. The supplied square logo measures
+104x104px at520dpi, exactly32x32dp; actual tap has no navigation/state action.
+Focused name, fallback avatar, abbreviated public key and full accessible npub
+match. Actual identity-header tap opens trusted Settings with the full key. Native
+text selection/Copy and system PASTE deliver the exact63-character npub into the
+owned temporary UX note and its visible mirror; no typed substitute or secret
+export. Actual guest bounds occupy the remaining stage with reserved native
+margin/status. Four original PNGs inspected. Private android-header01 retains22
+byte-verified originals, preparation actions and bound external checks.
+
+A separate five-check keyboard/Back subset passes: system IME visible, full note
+above its native content top1787px, first Back dismisses keyboard, Settings Back
+returns exact focus, focused Back opens overview, and overview Back restores that
+exact note/public identity. Six original PNGs inspected. The app-only first
+observer misses the visible keyboard because its AX tree excludes IME; corrected
+external observation uses only current editor/IME visibility and content insets.
+The initial multi-image preview suggested a cropped header; independent original
+pixel comparison contradicts that impression. The full native header rectangle
+is identical to its pre-keyboard baseline in five sampled frames. The initial
+interpretation and exact correction remain in private android-keyboard-back01,
+with33 byte-preserved originals. This is static frame/state proof, not continuous
+motion or TalkBack acceptance.
+
+Both passing observers bind all402 owning inputs and the unchanged installed APK.
+No main install, reset, identity change, view closure, bridge/state injection or
+product edit occurs. Android UX-01 passes; UX-10 remains partial for screen-reader,
+approval Back/dismissal, reduced motion and conflict/continuous-motion cases.
+Full iPhone header/order acceptance and other Phase2 rows remain open. The live
+iPhone nine-check order repeat remains running with its longer watchdog. No new
+main build/quality scan: Doctor100/100, aislop98/100 exact approved exceptions and
+ordinary clean verifier red remain current. UX-06 is still the only complete
+cross-platform final row. Weekly53%, ceiling about98%; no source push.

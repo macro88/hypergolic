@@ -11,11 +11,13 @@
       "requiredEvidence": "Screenshot and accessibility tree on target phone; actual tap opens settings; full npub copies correctly; focused napplet fills remaining space",
       "platforms": {
         "android-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
-            "physical-android-tracer04/android-isolated-build/first-tracer08-receipt.json"
+            "physical-android-tracer04/android-isolated-build/first-tracer08-receipt.json",
+            "android-header01/originals/receipt.json",
+            "android-header01/originals/visual-review.json"
           ],
-          "remaining": "Complete the named row requirements; this subset proves only normal first launch, input and public identity process-restart continuity."
+          "verifiedScope": "Six ordinary physical native-input checks: actual supplied square logo32dp, logo tap has no navigation/state action, focused name/fallback avatar/short npub/full accessible identity, guest fills remaining stage with native reserved margin/status, header tap opens trusted Settings/full npub, actual system text-selection Copy and exact63-character clipboard paste into owned UX temporary note with visible mirror. Four original PNGs inspected; same APK and all402 owning inputs unchanged."
         },
         "ios-physical": {
           "status": "partial",
@@ -203,8 +205,13 @@
       "requiredEvidence": "Real keyboard entry/occlusion, focus restoration, screen-reader controls and Back from focused/settings/overview/approval; phone conflict observations",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-keyboard-back01/hg-android-keyboard-back-physical02/receipt.json",
+            "android-keyboard-back01/hg-android-keyboard-back-physical02/visual-review.json",
+            "android-keyboard-back01/hg-android-keyboard-back-physical02/header-pixel-review.json"
+          ],
+          "remaining": "Five physical keyboard/Back state checks pass: actual system IME visible, focused full temporary public note above its1787px content boundary, first Back dismisses keyboard, Settings Back restores focus, focused Back opens overview, overview Back restores exact note/focus/public identity. Six PNGs inspected; original full native header pixels identical across five keyboard/Back sampled frames. Initial app-only IME observer failure and misleading multi-image preview interpretation are retained with corrections. Full approval Back/dismissal, screen-reader controls, reduced motion and conflict/continuous-motion observations remain needed; native AX alone is not TalkBack proof."
         },
         "ios-physical": {
           "status": "partial",
