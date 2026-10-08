@@ -204,9 +204,11 @@
           "status": "partial",
           "evidence": [
             "physical-iphone-tracer06/hg-phase211-iphone-tracer09/receipt.json",
-            "iphone-storage01/hg-storage-physical-iphone04/receipt.json"
+            "iphone-storage01/hg-storage-physical-iphone04/receipt.json",
+            "iphone-wav-recovery01/before-update/receipt.json",
+            "iphone-wav-recovery01/recovery/receipt.json"
           ],
-          "remaining": "Additional ordinary process-restart public identity continuity passes; fresh-profile/reboot and failed-read no-replacement evidence remain required."
+          "remaining": "Additional ordinary process-restart public identity continuity passes; fresh-profile/reboot and failed-read no-replacement evidence remain required. Current normal product848b98d installs in place after exact native Settings public-identity guard, with retained identity after update and cold restarts during six-check saved-WAV recovery. Sealed local product/inputs and matching entitlements are verified; installed iOS executable bytes are not retrieved. This adds a scoped physical subset, not complete acceptance."
         }
       }
     },
@@ -636,9 +638,11 @@
           "evidence": [
             "physical-iphone-tracer06/hg-phase211-iphone-tracer09/receipt.json",
             "iphone-configuration01/physical/hg-routing-configuration-physical-iphone02/receipt.json",
-            "iphone-notifications01/physical/hg-routing-notification-physical-iphone05/receipt.json"
+            "iphone-notifications01/physical/hg-routing-notification-physical-iphone05/receipt.json",
+            "iphone-wav-recovery01/before-update/receipt.json",
+            "iphone-wav-recovery01/recovery/receipt.json"
           ],
-          "remaining": "Current ordinary signed Release installs in place with unchanged bundle/team/entitlements and retained public identity, then cold-launches and passes the configuration subset. Local product and408 input seals are retained; installed iOS executable bytes were not retrieved. Complete both-platform payload/permission inspections and full native journeys remain required."
+          "remaining": "Current ordinary signed Release installs in place with unchanged bundle/team/entitlements and retained public identity, then cold-launches and passes the configuration subset. Local product and408 input seals are retained; installed iOS executable bytes were not retrieved. Complete both-platform payload/permission inspections and full native journeys remain required. Current normal product848b98d installs in place after exact native Settings public-identity guard, with retained identity after update and cold restarts during six-check saved-WAV recovery. Sealed local product/inputs and matching entitlements are verified; installed iOS executable bytes are not retrieved. This adds a scoped physical subset, not complete acceptance."
         }
       }
     },
@@ -753,9 +757,12 @@
             "iphone-uploads01/validation/hg-upload-provider-reference02/receipt.json",
             "iphone-upload-interruption01/physical/hg-upload-navigation-iphone01/receipt.json",
             "iphone-upload-interruption01/provider-observation/hg-upload-wav-provider-body02/receipt.json",
-            "iphone-upload-interruption01/post-attempt-seals.json"
+            "iphone-upload-interruption01/post-attempt-seals.json",
+            "iphone-wav-recovery01/before-update/receipt.json",
+            "iphone-wav-recovery01/recovery/receipt.json",
+            "iphone-wav-recovery01/independent-public-bytes.json"
           ],
-          "remaining": "Complete system selection/unchanged attachments, approved navigation/interruption and uncertainty recovery, queues/faults/stale native effects, identity/replacement and full verified-published parity. Historical original-SDK suites13/7 prove PNG review/reject/status, background pending cancellation, decoded JPEG/HEIC reviews, protected PNG provider completion with independent71-byte retrieval and cold identity continuity. The later4MiB WAV navigation attempt passes4 checks including progress at a focused peer, then becomes unknown; independent provider GET307 retrieves exact bytes, but raw PUT descriptor type and the failure cause remain unobserved. That pre-fix product refuses recovery redirects. Owner-approved narrow WAV alias and bounded read-only redirects now pass local shared/native/TLS proofs; the new iPhone main product is not installed. The corrected identity observer still fails before setup; macOS Automation Mode is disabled/authentication required. A cold ordinary screenshot shows one saved unknown upload without native settlement. No photo sanitation/fidelity, picker, native zero effects or complete recovery claim. SDK upgrades stay held under A1."
+          "remaining": "Complete system selection/unchanged attachments, queues/faults/stale native effects, account/replacement and full verified-published parity. Historical original-SDK suites13/7 prove PNG review/reject/status, background pending cancellation, decoded JPEG/HEIC reviews, protected PNG provider completion with independent71-byte retrieval and cold identity continuity. The earlier4MiB WAV navigation attempt passes4 checks including progress at a focused peer, then becomes unknown; raw PUT descriptor and exact failure cause remain unobserved. After owner-local XCTest passcode authorization, current signed normal product installs in place under matching entitlements and the full before-update identity guard. Six actual checks prove cold original provider/hash/size/MIME uncertainty, same-hash SDK refusal before new review, native bounded-redirect full-byte/hash presence settlement, cold settled presence/identity and fresh review rejected without automatic retry. Independent original-provider GET307/200 verifies4194304 bytes/hash served audio/x-wav; bytes pre-existed so no storage attribution. Installed iOS executable bytes are not retrieved. No photo sanitation/fidelity, picker, native zero effects or full recovery-fault claim. SDK upgrades stay held under A1."
         }
       }
     },

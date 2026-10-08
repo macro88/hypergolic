@@ -648,3 +648,31 @@ Earlier Doctor 100/aislop 98 exact approved exceptions remains the last full qua
 result; executable inputs were unchanged before this documentation checkpoint.
 CAP-05 Android is partial; all 61 final rows and Phase 2 remain open. Weekly 47%,
 ceiling about 98%; no source push.
+
+
+## Physical iPhone original saved WAV recovery — 8 October 2026
+
+After owner-local XCTest passcode authorization, the current full public identity
+check passes. The sealed signed ordinary Hypergolic Release installs in place with
+matching bundle/name/team/entitlements; actual installed iPhone executable bytes
+are not independently retrieved. All six native recovery observations pass:
+retained identity, cold exact original unknown metadata, same-hash SDK refusal
+before new review, native saved-provider full-byte/hash settlement through the
+accepted redirect, cold retained presence, and fresh review rejected without an
+automatic retry. No provider/identity substitution, data clearing or replacement
+upload occurs. Original pre-death SDK receipts are not assumed to persist.
+
+Independent GET from the original provider/hash follows307/200 and verifies all
+4,194,304 bytes and SHA-256, served audio/x-wav with canonical saved audio/wav.
+Bytes pre-existed, so presence does not attribute storage to an attempt. The
+historical raw PUT descriptor and precise upload failure cause remain unobserved.
+Native result/cold screenshots are inspected. Private iphone-wav-recovery01 retains
+63 exact originals, observer/build/normal-product/input seals and installation
+receipts, excluding opaque system attachments. Executable inputs and product seal
+remain unchanged; documentation only, no new main build or full quality scan.
+
+CAP-05 remains partial: picker, attachments, queues/faults/stale native effects,
+account/replacement and full verified-published parity still need physical proof.
+All61 final rows and Phase2 remain open. SDK upgrades are held with trust guard
+intact. Android workspace acceptance is now executing. Weekly51%, ceiling about98%;
+source push remains owner-only.
