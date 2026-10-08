@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone full workspace order and Android saved-data close/reopen/cold subsets pass. UX-03 and UX-06 complete on both phones;59 of61 rows remain open. First Android handle tap remains unresolved; next complete native header/empty/security/published/fault acceptance. Weekly53%, ceiling about98%, no source push.
+stopped_at: iPhone full order and Android saved-data close/reopen/cold subsets pass; UX-03/UX-06 complete on both phones,59 of61 rows open. Four new State Lab handle first taps pass without explaining original UX/keyboard gap. Next reproduce exact prior precondition and complete native acceptance; weekly54%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 3c5b8eddecf4b7f624d1f2c8dbd45cb94f24edd9
@@ -1144,3 +1144,16 @@ UX-03 and UX-06 remain the two complete cross-platform rows of61;59 open. No
 fresh main build/quality scan; Doctor100/100, aislop98/100 exact approved exceptions
 and ordinary clean verifier red remain visible. Phase2 open; weekly53%, ceiling
 about98%; no source push.
+
+
+## Android handle comparison — 8 October 2026
+
+Four sampled first taps open overview: right expanded-target centre after cold
+launch, then right visible pill, left centre and left pill after overview/focus
+return in retained State Lab14. Four original settled PNGs inspected; all402
+owning inputs and exact installed APK unchanged. Private diagnostic capture
+retains25 exact originals. The earlier UX Lab/keyboard/copy ignored tap is not
+reproduced or explained; UX-05 remains partial and the debug investigation open.
+No product repair or general hit-area/timing cause is claimed. Next reproduce
+that exact fixture/keyboard precondition before selecting a source repair.
+Weekly54%, ceiling about98%; no source push. Complete Phase2 stays active.

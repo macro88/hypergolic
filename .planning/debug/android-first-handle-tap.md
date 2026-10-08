@@ -26,3 +26,20 @@ Next: compare first tap after keyboard/overview return and after ordinary cold
 launch, with original frame/touch evidence; distinguish target centre from
 visible pill without narrowing the required touch target. Keep all failed
 receipts. Recheck adjacent inward/cancel gestures if a product repair is needed.
+
+
+## Discriminating repeat — 8 October 2026
+
+Four genuine first taps now open overview in retained State Lab: right target
+centre after an ordinary cold process, followed by right visible pill, left
+target centre and left visible pill after overview/focus return. Four original
+settled PNGs inspected; all402 owning inputs and exact installed APK unchanged.
+Private android-handle-discrimination02 retains25 byte-verified originals and
+external native-input driver. No key action, saved-value write, main install,
+identity change, existing view closure or product edit.
+
+This does not reproduce the original UX Lab/keyboard/copy precondition or explain
+its ignored first tap. A generally broken expanded touch area is not established;
+keyboard/timing/gesture arbitration remains hypothesis. UX-05 stays partial and
+this investigation stays open. Next repeat the exact UX fixture keyboard/overview
+return precondition and compare native frames/input before selecting a repair.
