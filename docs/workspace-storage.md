@@ -161,3 +161,36 @@ root/tool audits still report them, runtime audit is clean, and Expo Doctor20/21
 retains the six held patches. Full order, all-three scroll, deliberate empty,
 continuous transition/reduced-motion/accessibility and final MVP acceptance remain
 open. iOS is unaffected by this Android lifecycle change and needs its own evidence.
+
+
+## Physical Android handle parity — 8 October 2026
+
+UX-04 now passes the complete named handle journey on physical Android as well as
+iPhone: inset thumb-height targets, both inward previous/next directions, live
+translation, both early cancellations, both end resistance/no-wrap and actual
+near-edge guest buttons without a false switch. Native state assertions agree
+with independent review of the original physical recordings.
+
+The continuation completes thirty checks: ten genuine checks precede an observer
+scrolling failure, then twenty checks finish the journey. An earlier controller's
+incorrect four-view assumption and both failed receipts remain preserved. This
+is not one uninterrupted green run. Original sixteen-view order, the original
+public draft/counter, APK/process and motion settings are retained/restored; only
+three newly owned views close. Twelve owning gesture/UX inputs and parent style
+blocks match current source. Seventeen other recorded inputs differ, so retained
+app evidence does not establish current full-app/build/signing/published acceptance.
+
+All twelve handle/card returns at first/middle/last under normal and zero Android
+transition scale pass. Normal sparse frames include zoom intermediates; reduced
+sequences settle directly but some frames contain mixed layouts. No exact pacing
+or zero-intermediate-frame guarantee follows. UX-05 stays partial: the earlier
+ignored first tap is unexplained and successful repetitions do not prove a fix.
+TalkBack and full UX-10 remain open. Canonical private `android-gesture04` receipts,
+inspected derivatives and ten byte-preserved original videos retain the scope.
+
+One regular nonstreamed installation of the separately signed Hypergolic QA app
+now succeeds with installed bytes matching the tested APK. The original app's
+APK/process stay unchanged and device security settings are not altered. This
+proves that this transport works; the prior streamed rejection's cause remains
+unconfirmed. First launch and the prepared nine-check saved-data/empty journey
+are next. No fresh application build or quality scan is claimed.

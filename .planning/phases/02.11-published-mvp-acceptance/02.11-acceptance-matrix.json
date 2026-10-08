@@ -87,11 +87,17 @@
       "requiredEvidence": "Actual touch input and frame/video observations at both ends and middle; early-release return; no false switch while using near-edge fixture controls",
       "platforms": {
         "android-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
-            "android-workspace01/receipt.json"
+            "android-workspace01/receipt.json",
+            "android-gesture04/originals/hg-android-gesture-physical02/receipt.json",
+            "android-gesture04/originals/hg-android-gesture-physical03/receipt.json",
+            "android-gesture04/visual-review.json",
+            "android-gesture04/parent-layout-review.json",
+            "android-gesture04/video/manifest.json"
           ],
-          "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open."
+          "remaining": "None for the named Android handle-drag requirement. The retained app has twelve owning gesture/UX sources and parent layout style blocks matching current source, while seventeen other recorded inputs differ. Current full-app/build/signing/published acceptance, UX05 ignored-tap investigation and full accessibility remain separate open requirements.",
+          "verifiedScope": "Complete physical native-input and independent frame review: inset matching thumb-height handles; both inward previous/next directions through three unique live counters/drafts; both slow early cancellations; actual first-left and last-right overdrag resistance/no-wrap; actual near-edge guest controls without false switching. Thirty checks consist of ten genuine predecessor checks plus twenty continuation checks, with both observer failures retained; not one uninterrupted green run. Complete original sixteen-view opening order, original UX12 public draft/counter, original APK/PID and motion settings are retained/restored; only three fresh owned views close. Four actual gesture recordings show intermediate translation, cancellation and limited end travel; ten total videos are byte-preserved. No exact finger kinematics/frame pacing or current full-app acceptance claim."
         },
         "ios-physical": {
           "status": "passed",
@@ -121,9 +127,13 @@
             "android-handle-discrimination02/originals/receipt.json",
             "android-handle-discrimination02/visual-review.json",
             "android-handle-keyboard03/originals/receipt.json",
-            "android-handle-keyboard03/visual-review.json"
+            "android-handle-keyboard03/visual-review.json",
+            "android-gesture04/originals/hg-android-gesture-physical03/receipt.json",
+            "android-gesture04/visual-review.json",
+            "android-gesture04/video-review/hg-android-overview-video-review01/manifest.json",
+            "android-gesture04/video/manifest.json"
           ],
-          "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open. A fresh ordinary first right-handle centre tap fails to establish overview; a later fresh PNG/XML remains focused. One separately recorded further centre tap opens overview. Root cause is unestablished; retain both results and complete first-tap/both-end/transition geometry and reduced-motion proof. Independent saved-data testing continues via actual hardware Back, which does not close this handle requirement. Four new first-tap observations in retained State Lab pass right target centre after cold process and right pill/left centre/left pill after overview return; original UX Lab keyboard/copy failure is not reproduced or explained. Root-cause investigation and full both-end/motion/accessibility acceptance stay open. Original owned UX12 Copy/PASTE plus five keyboard/Back preconditions now repeat and the first centre tap succeeds. Original ignored tap remains unexplained; no repair or full acceptance claimed."
+          "remaining": "The complete twelve-control first/middle/last x left/right x normal/reduced native repeat passes with exact selected state and two-column geometry. Sparse normal recordings include zoom intermediates; reduced sequences settle directly but individual mixed-layout frames occur, so no zero-intermediate-frame or exact pacing claim follows. The earlier first centre tap left the ordinary app focused and only a later tap opened overview. Separate cold-process and original keyboard/Copy/PASTE repetitions passed but neither reproduced nor explained that failure. Root cause and any required repair remain unresolved; keep UX05 partial rather than treating later passes as a fix. Full keyboard/Back/TalkBack and current full-app published/security/fault acceptance remain separate requirements."
         },
         "ios-physical": {
           "status": "passed",

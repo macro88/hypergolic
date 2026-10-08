@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Current physical iOS native cores pass all21 methods; UI readiness still fails after runner authorization. Expo patch proposal blocked by existing release-age rule. Full61 rows persist,3 complete/58 open; ceiling about98%; no source push.
+stopped_at: Android UX04 full gesture parity passes with original data restored; UX05 ignored tap remains unresolved. Regular nonstreamed separate QA install succeeds. Next nine saved-data/empty checks; iPhone UI readiness remains open. Full61 rows persist,4 complete/57 open; ceiling about98%; no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
-state_head: 299022c09ad3cd9a8178aad6ea90458e1bad3e41
+state_head: 5f9d9f1884a6b11e50aadf5dee3e4a1a95c5f924
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1586,3 +1586,26 @@ under the existing seven-day release-age policy; pins/policy remain unchanged.
 See [signing validation](../docs/signing-approval.md#current-physical-ios-approval-cores--8-october-2026)
 and the Plan03 checkpoint. Full61 requirements remain,3 complete/58 open. No fresh
 application packaging/quality scan or source push; usage65%, ceiling about98%.
+
+
+## Android gesture parity and QA installation — 8 October 2026
+
+Complete native input/frame review passes Android UX-04; its iPhone counterpart
+already passed. All 61 original requirements remain: four complete across both
+platforms, 57 open. Thirty actual checks span a retained ten-check predecessor
+and twenty-check continuation; both observer failures are explicit. Original
+sixteen-view order, original public draft/counter, APK/process and motion settings
+are restored; only three new owned views close. Twelve owning gesture/UX inputs
+and parent style blocks match current source; seventeen other inputs differ, so
+current full-app acceptance is not inferred. UX-05 stays partial despite all
+twelve normal/reduced handle/card repeats: the historical ignored tap remains
+unexplained and sparse mixed-layout frames do not establish zero intermediates.
+
+One standard nonstreamed install succeeds for the tested separate Hypergolic QA
+Release with exact installed-byte match and original app unchanged. No security
+setting changes or primary reset occur. Next run the prepared complete nine-check
+normal-entry saved-data/deliberate-empty journey on this newly installed app.
+iPhone automation readiness and remaining published/security/fault/accessibility
+journeys remain open. No fresh app build/quality scan or source push. Previous
+Doctor100/aislop98 reports retain only approved exceptions and their ordinary
+gate remains red. Usage68%, authorized ceiling about98%; Phase2 stays active.
