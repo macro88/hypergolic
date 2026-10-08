@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: SDK upgrades held with trust guard intact; Android published WAV subset11 passes. Owner Mac authorization change verified, but iPhone before-update observer still times out enabling automation before tests; unlocked/usable DDI, no new main install or recovery. Next check on-device Enable UI Automation and prompt. Full Phase 2 open; weekly 48%, ceiling about 98%, no source push.
+stopped_at: SDK upgrades held; Android published WAV subset11 passes. iPhone toggle enabled, but live XCTest passcode prompt blocks identity05 before tests. External recovery observer04 compiles; guarded in-place update awaits actual identity proof and owner on-device passcode entry. No main update/recovery. Full Phase2 open; weekly49%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 848b98d9204244d6192457bcc292e200680b89a8
@@ -943,3 +943,14 @@ than a confirmed cause. Corrected recovery observer04 is prepared externally,
 not built/run. Actual full identity proof remains required before the guarded
 in-place main update. Matrix statuses and full Phase 2 remain open. Documentation
 only; no new quality scan or build. Weekly48%, ceiling about98%; no source push.
+
+
+Live automation gate (8 October 2026): owner confirms the iPhone toggle is enabled.
+A supervised retry captures the separate XCTest device passcode prompt with empty
+positions; it expires after60 seconds before tests/setup. No main update or saved
+record change; signed-product/executable seals match and no owned runner remains.
+External recovery observer04 now compiles; guarded controller05 awaits an actual
+passing current identity receipt. Next: owner present for the retry, entering the
+passcode on the phone when prompted. This directly explains this attempt's gate,
+not every earlier timeout. Phase2/all61 final rows open; weekly49%, ceiling about98%.
+Documentation only, no new runtime build/quality result; no source push.

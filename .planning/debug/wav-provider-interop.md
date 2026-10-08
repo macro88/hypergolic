@@ -153,3 +153,14 @@ than a confirmed cause. Corrected recovery observer04 is prepared externally,
 not built/run. Actual full identity proof remains required before the guarded
 in-place main update. Matrix statuses and full Phase 2 remain open. Documentation
 only; no new quality scan or build. Weekly48%, ceiling about98%; no source push.
+
+
+Live automation gate (8 October 2026): owner confirms the iPhone toggle is enabled.
+A supervised retry captures the separate XCTest device passcode prompt with empty
+positions; it expires after60 seconds before tests/setup. No main update or saved
+record change; signed-product/executable seals match and no owned runner remains.
+External recovery observer04 now compiles; guarded controller05 awaits an actual
+passing current identity receipt. Next: owner present for the retry, entering the
+passcode on the phone when prompted. This directly explains this attempt's gate,
+not every earlier timeout. Phase2/all61 final rows open; weekly49%, ceiling about98%.
+Documentation only, no new runtime build/quality result; no source push.
