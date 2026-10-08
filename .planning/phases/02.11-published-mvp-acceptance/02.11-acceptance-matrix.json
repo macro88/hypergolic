@@ -696,9 +696,12 @@
           "evidence": [
             "iphone-boundary01/receipt.json",
             "iphone-boundary01/input-review.json",
-            "iphone-boundary01/test-summary.json"
+            "iphone-boundary01/test-summary.json",
+            "iphone-boundary-faults04/receipt.json",
+            "iphone-boundary-faults04/input-review.json",
+            "iphone-boundary-faults04/test-summary.json"
           ],
-          "remaining": "Complete all named row requirements. Current source-linked separate QA app passes17 physical WK methods, including actual child frame/source/world/schema/generation/size and lease checks. Privileged native stimuli; owning Expo, all domain authority, concurrent malicious sources and final published parity remain open."
+          "remaining": "Complete all named row requirements. Separate source-linked QA app now passes20 physical WK methods: previous17 source/frame/world/schema/generation/lease cases plus real renderer death, multi-generation queue/replay and UTF-8 envelope/snapshot limits. All49 included production core files are unmodified; native privileged stimuli. Owning Expo, all domain authority, concurrent malicious source forgery and final published parity remain open."
         }
       }
     },
@@ -736,9 +739,12 @@
           "evidence": [
             "iphone-boundary01/receipt.json",
             "iphone-boundary01/input-review.json",
-            "iphone-boundary01/test-summary.json"
+            "iphone-boundary01/test-summary.json",
+            "iphone-boundary-faults04/receipt.json",
+            "iphone-boundary-faults04/input-review.json",
+            "iphone-boundary-faults04/test-summary.json"
           ],
-          "remaining": "Complete all named row requirements. Physical source-linked core observes top/self navigation, admitted native error, unmount/reuse and lease revocation. Renderer termination, complete resource/redirect/reload/queue/byte limits and owning-app/published cleanup remain open."
+          "remaining": "Complete all named row requirements. Separate source-linked QA app now passes20 physical WK methods, including real WebKit process termination, claimed/queued lease revocation, fresh process/generation with no stale reply, actual4-per-generation/8-global queues and consumed overload sequences, and exact UTF-8 wire/snapshot denials. Private fault selector is test-only. Complete resource/redirect/reload/subscription/session-limit and owning-app/published cleanup remain open."
         }
       }
     },

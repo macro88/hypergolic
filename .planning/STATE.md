@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Android UX09 complete published pin/order/focus/lazy reload through two real process restarts; iPhone counterpart open. Full61 rows persist,5 complete/56 open. iPhone automation unresolved; ceiling about98%, no source push.
+stopped_at: Physical iPhone20-method WK suite now proves real renderer death, queue/replay and UTF-8 limits; SEC01/03 partial. Full61 rows persist,5 complete/56 open. iPhone UI automation unresolved; ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 1294f873cc407cf9e6e18771690973518b674a5e
@@ -1639,3 +1639,14 @@ APK and main APK/PID remain unchanged; five original-build differences are docs 
 First-open/save predecessors and observer failures remain explicit. No new build or
 quality/publication claim. All 61 original requirements remain, 5 cross-platform complete/
 56 open; iPhone UX09, automation readiness and full MVP gates remain open.
+
+
+Physical WK fault checkpoint — 8 October2026: all20 source-linked real iPhone
+methods pass in one final run, adding actual renderer death/lease cleanup/fresh
+generation,4-per-generation/8-global queue/replay and UTF-8 wire/snapshot bounds.
+All49 production core files are unchanged; private WebKit fault control is test-only.
+Main/QA installed records and three product seals stay unchanged; main PID persists
+and QA return reuses its process. Original membership failure and prior passing
+revision remain. Shared security/bootstrap353+13 pass. SEC01/03 stay partial; all61
+original requirements/statuses persist,5 complete/56 open. UI automation, protected
+signing, published/owning fault coverage and final quality remain open. No source push.

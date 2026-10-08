@@ -240,3 +240,25 @@ one combined 12-check storage/import run. The original identity and saved values
 are restored after a public test fixture import. The [physical checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md#ordinary-storage-and-protected-identity-import)
 retains exact evidence and limits. Published updates, full cross-product,
 close/reopen, quota/type faults, native protection and Android parity remain open.
+
+
+## Physical WK fault checkpoint — 8 October 2026
+
+The separate source-linked iPhone boundary app passes all20 methods in one run.
+The three added cases exercise actual WebKit process termination, synchronous
+claimed/queued lease revocation and recovery with a different process/generation;
+four-per-generation and eight-global request bounds across three real WK views
+with overload replay rejection; and UTF-8 envelope/snapshot byte limits. A
+2,097,153-byte envelope is rejected before sequence consumption; a 2,097,140-byte
+envelope whose captured-registration snapshot exceeds two MiB consumes its
+sequence and creates no lease. Fresh sequences still receive their exact replies.
+
+The [boundary test scope](../tests/native/ios-boundary/README.md) pins the WebKit
+test-only fault control. No private API or policy implementation is added to the
+production host;49 actual native core sources compile unchanged, while Expo
+wrappers and unused fixture-release transport remain outside this probe. Both
+installed Hypergolic apps, their local products and primary process remain
+unchanged. Shared security/bootstrap tests pass353+13 cases. This supplements
+SEC-01/03; it does not close protected signing, external network receiver, full
+resource/subscription/session limits, owning Expo or published cleanup acceptance.
+All61 full Phase2 requirements remain intact, with five complete across both phones.

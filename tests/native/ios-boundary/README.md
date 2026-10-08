@@ -6,7 +6,7 @@ Historical checkpoint: the reviewed core was exercised on iPhone17 Simulator/iOS
 
 The 13 methods cover genuine Kehto ready/theme, opaque parent/native/storage access, guest and synthetic diagnostic source spoofing, absent handler in wrong worlds, real child-frame native rejection, exact native schema/generation/UTF-8 limits, valid main-frame diagnostic admission, per-URI CSP network denial, top/self navigation, actual core unmount/session revocation, and invalid/reused sessions. Native-only instrumentation installs a distinct isolated-world observer before load to capture genuine WKFrameInfo. The app exposes no Expo testing API.
 
-All script stimulus is privileged native frame-scoped injection. Its execution is not a guest CSP bypass. Each denial that should leave a live session is followed by a parent-source theme.get.result barrier with exact expected palette. CSP evidence requires individually attributed effectiveDirective/blockedURI for fetch, WebSocket, image, script and worker. It does not establish packet-level zero-egress. A native-retained WKView can still evaluate after unmount; the test establishes handler/session revocation, not renderer disappearance. No private forced-process API or fabricated native frame/message is used.
+All script stimulus is privileged native frame-scoped injection. Its execution is not a guest CSP bypass. Each denial that should leave a live session is followed by a parent-source theme.get.result barrier with exact expected palette. CSP evidence requires individually attributed effectiveDirective/blockedURI for fetch, WebSocket, image, script and worker. It does not establish packet-level zero-egress. A native-retained WKView can still evaluate after unmount; the test establishes handler/session revocation, not renderer disappearance. The original seventeen methods use no private forced-process API or fabricated native frame/message.
 
 From this directory, after the owning runtime assets exist (`pnpm runtime:build` at repository root):
 
@@ -49,3 +49,32 @@ SDK startup does not introduce an unrelated identity request. Their injected
 storage-shaped message tests native snapshot transport only; it grants no storage
 permission. Genuine SDK/Expo SQLite and identity switching pass in the separate
 owning-app State Lab journey. The revised seal retains 18 inputs and 12 products.
+
+
+## Physical fault additions — October 2026
+
+Three additional methods exercise real renderer termination with claimed/queued
+leases and a fresh WebKit process; four-per-generation/eight-global queue bounds
+across three actual WK views, including consumed overload sequences; and UTF-8
+wire/snapshot limits with replay checks. These are native transport tests using
+privileged real main-frame injection. They do not establish Expo authorization,
+protected signing, ordinary published loading or complete SEC acceptance.
+
+Only the test bundle invokes WebKit’s private `_killWebContentProcess` control
+and reads `_webProcessIdentifier`, following the [pinned WebKit declaration](https://github.com/WebKit/WebKit/blob/2cb4a4edf352593c30f835b967a5b3699fefc898/Source/WebKit/UIProcess/API/Cocoa/WKWebViewPrivate.h). The test requires the control to exist, observes the actual
+production termination delegate and revoked leases, then verifies a different
+process/generation and a valid reply with no stale response. No private SPI is
+added to application code. A separate signed source-linked physical build seals
+current inputs; the historical expected-runtime baseline stays unchanged.
+Compilation and source inspection alone do not prove these methods passed.
+
+All twenty methods pass in one physical iPhone16/iOS26.5 run on 8 October2026.
+The stronger final run also verifies both overload replay counters and measures
+a 2,097,515-byte snapshot using the first request’s captured native registration.
+The separate app compiles49 unmodified core sources; Expo wrappers and the unused
+Expo-dependent fixture-release transport are excluded. Both existing installed
+Hypergolic records and all three local app product seals remain identical, the
+primary app process stays unchanged, and returning to the QA app reuses its process.
+The original build-membership failure and earlier passing revision are retained.
+The original seventeen methods and historical expected-runtime remain unchanged.
+SEC-01/03 retain partial status; Android and owning-app parity remain open.

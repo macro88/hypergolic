@@ -50,6 +50,188 @@ final class BoundaryTests: XCTestCase {
     return try XCTUnwrap(p.events.last?["token"] as? String)
   }
 
+  private func tokens(_ p: Probe) -> [String] {
+    p.events.filter { $0["type"] as? String == "capability" }.compactMap { $0["token"] as? String }
+  }
+
+  /// Actual main-frame bridge messages; no fabricated WKScriptMessage or registry admission.
+  private func send(_ p: Probe, sequences: [Int]) async throws {
+    let encoded = String(decoding: try JSONSerialization.data(withJSONObject: sequences), as: UTF8.self)
+    _ = try await p.json("""
+      if (!window.boundaryReplies) {
+        window.boundaryReplies = {};
+        addEventListener('message', event => {
+          if (event.isTrusted && event.source === window && event.data?.type === 'hypergolic.native-response') {
+            const reply = JSON.parse(event.data.message); window.boundaryReplies[reply.sequence] = reply;
+          }
+        });
+      }
+      for (const sequence of \(encoded)) {
+        HypergolicHost.postMessage(JSON.stringify({type:'capability',sessionId:'\(try p.generation)',sequence,
+          message:JSON.stringify({type:'storage.set',id:'queue-'+sequence,key:'literal',value:'test data'})}));
+      }
+      return {sent:\(encoded)};
+      """, frame: p.main)
+  }
+
+  private func response(_ p: Probe, sequence: Int) async throws -> [String: Any] {
+    try await p.json("""
+      const deadline=performance.now()+3000;
+      while (!window.boundaryReplies?.[\(sequence)]) {
+        if (performance.now()>deadline) throw Error('Missing native response');
+        await new Promise(resolve=>setTimeout(resolve,10));
+      }
+      return window.boundaryReplies[\(sequence)];
+      """, frame: p.main)
+  }
+
+  func testActualRendererTerminationRevokesClaimedAndQueuedWorkBeforeFreshGeneration() async throws {
+    let p = try await configured()
+    let view = try XCTUnwrap(p.webView)
+    // WebKit test-only SPI, pinned in README. Never compiled into the production app.
+    let killSelector = NSSelectorFromString("_killWebContentProcess")
+    XCTAssertTrue(view.responds(to: killSelector))
+    guard view.responds(to: killSelector) else { throw ProbeError.invalidResult }
+    let process = try XCTUnwrap(view.value(forKey: "_webProcessIdentifier") as? NSNumber).intValue
+    XCTAssertGreaterThan(process, 0)
+    let generation = try p.generation
+    try await send(p, sequences: [1, 2])
+    try await p.until("two real WK requests admitted") { self.tokens(p).count == 2 }
+    let pending = tokens(p)
+    XCTAssertNotNil(CapabilityTransport.leases.take(pending[0]))
+    XCTAssertTrue(CapabilityTransport.leases.isActive(pending[0]))
+    p.observations.append(["fault":"actual-WebKit-process-termination", "processIdentifier":process,
+      "claimedToken":pending[0], "queuedToken":pending[1]])
+    view.perform(killSelector)
+    try await p.until("actual renderer termination delegate revokes generation") {
+      p.events.contains { $0["code"] as? String == "renderer-stopped" }
+    }
+    XCTAssertFalse(CapabilityTransport.leases.sessionActive(generation))
+    for token in pending {
+      XCTAssertFalse(CapabilityTransport.leases.isActive(token))
+      XCTAssertNil(CapabilityTransport.leases.take(token))
+    }
+    XCTAssertNil(view.superview)
+    XCTAssertNil(view.navigationDelegate)
+    XCTAssertNil(view.uiDelegate)
+    XCTAssertTrue(p.host.subviews.isEmpty)
+    try p.attach(to: self, name: name + "-terminated")
+    p.close()
+    let next = try await configured()
+    XCTAssertNotEqual(try next.generation, generation)
+    let replacement = try XCTUnwrap(next.webView?.value(forKey: "_webProcessIdentifier") as? NSNumber).intValue
+    XCTAssertGreaterThan(replacement, 0)
+    XCTAssertNotEqual(replacement, process)
+    next.observations.append(["replacementProcessIdentifier":replacement,"previousProcessIdentifier":process])
+    try await send(next, sequences: [1])
+    try await next.until("fresh generation admits one request") { self.tokens(next).count == 1 }
+    for token in pending { CapabilityTransport.finish(token, response: "must-not-deliver") }
+    let fresh = try XCTUnwrap(tokens(next).first)
+    XCTAssertNotNil(CapabilityTransport.leases.take(fresh))
+    CapabilityTransport.finish(fresh, response: "fresh-generation-only")
+    let reply = try await response(next, sequence: 1)
+    XCTAssertEqual(reply["response"] as? String, "fresh-generation-only")
+    XCTAssertEqual(reply["sessionId"] as? String, try next.generation)
+    let replies = try await next.json("return {count:Object.keys(window.boundaryReplies).length};", frame: next.main)
+    XCTAssertEqual(replies["count"] as? Int, 1)
+  }
+
+  func testActualWKQueueBoundsAndConsumedOverloadSequencesAcrossThreeGenerations() async throws {
+    let first = try await configured(); defer { first.close() }
+    let second = try await configured(); defer { second.close() }
+    let third = try await configured()
+    try await send(first, sequences: [1,2,3,4,5])
+    let perSessionDenial = try await response(first, sequence: 5)
+    XCTAssertTrue(perSessionDenial["response"] is NSNull)
+    XCTAssertEqual(tokens(first).count, 4)
+    try await send(second, sequences: [1,2,3,4])
+    try await second.until("eight total queued actual WK requests") { self.tokens(second).count == 4 }
+    try await send(third, sequences: [1])
+    let globalDenial = try await response(third, sequence: 1)
+    XCTAssertTrue(globalDenial["response"] is NSNull)
+    XCTAssertTrue(tokens(third).isEmpty)
+    for token in tokens(first) + tokens(second) { XCTAssertNotNil(CapabilityTransport.leases.take(token)) }
+    let freed = try XCTUnwrap(tokens(first).first)
+    CapabilityTransport.finish(freed, response: "one-slot-freed")
+    let releasedReply = try await response(first, sequence: 1)
+    XCTAssertEqual(releasedReply["response"] as? String, "one-slot-freed")
+    // Replaying the overloaded sequence is denied after capacity becomes available.
+    try await send(third, sequences: [1,2])
+    try await third.until("only new sequence admits after global overload") { self.tokens(third).count == 1 }
+    let fresh = try XCTUnwrap(tokens(third).first)
+    let snapshot = try XCTUnwrap(CapabilityTransport.leases.take(fresh))
+    let parsed = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(snapshot.utf8)) as? [String: Any])
+    let raw = try XCTUnwrap(parsed["request"] as? String)
+    let request = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: String])
+    XCTAssertEqual(request["id"], "queue-2")
+    CapabilityTransport.finish(fresh, response: "fresh-sequence-only")
+    let thirdReply = try await response(third, sequence: 2)
+    XCTAssertEqual(thirdReply["response"] as? String, "fresh-sequence-only")
+    XCTAssertEqual(tokens(third).count, 1)
+    try await send(first, sequences: [5,6])
+    try await first.until("only fresh sequence admits after per-session overload") { self.tokens(first).count == 5 }
+    let perSessionFresh = try XCTUnwrap(tokens(first).last)
+    let perSessionSnapshot = try XCTUnwrap(CapabilityTransport.leases.take(perSessionFresh))
+    let perSessionRow = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(perSessionSnapshot.utf8)) as? [String: Any])
+    let perSessionRaw = try XCTUnwrap(perSessionRow["request"] as? String)
+    let perSessionRequest = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(perSessionRaw.utf8)) as? [String: String])
+    XCTAssertEqual(perSessionRequest["id"], "queue-6")
+    CapabilityTransport.finish(perSessionFresh, response:"per-session-fresh-only")
+    let perSessionReply = try await response(first, sequence:6)
+    XCTAssertEqual(perSessionReply["response"] as? String, "per-session-fresh-only")
+    try first.attach(to: self, name: name + "-first")
+    try second.attach(to: self, name: name + "-second")
+  }
+
+  func testActualWKUTF8EnvelopeAndSnapshotLimitsPreserveReplayBoundary() async throws {
+    let p = try await configured()
+    let value = try await p.json("""
+      const encode = value => new TextEncoder().encode(value).length;
+      const base={type:'capability',sessionId:'\(try p.generation)',sequence:1,message:''};
+      const overhead=encode(JSON.stringify(base));
+      base.message='é'.repeat(Math.floor((2097153-overhead)/2)) + 'x'.repeat((2097153-overhead)%2);
+      const wire=JSON.stringify(base);
+      try {await window.webkit.messageHandlers.HypergolicDiagnostic.postMessage(wire);return {accepted:true,bytes:encode(wire)};}
+      catch(error) {return {accepted:false,bytes:encode(wire),error:String(error)};}
+      """, frame:p.main, world:p.diagnosticWorld)
+    XCTAssertEqual(value["bytes"] as? Int, CapabilityLeaseRegistry.maxBytes + 1)
+    XCTAssertEqual(value["accepted"] as? Bool, false)
+    XCTAssertTrue((value["error"] as? String)?.contains("Diagnostic rejected") == true)
+    XCTAssertTrue(tokens(p).isEmpty)
+    try await send(p, sequences: [1])
+    try await p.until("oversize envelope did not consume valid next sequence") { self.tokens(p).count == 1 }
+    let token = try XCTUnwrap(tokens(p).first)
+    let firstSnapshot = try XCTUnwrap(CapabilityTransport.leases.take(token))
+    let firstRow = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(firstSnapshot.utf8)) as? [String: Any])
+    let registration = try XCTUnwrap(firstRow["registration"] as? [String: Any])
+    let oversizeRequest = String(decoding: try JSONSerialization.data(withJSONObject: [
+      "type":"storage.set", "id":"oversize-snapshot", "key":"literal", "value":String(repeating:"é", count:1048476)]), as: UTF8.self)
+    let nativeSnapshotBytes = try JSONSerialization.data(withJSONObject: ["registration":registration,"request":oversizeRequest]).count
+    XCTAssertGreaterThan(nativeSnapshotBytes, CapabilityLeaseRegistry.maxBytes)
+    p.observations.append(["capturedRegistrationSnapshotBytes":nativeSnapshotBytes,"limit":CapabilityLeaseRegistry.maxBytes])
+    CapabilityTransport.finish(token, response:"first-valid")
+    let firstReply = try await response(p, sequence:1)
+    XCTAssertEqual(firstReply["response"] as? String, "first-valid")
+    let snapshot = try await p.json("""
+      const request={type:'storage.set',id:'oversize-snapshot',key:'literal',value:'é'.repeat(1048476)};
+      const wire=JSON.stringify({type:'capability',sessionId:'\(try p.generation)',sequence:2,message:JSON.stringify(request)});
+      const bytes=new TextEncoder().encode(wire).length;
+      const result=JSON.parse(await window.webkit.messageHandlers.HypergolicDiagnostic.postMessage(wire));
+      return {bytes,result};
+      """, frame:p.main, world:p.diagnosticWorld)
+    XCTAssertLessThanOrEqual(try XCTUnwrap(snapshot["bytes"] as? Int), CapabilityLeaseRegistry.maxBytes)
+    let result = try XCTUnwrap(snapshot["result"] as? [String: Any])
+    XCTAssertTrue(result["response"] is NSNull)
+    XCTAssertEqual(tokens(p).count, 1)
+    try await send(p, sequences: [2,3])
+    try await p.until("only fresh sequence admits after oversize snapshot") { self.tokens(p).count == 2 }
+    let fresh = try XCTUnwrap(tokens(p).last)
+    XCTAssertNotNil(CapabilityTransport.leases.take(fresh))
+    CapabilityTransport.finish(fresh, response:"after-byte-denial")
+    let afterReply = try await response(p, sequence:3)
+    XCTAssertEqual(afterReply["response"] as? String, "after-byte-denial")
+  }
+
   func testCapabilityNativeSnapshotOneUseAndOriginalReply() async throws {
     let p = try await configured()
     let token = try await request(p)
