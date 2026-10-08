@@ -66,7 +66,10 @@ The shell enters through a native identity vault; Android protected entry and
 public identity continuity have native evidence, while iOS protected storage needs
 a physical iPhone. See the [identity checkpoint](identity-storage.md). The
 [workspace controller](workspace-storage.md) persists opening order, selection and
-explicit empty state per identity. Confirmed [identity changes](identity-switching.md)
+explicit empty state per identity. Android loaded foreground WebViews remain resumed for
+live overview previews; selected focus separately gates media and privileged
+operations. Activity background pauses rendering and playback. The physical
+Android overview/media regression is scoped in that checkpoint. Confirmed [identity changes](identity-switching.md)
 revoke the old authority and restart all loaded napplets. Authenticated identity
 backup is implemented with native-only reveal and explicit device authentication;
 physical-device acceptance remains open. The [signing integration](signing-approval.md)

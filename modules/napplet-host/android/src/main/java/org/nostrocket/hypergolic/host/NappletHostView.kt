@@ -217,7 +217,9 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     if (disposed) return
     val playingAllowed = active && mediaForeground
     if (loaded) webView.evaluateJavascript("window.__hypergolicMediaActive?.($playingAllowed)", null)
-    if (playingAllowed) webView.onResume() else webView.onPause()
+    // Loaded foreground views also render the live overview. Focus gates media and
+    // privileged actions separately; pausing an unfocused renderer blanks its card.
+    if (mediaForeground) webView.onResume() else webView.onPause()
   }
 
   /** Compile-gated controlled fault; no guest operation or production behavior. */

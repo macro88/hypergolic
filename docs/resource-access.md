@@ -110,3 +110,16 @@ replacement, live-player close/death, verified published parity and Android phys
 remain required. No final row, plan or Phase2 is closed. Pending Expo/numeric Doctor
 choices and exact approved dependency exceptions remain. Weekly43%, ceiling about98%;
 source push stays owner-only.
+
+## Physical Android overview/media regression — 8 October 2026
+
+Separating foreground WebView rendering from selected media focus fixes blank
+inactive overview previews. The existing trusted media prelude and native focus
+owners remain in place. The ordinary installed Release passes five physical
+checks: exact SDK public MP4 receipt versus independently read full bytes, switch
+pause at a stable position, fresh Play after switch, an eight-second actual
+background hold returning paused without autoplay, and fresh Play after return.
+The background observation records 1.984 seconds of advance between the last
+foreground read and pause; instant suspension is not claimed. Keep open retains
+the exact resource receipt, then only the disposable test resource is closed.
+Full CAP-04, all codec/fault cases, published parity and Phase2 remain open.

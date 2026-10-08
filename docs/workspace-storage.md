@@ -121,3 +121,43 @@ sets. Existing v1/v2 databases migrate without replacing workspace or app data.
 The 89-test storage suite covers isolation, conflicts, migration and corruption.
 The first-open review UI and decision gate remain to be connected; a stored grant
 alone does not authorize a napplet.
+
+## Physical Android live overview regression — 8 October 2026
+
+The ordinary physical Android Release reproduced blank inactive overview cards:
+three loaded UX instances retained distinct counters and drafts, but only the
+last selected card rendered. Selecting another instance changed which card was
+visible; settling did not restore the inactive previews.
+
+The native host now resumes loaded WebViews while the activity is foreground.
+Selected focus still controls the trusted media prelude, accessibility, picker,
+approval and privileged transport authority. Background still pauses WebViews;
+close destroys the original view. This separates renderer lifetime from selected
+media authority, consistent with the documented [WebView lifecycle](https://developer.android.com/reference/android/webkit/WebView#onPause()).
+
+The same-name, same-certificate in-place ordinary Release update has matching
+installed APK bytes. The physical repeat renders all three previews with their
+exact distinct state. Sixteen focused state assertions, nine independent PNG
+inspections, five physical video checks and exact-target Keep open/close checks
+are retained privately. The video receipt matches an independent full public byte
+read. Foreground switching pauses at a retained position; an eight-second actual
+background hold returns paused, with a measured 1.984-second advance between the
+last foreground observation and pause. Both returns require fresh manual Play.
+Only the newly created resource test view is closed; existing sessions remain.
+
+Regression recipe: open three disposable UX instances, seed distinct counters
+and public drafts through native input, switch both ways, enter overview and
+inspect every visible loaded preview. Tap a card and verify its original state.
+Then load a bounded public video through Resource Lab, independently compare its
+MIME/size/hash, test switch and background pause, require fresh Play after each,
+and close only the test resource after checking Keep open. Preserve screenshots,
+AX trees, input geometry, installed-byte proof and source hashes separately.
+Uncompressed AX trees are observation data; they do not prove screen-reader scope.
+
+TypeScript, 28 shell tests, 23 resource tests, 18 real browser resource checks and 74
+installed-patch quality tests pass. Android prebuild and ordinary arm64 Release
+pass. Full React Doctor scans 425 files with numeric 100/100 and zero findings. Aislop 98/100 across 417 files retains only the two approved dependency exceptions;
+root/tool audits still report them, runtime audit is clean, and Expo Doctor20/21
+retains the six held patches. Full order, all-three scroll, deliberate empty,
+continuous transition/reduced-motion/accessibility and final MVP acceptance remain
+open. iOS is unaffected by this Android lifecycle change and needs its own evidence.

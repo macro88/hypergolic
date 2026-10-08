@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: SDK upgrades held with trust guard intact. iPhone passcode authorization succeeded; full identity guard and stable signed in-place update pass. Original saved WAV recovery six native checks and independent full bytes pass, no replacement upload. Android workspace journey executing. CAP-05/Phase2/all61 final rows open; weekly51%, ceiling about98%, no source push.
+stopped_at: Physical iPhone saved WAV recovery passes. Android blank inactive overview previews fixed in ordinary in-place Release; three previews and public-video focus/background regression pass. Final Phase2/all61 rows open. SDK upgrades held; weekly52%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 848b98d9204244d6192457bcc292e200680b89a8
@@ -873,7 +873,7 @@ independent exact71-byte retrieval with observed307/direct200. Cold retained
 identity and prior focus restored. CAP05 partial; iOS38partial23not-run,
 Android3partial58not-run, all61 final rows and Phase2 open. TypeScript/shell28/
 capabilities57/uploads51/quality74, both exports and signed iPhoneOS Release pass.
-Doctor zero findings/no numeric score, aislop98 approved exceptions, Expo20/21.
+Doctor zero findings/no numeric score, aislop98 approved exceptions, Expo Doctor 20/21.
 System picker/attachments, approved interruption/recovery/fault/native stale/
 identity/published/Android remain. Weekly44%, ceiling about98%; no source push.
 
@@ -893,7 +893,7 @@ and Phase2 open. Weekly44%, ceiling about98%; source push remains owner-only.
 
 Independent local quality recheck8October: all74 installed patch/verifier cases
 pass. Registry latest Forge1.4.0/braces3.0.3 and owning advisories remain unpatched.
-Full local Doctor425 zero/no numeric score, complete aislop98/417 only existing
+Full local Doctor425 zero/no numeric score, complete aislop 98/100 across 417 files only existing
 approved findings. All10 lockfile audits complete:8clean, root Forge/braces and
 quality braces. Before/after source fingerprint and every analyzed Doctor path
 match; exact installed patch hashes/consumers match. Normal quality gates remain
@@ -982,3 +982,25 @@ account/replacement and full verified-published parity still need physical proof
 All61 final rows and Phase2 remain open. SDK upgrades are held with trust guard
 intact. Android workspace acceptance is now executing. Weekly51%, ceiling about98%;
 source push remains owner-only.
+
+
+## Physical Android overview rendering — 8 October 2026
+
+The ordinary app reproduced blank inactive cards despite retained state. Android
+WebView lifetime now follows activity foreground; selected focus independently
+continues to gate media and privileged actions. A same-name/certificate in-place
+ordinary arm64 Release update has exact installed bytes. All three visible UX
+previews render; 16 exact state assertions and five physical public-video checks
+pass, including stable switch pause, an eight-second actual background hold and
+fresh manual Play on both returns. Keep open preserves the exact resource receipt;
+only the new resource test view closes. Existing sessions/identity remain.
+
+Private original evidence is `android-workspace01`. Relevant Android matrix rows
+become partial, retaining full order/empty, all-three scroll, transition pacing,
+reduced-motion/accessibility and published/fault obligations. TypeScript, 28 shell,
+23 resource, 18 browser resource and 74 installed patch tests pass. Android prebuild
+and ordinary Release pass. Full numeric React Doctor 100/100 across 425 files has zero findings;
+aislop 98/100 across 417 files only approved exceptions. All napplet/runtime audits are clean;
+root/tool audits remain red for the same exceptions, Expo Doctor 20/21 six held patches.
+The source-bound full quality verifier therefore remains red. Final quality and
+Phase2 remain open. Weekly52%, owner ceiling about98%; no source push.

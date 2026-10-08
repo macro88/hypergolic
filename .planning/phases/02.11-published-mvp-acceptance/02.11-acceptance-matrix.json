@@ -47,8 +47,11 @@
       "requiredEvidence": "At least three UX instances with distinct values; list order assertions after navigation/open/close",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-workspace01/receipt.json"
+          ],
+          "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open."
         },
         "ios-physical": {
           "status": "partial",
@@ -65,8 +68,11 @@
       "requiredEvidence": "Actual touch input and frame/video observations at both ends and middle; early-release return; no false switch while using near-edge fixture controls",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-workspace01/receipt.json"
+          ],
+          "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open."
         },
         "ios-physical": {
           "status": "partial",
@@ -83,8 +89,11 @@
       "requiredEvidence": "Phone screenshots and transition recording establishing focused view-to-card geometry in both directions, plus reduced-motion behavior",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-workspace01/receipt.json"
+          ],
+          "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open."
         },
         "ios-physical": {
           "status": "partial",
@@ -101,8 +110,11 @@
       "requiredEvidence": "Fill/counter/scroll three fixtures; switch through all; independently observe exact values and visible markers on return",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-workspace01/receipt.json"
+          ],
+          "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open."
         },
         "ios-physical": {
           "status": "partial",
@@ -120,8 +132,11 @@
       "requiredEvidence": "Clean/dirty/unknown cases via selected contract; cancel preserves session; accepted close tears it down and cancels approvals; no guessed dirty-state NAP",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-workspace01/receipt.json"
+          ],
+          "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open."
         },
         "ios-physical": {
           "status": "partial",
@@ -139,8 +154,11 @@
       "requiredEvidence": "Close/reopen State Lab and inspect saved values; close last and verify accessible identity and existing Open napplet settings flow",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-workspace01/receipt.json"
+          ],
+          "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open."
         },
         "ios-physical": {
           "status": "partial",
@@ -629,9 +647,10 @@
         "android-physical": {
           "status": "partial",
           "evidence": [
-            "physical-android-tracer04/android-isolated-build/first-tracer08-receipt.json"
+            "physical-android-tracer04/android-isolated-build/first-tracer08-receipt.json",
+            "android-workspace01/receipt.json"
           ],
-          "remaining": "Complete the named row requirements; this subset proves only normal first launch, input and public identity process-restart continuity."
+          "remaining": "Selected ordinary Android overview/media and installed-byte subset only. Complete all remaining named requirements; no full capability/build/Phase2 acceptance."
         },
         "ios-physical": {
           "status": "partial",
@@ -720,8 +739,11 @@
       "requiredEvidence": "Selected resource schemes deliver verified expected bytes/rendering; destination, MIME, size, cancellation, cache and handle lifetime tests",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-workspace01/receipt.json"
+          ],
+          "remaining": "Selected ordinary Android overview/media and installed-byte subset only. Complete all remaining named requirements; no full capability/build/Phase2 acceptance."
         },
         "ios-physical": {
           "status": "partial",
