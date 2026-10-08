@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone saved WAV recovery passes. Android blank inactive overview previews fixed in ordinary in-place Release; three previews and public-video focus/background regression pass. Android UX-06 full live input/scroll requirement passes; all 61 cross-platform rows/Phase2 still open. SDK upgrades held; weekly52%, ceiling about98%, no source push.
+stopped_at: Physical iPhone eight-check all-three draft/counter/scroll retention passes with inspected original PNGs. UX-06 now passes both phones; other60 final rows and Phase2 remain open. No main build or quality scan for external observer/docs. Weekly52%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 3c5b8eddecf4b7f624d1f2c8dbd45cb94f24edd9
@@ -1024,3 +1024,19 @@ security, published and fault gates remain open. This is external observation an
 documentation; no new product build or quality rerun is claimed. The preceding
 numeric Doctor 100/100 and aislop 98/100 exact exceptions remain visible. No source
 push. Weekly 52%, ceiling about98%.
+
+
+## iPhone all-three scroll retention — 8 October 2026
+
+An eight-check ordinary physical iPhone run passes three fresh independent
+drafts/counters, actual two-axis content input and four exact-state returns.
+Visible selected marker XY positions are identical on return; six original PNGs
+were inspected. The initial Settings observer fails before creating a UX view;
+margin input repairs the observer, with both original attempts retained privately
+in `iphone-scroll-parity01`. All 410 owning inputs, local signed product and main
+installed metadata remain unchanged. Installed iOS executable bytes are not
+retrieved; no main build, data clearing or fresh quality result is claimed.
+
+Only UX-06 is now complete across both phones; the other 60 matrix rows, full
+Phase2 and ordinary clean-quality gate remain open. SDK hold and exact dependency
+exceptions remain. Weekly52%, ceiling about98%; source push remains owner-only.

@@ -118,12 +118,14 @@
           "remaining": "None for the named Android live draft/counter and both-scroll retention requirement. Full Phase2, other UX rows, screen-reader/motion and iOS parity remain separate."
         },
         "ios-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
             "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json",
-            "iphone-workspace01/hg-scroll-physical-iphone02/trace-report.json"
+            "iphone-workspace01/hg-scroll-physical-iphone02/trace-report.json",
+            "iphone-scroll-parity01/hg-scroll-parity-physical-iphone02/trace-report.json",
+            "iphone-scroll-parity01/hg-scroll-parity-physical-iphone02/visual-geometry-review.json"
           ],
-          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases. Separate five-check run proves both scroll positions and marker selection across a two-view roundtrip after cold launch; all-three simultaneous draft/scroll coverage remains open."
+          "remaining": "None for the named iPhone live draft/counter and both-scroll retention requirement. Full Phase2, other UX rows, screen-reader/motion, order/empty, published/fault and final quality remain separate."
         }
       }
     },
