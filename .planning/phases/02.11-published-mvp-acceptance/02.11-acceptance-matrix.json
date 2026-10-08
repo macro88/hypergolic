@@ -335,9 +335,12 @@
             "iphone-wav-recovery01/before-update/receipt.json",
             "iphone-wav-recovery01/recovery/receipt.json",
             "iphone-empty01/hg-empty-physical-iphone01/receipt.json",
-            "iphone-empty01/visual-review.json"
+            "iphone-empty01/visual-review.json",
+            "iphone-atrest-read-faults02/receipt.json",
+            "iphone-atrest-read-faults02/input-review.json",
+            "iphone-atrest-read-faults02/test-summary.json"
           ],
-          "remaining": "Additional ordinary process-restart public identity continuity passes; fresh-profile/reboot and failed-read no-replacement evidence remain required. Current normal product848b98d installs in place after exact native Settings public-identity guard, with retained identity after update and cold restarts during six-check saved-WAV recovery. Sealed local product/inputs and matching entitlements are verified; installed iOS executable bytes are not retrieved. This adds a scoped physical subset, not complete acceptance. Separate fresh ordinary-entry Release creates one protected development identity without onboarding; independent npub checksum/decoded-public-key comparison and two real process restarts reuse it. Device reboot and native failed-read/no-replacement injection remain required; no private key read/export."
+          "remaining": "Additional ordinary process-restart public identity continuity passes; fresh-profile/reboot and failed-read no-replacement evidence remain required. Current normal product848b98d installs in place after exact native Settings public-identity guard, with retained identity after update and cold restarts during six-check saved-WAV recovery. Sealed local product/inputs and matching entitlements are verified; installed iOS executable bytes are not retrieved. This adds a scoped physical subset, not complete acceptance. Separate fresh ordinary-entry Release creates one protected development identity without onboarding; independent npub checksum/decoded-public-key comparison and two real process restarts reuse it. Device reboot and native failed-read/no-replacement injection remain required; no private key read/export. Additional8-method real-Keychain native suite passes corrupt-receipt/missing-receipt/legacy-record read and initialization denial, preserving existing wrapping key/ciphertext with no replacement wrapping entropy. This is native IdentityBridgeOwner/core evidence in a disposable probe; device reboot and whole owning Expo/bootstrap failed-read/no-new-identity proof remain required."
         }
       }
     },
@@ -353,9 +356,12 @@
         "ios-physical": {
           "status": "partial",
           "evidence": [
-            "iphone-atrest01/original-probe/physical-run01/receipt.json"
+            "iphone-atrest01/original-probe/physical-run01/receipt.json",
+            "iphone-atrest-read-faults02/receipt.json",
+            "iphone-atrest-read-faults02/input-review.json",
+            "iphone-atrest-read-faults02/test-summary.json"
           ],
-          "remaining": "Five physical real Keychain/file-policy/CryptoKit methods pass in a separate signed QA app compiling thirteen actual production sources. Protection/backup-exclusion attributes, encrypted roundtrip, tamper/slot/missing-key/missing-file/permission/symlink denials observed. Owning Expo composition, lock/unlock, real backup transport, full plaintext/log/crash absence, complete faults and Android parity remain required."
+          "remaining": "Eight physical real Keychain/file-policy/CryptoKit/native-bridge methods pass in a separate signed QA app compiling13 unchanged production sources. Previous5 protection/backup-exclusion/encryption/tamper/slot/missing-key/file-policy cases remain; added corrupt-receipt/missing-receipt/legacy-record faults repeatedly deny native reads/initialization and preserve existing wrapping key/ciphertext with no replacement wrapping entropy. Owning Expo composition, lock/unlock, real backup transport, full plaintext/log/crash absence, complete faults and Android parity remain required."
         }
       }
     },

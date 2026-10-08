@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone21-method WK suite adds reachable independent LAN receiver with no guest traffic; SEC01/02/03 partial. Full61 rows persist,5 complete/56 open. iPhone UI automation unresolved; ceiling about98%, no source push.
+stopped_at: Physical iPhone8-method real-Keychain suite adds native corrupt/missing-receipt/legacy initialization denials without key replacement; ID01/02 partial. Full61 rows persist,5 complete/56 open. iPhone UI automation unresolved; ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 1294f873cc407cf9e6e18771690973518b674a5e
@@ -1662,3 +1662,15 @@ Relocated-manifest and form-event observer failures are retained. SEC02 stays
 partial; full61 scopes/statuses persist,5 complete/56 open. DNS/UDP/public HTTPS,
 private-key absence, complete escapes and owning/published/Android parity remain
 open. Native UI automation remains separate. No source push; ceiling about98%.
+
+
+Physical native read-failure checkpoint — 8 October2026: all8 real-Keychain/
+file-policy/CryptoKit/native-bridge methods pass. Added corrupt receipt, missing
+receipt and legacy record faults deny repeated reads/initialization without
+replacement wrapping entropy or changes to existing ciphertext/key.13 production
+core sources and five historical method bodies remain unchanged; owned disposable
+probe records only, no retained Hypergolic key/data access. Main/QA installed
+metadata and three product seals stay unchanged, main PID persists and QA return
+reuses its process. ID01/02 remain partial; full61 scopes/statuses persist,5 complete/
+56 open. Whole Expo failed-read bootstrap, reboot/lock/auth/backup/secret absence
+and Android parity remain required. UI automation stays separate; no source push.

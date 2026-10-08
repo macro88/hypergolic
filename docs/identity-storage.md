@@ -404,3 +404,23 @@ four canonical decodes, stable installed bytes and unchanged source/harness
 hashes. All four new screenshots were visually inspected. The private Notes
 checkpoint holds the build/upgrade manifest, native receipt and captures.
 The API 26 WebView and authenticated-action limits above still apply.
+
+
+## Physical native read-failure checkpoint — 8 October2026
+
+The [physical identity storage suite](../tests/native/identity-unit/ios-atrest/README.md)
+passes eight methods in one actual iPhone16/iOS26.5 run. All thirteen included
+production core sources compile unchanged; a separate probe owns real Keychain
+records and protected/excluded files using a known public development key. The
+prior five protection/encryption/tamper/missing-file/key/policy cases remain.
+Three added cases inject actual corrupt-receipt, missing-receipt and legacy-record
+state through the OS Keychain, then exercise IdentityBridgeOwner read and initial
+inventory-write paths. Repeated failures preserve existing wrapping key, receipt/
+fault state and ciphertext. The real entropy port is counted and allocates no
+replacement wrapping key; explicit test restoration recovers original ciphertext.
+
+No Hypergolic key/data is accessed. Both installed Hypergolic records and local
+products remain unchanged; the primary process persists and QA return reuses its
+process. These native-core results supplement ID01/02, not whole Expo bootstrap,
+device reboot/lock/auth/export, actual backup transport, full secret/log/crash
+absence or Android parity. All61 original Phase2 requirements/statuses persist.
