@@ -43,3 +43,21 @@ its ignored first tap. A generally broken expanded touch area is not established
 keyboard/timing/gesture arbitration remains hypothesis. UX-05 stays partial and
 this investigation stays open. Next repeat the exact UX fixture keyboard/overview
 return precondition and compare native frames/input before selecting a repair.
+
+
+## Original fixture/keyboard sequence repeat — 8 October 2026
+
+Owned UX12 repeats native full-public-npub Copy/system Paste (six header checks)
+and actual keyboard/Settings/overview Back sequence (five checks). The next
+first right-target-centre tap opens overview at the same native bounds and point
+as the failed attempt. Five original PNGs inspected; private android-handle-keyboard03
+retains45 byte-verified originals, three receipts and exact public input drivers.
+Header/keyboard controllers bind402 unchanged owning inputs and installed APK;
+initial selection preparation precedes that header binding. Final observer
+rechecks both. No product edit, saved-data write, key action, identity change,
+main install/reset or existing-view closure.
+
+The failed first tap remains unexplained and retained. The repeat supplies no
+keyboard/copy root cause or repair proof; UX-05 stays partial. Stop repeating
+this same passing precondition without a new discriminating trigger. Continue
+other native acceptance while preserving the intermittent-failure investigation.

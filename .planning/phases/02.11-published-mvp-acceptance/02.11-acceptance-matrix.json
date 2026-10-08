@@ -20,11 +20,13 @@
           "verifiedScope": "Six ordinary physical native-input checks: actual supplied square logo32dp, logo tap has no navigation/state action, focused name/fallback avatar/short npub/full accessible identity, guest fills remaining stage with native reserved margin/status, header tap opens trusted Settings/full npub, actual system text-selection Copy and exact63-character clipboard paste into owned UX temporary note with visible mirror. Four original PNGs inspected; same APK and all402 owning inputs unchanged."
         },
         "ios-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
-            "physical-iphone-tracer06/hg-phase211-iphone-tracer09/receipt.json"
+            "iphone-header01/hg-header-physical-iphone01/receipt.json",
+            "iphone-header01/hg-header-physical-iphone01/trace-report.json",
+            "iphone-header01/visual-review.json"
           ],
-          "remaining": "Complete all named row requirements; this subset proves ordinary signed Release launch, real input and independently compared public identity process-restart continuity only."
+          "verifiedScope": "Six original physical native-input checks: supplied32-point square spark/no logo action, focused title/full accessible selected npub, remaining guest stage, actual header Settings and real native Copy/Paste exact63-character public key into new owned UX56 without typed substitute. Seven original PNGs additionally verify rendered9S fallback/short npub. All410 inputs, sealed local normal app and installed metadata unchanged; installed iOS executable bytes not retrieved. No main install/restart or existing view closure."
         }
       }
     },
@@ -100,9 +102,11 @@
             "android-workspace01/receipt.json",
             "android-handle-tap01/hg-android-handle-tap-physical01/observed-gap.json",
             "android-handle-discrimination02/originals/receipt.json",
-            "android-handle-discrimination02/visual-review.json"
+            "android-handle-discrimination02/visual-review.json",
+            "android-handle-keyboard03/originals/receipt.json",
+            "android-handle-keyboard03/visual-review.json"
           ],
-          "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open. A fresh ordinary first right-handle centre tap fails to establish overview; a later fresh PNG/XML remains focused. One separately recorded further centre tap opens overview. Root cause is unestablished; retain both results and complete first-tap/both-end/transition geometry and reduced-motion proof. Independent saved-data testing continues via actual hardware Back, which does not close this handle requirement. Four new first-tap observations in retained State Lab pass right target centre after cold process and right pill/left centre/left pill after overview return; original UX Lab keyboard/copy failure is not reproduced or explained. Root-cause investigation and full both-end/motion/accessibility acceptance stay open."
+          "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open. A fresh ordinary first right-handle centre tap fails to establish overview; a later fresh PNG/XML remains focused. One separately recorded further centre tap opens overview. Root cause is unestablished; retain both results and complete first-tap/both-end/transition geometry and reduced-motion proof. Independent saved-data testing continues via actual hardware Back, which does not close this handle requirement. Four new first-tap observations in retained State Lab pass right target centre after cold process and right pill/left centre/left pill after overview return; original UX Lab keyboard/copy failure is not reproduced or explained. Root-cause investigation and full both-end/motion/accessibility acceptance stay open. Original owned UX12 Copy/PASTE plus five keyboard/Back preconditions now repeat and the first centre tap succeeds. Original ignored tap remains unexplained; no repair or full acceptance claimed."
         },
         "ios-physical": {
           "status": "partial",

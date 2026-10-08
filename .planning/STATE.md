@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: iPhone full order and Android saved-data close/reopen/cold subsets pass; UX-03/UX-06 complete on both phones,59 of61 rows open. Four new State Lab handle first taps pass without explaining original UX/keyboard gap. Next reproduce exact prior precondition and complete native acceptance; weekly54%, ceiling about98%, no source push.
+stopped_at: Physical iPhone six-check header/native Copy-Paste passes; UX-01/UX-03/UX-06 complete on both phones,58 of61 rows open. Original Android keyboard/copy tap sequence repeats successfully without explaining prior failure. Next complete empty-workspace and remaining full native acceptance; weekly55%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 3c5b8eddecf4b7f624d1f2c8dbd45cb94f24edd9
@@ -1157,3 +1157,26 @@ reproduced or explained; UX-05 remains partial and the debug investigation open.
 No product repair or general hit-area/timing cause is claimed. Next reproduce
 that exact fixture/keyboard precondition before selecting a source repair.
 Weekly54%, ceiling about98%; no source push. Complete Phase2 stays active.
+
+
+## Complete physical iPhone header — 8 October 2026
+
+Six actual native-input header checks pass in the unchanged ordinary Release:
+supplied32-point square spark/no tap action, focused UX56 title/full accessible
+selected npub, remaining guest stage, actual header Settings and real native
+Copy/Paste exact63-character public key into a new owned empty UX field. Seven
+original PNGs additionally verify rendered9S fallback/abbreviated key and native
+copy/paste menus. Guest frame24/131/345/561 points ends at status strip; existing
+upload-cancel footer is respected. Counter0/focus retained; no typed substitute,
+private-key action, identity change, existing-view close or main install/restart.
+All410 owning inputs, local normal app seal and installed metadata unchanged;
+installed iOS executable bytes not retrieved. Private iphone-header01 preserves58
+byte-verified originals and external driver source. Only observer runner compiled.
+
+UX-01 joins UX-03/UX-06 as passed on both physical phones: three of61 complete,
+58 still open. Android exact keyboard/copy repeat also succeeds without explaining
+the original ignored tap; UX-05 stays partial. Full empty-workspace, motion/AX,
+published/capability/security/fault and final quality requirements remain open.
+No fresh main build/quality scan; Doctor100/100, aislop98/100 exact approved
+exceptions and ordinary clean verifier red stay visible. Phase2 active; weekly55%,
+ceiling about98%; no source push.
