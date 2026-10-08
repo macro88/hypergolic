@@ -270,9 +270,18 @@
             "iphone-motion01/originals/trace-report.json",
             "iphone-motion01/visual-motion-review.json",
             "iphone-motion01/video/manifest.json",
-            "iphone-motion01/video-review/contact-sheet-manifest.json"
+            "iphone-motion01/video-review/contact-sheet-manifest.json",
+            "iphone-keyboard-queue01/keyboard-subset/trace-report.json",
+            "iphone-keyboard-queue01/queue-complete/receipt.json",
+            "iphone-keyboard-queue01/queue-complete/trace-report.json",
+            "iphone-keyboard-queue01/visual-review.json",
+            "iphone-keyboard-queue01/final-integrity.json",
+            "iphone-voiceover01/actual-os-observations.json",
+            "iphone-voiceover01/visual-review.json",
+            "iphone-voiceover01/final-integrity.json"
           ],
-          "remaining": "Actual OS reduced-motion tuning is now proved by the complete9-check native run and original video/Settings review, including restoration of the original false value. Real keyboard entry/occlusion, focus restoration, screen-reader operation and platform-appropriate Back/dismissal across focused/settings/overview/approval still require full physical acceptance; native AX trees alone are not VoiceOver proof."
+          "remaining": "Actual reduced-motion, multiline IME/occlusion, native Done, Settings/Done, overview/card and owned close/Keep open now have physical evidence. Actual signing Dismiss/paused remainder/resume also passes. Full screen-reader controls, traversal/speech, platform-appropriate Back/escape and remaining phone-conflict observations stay open. Both real OS VoiceOver attempts restore original false; first is interrupted by OS onboarding, second alert-free attempt fails discrimination because a single XCTest coordinate tap increments counter0->1. Root cause between automation input path and product interaction remains unresolved; no VoiceOver pass or confirmed app defect claimed. Dedicated public VoiceOver service requires iOS27, this physical phone26.5. Actual touch/speech verification or compatible public service needed.",
+          "verifiedScope": "Keyboard trace has eight passing native checks before an inherited-pause queue assumption stops the eleven-check run, which remains incomplete. Exact typed multiline note and caret are above actual native keyboard/accessory toolbar; Done hides IME; trusted Settings dismisses IME and Done restores selected state; overview/card and Keep open retain exact draft/counter and complete original four-view order. Independent original PNGs, five still sheets and six sparse movie sheets are reviewed. Separate complete five-check SDK queue follow-up deliberately resumes, Dismiss denies one and pauses two, no automatic advance is observed, then explicit resume and two individual Reject drain requests. Five-view order and original note/counter return intact. Later failed VoiceOver input probe increments only owned counter to1 and retains note. All1217 source inputs, observers, local product seals and installed metadata rehash; installed iOS executable bytes not retrieved. Original OS VoiceOver off restored; no primary reset/update, identity change, protected view closure, signing approval or uncertain-upload retry. Earlier external keyboard-bound/type and paused-queue assumptions are preserved as observer failures."
         }
       }
     },
@@ -437,9 +446,14 @@
           "status": "partial",
           "evidence": [
             "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone03/trace-report.json",
-            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone04/receipt.json"
+            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone04/receipt.json",
+            "iphone-keyboard-queue01/keyboard-subset/trace-report.json",
+            "iphone-keyboard-queue01/queue-complete/receipt.json",
+            "iphone-keyboard-queue01/queue-complete/trace-report.json",
+            "iphone-keyboard-queue01/visual-review.json",
+            "iphone-keyboard-queue01/final-integrity.json"
           ],
-          "remaining": "Complete all named row requirements. Observed single-request dismissal and canonical SDK denial; multi-request queues, all dismissal inputs and remainder-only resume remain open."
+          "remaining": "Actual three-request same-session SDK queue passes trusted Dismiss denying current, paused remainder with no automatic advance, explicit Resume and two individual Reject; original inherited global pause is respected. No Approve all shown and no Approve tapped. Different-session queues, complete back/swipe/dismissal inputs and all other named behavior still require physical acceptance. Eleven-check keyboard run remains incomplete; only the separate five-check queue follow-up is complete."
         }
       }
     },

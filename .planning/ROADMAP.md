@@ -268,3 +268,14 @@ with prior normal zoom/geometry proof. UX-10 keyboard/Back/VoiceOver and Android
 parity stay open. All61 requirements and other statuses persist: three complete
 cross-platform rows,58 open. Phase2/2.11 and final quality active. See Plan03
 checkpoint. Local source commit only; no source push.
+
+
+8 October physical keyboard/queue checkpoint: actual multiline IME, native Done,
+Settings/Done, overview/card and Keep open retain exact owned input/state/order.
+Eight checks pass before inherited-pause observer stop; that run stays incomplete.
+Separate five-check actual SDK queue Dismiss/pause/explicit resume/individual Reject
+passes. VoiceOver OS enable/restoration is verified but controls are not accepted:
+first-use interruption then failed single-tap discrimination on physical iOS26.5.
+UX-10/SIGN-02 remain partial, every other status unchanged; all61 requirements,
+three cross-platform complete/58 open persist. Phase2/2.11 and final quality remain
+active. See Plan03 checkpoint. Targeted local commit only; no source push.
