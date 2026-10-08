@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone full-order nine checks pass; UX-03 and UX-06 complete on both phones. Android saved-data close/reopen/cold run continues; first-handle-tap gap unresolved. Phase2 open with59 of61 rows remaining; weekly53%, ceiling about98%, no source push.
+stopped_at: Physical iPhone full workspace order and Android saved-data close/reopen/cold subsets pass. UX-03 and UX-06 complete on both phones;59 of61 rows remain open. First Android handle tap remains unresolved; next complete native header/empty/security/published/fault acceptance. Weekly53%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 3c5b8eddecf4b7f624d1f2c8dbd45cb94f24edd9
@@ -1119,3 +1119,28 @@ live; no full storage or empty-workspace claim. Android first-handle-tap gap sta
 open. No fresh main build/quality scan; Doctor100/100, aislop98/100 exact approved
 exceptions and ordinary clean verifier red remain visible. Phase2 stays open;
 weekly53%, ceiling about98%; no source push.
+
+
+## Physical Android saved-data close/reopen/cold subset — 8 October 2026
+
+Nine original native-input/SDK checks pass in the unchanged normal Release.
+New owned State Lab13 distinguishes missing/empty/exact shared values and a
+separate saved instance value. Keep open preserves that instance value and full
+order; closing only13 leaves the original15-card workspace in overview. Fresh
+State Lab14 reads exact shared saved data while its new instance scope is missing.
+Actual force-stop confirms old PID absence/new process, same public identity and
+focused UUID. Saved shared data survives cold restart and overview return.
+Five full overlapping inventories prove15/16/16/15/16-card baseline/append/Keep
+open/close/cold order, closed UUID absent. Nine original PNGs inspected; private
+android-state-close01 preserves original receipts, PNG/XML, drivers and hashes.
+
+All402 owning inputs and exact installed APK remain unchanged. No main install,
+reset, identity replacement, existing view closure, private-key action or state
+injection. Actual hardware Back provides overview for this independent test;
+first-handle-tap discrepancy remains open and UX-05 partial. Android UX-08/UX-09/
+STATE-01 remain partial for deliberate empty/Open/settings/restart, full published
+version/lazy reload, cross-product and quota/type/untrusted-namespace faults.
+UX-03 and UX-06 remain the two complete cross-platform rows of61;59 open. No
+fresh main build/quality scan; Doctor100/100, aislop98/100 exact approved exceptions
+and ordinary clean verifier red remain visible. Phase2 open; weekly53%, ceiling
+about98%; no source push.

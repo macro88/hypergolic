@@ -166,9 +166,11 @@
         "android-physical": {
           "status": "partial",
           "evidence": [
-            "android-workspace01/receipt.json"
+            "android-workspace01/receipt.json",
+            "android-state-close01/hg-android-state-close-physical02/receipt.json",
+            "android-state-close01/visual-review.json"
           ],
-          "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open."
+          "remaining": "Nine original physical SDK/native-input checks pass saved missing/empty/exact shared and instance values, Keep open/full order, close only new owned State Lab into overview, fresh reopening with exact shared value and missing new instance value, plus ordinary new-process persistence and complete survivor order. Nine original PNGs inspected; all402 inputs and installed APK unchanged. Deliberate-last-empty with accessible identity/Open napplet/settings remains required; no existing owner views closed."
         },
         "ios-physical": {
           "status": "partial",
@@ -188,9 +190,11 @@
           "status": "partial",
           "evidence": [
             "android-order01/hg-android-order-cold-physical01/receipt.json",
-            "android-order01/hg-android-order-cold-physical01/visual-review.json"
+            "android-order01/hg-android-order-cold-physical01/visual-review.json",
+            "android-state-close01/hg-android-state-close-physical02/receipt.json",
+            "android-state-close01/visual-review.json"
           ],
-          "remaining": "Three-check ordinary force-stop/relaunch subset passes: new process, same full public identity, last focused UX view ready, exact complete15-card survivor order and closed-target absence. Visible inactive cards show Not loaded/Open to load. Temporary counter/draft reset as designed. Deliberate-empty persistence and full verified-published version-pin/lazy-reload cases remain open; no unsaved draft process-death recovery claim."
+          "remaining": "Ordinary UX order restart subset and new nine-check State Lab subset prove actual force-stop/old PID absence/new PID, same public identity and focused UUID, exact complete survivor order, closed target absence and saved SDK shared value after cold restart/overview return. Inactive cards previously show Not loaded/Open to load. Deliberate-empty persistence and full verified-published version-pin/lazy-reload cases remain open; temporary drafts reset as designed, with no process-death recovery claim."
         },
         "ios-physical": {
           "status": "partial",
@@ -340,8 +344,12 @@
       "requiredEvidence": "State Lab A/B d-tags, publisher A/B, identity A/B cross-product; update/reopen comparisons, quota/type errors, no namespace supplied by untrusted caller",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-state-close01/hg-android-state-close-physical02/receipt.json",
+            "android-state-close01/visual-review.json"
+          ],
+          "remaining": "Original bundled SDK missing/empty/exact shared get/set, separate instance saved data, Keep open, owned close/reopen with new-instance missing isolation and actual cold-process persistence pass. All402 owning inputs and installed APK unchanged. Full user/publisher/d-tag cross-product, verified-published version/update comparisons, quota/type errors and untrusted namespace faults remain required."
         },
         "ios-physical": {
           "status": "partial",
