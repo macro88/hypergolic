@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Inactive approval presentation repaired; four physical interruption and nine cross-session queue checks pass. SIGN-02/03 remain partial; next delayed emission/native authority coverage. Three of61 complete,58 open. Weekly61%, ceiling about98%; no source push.
+stopped_at: Physical delayed review and seven independently observed relay outcome cases recorded. SIGN-01/03/05/06 partial; native counters/interruption/other kind and full parity remain. Three of61 complete,58 open; ceiling about 98%; no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
-state_head: 0735eec30129e0a5bacffa7bfe791bb3661e26a9
+state_head: 5bf42cb8c7485c2c31cba6a7e5b4a8c4c07f900d
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1492,3 +1492,40 @@ ceiling about98%. Source is committed locally only; no application source push.
 Next: delayed-before-emission and remaining native signing/physical acceptance.
 
 Normal Android export also passes with the shared repair; this is bundle validation, not Android physical acceptance.
+
+
+## Physical delayed review and independent relay receipts — 8 October 2026
+
+The original delayed SDK request switches views before its five-second emission,
+stays off-screen while unfocused and badges only its requesting card. Refocus shows
+the correct review. Four checks precede an observer error reading a covered guest;
+a two-check follow-up reviews and rejects the same original request, independently
+matching its expanded NIP-01 hash. No replacement submission or complete six-check
+run is claimed.
+
+Ten checks in one separate ordinary signed iPhone run cover seven original SDK
+notes: individual Reject, approved acceptance, all-relay rejection, delayed ACK,
+no-ACK timeout, disconnect and mixed acceptance/rejection/unknown. A TLS-fronted
+independent local relay captures eighteen EVENT frames, one per destination for
+each approved event, matching exact reviewed fields, public identity, independently
+calculated ID and fresh Schnorr verification. Native banners and SDK results agree
+with actual ACKs; an individually rejected note produces no oracle EVENT frames.
+Zero native signing is not inferred. Original network defaults, six views and UX
+state are restored. The two incomplete observer predecessors remain documented:
+missing native Select All, then a status banner blocking the guest Clear control.
+
+Application code and both installed metadata/local products remain unchanged;
+all 1,219 source inputs verify. Installed executable bytes were not extracted.
+Named original stills and sparse native movie sheets are reviewed, portable movies
+reassemble byte for byte and actual imported secrets are excluded. No primary reset,
+identity change, uncertain-upload retry or source push occurs. No fresh app build or
+quality scan is claimed. The preceding source-bound reports recorded React Doctor
+100/100 and aislop 98/100 under only the exact approved findings; the Expo version
+gap stays visible. Their whole-repository fingerprint predates these documentation
+edits. Application code is unchanged, but those reports are historical rather than
+a fresh quality result bound to this checkpoint.
+
+SIGN-01/03/05/06 remain partial. All 61 full requirements persist, three cross-platform
+complete / 58 open. Next are native signing-effect counters, interrupted publication,
+another supported event kind and the remaining Android/iOS published/physical cases.
+Phase 2 stays active; the authorized usage ceiling remains about 98% consumed.

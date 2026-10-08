@@ -433,8 +433,16 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-relay-outcomes01/03/receipt.json",
+            "iphone-relay-outcomes01/03/trace-report.json",
+            "iphone-relay-outcomes01/03/independent-relay-review.json",
+            "iphone-relay-outcomes01/03/relay/frames.jsonl",
+            "iphone-relay-outcomes01/review.json"
+          ],
+          "verifiedScope": "Ten physical ordinary-entry iPhone checks include seven original SDK kind1 requests with full trusted content, requesting fixture, publisher, selected identity, explicit Approve once/Reject and expanded immutable event. External hash/signature verification matches the actual approved frames. No silent approval is used.",
+          "remaining": "Complete another supported kind, all supported update routes, remaining native signing boundaries and Android parity. The note-only subset does not close this row."
         }
       }
     },
@@ -492,9 +500,14 @@
             "iphone-inactive-repair01/crossqueue/receipt.json",
             "iphone-inactive-repair01/crossqueue/trace-report.json",
             "iphone-inactive-repair01/visual-review.json",
-            "iphone-inactive-repair01/final-integrity.json"
+            "iphone-inactive-repair01/final-integrity.json",
+            "iphone-delayed-review01/01/trace-report.json",
+            "iphone-delayed-review01/02/receipt.json",
+            "iphone-delayed-review01/02/trace-report.json",
+            "iphone-delayed-review01/review.json"
           ],
-          "remaining": "Controlled inactive/background pause and focused exact resume have scoped evidence. Nine cross-session checks now prove distinct payload/origin review, pending badge attribution for both origins, global pause through focus and no foreign sheet in a nonrequesting UX view. Delayed-before-emission, all other named cases and independent native signer counters remain open; full row stays partial."
+          "remaining": "Delayed-before-emission presentation, badge attribution and exact original focused review now have physical evidence, alongside retained prior lifecycle/queue scope. The same delayed original request still needs independent native signing-effect proof; its UI/absence of an approval is not a signer counter. Full Android parity and every remaining named requirement stay open.",
+          "verifiedScope": " A real delayed request is armed, switching completes at 3.365 seconds before 5-second emission. The requesting card alone shows a pending badge; the other origin has no foreign sheet. Refocus opens the exact trusted review. An original-request5 follow-up independently matches expanded NIP01 hash then individually rejects and restores original UX/full six-view order. The initial observer run is incomplete with four passed checks; the same original request supplies the remaining two checks without another Send."
         }
       }
     },
@@ -533,8 +546,16 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-relay-outcomes01/03/receipt.json",
+            "iphone-relay-outcomes01/03/trace-report.json",
+            "iphone-relay-outcomes01/03/independent-relay-review.json",
+            "iphone-relay-outcomes01/03/relay/frames.jsonl",
+            "iphone-relay-outcomes01/review.json"
+          ],
+          "verifiedScope": "Seven exact expanded physical review hashes are independently calculated. Six individually approved original SDK events produce eighteen local relay EVENT frames, exactly one per reviewed destination, with matching kind/content/tags/created_at/pubkey/hash and independently verified fresh Schnorr signatures. Real ACKs are bound to the same IDs and compared with native/SDK outcomes.",
+          "remaining": "Complete mutate/reorder/duplicate/replay submissions, request ID/session/version/key binding, in-flight revocation and owning native counters on both platforms. Exact immutable positive-event/receipt evidence alone is partial."
         }
       }
     },
@@ -548,8 +569,16 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-relay-outcomes01/03/receipt.json",
+            "iphone-relay-outcomes01/03/trace-report.json",
+            "iphone-relay-outcomes01/03/independent-relay-review.json",
+            "iphone-relay-outcomes01/03/relay/frames.jsonl",
+            "iphone-relay-outcomes01/review.json"
+          ],
+          "verifiedScope": "An independent TLS-fronted local relay observes zero EVENT frames for the individually rejected original SDK note. Actual approved accept/reject/delay/no-ACK-timeout/disconnect/mixed outcomes are captured on three distinct configured WSS paths. Eighteen signed frames match their exact native reviews. Native/SDK success appears only for observed acceptance; all rejected and unknown outcomes remain failures. The original network defaults, six saved views and owned UX state are restored. Two predecessor observer failures are retained.",
+          "remaining": "Complete independent native signing-effect counters for denial and remaining interrupted/in-flight cancellation cases, plus Android parity. Zero relay frames is a bounded network observation, not proof of zero signing. Full SIGN/Phase 2 acceptance remains open."
         }
       }
     },

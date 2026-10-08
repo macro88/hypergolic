@@ -166,3 +166,16 @@ DNS addresses or native network policy. That policy and native WebSocket behavio
 need integration evidence. NIP-42 authentication stays denied until a separate
 relay/challenge/socket/identity-bound approval exists. Finish physical-device
 security and the complete v1 acceptance audit separately.
+
+## Independent physical relay observation
+
+The ordinary signed iPhone note path has source-bound physical evidence for
+individual Reject and individually approved accept, all-relay reject, delayed ACK,
+no-ACK timeout, disconnect and mixed results. An external TLS-fronted local relay
+captures exactly one EVENT per reviewed destination, verifies the actual signed
+fields/public key/NIP-01 ID/Schnorr signature and compares matching ACKs with the
+native banner and genuine SDK outcome. Denied notes have zero observed oracle EVENT
+frames. This proves bounded network behavior; it does not supply a native signer
+counter. Delayed-before-emission review, badge and exact focused hash also have
+scoped physical evidence. Full SIGN rows remain partial pending all named native
+effect, interruption, other-kind, adversarial and cross-platform cases.

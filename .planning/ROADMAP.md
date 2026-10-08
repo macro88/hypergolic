@@ -285,3 +285,9 @@ Four physical iPhone interruption checks and nine cross-session SDK queue checks
 pass on the repaired normal signed QA build. SIGN-02/03 remain partial; delayed
 emission, remaining input/native-effect cases and full final acceptance stay open.
 All61 full rows persist, three cross-platform complete/58 open. No source push.
+
+8 October independent physical relay checkpoint: actual delayed focused review
+plus seven SDK/local-relay outcome cases recorded. Exact signed fields/IDs/signatures
+and native/SDK receipts agree. SIGN-01/03/05/06 remain partial; native counters,
+interruption, another kind and full platform/published parity stay open. All 61 full
+rows remain, three cross-platform complete / 58 open. No source push.
