@@ -26,9 +26,14 @@ export const BUNDLED_FIXTURES = Object.freeze({
     sha256: 'c2155e9d14b555382393422472de801c814878c41dfa7fa812c0e14b4f750dfc',
     aggregateHash: 'a2005ccdd7d0018fae17802bcfc6bb5fab48b9050933e5e7683a0e4f06030355',
     domains: Object.freeze(['identity', 'storage', 'theme']) }),
-  'approval-lab': Object.freeze({ title: 'Approval Lab', appId: 'approval-lab',
+  // Exact previous artifact for saved views; excluded from new openings and publication.
+  'approval-lab-v1': Object.freeze({ title: 'Approval Lab', appId: 'approval-lab',
     sha256: '95c8360ae963c91f5c9a09e9f88eec06db46a810538394d6dc12ca587befaae1',
     aggregateHash: 'a3c2ec6e0cd8068d942866f80f622f21df53cc188f000bc2af6caf34126e6889',
+    domains: Object.freeze(['identity', 'relay', 'theme']), publishTimeoutMs: 660_000 }),
+  'approval-lab': Object.freeze({ title: 'Approval Lab', appId: 'approval-lab',
+    sha256: '8e091402081521f5e2df4f9ebcfa6dfea84366c4035c7ccdd35bf60725471dcc',
+    aggregateHash: 'a59c8c811dace66c3285ef98f30b52c5f57d2fa5d92715b0f3a2e93b201630ac',
     domains: Object.freeze(['identity', 'relay', 'theme']), publishTimeoutMs: 660_000 }),
 });
 export type BundledFixture = keyof typeof BUNDLED_FIXTURES;

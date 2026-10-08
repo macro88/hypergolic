@@ -51,7 +51,7 @@ struct CapabilityConfiguration {
     switch fixture {
     case "ux-lab": expected = ["theme"]
     case "state-lab", "state-lab-peer": expected = ["identity", "storage", "theme"]
-    case "approval-lab": expected = ["identity", "relay", "theme"]
+    case "approval-lab", "approval-lab-v1": expected = ["identity", "relay", "theme"]
     case "upload-lab", "upload-queue-lab": expected = ["upload", "theme"]
     case "resource-lab": expected = ["resource", "link", "theme"]
     case "nap-support": expected = ["link", "theme"]

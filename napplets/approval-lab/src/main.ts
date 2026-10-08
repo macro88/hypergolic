@@ -7,6 +7,8 @@ const LIMIT = 4;
 const DELAY_MS = 5_000;
 const controls = element<HTMLFieldSetElement>('controls');
 const contentInput = element<HTMLTextAreaElement>('content');
+const noteKind = element<HTMLInputElement>('kind-note');
+const profileKind = element<HTMLInputElement>('kind-profile');
 const results = element<HTMLOListElement>('results');
 const send = element<HTMLButtonElement>('send');
 const sendThree = element<HTMLButtonElement>('send-three');
@@ -68,10 +70,11 @@ function paint(request: Request, detail = ''): void {
   request.row.querySelector<HTMLElement>('.event-id')!.textContent = detail;
 }
 
-function makeRow(sequence: number, content: string): HTMLLIElement {
+function makeRow(sequence: number, event: EventTemplate): HTMLLIElement {
   const row = document.createElement('li');
   row.className = 'request';
   row.dataset.sequence = String(sequence);
+  row.dataset.kind = String(event.kind);
   const head = document.createElement('div');
   head.className = 'request-head';
   const correlation = document.createElement('span');
@@ -79,12 +82,15 @@ function makeRow(sequence: number, content: string): HTMLLIElement {
   const state = document.createElement('span');
   state.className = 'request-state';
   head.append(correlation, state);
+  const kind = document.createElement('p');
+  kind.className = 'request-kind meta';
+  kind.textContent = event.kind === 0 ? 'Profile metadata (kind 0)' : 'Note (kind 1)';
   const body = document.createElement('code');
   body.className = 'request-content';
-  body.textContent = content;
+  body.textContent = event.content;
   const eventId = document.createElement('output');
   eventId.className = 'event-id';
-  row.append(head, body, eventId);
+  row.append(head, kind, body, eventId);
   results.prepend(row);
   return row;
 }
@@ -98,9 +104,10 @@ function createRequest(state: 'scheduled' | 'sending'): Request | null {
   ];
   tags.forEach(Object.freeze);
   Object.freeze(tags);
+  const kind = profileKind.checked ? 0 : 1;
   const event = Object.freeze({
-    kind: 1,
-    content: contentInput.value,
+    kind,
+    content: kind === 0 ? JSON.stringify({ about: contentInput.value }) : contentInput.value,
     tags,
     created_at: Math.floor(Date.now() / 1_000),
   }) as EventTemplate;
@@ -109,7 +116,7 @@ function createRequest(state: 'scheduled' | 'sending'): Request | null {
     epoch: identityEpoch,
     event,
     state,
-    row: makeRow(sequence, event.content),
+    row: makeRow(sequence, event),
   };
   requests.set(sequence, request);
   createdCount++;
@@ -231,6 +238,16 @@ function connectIdentity(): void {
   }
 }
 
+function updateEventType(): void {
+  const profile = profileKind.checked;
+  element('content-label').textContent = profile ? 'Profile bio' : 'Note content';
+  element('profile-warning').hidden = !profile;
+  send.textContent = profile ? 'Send profile metadata' : 'Send note';
+  sendThree.textContent = profile ? 'Send 3 profile updates' : 'Send 3 notes';
+}
+
+noteKind.addEventListener('change', updateEventType);
+profileKind.addEventListener('change', updateEventType);
 send.addEventListener('click', submitOne);
 sendThree.addEventListener('click', submitThree);
 sendDelayed.addEventListener('click', submitDelayed);

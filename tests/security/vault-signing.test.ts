@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { finalizeEvent, getPublicKey } from 'nostr-tools/pure';
+import { finalizeEvent, getPublicKey, verifyEvent } from 'nostr-tools/pure';
 import { createHash } from 'node:crypto';
 import { captureUploadSnapshot, type UploadSnapshot } from '../../src/uploads/upload-snapshot.ts';
 import { captureUploadAuthorization } from '../../src/uploads/upload-authorization.ts';
@@ -96,6 +96,35 @@ test('signApproved signs the exact captured event and wipes each secret buffer',
   assert((signerSecret as Uint8Array).every(value => value === 0));
   assert(returned.every(key => key.every(value => value === 0)));
   await assert.rejects(vault.signApproved(snapshot, grant, () => undefined), (error: unknown) => error instanceof VaultError && error.code === 'AUTHORIZATION_DENIED');
+});
+
+test('profile metadata uses one exact protected signing authority and wipes its buffers', async () => {
+  const { vault, returned } = fixture();
+  const state = await vault.open();
+  const bio = 'Development profile "quoted"\n你好';
+  const input = { kind: 0, content: JSON.stringify({ about: bio }), tags: [['t', 'profile-test']], created_at: 2 };
+  const captured = captureEventSnapshot(input, state.selectedPubkey, ['wss://relay.example.org']);
+  input.kind = 1;
+  input.content = 'changed after capture';
+  const readsBefore = returned.length;
+  let calls = 0;
+  const grant = authority();
+  const signed = await vault.signApproved(captured, grant, (event, key) => {
+    calls++;
+    assert.equal(event.kind, 0);
+    assert.equal(event.content, JSON.stringify({ about: bio }));
+    return JSON.parse(JSON.stringify(finalizeEvent(event, key)));
+  });
+  assert.equal(calls, 1);
+  assert.equal(returned.length, readsBefore + 1);
+  assert.equal(signed.kind, 0);
+  assert.equal(signed.pubkey, state.selectedPubkey);
+  assert.equal(signed.id, createHash('sha256').update(JSON.stringify([0, signed.pubkey, 2, 0, [['t', 'profile-test']], JSON.stringify({ about: bio })])).digest('hex'));
+  assert(verifyEvent(JSON.parse(JSON.stringify(signed))));
+  assert(returned.every(key => key.every(value => value === 0)));
+  await assert.rejects(vault.signApproved(captured, grant, () => { calls++; return undefined; }), (error: unknown) => error instanceof VaultError && error.code === 'AUTHORIZATION_DENIED');
+  assert.equal(calls, 1);
+  assert.equal(returned.length, readsBefore + 1);
 });
 
 test('revocation after the protected secret read starts denies signing and preserves readiness', async () => {

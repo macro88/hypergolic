@@ -126,8 +126,8 @@ test('the peer fixture uses its distinct verified app identity', async ({page}) 
   expect(result.title).toContain('Peer');
 });
 
-test('Approval Lab SDK artifact admits only the unsigned publish template and routes it through the native override', async ({page}) => {
-  const frame = await open(page, 'approval-lab');
+for (const fixture of ['approval-lab', 'approval-lab-v1']) test(`Approval Lab ${fixture} admits only the unsigned publish template through the native override`, async ({page}) => {
+  const frame = await open(page, fixture);
   const ui = page.frameLocator('#napplet');
   await ui.locator('#content').fill('approved note');
   await ui.locator('#send').click();
@@ -165,4 +165,19 @@ for (const mode of ['deny', 'wrong-id']) test(`denied identity profile read cann
   await expect(ui.locator('#profile-status')).toHaveText('Profile read failed: identity request denied');
   await expect(ui.locator('#profile-result')).toHaveAttribute('data-state', 'error');
   await expect(ui.locator('#profile-result')).toHaveText('');
+});
+
+test('new Approval Lab profile metadata crosses the bounded native override with the exact unsigned JSON', async ({page}) => {
+  await open(page, 'approval-lab');
+  const ui = page.frameLocator('#napplet');
+  await ui.locator('#kind-profile').check();
+  await expect(ui.locator('#profile-warning')).toBeVisible();
+  await ui.locator('#content').fill('QA bio "quoted" \n <script>text only</script>');
+  await ui.locator('#send').click();
+  await expect(ui.locator('#status')).toHaveText('Request 1 published.');
+  const requests = await page.evaluate(() => (window as any).nativeTest.requests.filter((entry:any) => entry.request.type === 'relay.publish'));
+  expect(requests).toHaveLength(1);
+  expect(requests[0].request.event).toEqual({kind: 0, content: JSON.stringify({about: 'QA bio "quoted" \n <script>text only</script>'}),
+    tags: [['t', 'hypergolic-approval-lab'], ['test-sequence', '1']], created_at: expect.any(Number)});
+  expect(Object.keys(requests[0].request.event).sort()).toEqual(['content', 'created_at', 'kind', 'tags']);
 });

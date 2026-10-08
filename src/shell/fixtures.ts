@@ -1,7 +1,7 @@
 import { emptyWorkspace, focusNapplet, openNapplet, type NappletDescriptor, type Workspace } from './workspace.ts';
 import { BUNDLED_FIXTURES, type BundledFixture } from '../runtime/bundled-catalog.ts';
 
-export type BundledVariant = BundledFixture | 'state-lab-other-publisher';
+export type BundledVariant = Exclude<BundledFixture, 'approval-lab-v1'> | 'state-lab-other-publisher';
 const variants: readonly BundledVariant[] = ['nap-support', 'routing-lab-peer', 'routing-lab', 'upload-lab', 'state-lab-other-publisher', 'resource-lab', 'feed-lab', 'approval-lab', 'state-lab-peer', 'state-lab', 'ux-lab'];
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 // Exact previous stateless Support fixture, with the same link/theme authority.
@@ -31,9 +31,11 @@ export function resolveBundledSession(session: NappletDescriptor) {
   if (variant === 'ux-lab' && instance !== String(number)) throw new Error('Unavailable saved napplet');
   const expected = bundledDescriptor(variant, number, instance);
   const compatibleSupport = variant === 'nap-support' && session.version === previousSupportVersion;
+  const archivedApproval = variant === 'approval-lab' && session.version === BUNDLED_FIXTURES['approval-lab-v1'].aggregateHash;
   if (session.title !== expected.title || session.publisher !== expected.publisher || session.appId !== expected.appId ||
-      (session.version !== expected.version && !compatibleSupport) || session.source !== expected.source) throw new Error('Unavailable saved napplet');
-  const fixture = variant === 'state-lab-other-publisher' ? 'state-lab' : variant;
+      (session.version !== expected.version && !compatibleSupport && !archivedApproval) || session.source !== expected.source) throw new Error('Unavailable saved napplet');
+  // Select the exact retained bytes rather than silently upgrading a saved pin.
+  const fixture = archivedApproval ? 'approval-lab-v1' : variant === 'state-lab-other-publisher' ? 'state-lab' : variant;
   const entry = BUNDLED_FIXTURES[fixture];
   return Object.freeze({ fixture, appId: entry.appId, version: entry.aggregateHash, domains: entry.domains,
     // Reserved unsigned-fixture namespace identifiers, never presented as Nostr publisher identities.

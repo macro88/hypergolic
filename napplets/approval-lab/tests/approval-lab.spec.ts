@@ -153,6 +153,53 @@ test('single note publishes the exact unsigned literal snapshot and shows its ev
   await expect(frame.locator('img')).toHaveCount(0);
 });
 
+test('profile metadata captures escaped JSON and its kind before approval', async ({ page }, testInfo) => {
+  const frame = await mount(page);
+  await expect(frame.getByTestId('kind-note')).toBeChecked();
+  await expect(frame.getByTestId('profile-warning')).toBeHidden();
+  await fixtureState(frame, 'set-defer');
+  await frame.getByTestId('kind-profile').check();
+  await expect(frame.getByTestId('profile-warning')).toBeVisible();
+  await expect(frame.getByRole('textbox', { name: 'Profile bio' })).toBeVisible();
+  const bio = 'Development QA "quoted"\n🧪 你好 <img src=x>';
+  await frame.getByTestId('content').fill(bio);
+  await page.screenshot({ path: testInfo.outputPath('approval-lab-profile-warning.png'), fullPage: true });
+  await frame.getByRole('button', { name: 'Send profile metadata', exact: true }).click();
+  const captured = (await fixtureState<any[]>(frame, 'calls'))[0];
+  expect(captured.kind).toBe(0);
+  expect(captured.content).toBe(JSON.stringify({ about: bio }));
+  expect(captured.tags).toEqual([['t', 'hypergolic-approval-lab'], ['test-sequence', '1']]);
+  expect(captured).not.toHaveProperty('pubkey');
+  expect(captured).not.toHaveProperty('sig');
+  await frame.getByTestId('kind-note').check();
+  await frame.getByTestId('content').fill('later note');
+  await fixtureState(frame, 'resolve-at', 0);
+  await expect(frame.locator('.request')).toHaveAttribute('data-kind', '0');
+  await expect(frame.locator('.request-kind')).toHaveText('Profile metadata (kind 0)');
+  await expect(frame.locator('.request-content')).toHaveText(captured.content);
+  expect((await fixtureState<any[]>(frame, 'calls'))[0]).toEqual(captured);
+  expect(await fixtureState(frame, 'frozen')).toEqual([{ event: true, tags: true, entries: true }]);
+  await expect(frame.locator('img')).toHaveCount(0);
+  await frame.locator('.request').scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('approval-lab-profile-captured.png'), fullPage: true });
+});
+
+test('delayed profile keeps its captured kind and JSON after editor changes', async ({ page }) => {
+  const frame = await mount(page, 'manualTimers');
+  await frame.getByTestId('kind-profile').check();
+  await frame.getByTestId('content').fill('captured profile bio');
+  await frame.getByTestId('send-delayed').click();
+  await frame.getByTestId('kind-note').check();
+  await frame.getByTestId('content').fill('later note');
+  expect(await fixtureState(frame, 'calls-length')).toBe(0);
+  await fixtureState(frame, 'run-timer');
+  await expect.poll(() => fixtureState<number>(frame, 'calls-length')).toBe(1);
+  const calls = await fixtureState<any[]>(frame, 'calls');
+  expect(calls[0].kind).toBe(0);
+  expect(calls[0].content).toBe(JSON.stringify({ about: 'captured profile bio' }));
+  await expect(frame.locator('.request')).toHaveAttribute('data-kind', '0');
+});
+
 test('content and timestamp are finalized before an unresolved shell approval', async ({ page }) => {
   const frame = await mount(page);
   await fixtureState(frame, 'set-defer');

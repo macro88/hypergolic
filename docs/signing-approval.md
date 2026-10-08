@@ -179,3 +179,32 @@ frames. This proves bounded network behavior; it does not supply a native signer
 counter. Delayed-before-emission review, badge and exact focused hash also have
 scoped physical evidence. Full SIGN rows remain partial pending all named native
 effect, interruption, other-kind, adversarial and cross-platform cases.
+
+
+## Approval Lab note/profile fixture
+
+The standalone fixture now selects a kind-1 note or kind-0 profile update, following
+the selected NIP-01 revision above. Profile content is JSON with the captured `about`
+text; the visible warning calls for a development identity because accepting relays
+replace that identity's profile. The immutable request retains its selected kind,
+content, tags and timestamp even if later editor controls change. Native trusted
+review, approval, signing and publication remain the existing authority owners.
+
+Previously saved Approval Lab views keep their exact previous bundled version via
+the internal `approval-lab-v1` artifact. This retained copy is unavailable for new
+openings or fixture releases; new views use the extended artifact. Old pins are not
+rewritten and published artifact verification is unchanged. Both native parsers
+require the same identity/relay/theme domains. Browser/model checks are not physical
+kind-0 signing, protected-read counters or retained-view upgrade acceptance.
+
+
+Signed ordinary Android and iPhone Release builds and platform exports pass with
+the current and retained artifacts. The iPhone update installs into its existing
+disposable QA identifier and normally launches. Direct read-only workspace copies
+before/after verify the exact revision70, six descriptors, opening order, selection
+and version pins. The current shared resolver accepts those actual saved pins,
+including both previous Approval Lab artifacts. This is storage continuity plus
+host resolution; guest rendering and protected identity/signing are not inferred.
+The primary installed metadata and both local product seals remain unchanged.
+The Android product is built/signed but not installed in this checkpoint. No blind
+retry of the previously rejected USB installation is made.

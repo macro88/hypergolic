@@ -36,12 +36,12 @@ class AckWebSocket {
   close(): void {this.readyState=3;this.onclose?.({wasClean:true});}
 }
 function setup() {
-  const state={epoch:0,identity:user,upload:false,manifest:false,signUploads:0,puts:0,signManifests:0,publishes:0,queries:0,
+  const state={preparations:0,epoch:0,identity:user,upload:false,manifest:false,signUploads:0,puts:0,signManifests:0,publishes:0,queries:0,
     realTransport:false,receiptRelay:"",receiptId:"",unavailableRelay:"",damagedBytes:false,damagedStoredBytes:false,changedClaim:false,relayAccepted:true,wrongStoredEvent:false,
     waitForSign:null as Promise<void>|null, signed:null as VerifiedSignedEvent|null};
   let capture='';
   const native: FixtureReleasePort={synchronizeFixturePublisher(){},
-    prepareFixtureUpload(fixture,destination){return JSON.stringify({token,fixture,identity:state.identity,server:destination,
+    prepareFixtureUpload(fixture,destination){state.preparations++;return JSON.stringify({token,fixture,identity:state.identity,server:destination,
       sha256:BUNDLED_FIXTURES['feed-lab'].sha256,size:new TextEncoder().encode(html).length,html:state.damagedBytes?html+'changed':html,tags});},
     approveFixtureUpload(){if(state.upload)return false;state.upload=true;return true;},
     isFixtureUploadApproved(){return state.upload;},
@@ -140,4 +140,16 @@ test('accepted receipts for an unapproved host, path or event do not start store
   const {service,state}=await manifestReady();state.receiptId='00'.repeat(32);
   await service.approveManifest(service.getSnapshot().review!);
   assert.equal(service.getSnapshot().phase,'failed');assert.equal(state.queries,0);
+});
+
+test('archived Approval Lab cannot prepare a fresh release or produce signing/network effects', async () => {
+  const {service, state} = setup();
+  await service.prepare('approval-lab-v1', server, relays);
+  assert.equal(service.getSnapshot().phase, 'failed');
+  assert.equal(service.getSnapshot().review, null);
+  assert.equal(state.preparations, 0);
+  assert.equal(state.signUploads, 0);
+  assert.equal(state.puts, 0);
+  assert.equal(state.signManifests, 0);
+  assert.equal(state.publishes, 0);
 });

@@ -296,3 +296,11 @@ rows remain, three cross-platform complete / 58 open. No source push.
 failures retained; no physical interruption acceptance. External receipt barrier
 observer build/host checks pass, actual device run remains pending. All61 requirements
 and platform statuses unchanged, Phase2 active. See the phase checkpoint.
+
+
+8 October Approval Lab checkpoint: note/profile capture and exact retained saved-view
+artifact support implemented. Real SDK/runtime and shared regression checks pass;
+fresh native build checks remain separate from physical acceptance. An unlocked
+iPhone still times out enabling UI automation before the readiness test starts.
+All61 requirements and existing platform statuses persist, three cross-platform
+complete/58 open. Phase2 stays active; no source push. See Plan03 checkpoint.

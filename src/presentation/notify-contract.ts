@@ -36,7 +36,7 @@ export function parseNotifyMessage(value: unknown): NotifyMessage {
   throw new Error('Unknown notification operation');
 }
 /** A denial needs a bounded, authority-free correlation header, never a valid payload. */
-export function captureNotifyRejection(value: unknown): Readonly<Record<string, unknown>> | null {
+export function captureNotifyRejection(value: unknown): Readonly<Record<string, unknown> & {type: string}> | null {
   try {
     const row = routingRecord(routingPayload(value), ['type', 'id'], ['title', 'body', 'icon', 'actions', 'channel', 'priority']);
     const id = routingText(row.id, 128);

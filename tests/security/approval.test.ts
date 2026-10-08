@@ -34,6 +34,35 @@ test('captures a native request once, verifies it, and publishes exact immutable
   const native = new Native(); const taken = native.issue('one'); const service = make(native); const id = current(service, 'one'); assert.notEqual(id, taken.requestId);
   const outcomes = await service.approve(id); assert.deepEqual(outcomes, [{ relay: `${relay}/`, eventId: outcomes[0]!.eventId, status: 'accepted', reason: '' }]); assert.equal(native.finished, 1);
 });
+test('profile metadata needs explicit approval; reject has no modeled signing or publication effect', async () => {
+  const native = new Native();
+  const metadata = { kind: 0, content: JSON.stringify({ about: 'Development profile' }), tags: [['t', 'profile-test']], created_at: 1_700_000_002 };
+  native.issue('reject-profile', origin('reject-profile'), 'wire-profile-reject', metadata);
+  let signing = 0, publication = 0;
+  const service = make(native, {
+    sign: async snapshot => { signing++; assert.equal(snapshot.event.kind, 0); assert.equal(snapshot.event.content, metadata.content); return sign(snapshot); },
+    publishEvent: async (signed, destinations, execution) => {
+      execution.assertActive(); publication++;
+      assert.equal(signed.kind, 0); assert.equal(signed.content, metadata.content);
+      return destinations.map(destination => ({ relay: destination, eventId: signed.id, status: 'accepted' as const, reason: '' }));
+    },
+  });
+  const rejected = current(service, 'reject-profile');
+  assert.equal(signing, 0); assert.equal(publication, 0);
+  service.reject(rejected);
+  assert.equal(signing, 0); assert.equal(publication, 0);
+  native.issue('approve-profile', origin('approve-profile'), 'wire-profile-approve', metadata);
+  const approved = current(service, 'approve-profile');
+  assert.equal(signing, 0); assert.equal(publication, 0);
+  await service.approve(approved);
+  assert.equal(signing, 1); assert.equal(publication, 1);
+  const response = JSON.parse(native.responses.at(-1)!);
+  assert.equal(response.ok, true); assert.equal(response.id, 'wire-profile-approve');
+  assert.equal(response.event.kind, 0); assert.equal(response.event.content, metadata.content);
+  await assert.rejects(service.approve(approved));
+  assert.equal(signing, 1); assert.equal(publication, 1);
+});
+
 test('enforces four per session and sixteen global presentation bounds', () => {
   const native = new Native(); const service = make(native);
   for (let i = 0; i < 5; i++) native.issue(`s${i}`, origin('same'));

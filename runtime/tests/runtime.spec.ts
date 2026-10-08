@@ -60,13 +60,16 @@ test('delivery has two assets and the original fixture bytes plus original unsig
   }
 });
 
-test('Approval Lab fixture is byte-pinned and remains an unsigned catalog artifact', async () => {
-  const bytes = readFileSync('fixtures/approval-lab.html');
+for (const [fixture, expectedSha, expectedAggregate] of [
+  ['approval-lab', '8e091402081521f5e2df4f9ebcfa6dfea84366c4035c7ccdd35bf60725471dcc', 'a59c8c811dace66c3285ef98f30b52c5f57d2fa5d92715b0f3a2e93b201630ac'],
+  ['approval-lab-v1', '95c8360ae963c91f5c9a09e9f88eec06db46a810538394d6dc12ca587befaae1', 'a3c2ec6e0cd8068d942866f80f622f21df53cc188f000bc2af6caf34126e6889'],
+]) test(`Approval Lab ${fixture} is byte-pinned and remains an unsigned catalog artifact`, async () => {
+  const bytes = readFileSync(`fixtures/${fixture}.html`);
   const sha256 = createHash('sha256').update(bytes).digest('hex');
-  const manifest = JSON.parse(readFileSync('fixtures/approval-lab-manifest.json', 'utf8'));
+  const manifest = JSON.parse(readFileSync(`fixtures/${fixture}-manifest.json`, 'utf8'));
   const aggregateHash = createHash('sha256').update(`${sha256} /index.html\n`).digest('hex');
-  expect(sha256).toBe('95c8360ae963c91f5c9a09e9f88eec06db46a810538394d6dc12ca587befaae1');
-  expect(aggregateHash).toBe('a3c2ec6e0cd8068d942866f80f622f21df53cc188f000bc2af6caf34126e6889');
+  expect(sha256).toBe(expectedSha);
+  expect(aggregateHash).toBe(expectedAggregate);
   expect(manifest.tags).toContainEqual(['path', '/index.html', sha256]);
   expect(manifest.tags).toContainEqual(['x', aggregateHash, 'aggregate']);
   expect(manifest.tags).toContainEqual(['requires', 'identity']);

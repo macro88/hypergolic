@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Three iPhone XCTest initialization failures retained; stronger external receipt observer build and host checks pass. Physical interruptions/counters remain open; QA restored, primary unchanged. Three of61 complete,58 open; ceiling about98%; no source push.
+stopped_at: Approval Lab note/profile capture and exact saved-version retention built; iPhone QA upgrade preserves six views. UI automation still times out before initialization. Three of61 complete,58 open; ceiling about98%; no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
-state_head: 3371318ff66c326b7ec2a93e6decbb2e366d6e99
+state_head: be6143b527862c7e7415a1cf36869822bde2129a
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1559,3 +1559,20 @@ that dependency is unresolved. All 61 full requirements and prior per-platform
 statuses remain unchanged: three cross-platform complete, 58 open. Phase 2 stays
 active. No fresh application build/quality scan or source push; historical quality
 limits remain visible. Weekly usage63%, authorized ceiling about98%.
+
+
+## Approval Lab event kinds and retained saved views — 8 October 2026
+
+Note/profile capture and exact previous artifact retention are implemented. Both
+signed ordinary platform builds and exports pass; iPhone QA installs and launches
+with all six saved descriptors, revision70, order and selection exactly unchanged.
+The primary is unchanged. A small XCTest readiness retry still times out enabling
+automation before UI initialization despite unlocked state and Developer Mode.
+
+262 browser runtime checks, shared security/workspace/publisher checks, the native
+Kotlin parser and narrow exact-source Swift configuration checks pass. The broader
+Swift host package cannot compile UIKit; no transport-unit/device claim follows.
+React Doctor100/aislop98 reports contain only the two existing approved exceptions;
+their normal gate stays red. Final reports must bind this final documentation too.
+All61 full requirements/platform statuses persist, three cross-platform complete/
+58 open. Phase2 active, ceiling about98%. See Plan03 checkpoint for exact scope.

@@ -74,3 +74,25 @@ test('bundled routing peer has a distinct native session identity despite its sh
   assert.equal(peer.version, caller.version);
   assert.throws(() => resolveBundledSession({...peer, appId: caller.appId}));
 });
+
+test('saved Approval Lab views restore their exact previous artifact without changing new openings', async () => {
+  const {bundledDescriptor, resolveBundledSession, assertWorkspaceAvailability} = await import('./fixtures.ts');
+  const {BUNDLED_FIXTURES} = await import('../runtime/bundled-catalog.ts');
+  const latest = bundledDescriptor('approval-lab', 8, '12345678-1234-4123-8123-123456789abc');
+  const saved = {...latest, version: BUNDLED_FIXTURES['approval-lab-v1'].aggregateHash};
+  const restored = resolveBundledSession(saved);
+  assert.equal(restored.fixture, 'approval-lab-v1');
+  assert.equal(restored.appId, latest.appId);
+  assert.equal(restored.instanceId, saved.id);
+  assert.equal(restored.version, saved.version);
+  assert.deepEqual(restored.domains, ['identity', 'relay', 'theme']);
+  assert.equal(resolveBundledSession(latest).fixture, 'approval-lab');
+  assert.equal(resolveBundledSession(latest).version, latest.version);
+  assert.notEqual(restored.version, latest.version);
+  assertWorkspaceAvailability(openNapplet(openNapplet(emptyWorkspace(), saved), {...latest, id: 'approval-lab-9', title: 'Approval Lab 9'}));
+  for (const mutation of [
+    {version: '0'.repeat(64)}, {version: BUNDLED_FIXTURES['approval-lab-v1'].sha256},
+    {publisher: 'bundled-unsigned-peer'}, {appId: 'approval-lab-v1'}, {source: 'published' as const},
+    {eventId: '0'.repeat(64)}, {title: 'Other Lab 8'}, {id: 'approval-lab-v1-8'},
+  ]) assert.throws(() => resolveBundledSession({...saved, ...mutation}));
+});
