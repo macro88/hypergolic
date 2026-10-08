@@ -208,16 +208,21 @@
       "requiredEvidence": "Close/reopen State Lab and inspect saved values; close last and verify accessible identity and existing Open napplet settings flow",
       "platforms": {
         "android-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
             "android-workspace01/receipt.json",
             "android-state-close01/hg-android-state-close-physical02/receipt.json",
             "android-state-close01/visual-review.json",
             "android-empty-prepared01/hg-empty-android-build01/receipt.json",
             "android-empty-prepared01/hg-empty-android-install02/receipt.json",
-            "android-empty-prepared01/observation.json"
+            "android-empty-prepared01/observation.json",
+            "android-empty02/originals/receipt.json",
+            "android-empty02/originals/actions.json",
+            "android-empty02/visual-review.json",
+            "android-empty02/observer/hg-empty-current-android-binding02.json"
           ],
-          "remaining": "Nine original physical SDK/native-input checks pass saved missing/empty/exact shared and instance values, Keep open/full order, close only new owned State Lab into overview, fresh reopening with exact shared value and missing new instance value, plus ordinary new-process persistence and complete survivor order. Nine original PNGs inspected; all402 inputs and installed APK unchanged. Deliberate-last-empty with accessible identity/Open napplet/settings remains required; no existing owner views closed. Separate ordinary-entry signed ARM64 Release and complete last-empty native controller are prepared, but real install and one observed retry are denied with INSTALL_FAILED_USER_RESTRICTED. Fresh package remains absent, native journey never starts; current owner/device-policy effective restrictions are none and no installer confirmation is observed. Primary APK/process retained. Owner USB-install state needs checking; no native acceptance inferred."
+          "remaining": "None for the named Android saved-data/close/quiet-last-empty/Open/Settings requirement. Full published version-pin/lazy reload, device reboot/failed-read, protected backup and remaining capability/security/fault/quality journeys stay open.",
+          "verifiedScope": "One green nine-check ordinary signed physical Android SDK/native-input journey in newly installed separate QA app: missing/empty/exact shared and distinct instance data; Keep open/full order; exact confirmed State close staying overview; quiet last empty with accessible identity and Open/Settings; two actual force-stop/not-running/new-process empty restorations; fresh native UUID/exact shared recovery/missing new instance. Seven complete inventories and eight original PNGs inspected. Independently decoded npub and selected public key match; all1221 current observer inputs and installed APK unchanged during run, with only five documentation differences from the original tested build. Original main APK/PID unchanged; no main reset/key export/owner-view closure/uncertain upload retry."
         },
         "ios-physical": {
           "status": "passed",
@@ -242,9 +247,12 @@
             "android-order01/hg-android-order-cold-physical01/receipt.json",
             "android-order01/hg-android-order-cold-physical01/visual-review.json",
             "android-state-close01/hg-android-state-close-physical02/receipt.json",
-            "android-state-close01/visual-review.json"
+            "android-state-close01/visual-review.json",
+            "android-empty02/originals/receipt.json",
+            "android-empty02/visual-review.json",
+            "android-empty02/observer/hg-empty-current-android-binding02.json"
           ],
-          "remaining": "Ordinary UX order restart subset and new nine-check State Lab subset prove actual force-stop/old PID absence/new PID, same public identity and focused UUID, exact complete survivor order, closed target absence and saved SDK shared value after cold restart/overview return. Inactive cards previously show Not loaded/Open to load. Deliberate-empty persistence and full verified-published version-pin/lazy-reload cases remain open; temporary drafts reset as designed, with no process-death recovery claim."
+          "remaining": "Ordinary bundled order/focus and saved data have prior physical restart evidence. The new complete nine-check disposable journey now proves deliberate quiet empty across two real process restarts, same independently decoded public identity, closed target absence and new-UUID/shared-data recovery. Full verified-published version-pin/order/lazy-reload cases remain required; no unsaved draft process-death recovery claim."
         },
         "ios-physical": {
           "status": "partial",
@@ -308,9 +316,12 @@
         "android-physical": {
           "status": "partial",
           "evidence": [
-            "physical-android-tracer04/android-isolated-build/first-tracer08-receipt.json"
+            "physical-android-tracer04/android-isolated-build/first-tracer08-receipt.json",
+            "android-empty02/originals/receipt.json",
+            "android-empty02/visual-review.json",
+            "android-empty02/observer/hg-empty-current-android-binding02.json"
           ],
-          "remaining": "Complete the named row requirements; this subset proves only normal first launch, input and public identity process-restart continuity."
+          "remaining": "Fresh ordinary separate Release creates one identity without onboarding or external signer. Independent npub checksum/decoded-public-key comparison and two real process restarts reuse it; installed build bytes and current executable inputs are verified. Device reboot and native failed-read/no-replacement injection remain required; no private key read/export or full key-security claim."
         },
         "ios-physical": {
           "status": "partial",

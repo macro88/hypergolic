@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Android UX04 full gesture parity passes with original data restored; UX05 ignored tap remains unresolved. Regular nonstreamed separate QA install succeeds. Next nine saved-data/empty checks; iPhone UI readiness remains open. Full61 rows persist,4 complete/57 open; ceiling about98%; no source push.
+stopped_at: Android completes all9 saved-data/last-empty checks in one physical ordinary-entry run; UX08 passes both phones. Full61 rows persist,5 complete/56 open. Next verified-published pin/lazy reload; iPhone automation unresolved. Ceiling about98%; no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
-state_head: 5f9d9f1884a6b11e50aadf5dee3e4a1a95c5f924
+state_head: 9b7e8da995ec2992dc22980a92868c3c989fc972
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1609,3 +1609,20 @@ iPhone automation readiness and remaining published/security/fault/accessibility
 journeys remain open. No fresh app build/quality scan or source push. Previous
 Doctor100/aislop98 reports retain only approved exceptions and their ordinary
 gate remains red. Usage68%, authorized ceiling about98%; Phase2 stays active.
+
+## Complete Android saved-data and deliberate-empty journey — 8 October 2026
+
+One ordinary signed separate Android run passes all9 original SDK/native checks:
+missing/empty/exact shared and distinct instance values, Keep open/full order, exact
+owned close staying overview, quiet last empty with accessible identity/Open/Settings,
+two real process restarts preserving empty, and new-UUID/exact shared recovery with
+missing new instance. Seven full native inventories/eight original PNGs inspected.
+All1221 current observer inputs and installed APK stay unchanged; five differences
+from the original build are documentation only. Original primary APK/PID preserved;
+all closed views belong to the fresh disposable profile. No key export/main reset/
+uncertain upload retry. UX08 now passes both phones: five of61 full requirements
+complete,56 open. UX09 verified-published pins/lazy reload and ID01 reboot/failed-read
+no-replacement stay open, as do iPhone automation and all remaining final gates.
+Next use existing independently verified public fixtures for ordinary published
+restart/lazy reload. No new app build or quality scan/source push; prior exact quality
+exceptions remain historical and ordinary gate red. Phase2 active, ceiling about98%.

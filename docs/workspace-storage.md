@@ -194,3 +194,24 @@ APK/process stay unchanged and device security settings are not altered. This
 proves that this transport works; the prior streamed rejection's cause remains
 unconfirmed. First launch and the prepared nine-check saved-data/empty journey
 are next. No fresh application build or quality scan is claimed.
+
+
+## Physical Android saved data and deliberate empty — 8 October 2026
+
+All nine original SDK/native-input checks pass in one ordinary signed separate QA
+run: missing/empty/exact shared and distinct instance values, Keep open and complete
+order, exact target close staying in overview, quiet last empty with accessible
+identity/Open napplet/existing Settings, two real process restarts preserving empty,
+and reopening with a new native UUID/exact shared recovery/missing instance value.
+Seven complete native inventories and eight original PNGs agree with the assertions.
+All closed views belong to the fresh disposable profile; the original app APK/PID
+remain unchanged. Current observer inputs and installed bytes are sealed; only five
+documentation inputs differ from the original tested build. No private key export,
+main reset/update or uncertain-upload retry occurs. Canonical private `android-empty02`
+preserves the exact original evidence and current source/build binding.
+
+UX-08 is now complete on both phones: five of61 full final requirements complete,
+56 open. UX-09 gains deliberate-empty persistence but still needs verified-published
+version-pin/lazy reload. ID-01 gains normal first entry, independent public npub
+verification and two process restarts; device reboot and failed-read/no-replacement
+remain required. No fresh app packaging or quality scan; Phase2 stays active.
