@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Android completes all9 saved-data/last-empty checks in one physical ordinary-entry run; UX08 passes both phones. Full61 rows persist,5 complete/56 open. Next verified-published pin/lazy reload; iPhone automation unresolved. Ceiling about98%; no source push.
+stopped_at: Android UX09 complete published pin/order/focus/lazy reload through two real process restarts; iPhone counterpart open. Full61 rows persist,5 complete/56 open. iPhone automation unresolved; ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
-state_head: 9b7e8da995ec2992dc22980a92868c3c989fc972
+state_head: 1294f873cc407cf9e6e18771690973518b674a5e
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1626,3 +1626,16 @@ no-replacement stay open, as do iPhone automation and all remaining final gates.
 Next use existing independently verified public fixtures for ordinary published
 restart/lazy reload. No new app build or quality scan/source push; prior exact quality
 exceptions remain historical and ordinary gate red. Phase2 active, ceiling about98%.
+
+
+## Android verified-published restart — 8 October 2026
+
+Android UX09 passes its complete published order/focus/version-pin/lazy-reload scope,
+combined with retained deliberate-empty proof. Two genuine process restarts preserve
+State/Feed native UUIDs, selected identity, opening order and both exact signed pins.
+Actual unloaded previews and native refocus show lazy reload; State SDK recovers its
+exact saved string. Only the two new QA views close. All 1,221 runtime inputs, installed
+APK and main APK/PID remain unchanged; five original-build differences are docs only.
+First-open/save predecessors and observer failures remain explicit. No new build or
+quality/publication claim. All 61 original requirements remain, 5 cross-platform complete/
+56 open; iPhone UX09, automation readiness and full MVP gates remain open.

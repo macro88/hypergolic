@@ -215,3 +215,23 @@ UX-08 is now complete on both phones: five of61 full final requirements complete
 version-pin/lazy reload. ID-01 gains normal first entry, independent public npub
 verification and two process restarts; device reboot and failed-read/no-replacement
 remain required. No fresh app packaging or quality scan; Phase2 stays active.
+
+
+## Physical Android published restart — 8 October 2026
+
+Ordinary verified State Lab and Feed Lab preserve their full two-view opening order,
+exact native UUIDs, selected public identity, last active view and both pinned signed
+event IDs through two actual force-stop/not-running/new-process launches. The inactive
+view visibly shows Open to load in each case; actual native card focus reloads its
+original SDK. State recovers its exact previously saved shared value. Only these two
+new QA views close, restoring deliberate empty. The prior full empty-workspace proof
+completes the named Android UX09 requirement; iPhone published parity remains open.
+
+Five continuation checks pass with the same existing two views/data. First-open/save
+predecessors and failed header/scroll/readiness observations are retained; this is not
+one uninterrupted green first-open run. The observer now distinguishes fixed Settings
+controls from scrolled public-key text and waits for actual SDK identity/status after
+Runtime connected. All 1,221 runtime inputs and installed APK remain unchanged, with
+only five documentation differences from the original build. Main APK/PID are preserved.
+No application fix, unsaved draft recovery, Outbox publication, fresh packaging or full
+quality claim follows. All 61 full requirements remain, 5 complete across both phones.

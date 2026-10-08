@@ -242,7 +242,7 @@
       "requiredEvidence": "Force-stop/relaunch with same identity/data; compare order/focus/version/empty state; do not claim unsaved draft process-death recovery",
       "platforms": {
         "android-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
             "android-order01/hg-android-order-cold-physical01/receipt.json",
             "android-order01/hg-android-order-cold-physical01/visual-review.json",
@@ -250,9 +250,13 @@
             "android-state-close01/visual-review.json",
             "android-empty02/originals/receipt.json",
             "android-empty02/visual-review.json",
-            "android-empty02/observer/hg-empty-current-android-binding02.json"
+            "android-empty02/observer/hg-empty-current-android-binding02.json",
+            "android-published-restart05/originals/hg-published-restore-android05/receipt.json",
+            "android-published-restart05/observer/hg-published-restore-visual-review05.json",
+            "android-published-restart05/originals/hg-published-restore-android05/source-inputs.json"
           ],
-          "remaining": "Ordinary bundled order/focus and saved data have prior physical restart evidence. The new complete nine-check disposable journey now proves deliberate quiet empty across two real process restarts, same independently decoded public identity, closed target absence and new-UUID/shared-data recovery. Full verified-published version-pin/order/lazy-reload cases remain required; no unsaved draft process-death recovery claim."
+          "remaining": "None for the named Android ordinary restart/order/focus/version-pin/lazy-reload/deliberate-empty requirement. iPhone parity and full MVP capability/security/fault/quality acceptance remain open.",
+          "verifiedScope": "Complete ordinary verified-published State/Feed restart scope on a signed isolated Release, combined with retained complete deliberate-empty proof. Both genuine process-death/relaunch cases preserve independently decoded public identity, exact native UUIDs, full opening order, last active view and both signed event pins. Each inactive preview visibly shows Open to load; real native focus reloads the original SDK and State recovers its exact previously saved shared string. Only the two new owned published views close, returning the disposable workspace to deliberate empty. Five complete continuation checks use the existing two views/data; retained first-open/save predecessor and all observer failures stay explicit, not an uninterrupted green first-open run. All 1,221 runtime inputs and installed APK stay unchanged; original-build differences are five documentation files only; original main APK/PID preserved. No unsaved draft process-death, publication, new build or complete quality claim."
         },
         "ios-physical": {
           "status": "partial",
