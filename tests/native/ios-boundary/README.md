@@ -78,3 +78,32 @@ primary app process stays unchanged, and returning to the QA app reuses its proc
 The original build-membership failure and earlier passing revision are retained.
 The original seventeen methods and historical expected-runtime remain unchanged.
 SEC-01/03 retain partial status; Android and owning-app parity remain open.
+
+
+## Independent physical network receiver — 8 October 2026
+
+`Tests/NetworkBoundaryTests.swift` is an additional physical test target member,
+requiring `HG_BOUNDARY_RECEIVER_URL` and `HG_BOUNDARY_RECEIVER_NONCE`. A controlled
+LAN HTTP/TCP listener must independently observe exactly the before/after control
+requests and no guest requests or extra TCP accepts. Two unrestricted WK views
+prove the receiver is reachable from the actual device/app. The guest attempts
+fetch, XHR, WebSocket, image, script, stylesheet, worker, form and popup operations;
+per-path CSP events attribute the applicable denials. The form submission also
+records its exact target/method and unchanged location in an `allow-scripts`-only
+sandbox. The [HTML sandbox rules](https://html.spec.whatwg.org/multipage/browsers.html#sandboxed-forms-browsing-context-flag) explain why forms need their own allowance;
+a form-action CSP event is not required when sandboxing already blocks submission.
+
+The prepared physical target reuses the previously permitted disposable transport
+probe identity, adds only test-harness LAN/HTTP WebContent configuration, and
+compiles49 unchanged production core sources. The normal Hypergolic identities,
+permissions and policies are unchanged. The default historical project does not
+include this receiver-dependent member; include it explicitly for the prepared
+physical receiver run. Never count an unconfigured/unreachable receiver as a pass.
+
+All21 methods pass in one actual iPhone16/iOS26.5 run. Source/product seals and
+both installed Hypergolic metadata records stay unchanged; primary process and
+QA return process persist. The failed manifest relocation and initial form-event
+assertion remain preserved. The independent receiver stops after the bounded run.
+This proves the named LAN attempts with privileged native injection; it does not
+prove DNS/UDP/public HTTPS, private-key absence or all navigation/download/file/
+content/owning Expo/published escapes. SEC-02 remains partial; Android parity is open.

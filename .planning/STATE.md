@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone20-method WK suite now proves real renderer death, queue/replay and UTF-8 limits; SEC01/03 partial. Full61 rows persist,5 complete/56 open. iPhone UI automation unresolved; ceiling about98%, no source push.
+stopped_at: Physical iPhone21-method WK suite adds reachable independent LAN receiver with no guest traffic; SEC01/02/03 partial. Full61 rows persist,5 complete/56 open. iPhone UI automation unresolved; ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 1294f873cc407cf9e6e18771690973518b674a5e
@@ -1650,3 +1650,15 @@ and QA return reuses its process. Original membership failure and prior passing
 revision remain. Shared security/bootstrap353+13 pass. SEC01/03 stay partial; all61
 original requirements/statuses persist,5 complete/56 open. UI automation, protected
 signing, published/owning fault coverage and final quality remain open. No source push.
+
+
+Independent physical network checkpoint — 8 October2026: all21 WK methods pass
+in one run. Actual unrestricted before/after WK controls reach a nonce-scoped
+independent LAN HTTP/TCP listener; no guest requests or additional TCP accepts
+follow fetch/XHR/WS/image/script/CSS/worker/form/popup attempts. Actual native
+CSP/sandbox/SDK observations persist. Separate previously permitted probe and
+test-only WebContent HTTP settings; both Hypergolic apps remain unchanged.
+Relocated-manifest and form-event observer failures are retained. SEC02 stays
+partial; full61 scopes/statuses persist,5 complete/56 open. DNS/UDP/public HTTPS,
+private-key absence, complete escapes and owning/published/Android parity remain
+open. Native UI automation remains separate. No source push; ceiling about98%.

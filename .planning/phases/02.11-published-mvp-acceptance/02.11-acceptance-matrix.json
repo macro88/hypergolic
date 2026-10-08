@@ -719,9 +719,12 @@
           "evidence": [
             "iphone-boundary01/receipt.json",
             "iphone-boundary01/input-review.json",
-            "iphone-boundary01/test-summary.json"
+            "iphone-boundary01/test-summary.json",
+            "iphone-boundary-external07/receipt.json",
+            "iphone-boundary-external07/independent-receiver.json",
+            "iphone-boundary-external07/test-summary.json"
           ],
-          "remaining": "Complete all named row requirements. Physical source-linked core observes opaque parent/storage/generic bridge denial and individually attributed CSP fetch/WS/image/script/worker failures. No packet-level external receiver or protected-key absence claim; complete malicious/published/owning-app escapes remain open."
+          "remaining": "Complete all named row requirements. Physical separate source-linked core now passes21 WK methods. An independent reachable LAN HTTP/TCP receiver observes only two unrestricted WK controls and no guest requests/additional TCP accepts for fetch/XHR/WS/image/script/CSS/worker/form/popup attempts. Exact per-path CSP failures and form sandbox state are captured. This is privileged injected stimulus; no DNS/UDP/public HTTPS, protected-key absence or complete navigation/download/file/content/owning Expo/published escape claim. Those and Android parity remain open."
         }
       }
     },

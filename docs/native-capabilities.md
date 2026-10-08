@@ -262,3 +262,15 @@ unchanged. Shared security/bootstrap tests pass353+13 cases. This supplements
 SEC-01/03; it does not close protected signing, external network receiver, full
 resource/subscription/session limits, owning Expo or published cleanup acceptance.
 All61 full Phase2 requirements remain intact, with five complete across both phones.
+
+
+A subsequent21-method physical WK run adds an independent LAN HTTP/TCP receiver.
+Before/after unrestricted WK controls prove device/app reachability; the listener
+observes only those two control requests and no guest requests or extra TCP
+accepts during fetch/XHR/WS/image/script/CSS/worker/form/popup attempts. Actual
+per-path CSP events, form target/method, unchanged guest location and native
+sandbox/SDK-theme observations are retained. A disposable previously permitted
+probe uses test-only HTTP WebContent configuration; normal Hypergolic apps and
+production core policies remain unchanged. This supplements SEC-02 without
+claiming DNS/UDP/public HTTPS, protected-key absence, all navigation/download/file/
+content paths or owning Expo/published parity. All61 row scopes/statuses persist.
