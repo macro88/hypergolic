@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Trusted selected-profile avatar repair committed locally;83 identity/5 broker/28 shell/23 resource tests and both ordinary signed Release builds pass. Doctor100/100; aislop98/100 only approved exceptions, normal gate red. Physical UX-02 remains unrun; Android installer restricted. Three of61 rows complete,58 open. Weekly56%, ceiling about98%; no source push.
+stopped_at: Ten physical iPhone avatar/profile/import/switch/foreground/cold checks pass; iPhone UX-02 passed. Android separate install restricted, avatar parity unrun. Three of61 cross-platform rows complete,58 open; final quality remains open. Weekly56%, ceiling about98%; no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
-state_head: 27a3e4def743ef5de92d7418e6fbfbdd361c69c3
+state_head: 710c8e9a175bc7b05294c0e43c5cf066d277ec1a
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1246,3 +1246,42 @@ missing/broken-image and switch/restart cases remain unrun. The new header-profi
 debug record preserves the gap and the trusted-owner/lifecycle repair constraints.
 No product repair or fresh quality scan yet. Three of61 cross-platform rows remain
 complete,58 open. Phase2 active; weekly56%, ceiling about98%; no source push.
+
+
+## Physical iPhone selected-avatar acceptance — 8 October 2026
+
+Ten original native-input checks pass in the separately owned ordinary-entry
+Release app. Three fresh disposable QA identities have signed public profiles
+with a valid PNG, no picture and a broken public image URL. Independent relay
+readback verifies each exact signed profile. Protected import and saved selection
+show the matching full/short key and the actual raster or deterministic coral
+fallback. Cancelling a switch preserves the valid key/image; confirming a missing
+profile then background/foreground leaves no old avatar. Two actual
+terminate/not-running/launch cycles retain the missing fallback and valid raster.
+The original generated identity and empty workspace are restored.
+
+Twelve original PNGs were visually inspected. Independent Bech32 checksum/public
+key and selected-row checks pass for all ten cases; exact original screenshot
+RGBA crops match the native pixel hashes. The valid identity was newly imported
+in the retained predecessor; the complete rerun restores it through the normal
+import control. The first run stopped on an observer assumption that Settings
+would remain after an identity epoch restart; the normal app correctly closes it.
+Only the external observer changed. Missing/broken visual cases do not diagnose
+a specific native transport error branch.
+
+Private iphone-avatar01 retains safe byte-preserved fixtures, driver predecessors,
+receipts, public hierarchies/screenshots and independent review. Raw XCTest logs,
+result containers, private import configuration and generated import secrets are
+excluded; the saved journey log is explicitly a public derivative. All1217 current
+source inputs and the external driver remain unchanged during the successful run.
+Local repaired/primary product seals and primary installed metadata are unchanged;
+installed iOS executable bytes were not retrieved. No primary app reset/update,
+owner view closure, protected secret export or unknown-upload retry.
+
+Only iPhone UX-02 becomes passed. Android UX-02 remains not-run while the separate
+installation is restricted; owner USB-install state needs checking before retry.
+All61 row identities and every other status stay intact. UX-01/UX-03/UX-06 remain
+three complete cross-platform rows,58 open. No app change, fresh quality scan or
+build is claimed here. Doctor100/100, aislop98/100 exact approved exceptions and
+the ordinary red verifier remain visible. Phase2 active, weekly56%, ceiling about98%;
+local checkpoint only, no source push.

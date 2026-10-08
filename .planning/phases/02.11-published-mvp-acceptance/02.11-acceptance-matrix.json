@@ -43,11 +43,16 @@
           "remaining": "Complete source-bound physical valid/missing/broken public-profile avatar, two-identity and restart cases. Trusted selected-profile wiring, bounded native image admission, stale-work cancellation, foreground retry and source-keyed codec replacement are repaired in27a3e4d. Shared regressions and ordinary signed packaging pass; they do not supply physical image or protected-switch proof."
         },
         "ios-physical": {
-          "status": "not-run",
+          "status": "passed",
           "evidence": [
-            ".planning/debug/header-profile-avatar.md \u2014 shared repair and regression/build scope only; physical UX-02 remains unrun"
+            "iphone-avatar01/hg-avatar-physical-iphone02/receipt.json",
+            "iphone-avatar01/hg-avatar-physical-iphone02/trace-report.json",
+            "iphone-avatar01/hg-avatar-physical-iphone02/visual-key-review.json",
+            "iphone-avatar01/hg-avatar-profiles02/public-profiles.json",
+            "iphone-avatar01/hg-avatar-profiles02/receipt.json"
           ],
-          "remaining": "Complete source-bound physical valid/missing/broken public-profile avatar, two-identity and restart cases. Trusted selected-profile wiring, bounded native image admission, stale-work cancellation, foreground retry and source-keyed codec replacement are repaired in27a3e4d. Shared regressions and ordinary signed packaging pass; they do not supply physical image or protected-switch proof."
+          "remaining": "None for the named iPhone selected avatar/fallback, controlled profiles, identity switch and restart requirement. Android parity, broader security/capability/published/fault/accessibility and final quality requirements stay open.",
+          "verifiedScope": "Ten original physical iPhone native-input checks in the source-bound signed ordinary-entry isolated Release. Three fresh disposable signed public profiles provide valid PNG, missing picture and independently observed broken URL cases. Normal protected import controls and saved selection match actual full/short keys and rendered raster/fallback. Cancel retains the valid identity/image; confirmed missing selection and real background/foreground have no old avatar. Two actual terminate/not-running/launch cycles retain missing fallback and valid raster. The original isolated generated identity and empty workspace are restored; primary app metadata and both local product seals remain unchanged. Twelve original PNGs inspected; independent Bech32 public-key/selected-row and exact original screenshot RGBA-crop comparisons pass. Valid identity was newly imported in a retained predecessor; the complete rerun uses the normal import control to restore it. Missing/broken visual outcomes do not attribute a particular native transport error branch. Installed iOS executable bytes were not retrieved."
         }
       }
     },
