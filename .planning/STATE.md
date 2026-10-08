@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone keyboard/navigation and complete five-check SDK queue dismissal subsets verified; VoiceOver control probe remains incomplete with original off restored. UX-10/SIGN-02 partial; three of61 cross-platform rows complete,58 open. Weekly59%, ceiling about98%; no source push.
+stopped_at: Five physical iPhone pending-process-death checks pass; warm approval review stalls. Inactive-state parity repair next; SIGN-02/SIGN-04/UX-09 partial; three of61 complete,58 open. Weekly61%, ceiling about98%; no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
-state_head: 5ec99ceac92b23a8345a98e08a58324e6c390d6c
+state_head: cb65783c618f67eca8361e70f2c581ef55d533b6
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1420,4 +1420,38 @@ complete,58 open. Phase2/2.11 active; Android USB-install restriction, remaining
 native security/capability/published/fault coverage and final quality remain open.
 No app edit/build or fresh quality scan; prior Doctor100/100 and aislop98/100 exact
 approved exceptions/ordinary red stay visible. Weekly59%, ceiling about98%.
+Targeted local source commit only; no application source push.
+
+
+## Physical iPhone process-death and stalled review checkpoint — 8 October 2026
+
+Five physical pending-process-death checks pass: an original pending SDK request
+is captured, owned app termination is verified, the same identity and selected
+view return without old approval reconstruction, full six-view order and bundled
+lazy loading survive, and a fresh exact request is reviewed and individually
+rejected. Temporary guest notes/counters reset as expected. The primary app is
+unchanged. SIGN-04 and UX-09 remain partial; published pinning, in-flight races and
+independent native effect counters remain open.
+
+Different-session warm queue attempts remain incomplete. Three requests in the
+new session, then a single original-session request, leave pending work without a
+review sheet or Resume. A controlled iOS interruption starts with a valid review
+and opens Control Center; an observer's incorrect page-specific guard interrupts
+that attempt. The follow-up activates the app and observes pending work with no
+review or Resume. Its stale retained-overlay guard also fails. These observer
+failures are preserved separately from the app stall. Source inspection confirms
+native willResignActive pauses review while the shared listener ignores inactive;
+physical causal verification and repair are pending. SIGN-02 stays partial.
+
+Safe original images, reviewed still/movie sheets, exact receipts, observer code,
+source hashes and portable original recording parts are retained. Four executed
+reassemblies match their originals byte for byte. Control Center private hierarchy,
+SSID captures, unreviewed Home recording, private imports and app binaries are
+excluded from the vault. All1217 app source inputs, both local products and both
+installed metadata remain unchanged; installed executable bytes were not retrieved.
+No signing approval, primary reset, identity change or uncertain-upload retry.
+
+All61 full requirements remain, with three cross-platform complete and58 open.
+No fresh app build or quality scan is claimed. Phase2.11 remains active, with
+inactive-state parity repair next. Weekly usage61%, authorized ceiling about98%.
 Targeted local source commit only; no application source push.
