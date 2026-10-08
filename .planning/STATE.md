@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical Android six-check full header/copy acceptance passes; keyboard/Back five-check subset passes with original pixel proof. Android UX-01/UX-03 passed, UX-09/UX-10 partial; iPhone full order repeat confirmed running. UX-06 passes both phones; Phase2 open. Weekly53%, ceiling about98%, no source push.
+stopped_at: Android first right-handle tap discrepancy recorded; a further tap opens overview, cause unresolved and UX-05 partial. Saved-data close/reopen repeat executes via hardware Back; fresh full15-card baseline passes. iPhone full-order observer continues through overview selection. Phase2 open; weekly53%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 3c5b8eddecf4b7f624d1f2c8dbd45cb94f24edd9
