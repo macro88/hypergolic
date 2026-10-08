@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone six-check header/native Copy-Paste passes; UX-01/UX-03/UX-06 complete on both phones,58 of61 rows open. Original Android keyboard/copy tap sequence repeats successfully without explaining prior failure. Next complete empty-workspace and remaining full native acceptance; weekly55%, ceiling about98%, no source push.
+stopped_at: Physical iPhone full deliberate-empty/saved-data journey passes in separate ordinary-entry Release, primary live session retained. UX-08 iPhone passed; Android empty parity next. Three of61 cross-platform rows complete,58 open. Weekly56%, ceiling about98%; no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 3c5b8eddecf4b7f624d1f2c8dbd45cb94f24edd9
@@ -1180,3 +1180,37 @@ published/capability/security/fault and final quality requirements remain open.
 No fresh main build/quality scan; Doctor100/100, aislop98/100 exact approved
 exceptions and ordinary clean verifier red stay visible. Phase2 active; weekly55%,
 ceiling about98%; no source push.
+
+
+## Physical iPhone deliberate empty workspace — 8 October 2026
+
+Nine original SDK/native-input checks pass in a separate signed ordinary-entry
+Release with a fresh protected development identity. Missing/empty/exact shared
+and distinct instance values are verified before close. The exact shared value
+survives confirmed State close and last UX close. Empty state exposes the identity
+and existing Open/Settings flow,
+survives two real terminate/not-running/launch cycles, and reopening State reads
+the exact shared value under a new UUID with its new instance value missing.
+Seven full overlapping inventories prove3/4/4/3/2/1/1 cards; six original PNGs
+inspected. Native logs observe disposable PIDs2830/2838/2843; independent npub
+checksum/decoded-public-key comparison passes. Private iphone-empty01 preserves
+original receipts, screenshots, native-input drivers and verification predecessors.
+
+All1213 source inputs, sealed test product and both installed metadata remain
+unchanged; installed iOS executable bytes not retrieved. Normal application
+source JavaScript matches the primary Release byte for byte; compiled Hermes
+bytecode differs, with separate immutable product seals. The valid wildcard
+team/device profile matches the exact signed app identifier; no explicit shared
+Keychain/app group. Verifier assumptions and observer syntax repair are preserved
+as harness corrections, without product-failure or code-change claims.
+
+Two additional native return checks activate the existing primary app and retain
+UX56 public note/counter0/focus and selected public identity. Original main PID2752
+continues; no explicit main terminate/launch, owner view closure, key export or
+reset. iPhone UX-08 passed; Android deliberate-empty parity remains open. UX-09
+and ID-01 stay partial for full published/lazy, reboot and failed-read requirements.
+UX-01/UX-03/UX-06 remain the three complete cross-platform rows of61,58 open.
+No fresh quality scan or product edit; Doctor100/100, aislop98/100 exact approved
+exceptions and ordinary red gate stay visible. Phase2 active, weekly56%, ceiling
+about98%; no source push. Next complete Android deliberate-empty parity with
+similarly isolated ordinary entry, then the remaining complete native journeys.

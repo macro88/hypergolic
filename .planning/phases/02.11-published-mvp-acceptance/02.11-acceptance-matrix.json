@@ -179,11 +179,14 @@
           "remaining": "Nine original physical SDK/native-input checks pass saved missing/empty/exact shared and instance values, Keep open/full order, close only new owned State Lab into overview, fresh reopening with exact shared value and missing new instance value, plus ordinary new-process persistence and complete survivor order. Nine original PNGs inspected; all402 inputs and installed APK unchanged. Deliberate-last-empty with accessible identity/Open napplet/settings remains required; no existing owner views closed."
         },
         "ios-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
-            "iphone-workspace01/hg-close-physical-iphone01/trace-report.json"
+            "iphone-empty01/hg-empty-physical-iphone01/receipt.json",
+            "iphone-empty01/hg-empty-physical-iphone01/trace-report.json",
+            "iphone-empty01/visual-review.json",
+            "iphone-empty01/hg-empty-return-physical-iphone01/receipt.json"
           ],
-          "remaining": "Complete all named row requirements. Six-check physical close subset proves exact warning/confirmation, target removal with overview/two observed neighbors retained, neighbor live draft/counter and cold remaining focus/identity. Full inventory/order, saved-data, deliberate-empty and closed-target absence after cold restart remain open."
+          "verifiedScope": "Nine physical original SDK/native-input checks in separate signed ordinary-entry Release: saved missing/empty/exact shared and instance values, Keep open, exact State close survivors, last close to quiet empty with accessible identity and existing Open/Settings flow, two real terminate/not-running/launch empty restorations, new State UUID/exact shared recovery/missing instance. Seven full inventories and six original PNGs inspected. All1213 source inputs/test product seal/both installed metadata unchanged; installed iOS executable bytes not retrieved. Separate two-check activation proves primary PID2752 public identity and live owned UX56 state retained; no owner view close or main reset/restart."
         }
       }
     },
@@ -206,9 +209,11 @@
           "status": "partial",
           "evidence": [
             "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json",
-            "iphone-workspace01/hg-close-physical-iphone01/trace-report.json"
+            "iphone-workspace01/hg-close-physical-iphone01/trace-report.json",
+            "iphone-empty01/hg-empty-physical-iphone01/receipt.json",
+            "iphone-empty01/visual-review.json"
           ],
-          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases. Six-check physical close subset proves exact warning/confirmation, target removal with overview/two observed neighbors retained, neighbor live draft/counter and cold remaining focus/identity. Full inventory/order, saved-data, deliberate-empty and closed-target absence after cold restart remain open."
+          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases. Six-check physical close subset proves exact warning/confirmation, target removal with overview/two observed neighbors retained, neighbor live draft/counter and cold remaining focus/identity. Full inventory/order, saved-data, deliberate-empty and closed-target absence after cold restart remain open. Separate ordinary-entry disposable Release now passes complete deliberate-last-empty persistence across two real process restarts, exact protected identity and closed-target absence/new UUID/shared saved recovery. Full ordinary verified-published version-pin/order/lazy reload cases remain open; no temporary draft process-death recovery claim."
         }
       }
     },
@@ -253,9 +258,11 @@
             "physical-iphone-tracer06/hg-phase211-iphone-tracer09/receipt.json",
             "iphone-storage01/hg-storage-physical-iphone04/receipt.json",
             "iphone-wav-recovery01/before-update/receipt.json",
-            "iphone-wav-recovery01/recovery/receipt.json"
+            "iphone-wav-recovery01/recovery/receipt.json",
+            "iphone-empty01/hg-empty-physical-iphone01/receipt.json",
+            "iphone-empty01/visual-review.json"
           ],
-          "remaining": "Additional ordinary process-restart public identity continuity passes; fresh-profile/reboot and failed-read no-replacement evidence remain required. Current normal product848b98d installs in place after exact native Settings public-identity guard, with retained identity after update and cold restarts during six-check saved-WAV recovery. Sealed local product/inputs and matching entitlements are verified; installed iOS executable bytes are not retrieved. This adds a scoped physical subset, not complete acceptance."
+          "remaining": "Additional ordinary process-restart public identity continuity passes; fresh-profile/reboot and failed-read no-replacement evidence remain required. Current normal product848b98d installs in place after exact native Settings public-identity guard, with retained identity after update and cold restarts during six-check saved-WAV recovery. Sealed local product/inputs and matching entitlements are verified; installed iOS executable bytes are not retrieved. This adds a scoped physical subset, not complete acceptance. Separate fresh ordinary-entry Release creates one protected development identity without onboarding; independent npub checksum/decoded-public-key comparison and two real process restarts reuse it. Device reboot and native failed-read/no-replacement injection remain required; no private key read/export."
         }
       }
     },
