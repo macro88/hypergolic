@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Owner A1 holds six SDK 57 updates with trust guard intact. Stable Android current Release installed with exact bytes and retained development identity; published Upload Lab native/SDK WAV/rejection/cold subset11 passes. iPhone pre-test automation timeout; Mac automation disabled/auth required, no new main install or recovery. Full Phase 2 open; weekly 47%, ceiling about 98%, no source push.
+stopped_at: SDK upgrades held with trust guard intact; Android published WAV subset11 passes. Owner Mac authorization change verified, but iPhone before-update observer still times out enabling automation before tests; unlocked/usable DDI, no new main install or recovery. Next check on-device Enable UI Automation and prompt. Full Phase 2 open; weekly 48%, ceiling about 98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 848b98d9204244d6192457bcc292e200680b89a8
@@ -917,3 +917,29 @@ before setup, macOS Automation Mode disabled/auth required; no new main install 
 saved-record recovery. Administrator authorization is an owner-local prerequisite;
 no security setting or app data changed. Executable inputs unchanged; metadata-only
 checkpoint, no fresh quality scan. Weekly 47%, ceiling about 98%; no source push.
+
+
+## iPhone automation authorization retry — 8 October 2026
+
+The owner completed the local Mac authorization change. Apple’s tool verifies that
+authentication is no longer required to enable Automation Mode. The corrected
+before-update identity observer nevertheless fails before tests/setup after a
+60-second automation-enable wait. Diagnostic extracts show successful test-runner
+authorization and daemon-session initialization. This disproves treating the Mac
+change as a sufficient fix; the exact cause remains unestablished.
+
+The physical iPhone is unlocked and its developer image is compatible/usable.
+The later ordinary screenshot shows Routing Lab and one upload needing checking,
+with no automation prompt visible then. No owned test runner remains. Main app,
+protected identity and saved uncertain upload are preserved; no new main install,
+recovery settlement or replacement upload occurs. Signed product and executable
+input seals match. A secondary diagnostic-collector tool-selection failure occurs
+after the timeout; explicit Xcode selection exports the diagnostic bundle.
+
+Next owner-local check: Settings → Developer → Enable UI Automation on the iPhone,
+and any device automation authorization/passcode prompt during the next test.
+The toggle/prompt state has not been observed; this is a diagnostic check rather
+than a confirmed cause. Corrected recovery observer04 is prepared externally,
+not built/run. Actual full identity proof remains required before the guarded
+in-place main update. Matrix statuses and full Phase 2 remain open. Documentation
+only; no new quality scan or build. Weekly48%, ceiling about98%; no source push.
