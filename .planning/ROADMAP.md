@@ -291,3 +291,8 @@ plus seven SDK/local-relay outcome cases recorded. Exact signed fields/IDs/signa
 and native/SDK receipts agree. SIGN-01/03/05/06 remain partial; native counters,
 interruption, another kind and full platform/published parity stay open. All 61 full
 rows remain, three cross-platform complete / 58 open. No source push.
+
+8 October interruption preparation checkpoint: three XCTest automation initialization
+failures retained; no physical interruption acceptance. External receipt barrier
+observer build/host checks pass, actual device run remains pending. All61 requirements
+and platform statuses unchanged, Phase2 active. See the phase checkpoint.

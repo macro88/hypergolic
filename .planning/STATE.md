@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical delayed review and seven independently observed relay outcome cases recorded. SIGN-01/03/05/06 partial; native counters/interruption/other kind and full parity remain. Three of61 complete,58 open; ceiling about 98%; no source push.
+stopped_at: Three iPhone XCTest initialization failures retained; stronger external receipt observer build and host checks pass. Physical interruptions/counters remain open; QA restored, primary unchanged. Three of61 complete,58 open; ceiling about98%; no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
-state_head: 5bf42cb8c7485c2c31cba6a7e5b4a8c4c07f900d
+state_head: 3371318ff66c326b7ec2a93e6decbb2e366d6e99
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1529,3 +1529,33 @@ SIGN-01/03/05/06 remain partial. All 61 full requirements persist, three cross-p
 complete / 58 open. Next are native signing-effect counters, interrupted publication,
 another supported event kind and the remaining Android/iOS published/physical cases.
 Phase 2 stays active; the authorized usage ceiling remains about 98% consumed.
+
+
+## Publication interruption preparation and device dependency — 8 October 2026
+
+Three separate physical test bundles fail before UI initialization: XCTest reports
+“Timed out while enabling automation mode.” The device remains unlocked, but none
+of the prepared background/termination cases executes. Both independent relay
+preflights pass normal TLS; neither receives a QA EVENT. These are retained failures,
+not interruption acceptance or signing-counter evidence.
+
+A metadata-only debugger probe matches the local executable/dSYM UUID but loses
+its target. The owned QA process exits during that probe; a normal launch restores
+it. The primary process remains unchanged. No secret values are inspected, no app
+product is replaced and no stored app data is reset. Both local product seals, both
+installed metadata records and all 1,219 application inputs verify. The saved QA
+workspace has not been visually reverified after that launch.
+
+The next external observer requires a read-only relay receipt for all three exact
+verified frames before interrupting. Its signed XCTest build and separate loopback
+helper checks pass; the physical run remains pending. This avoids using uncalibrated
+phone/laptop timestamps as the only ordering proof. It adds no app or guest surface
+and changes no authority. The earlier timestamp-only validator is retained as an
+unexecuted prototype, not a passing result. Temporary relays/tunnels are stopped.
+
+Android is currently USB-authorized. iPhone UI automation readiness needs attention
+before another unchanged UI attempt. Continue independent native/fixture work while
+that dependency is unresolved. All 61 full requirements and prior per-platform
+statuses remain unchanged: three cross-platform complete, 58 open. Phase 2 stays
+active. No fresh application build/quality scan or source push; historical quality
+limits remain visible. Weekly usage63%, authorized ceiling about98%.
