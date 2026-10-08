@@ -208,3 +208,45 @@ host resolution; guest rendering and protected identity/signing are not inferred
 The primary installed metadata and both local product seals remain unchanged.
 The Android product is built/signed but not installed in this checkpoint. No blind
 retry of the previously rejected USB installation is made.
+
+
+## Current physical iOS approval cores — 8 October 2026
+
+A separate signed native test app compiles 49 current production Swift sources.
+All 21 methods pass on the physical iPhone in one run: nine current authority tests,
+eleven current transport tests and the original plan/ACK proof with 50 assertions.
+Both current unit files change only their testable module import. The original
+public fixture and plan assertions remain exact; no baseline is updated in this
+checkpoint. The transport baseline was intentionally changed in the preceding
+artifact-retention implementation; current and historical copies remain distinct.
+The initial preparation stopped before build/device action because it expected 22
+methods; the actual complete set is 21, and no selection was reduced.
+
+This executes the actual native cores and parser, including retained-archive domain
+admission and revocation before asynchronous delivery. Clocks, schedulers, replies
+and the grant callback are controlled doubles. It does not exercise owning Expo,
+protected key reads/signing, real WSS emission, guest input or gestures. Full SIGN,
+security, Outbox and published/physical rows therefore remain open.
+
+After that successful native run, one existing signed UI readiness runner still
+fails before test initialization. Device logs confirm test-service connection,
+runner authorization and daemon-session initialization, followed by a 60-second
+automation-enable timeout. This establishes the failing stage, not its root cause
+or the device's UI Automation setting. No new guest request executes. Both app
+metadata and local product seals are unchanged; the primary process is retained.
+The QA app returns normally using its existing process. Saved guest rendering is
+still not visually reverified.
+
+The six-patch Expo proposal is prepared outside the checkout. Lock-only resolution
+fails under the existing seven-day release-age rule: SQLite 57.0.4 is too recent;
+Expo 57.0.27 is also too recent. Registry timestamps put both at eligibility on
+13 October 2026 after 12:11:24 UTC. No audit, compatibility test or actual lockfile
+update follows that failure. Existing pins, age policy and approved exceptions stay
+unchanged. The ordinary Expo check and normal quality gate remain red.
+
+All 61 full requirements/platform statuses remain unchanged: three cross-platform
+complete, 58 open. Only documentation changes in this checkpoint; application code
+is unchanged and the preceding quality reports are historical whole-repository
+reports after these edits. No new packaging or quality scan is claimed. Phase 2
+remains active; weekly usage is 65%, with an authorized ceiling near 98%. No source
+push or source remote change.

@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Approval Lab note/profile capture and exact saved-version retention built; iPhone QA upgrade preserves six views. UI automation still times out before initialization. Three of61 complete,58 open; ceiling about98%; no source push.
+stopped_at: Current physical iOS native cores pass all21 methods; UI readiness still fails after runner authorization. Expo patch proposal blocked by existing release-age rule. Full61 rows persist,3 complete/58 open; ceiling about98%; no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
-state_head: be6143b527862c7e7415a1cf36869822bde2129a
+state_head: 299022c09ad3cd9a8178aad6ea90458e1bad3e41
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1576,3 +1576,13 @@ React Doctor100/aislop98 reports contain only the two existing approved exceptio
 their normal gate stays red. Final reports must bind this final documentation too.
 All61 full requirements/platform statuses persist, three cross-platform complete/
 58 open. Phase2 active, ceiling about98%. See Plan03 checkpoint for exact scope.
+
+
+Current native checkpoint (8 October 2026): all21 current native approval/transport/
+plan methods pass on physical iOS with49 production sources, without protected
+signer or UI journey claims. Runner authorization succeeds but UI readiness still
+times out enabling automation. The uninstalled Expo patch proposal cannot resolve
+under the existing seven-day release-age policy; pins/policy remain unchanged.
+See [signing validation](../docs/signing-approval.md#current-physical-ios-approval-cores--8-october-2026)
+and the Plan03 checkpoint. Full61 requirements remain,3 complete/58 open. No fresh
+application packaging/quality scan or source push; usage65%, ceiling about98%.
