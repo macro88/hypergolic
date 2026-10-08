@@ -3,9 +3,9 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone8-method real-Keychain suite adds native corrupt/missing-receipt/legacy initialization denials without key replacement; ID01/02 partial. Full61 rows persist,5 complete/56 open. iPhone UI automation unresolved; ceiling about98%, no source push.
-last_updated: "2026-10-08"
-last_activity: 2026-10-08
+stopped_at: Five of61 full requirements closed across both phones. Prioritize full physical app journeys; iPhone toggle retry still fails before UI initialization, Android disconnected. Host developer authorization disabled; candidate repair needs owner review. Ceiling about98%, no source push.
+last_updated: "2026-10-09"
+last_activity: 2026-10-09
 state_head: 1294f873cc407cf9e6e18771690973518b674a5e
 progress:
   total_phases: 14
@@ -1674,3 +1674,15 @@ metadata and three product seals stay unchanged, main PID persists and QA return
 reuses its process. ID01/02 remain partial; full61 scopes/statuses persist,5 complete/
 56 open. Whole Expo failed-read bootstrap, reboot/lock/auth/backup/secret absence
 and Android parity remain required. UI automation stays separate; no source push.
+
+
+Readiness checkpoint — 9 October 2026: after the owner confirms toggling iPhone
+UI Automation, one existing signed activation/snapshot retry fails before test
+initialization after about61 seconds. No build/reset/publication/main activation;
+both installed Hypergolic records stay unchanged. Read-only host inspection finds
+DevToolsSecurity developer authorization disabled; this is a candidate, not a
+proven iPhone root cause. No OS setting changed. Android is disconnected. Roadmap
+summary now matches all61 matrix requirements, five closed/56 open. Resume full
+physical app journeys when automation is repaired; avoid further isolated probes
+as a substitute for the missing end-to-end requirements. Latest usage81%, existing
+ceiling about98%; source push remains owner-controlled.

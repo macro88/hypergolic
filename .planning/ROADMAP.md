@@ -187,7 +187,29 @@ CAP-06 is selected-profile complete; broad CAP-14 gates remain open.
 **Requirements:** CAP-14
 **Fixture:** All MVP fixtures (excluding Value Lab) plus selected real napplets
 **Work and exit criteria:** Run the full published journey on standalone Android/iOS, close foundation/device gaps, verify update/restart/identity isolation, and satisfy both quality scores at 100/100. Record source/build/fixture/spec hashes and independent results.
-**Plans:** Four sequential plans: [01 readiness/builds](phases/02.11-published-mvp-acceptance/02.11-01-PLAN.md), [02 verified published fixtures](phases/02.11-published-mvp-acceptance/02.11-02-PLAN.md), [03 full physical journeys](phases/02.11-published-mvp-acceptance/02.11-03-PLAN.md), [04 faults/final sign-off](phases/02.11-published-mvp-acceptance/02.11-04-PLAN.md). [Plan01 summary](phases/02.11-published-mvp-acceptance/02.11-01-SUMMARY.md) records passing ordinary signed physical Android/iPhone builds and first input/public-identity cold-process tracers. Plan02 has ten unsigned verified release candidates; owner publisher/signing access and public destinations/samples are still needed. The current physical matrix records UX-01, UX-03 and UX-06 passed on both phones. iPhone saved-data/last-empty UX-08 also passes in separate ordinary entry with primary live state retained; Android last-empty parity remains open: the separate signed Release is prepared, but installation is denied and the native journey has not run. Production profile-avatar wiring is repaired. iPhone UX-02 now passes its complete controlled profile/switch/restart journey; Android avatar parity remains open. Full restart/published-lazy, keyboard/Back, other physical/published/fault rows and final quality remain open. Historical first-tracer counts are superseded by the [current checkpoint](phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md). The [Outbox register](phases/02.11-published-mvp-acceptance/02.11-OUTBOX-HANDOFF.md) owns all unrun device, native fault, lifecycle, admission and packaging checks alongside CAP-14.
+**Plans:** Four sequential plans: [01 readiness/builds](phases/02.11-published-mvp-acceptance/02.11-01-PLAN.md), [02 verified published fixtures](phases/02.11-published-mvp-acceptance/02.11-02-PLAN.md), [03 full physical journeys](phases/02.11-published-mvp-acceptance/02.11-03-PLAN.md), [04 faults/final sign-off](phases/02.11-published-mvp-acceptance/02.11-04-PLAN.md).
+
+**Current checkpoint — 9 October 2026:** Implementation through 2.9 is in place;
+complete MVP acceptance remains open. The [current acceptance matrix](phases/02.11-published-mvp-acceptance/02.11-acceptance-matrix.json)
+preserves all 61 requirements: UX-01/03/04/06/08 pass on both physical phones,
+leaving 56 full requirements open. Android UX-09 passes; iPhone restart/published
+lazy reload remains partial. iPhone avatar UX-02 passes; Android parity is open.
+Ordinary signed builds and initial identity continuity have scoped physical proof,
+not final packaging or protected-identity acceptance. The designated development
+publisher exists and selected real published fixtures have been retrieved/tested;
+complete fixture parity and embedded/published operation coverage remain open.
+
+Next complete the physical published-app, identity/signing and Outbox journeys,
+then the remaining lifecycle/security faults and current build/quality sign-off.
+Published Outbox admission stays withheld pending its required acceptance. The
+[Outbox register](phases/02.11-published-mvp-acceptance/02.11-OUTBOX-HANDOFF.md)
+retains every transferred native/device/fault requirement. Recent physical WK and
+real-Keychain probes supplement partial rows; they do not close whole app journeys.
+The 9 October readiness retry still times out before UI initialization after the
+owner-confirmed iPhone toggle. A disabled host developer-authorization policy is
+an unproven repair candidate; no OS setting has been changed. Android is currently
+disconnected. Final quality remains open under the exact existing approved locked
+dependency exceptions; the ordinary verifier remains red.
 
 ### Phase 3: External signing
 
