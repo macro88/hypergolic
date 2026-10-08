@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone saved WAV recovery passes. Android blank inactive overview previews fixed in ordinary in-place Release; three previews and public-video focus/background regression pass. Final Phase2/all61 rows open. SDK upgrades held; weekly52%, ceiling about98%, no source push.
+stopped_at: Physical iPhone saved WAV recovery passes. Android blank inactive overview previews fixed in ordinary in-place Release; three previews and public-video focus/background regression pass. Android UX-06 full live input/scroll requirement passes; all 61 cross-platform rows/Phase2 still open. SDK upgrades held; weekly52%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
-state_head: 848b98d9204244d6192457bcc292e200680b89a8
+state_head: 3c5b8eddecf4b7f624d1f2c8dbd45cb94f24edd9
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1003,4 +1003,24 @@ and ordinary Release pass. Full numeric React Doctor 100/100 across 425 files ha
 aislop 98/100 across 417 files only approved exceptions. All napplet/runtime audits are clean;
 root/tool audits remain red for the same exceptions, Expo Doctor 20/21 six held patches.
 The source-bound full quality verifier therefore remains red. Final quality and
-Phase2 remain open. Weekly52%, owner ceiling about98%; no source push.
+Phase2 remain open. Weekly 52%, owner ceiling about98%; no source push.
+
+
+## Android all-three scroll retention — 8 October 2026
+
+The ordinary physical Android Release completes the UX-06 named requirement.
+All three original loaded UX views retain distinct counters 1/2/3, public drafts,
+markers 03/04/05 and X 102/118/254 CSSpx across four native returns. Measured visible
+vertical rail-title and draft/selection/readout geometry are identical on each
+return. Six original seeded/return PNGs were independently inspected. The installed
+APK and all 402 bound executable input hashes remain unchanged. Native input alone
+changes state; no restart, view creation/closing or state/bridge injection occurs.
+Clipped AX data values are paired with visible mirrors and markers; no screen-reader
+claim is inferred. Private original capture is `android-scroll01`.
+
+Only Android UX-06 is passed. iOS retains its partial two-view scroll proof;
+complete workspace order/empty, transition/motion/AX and all other Phase2 native,
+security, published and fault gates remain open. This is external observation and
+documentation; no new product build or quality rerun is claimed. The preceding
+numeric Doctor 100/100 and aislop 98/100 exact exceptions remain visible. No source
+push. Weekly 52%, ceiling about98%.

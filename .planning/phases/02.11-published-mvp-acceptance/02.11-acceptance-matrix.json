@@ -110,11 +110,12 @@
       "requiredEvidence": "Fill/counter/scroll three fixtures; switch through all; independently observe exact values and visible markers on return",
       "platforms": {
         "android-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
-            "android-workspace01/receipt.json"
+            "android-workspace01/receipt.json",
+            "android-scroll01/receipt.json"
           ],
-          "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open."
+          "remaining": "None for the named Android live draft/counter and both-scroll retention requirement. Full Phase2, other UX rows, screen-reader/motion and iOS parity remain separate."
         },
         "ios-physical": {
           "status": "partial",
