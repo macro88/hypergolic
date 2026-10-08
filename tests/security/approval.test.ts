@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { finalizeEvent } from 'nostr-tools/pure';
+import { updateApprovalAppState } from '../../src/shell/approval-lifecycle.ts';
 import { ApprovalService, type ApprovalEffects, type ApprovalOrigin, type NativeApprovalLease, type NativeApprovalLeasePort, type NativeTakenApproval } from '../../src/security/approval-service.ts';
 
 const secret = new Uint8Array(32); secret[31] = 2;
@@ -129,4 +130,40 @@ test('rejection continues to the next request, dismissal pauses, and terminal fa
   assert.deepEqual(native.responses, [null, null]);
   native.issue('bad'); const failure = make(native, { sign: async () => { throw new Error('failure'); } });
   await assert.rejects(failure.approve(current(failure, 'bad'))); assert.equal(native.responses.at(-1), null);
+});
+
+
+test('iOS inactive retains exact pending requests and requires explicit resume after active', () => {
+  const native = new Native(); native.issue('one'); native.issue('two', origin('one'));
+  const service = make(native); const id = current(service, 'one');
+  updateApprovalAppState(service, 'inactive');
+  service.enqueue('two', [relay]);
+  assert.equal(service.getSnapshot().reviewPaused, true);
+  assert.equal(service.getSnapshot().pending, 2);
+  assert.equal(service.getSnapshot().current, null);
+  service.resume(); assert.equal(service.getSnapshot().current, null);
+  updateApprovalAppState(service, 'active');
+  assert.equal(service.getSnapshot().reviewPaused, true);
+  assert.equal(service.getSnapshot().current, null);
+  assert.equal(native.cancelled, 0); assert.equal(native.finished, 0);
+  service.resume(); assert.equal(service.getSnapshot().current!.id, id);
+  service.reject(id); assert.equal(service.getSnapshot().current!.origin.sessionId, 'one');
+  assert.equal(service.getSnapshot().pending, 1);
+});
+
+test('iOS inactive revokes a delayed approved sign before late completion can publish', async () => {
+  const native = new Native(); native.issue('one'); const delayed = deferred<unknown>();
+  let publications = 0; let signal: AbortSignal | undefined;
+  const service = make(native, {
+    sign: async (_snapshot, execution) => { signal = execution.signal; return delayed.promise; },
+    publishEvent: async () => { publications++; return []; },
+  });
+  const pending = service.approve(current(service, 'one'));
+  updateApprovalAppState(service, 'inactive');
+  assert.equal(signal!.aborted, true);
+  updateApprovalAppState(service, 'active'); service.resume();
+  delayed.resolve({}); await assert.rejects(pending);
+  assert.equal(publications, 0); assert.equal(native.cancelled, 1);
+  assert.equal(service.getSnapshot().pending, 0);
+  assert.deepEqual(native.responses, [null]);
 });

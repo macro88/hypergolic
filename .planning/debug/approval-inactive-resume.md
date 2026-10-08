@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 phase: "2.11"
 ---
 # Approval review does not resume visibly after an iOS interruption
@@ -23,3 +23,18 @@ app, run a controlled interruption and exact original SDK review, then repeat
 cross-session queues with pending badges deduplicated by actual view origin.
 Full SIGN-02/03/04 and published UX-09 remain open. No independent native signer
 or frame counter proof is inferred from individual Reject or absent approvals.
+
+
+## Repair verification — 8 October 2026
+
+ApprovalWorkspace uses the same non-active suspension path for initial state and
+change events. Native authority remains unchanged. Two actual ApprovalService
+regressions prove pending retention/explicit resume and delayed-sign revocation.
+The signed normal QA Release passes four actual Control Center interruption
+checks: exact initial request, real overlay, return with pending/no sheet/Resume,
+then exact resumed review and individual Reject. The same warm process passes all
+nine cross-session checks, including two distinct payloads, retained global pause,
+card-bound pending badges, correct focused review and six individual denials.
+The reproduced inactive presentation defect is resolved. This does not close full
+SIGN-02/03/04 or establish all warm-stall causes independently. Remaining named
+acceptance cases stay in the full matrix.

@@ -48,6 +48,24 @@ are cleared on success and failure. No secret is passed to the napplet. Rejectio
 continues review; dismissal rejects one request and pauses the queue. Pending
 requests appear in overview and resume explicitly in the focused trusted shell.
 
+## iOS inactive-state presentation repair — 8 October 2026
+
+Native iOS already pauses review on `willResignActive`. The shared listener now
+also suspends presentation on React Native `inactive`, as well as background and
+other non-active startup states. Returning to active preserves the pause and
+requires explicit Resume. Pending requests retain their exact event; approved
+in-flight work is revoked before a late completion can publish. This aligns the
+trusted UI with native authority and does not automatically resume or approve.
+
+The [React Native 0.86 AppState contract](https://reactnative.dev/docs/0.86/appstate)
+describes inactive interruptions. Two regressions exercise actual ApprovalService
+pending retention, explicit resume and late-sign cancellation. The repaired normal signed physical iPhone build passes four controlled
+Control Center interruption checks and nine warm two-session queue checks. Return
+shows explicit Resume for the same request; both queues remain origin-bound and
+all six cross-session requests are individually denied. Actual overview badge
+geometry avoids duplicate accessibility nodes. Full Back/swipe, delayed emission,
+native signer counters and other physical acceptance cases remain open.
+
 ## Protocol and dependency evidence
 
 The owning [capability contract](capability-contract.md) selects the unsigned

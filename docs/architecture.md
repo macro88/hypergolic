@@ -231,6 +231,9 @@ napplet. Other requests remain pending, with review paused until the user resume
 it. Dismissal gives the user a reliable exit from the approval flow. Pending signing
 requests are cancelled after process termination and relaunch; napplets must submit
 fresh requests.
+On iOS, inactive interruptions also pause review. Returning to active requires
+explicit Resume; native authority and shared presentation use the same suspension
+policy. Approved in-flight work is revoked. See the [repair evidence](signing-approval.md#ios-inactive-state-presentation-repair--8-october-2026).
 This makes the request understandable while retaining access to the precise event
 for inspection. Layout refinement, exact payload binding and request lifecycle
 handling still need implementation and validation.

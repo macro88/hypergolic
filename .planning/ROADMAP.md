@@ -279,3 +279,9 @@ first-use interruption then failed single-tap discrimination on physical iOS26.5
 UX-10/SIGN-02 remain partial, every other status unchanged; all61 requirements,
 three cross-platform complete/58 open persist. Phase2/2.11 and final quality remain
 active. See Plan03 checkpoint. Targeted local commit only; no source push.
+
+8 October approval lifecycle repair: native/shared inactive suspension now agrees.
+Four physical iPhone interruption checks and nine cross-session SDK queue checks
+pass on the repaired normal signed QA build. SIGN-02/03 remain partial; delayed
+emission, remaining input/native-effect cases and full final acceptance stay open.
+All61 full rows persist, three cross-platform complete/58 open. No source push.

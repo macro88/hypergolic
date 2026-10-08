@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Five physical iPhone pending-process-death checks pass; warm approval review stalls. Inactive-state parity repair next; SIGN-02/SIGN-04/UX-09 partial; three of61 complete,58 open. Weekly61%, ceiling about98%; no source push.
+stopped_at: Inactive approval presentation repaired; four physical interruption and nine cross-session queue checks pass. SIGN-02/03 remain partial; next delayed emission/native authority coverage. Three of61 complete,58 open. Weekly61%, ceiling about98%; no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
-state_head: cb65783c618f67eca8361e70f2c581ef55d533b6
+state_head: 0735eec30129e0a5bacffa7bfe791bb3661e26a9
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1455,3 +1455,40 @@ All61 full requirements remain, with three cross-platform complete and58 open.
 No fresh app build or quality scan is claimed. Phase2.11 remains active, with
 inactive-state parity repair next. Weekly usage61%, authorized ceiling about98%.
 Targeted local source commit only; no application source push.
+
+
+## Inactive approval presentation repaired — 8 October 2026
+
+The shared listener now suspends approval presentation for every non-active state,
+including iOS inactive, matching native willResignActive authority. Active return
+retains explicit pause. Two real ApprovalService regressions cover pending retention
+and revocation before delayed signing can publish. Native authority is unchanged.
+
+A new normal signed Release updates only the isolated QA app, preserving identifier,
+label, six-view workspace and development identity. Four actual Control Center
+interruption checks pass, with the original request pending and Resume visible on
+return, exact resumed review, then individual Reject. The same warm process passes
+nine different-session SDK queue checks: distinct actual public input, global pause
+through focus changes, two card-bound pending badges, exact requesting origin and
+identity on every review, six individual denials, no foreign sheet in a nonrequesting
+UX view, full order and original UX state retained. No Approve is tapped.
+
+Original44 PNGs, nine still sheets and two cross-queue sparse movie sheets are
+inspected. Two inactive movie sheets are inspected privately; its original recording
+and Control Center frames remain outside the vault. The portable cross-queue movie
+reassembles byte for byte. Private imports/raw inventories/app binaries are excluded.
+All1219 build/physical source inputs and both product/installed metadata seals verify
+before this documentation checkpoint; installed executable bytes were not extracted.
+
+TypeScript,351 security plus13 bootstrap,34 presentation,99 Outbox and28 shell
+regressions pass. Complete React Doctor is100/100 across429 files. Complete aislop
+is98/100 across421 supported files, only the exact approved node-forge/braces
+findings; all engines and10 lockfile audits complete, ordinary gate stays red.
+Expo Doctor still reports the existing six pinned patch-version mismatches; no
+exclusions, package upgrades or new waiver are introduced. Final Phase2 quality
+and full Android/iOS acceptance remain open. SIGN-02/03 gain scoped evidence and
+stay partial; all61 full requirements remain, three complete/58 open. Weekly61%,
+ceiling about98%. Source is committed locally only; no application source push.
+Next: delayed-before-emission and remaining native signing/physical acceptance.
+
+Normal Android export also passes with the shared repair; this is bundle validation, not Android physical acceptance.

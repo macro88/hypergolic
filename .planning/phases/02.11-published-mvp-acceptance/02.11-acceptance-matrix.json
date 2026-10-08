@@ -460,9 +460,16 @@
             "iphone-crossqueue01/run-05/receipt.json",
             "iphone-crossqueue01/run-05/trace-report.json",
             "iphone-crossqueue01/visual-review.json",
-            "iphone-crossqueue01/final-integrity.json"
+            "iphone-crossqueue01/final-integrity.json",
+            "iphone-inactive-repair01/inactive/receipt.json",
+            "iphone-inactive-repair01/inactive/trace-report.json",
+            "iphone-inactive-repair01/crossqueue/receipt.json",
+            "iphone-inactive-repair01/crossqueue/trace-report.json",
+            "iphone-inactive-repair01/visual-review.json",
+            "iphone-inactive-repair01/final-integrity.json"
           ],
-          "remaining": "Same-session dismissal/resume subset is retained. New different-session and original-session warm reviews stall after original SDK input, with pending work and neither review sheet nor Resume visible. Native inactive-state pause differs from the shared listener; repair and physical causal verification remain open. Observer input/overlay assumptions are recorded separately. Full different-session, delayed emission and Back/swipe coverage remains open."
+          "remaining": "Inactive presentation mismatch is repaired and controlled interruption and warm different-session queue subsets pass. Complete Back/swipe/dismissal input variants and every other named row case remain required. Native signer/frame counters are not inferred from Reject or absent approvals; full row stays partial.",
+          "verifiedScope": "Repaired normal signed physical build passes four Control Center interruption checks and nine warm cross-session SDK queue checks. Inactive return preserves original request and shows explicit Resume; exact payload/identity returns, then individual Reject. Two distinct loaded origins submit three different-payload requests each; Dismiss pauses globally through focus changes, each review stays origin-bound, both actual overview pending badges are card-bound and deduplicated, all six requests are individually denied, full six-view order and nonrequesting UX state remain exact. No Approve all or Approve tapped."
         }
       }
     },
@@ -479,9 +486,15 @@
           "status": "partial",
           "evidence": [
             "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone03/trace-report.json",
-            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone04/receipt.json"
+            "iphone-outbox-lifecycle01/hg-outbox-lifecycle-physical-iphone04/receipt.json",
+            "iphone-inactive-repair01/inactive/receipt.json",
+            "iphone-inactive-repair01/inactive/trace-report.json",
+            "iphone-inactive-repair01/crossqueue/receipt.json",
+            "iphone-inactive-repair01/crossqueue/trace-report.json",
+            "iphone-inactive-repair01/visual-review.json",
+            "iphone-inactive-repair01/final-integrity.json"
           ],
-          "remaining": "Complete all named row requirements. Observed pending review paused across actual background/return and loaded-view switch, no foreign review, explicit unchanged-event resume. Delayed-before-emission, overview indication for all queue cases and native signer counters remain open."
+          "remaining": "Controlled inactive/background pause and focused exact resume have scoped evidence. Nine cross-session checks now prove distinct payload/origin review, pending badge attribution for both origins, global pause through focus and no foreign sheet in a nonrequesting UX view. Delayed-before-emission, all other named cases and independent native signer counters remain open; full row stays partial."
         }
       }
     },

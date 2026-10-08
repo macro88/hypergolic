@@ -7,6 +7,7 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { AppState, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { ApprovalService, ApprovalSnapshot } from '../security/approval-service.ts';
 import { ApprovalSheet } from './ApprovalSheet';
+import { updateApprovalAppState } from './approval-lifecycle.ts';
 import { ApprovalProvider } from './ApprovalContext';
 import { Shell, type ShellProps } from './Shell';
 import { colors } from './theme';
@@ -24,8 +25,8 @@ export function ApprovalWorkspace({ service, uploads, epoch, workspace, footer, 
   const shown=presentation.busy ? presentation.held : snapshot.current;
   useEffect(() => {
     service.revisionChanged(epoch);
-    if (AppState.currentState === 'active') service.foreground(); else service.background();
-    const subscription = AppState.addEventListener('change', state => { if (state === 'active') service.foreground(); else if (state === 'background') service.background(); });
+    updateApprovalAppState(service, AppState.currentState);
+    const subscription = AppState.addEventListener('change', state => updateApprovalAppState(service, state));
     return () => subscription.remove();
   }, [epoch, service]);
   useEffect(() => {
