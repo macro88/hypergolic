@@ -250,3 +250,12 @@ the rendered result. iPhone UX-02 passes; Android remains unrun behind its separ
 installer restriction. Other statuses and all61 requirements are preserved: three
 cross-platform rows complete,58 open. Full Phase2.11/Phase2 and final quality remain
 active. See Plan03 checkpoint. Local commit only; no source push.
+
+
+8 October physical gesture checkpoint:17 ordinary iPhone native-input checks and
+independent original video/frame review pass the full iPhone UX-04 drag requirement.
+All six normal handle/card zoom pairs have actual two-column geometry evidence;
+UX-05 stays partial until actual reduced-motion testing. Android parity and UX-10
+remain open. All61 requirements and other statuses survive: three cross-platform
+rows complete,58 open. Phase2/2.11 and final quality remain active. See Plan03
+checkpoint. Local commit only; no source push.

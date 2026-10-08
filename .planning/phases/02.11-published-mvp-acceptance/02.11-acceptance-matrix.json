@@ -94,11 +94,17 @@
           "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open."
         },
         "ios-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
-            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json"
+            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json",
+            "iphone-gesture01/originals/receipt.json",
+            "iphone-gesture01/originals/trace-report.json",
+            "iphone-gesture01/visual-gesture-review.json",
+            "iphone-gesture01/video/manifest.json",
+            "iphone-gesture01/video-review/contact-sheet-manifest.json"
           ],
-          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases."
+          "remaining": "None for the named iPhone handle-drag requirement. Android parity, reduced-motion/overview/accessibility and broader capability/security/published/fault requirements stay open.",
+          "verifiedScope": "Seventeen original physical iPhone native-input checks in the unchanged signed ordinary-entry isolated Release. Three fresh owned live views with exact counter/input and full native order; left inward previous/right inward next through first/middle/last; both20-point slow early cancellations; first-left and last-right240-point resistance/no-wrap; actual near-edge guest controls render Left/01 and Right/01 without false switching. Independent original physical-video frame review shows intermediate translation and limited end resistance/return; six original full PNGs also inspected. All1217 source inputs/observer inputs, both local product seals and installed metadata unchanged. No primary reset/update, identity change, protected owner-view closure or unknown-upload retry. Installed iOS executable bytes not retrieved; no exact pacing or finger-kinematics claim."
         }
       }
     },
@@ -122,9 +128,14 @@
         "ios-physical": {
           "status": "partial",
           "evidence": [
-            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json"
+            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json",
+            "iphone-gesture01/originals/receipt.json",
+            "iphone-gesture01/originals/trace-report.json",
+            "iphone-gesture01/visual-gesture-review.json",
+            "iphone-gesture01/video/manifest.json",
+            "iphone-gesture01/video-review/contact-sheet-manifest.json"
           ],
-          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases."
+          "remaining": "Normal physical geometry and zoom behavior now proved for all six first/middle/last x left/right handle taps and six correct card returns, with three actual two-column native cards, complete stable order and retained exact counter/input. Independently inspected original video frames show selected view shrinking to its corresponding card and enlarging on return. Complete actual OS reduced-motion behavior before passing this full row; screen-reader controls belong to still-open UX-10."
         }
       }
     },
