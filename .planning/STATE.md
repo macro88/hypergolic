@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Separate signed Android empty-workspace Release prepared; two install attempts denied with user restriction, fresh package absent and primary unchanged. Native Android UX-08 still partial. Production profile-avatar wiring gap found; repair can proceed while owner checks USB-install state. Three of61 rows complete,58 open. Weekly56%, ceiling about98%; no source push.
+stopped_at: Trusted selected-profile avatar repair committed locally;83 identity/5 broker/28 shell/23 resource tests and both ordinary signed Release builds pass. Doctor100/100; aislop98/100 only approved exceptions, normal gate red. Physical UX-02 remains unrun; Android installer restricted. Three of61 rows complete,58 open. Weekly56%, ceiling about98%; no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
-state_head: 3c5b8eddecf4b7f624d1f2c8dbd45cb94f24edd9
+state_head: 27a3e4def743ef5de92d7418e6fbfbdd361c69c3
 progress:
   total_phases: 14
   completed_phases: 10

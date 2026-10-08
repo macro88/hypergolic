@@ -232,3 +232,12 @@ denial, lifecycle and fault tests on Android and iOS. Existing phase-2 evidence 
 support implementation dependencies; outstanding physical-device acceptance stays
 open until verified and blocks final MVP acceptance. Phase sizes are relative,
 not calendar estimates. Later provider choices can change them.
+
+
+8 October avatar checkpoint: ordinary trusted selected-profile wiring is repaired
+in local27a3e4d, with29 new shared regressions, full current quality scope and both
+signed Release builds. Physical valid/missing/broken/switch/restart UX-02 remains
+unrun on both phones. Android's separate install restriction remains. This advances
+implementation evidence only: still three of61 cross-platform rows complete,58 open;
+Phase2.11 and Phase2 remain active under the about98% usage ceiling. See the Plan03
+checkpoint and header-profile-avatar debug record. No source push.

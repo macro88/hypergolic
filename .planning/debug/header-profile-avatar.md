@@ -72,3 +72,11 @@ covers immediate background/foreground cancellation, not only a profile-port dou
 Each admitted source carries its fresh native operation cache key, which also keys
 the Avatar component. Replacement remounts isolate delayed old codec callbacks;
 same-user, same-byte rereads still obtain distinct keys. No Image cache is enabled.
+
+
+Local implementation27a3e4d is committed. Both ordinary signed Release builds pass;
+all1217 build inputs remain unchanged, with no repaired-product installation yet.
+Full Doctor100/100 across428 files and aislop98/100 across420 files are source-bound;
+only the two exact approved dependency exceptions remain and the normal verifier
+stays red. Ten lockfile audits complete. Original verifier/scanner predecessors are
+preserved privately. Physical UX-02 remains not-run on both hosts.
