@@ -47,11 +47,13 @@
       "requiredEvidence": "At least three UX instances with distinct values; list order assertions after navigation/open/close",
       "platforms": {
         "android-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
-            "android-workspace01/receipt.json"
+            "android-workspace01/receipt.json",
+            "android-order01/hg-android-order-physical02/receipt.json",
+            "android-order01/hg-android-order-physical02/visual-review.json"
           ],
-          "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open."
+          "verifiedScope": "Nine physical native-input checks with three distinct draft/counter instances. Full overlapping-page native card inventories prove exact baseline, append after each new view, unchanged order after inward navigation and overview focus, Keep open preservation and exact full survivor order after closing only the new third view. Seven original PNGs inspected; installed APK and all402 bound owning inputs unchanged. No restart during live-order proof."
         },
         "ios-physical": {
           "status": "partial",
@@ -178,8 +180,12 @@
       "requiredEvidence": "Force-stop/relaunch with same identity/data; compare order/focus/version/empty state; do not claim unsaved draft process-death recovery",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-order01/hg-android-order-cold-physical01/receipt.json",
+            "android-order01/hg-android-order-cold-physical01/visual-review.json"
+          ],
+          "remaining": "Three-check ordinary force-stop/relaunch subset passes: new process, same full public identity, last focused UX view ready, exact complete15-card survivor order and closed-target absence. Visible inactive cards show Not loaded/Open to load. Temporary counter/draft reset as designed. Deliberate-empty persistence and full verified-published version-pin/lazy-reload cases remain open; no unsaved draft process-death recovery claim."
         },
         "ios-physical": {
           "status": "partial",

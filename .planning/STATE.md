@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone eight-check all-three draft/counter/scroll retention passes with inspected original PNGs. UX-06 now passes both phones; other60 final rows and Phase2 remain open. No main build or quality scan for external observer/docs. Weekly52%, ceiling about98%, no source push.
+stopped_at: Physical Android nine-check full workspace order passes; ordinary restart preserves exact15-card order/last focus/identity with temporary drafts reset. Android UX-03 passed, UX-09 partial; iPhone order observer timed out and full repeat is executing. UX-06 passes both phones; Phase2 open. Weekly53%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 3c5b8eddecf4b7f624d1f2c8dbd45cb94f24edd9
@@ -1040,3 +1040,22 @@ retrieved; no main build, data clearing or fresh quality result is claimed.
 Only UX-06 is now complete across both phones; the other 60 matrix rows, full
 Phase2 and ordinary clean-quality gate remain open. SDK hold and exact dependency
 exceptions remain. Weekly52%, ceiling about98%; source push remains owner-only.
+
+
+Android order checkpoint (2026-10-08): the unchanged ordinary installed Release
+passes all nine full-order checks with three fresh distinct UX states and eight
+complete overlapping-page native inventories. Each open appends; native/card
+focus preserves exact order; Keep open preserves the owned draft; closing only
+the third new view retains the complete survivor order and second view state.
+Seven PNGs inspected. A separate three-check force-stop/relaunch proves a new
+process, same full public identity/last focus, exact15-card survivor order and
+closed-target absence; three PNGs inspected. Temporary UX drafts reset by design.
+Installed APK and all402 owning inputs remain unchanged. Android UX-03 passes;
+UX-09 remains partial for deliberate empty and verified-published version/lazy
+reload. Private android-order01 retains84 byte-verified originals and the
+wrong-gutter cancelled predecessor. The iPhone full-order run reaches its1200s
+controller watchdog without a complete receipt; its failed evidence is retained,
+and the same compiled external observer repeats with a4500s watchdog. No iOS
+order pass is inferred. No main build/quality rerun or source push. UX-06 remains
+the only complete cross-platform final row; full Phase2 and clean quality remain
+open. Current weekly53%, owner ceiling about98%.
