@@ -37,11 +37,13 @@
       "platforms": {
         "android-physical": {
           "status": "not-run",
-          "evidence": []
+          "evidence": [],
+          "remaining": "Complete valid/missing/broken public-profile avatar, two-identity and restart cases. Production IdentityShell currently supplies only npub, so Header never receives its optional avatar. Source wiring and stale-result/failure retry must be repaired through the trusted owner before claiming available-profile support."
         },
         "ios-physical": {
           "status": "not-run",
-          "evidence": []
+          "evidence": [],
+          "remaining": "Complete valid/missing/broken public-profile avatar, two-identity and restart cases. Production IdentityShell currently supplies only npub, so Header never receives its optional avatar. Source wiring and stale-result/failure retry must be repaired through the trusted owner before claiming available-profile support."
         }
       }
     },
@@ -174,9 +176,12 @@
           "evidence": [
             "android-workspace01/receipt.json",
             "android-state-close01/hg-android-state-close-physical02/receipt.json",
-            "android-state-close01/visual-review.json"
+            "android-state-close01/visual-review.json",
+            "android-empty-prepared01/hg-empty-android-build01/receipt.json",
+            "android-empty-prepared01/hg-empty-android-install02/receipt.json",
+            "android-empty-prepared01/observation.json"
           ],
-          "remaining": "Nine original physical SDK/native-input checks pass saved missing/empty/exact shared and instance values, Keep open/full order, close only new owned State Lab into overview, fresh reopening with exact shared value and missing new instance value, plus ordinary new-process persistence and complete survivor order. Nine original PNGs inspected; all402 inputs and installed APK unchanged. Deliberate-last-empty with accessible identity/Open napplet/settings remains required; no existing owner views closed."
+          "remaining": "Nine original physical SDK/native-input checks pass saved missing/empty/exact shared and instance values, Keep open/full order, close only new owned State Lab into overview, fresh reopening with exact shared value and missing new instance value, plus ordinary new-process persistence and complete survivor order. Nine original PNGs inspected; all402 inputs and installed APK unchanged. Deliberate-last-empty with accessible identity/Open napplet/settings remains required; no existing owner views closed. Separate ordinary-entry signed ARM64 Release and complete last-empty native controller are prepared, but real install and one observed retry are denied with INSTALL_FAILED_USER_RESTRICTED. Fresh package remains absent, native journey never starts; current owner/device-policy effective restrictions are none and no installer confirmation is observed. Primary APK/process retained. Owner USB-install state needs checking; no native acceptance inferred."
         },
         "ios-physical": {
           "status": "passed",
