@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { colors } from './theme';
 
 /** Supplied by the trusted identity service. This component never resolves profile URLs. */
-export interface ShellIdentity { npub: string; avatar?: ImageProps['source'] }
+export interface ShellIdentity { npub: string; avatar?: ImageProps['source']; avatarKey?: string }
 interface Props { title: string; identity?: ShellIdentity; onSettings: () => void }
 
 function Avatar({ identity }: { identity: ShellIdentity }) {
-  const [failed, setFailed] = useState(false);
-  return identity.avatar && !failed
-    ? <Image source={identity.avatar} style={styles.avatar} onError={() => setFailed(true)} accessible={false} />
+  const [failedSource, setFailedSource] = useState<ImageProps['source'] | null>(null);
+  return identity.avatar && identity.avatar !== failedSource
+    ? <Image source={identity.avatar} style={styles.avatar} cachePolicy="none" autoplay={false} onError={() => setFailedSource(identity.avatar ?? null)} accessible={false} />
     : <View style={styles.avatar} accessible={false}><Text style={styles.avatarText}>{identity.npub.slice(-2).toUpperCase()}</Text></View>;
 }
 
@@ -20,7 +20,7 @@ export function Header({ title, identity, onSettings }: Props) {
       <Image source={require('../../assets/brand/hypergolic-logo.png')} style={styles.logo} contentFit="contain" accessibilityLabel="Hypergolic" />
       <Text accessibilityRole="header" numberOfLines={1} style={styles.title} testID="focused-napplet-name">{title}</Text>
       <Pressable accessibilityRole="button" accessibilityLabel={identity ? `Settings for ${identity.npub}` : 'Settings'} onPress={onSettings} testID="shell-settings" style={({ pressed }) => [styles.settings, pressed && styles.pressed]}>
-        {identity ? <Avatar key={identity.npub} identity={identity} /> : <View style={styles.settingsMark} accessible={false}><View style={styles.settingsDot} /></View>}
+        {identity ? <Avatar key={`${identity.npub}:${identity.avatarKey ?? ''}`} identity={identity} /> : <View style={styles.settingsMark} accessible={false}><View style={styles.settingsDot} /></View>}
         <Text numberOfLines={1} style={[styles.identity, identity && styles.npub]}>{identity ? `${identity.npub.slice(0, 8)}…${identity.npub.slice(-4)}` : 'Settings'}</Text>
       </Pressable>
     </View>

@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: awaiting-native-verification
 requirement: UX-02
 created: 2026-10-08
 ---
@@ -8,7 +8,7 @@ created: 2026-10-08
 
 The accepted requirement is a profile avatar when available and a deterministic
 local fallback otherwise, including correct selected identity after switch/restart.
-Source inspection supplies affirmative missing-wiring evidence:
+Initial source inspection supplied affirmative missing-wiring evidence before repair:
 
 - `src/shell/IdentityShell.tsx` creates the ordinary WorkspaceEntry identity with
   only `npub`, with no profile subscription or avatar field.
@@ -18,7 +18,8 @@ Source inspection supplies affirmative missing-wiring evidence:
 - Avatar's failure flag is currently keyed only by npub. Any repair also needs
   a new validated picture for the same identity to recover from a previous failure.
 
-No controlled valid-image physical case has run and no product repair is claimed.
+No controlled valid-image physical case has run. The shared product repair below
+is implemented; its native acceptance is not yet claimed.
 Both UX-02 platform entries remain not-run. Existing fallback-only header proof
 supports UX-01's named header scope, not complete available-profile behavior.
 
@@ -44,3 +45,30 @@ background responses, same-identity image replacement after failure, type/byte
 bounds and both physical native hosts. Preserve the existing identities, workspace
 and source branch. Keep every broader physical/published/security gate open until
 its actual complete evidence passes.
+
+## Shared repair — 8 October 2026
+
+Ordinary entry now supplies an external-store avatar from the actual trusted owner.
+The app-only profile method shares the existing reverified signed/cache/relay path;
+the guest interface and approval admission remain unchanged. The selected user/epoch
+store cancels before React on transition and on background, retains only one local
+image, and bounds its combined work to40 seconds. Native public HTTPS transport,
+canonical two-MiB Base64 decoding and existing4096-axis raster admission precede the
+local data URI. Full platform codec failures remain an Image fallback, with a new
+source able to recover for the same npub. No disk/memory Image cache or animation
+autoplay. Redirects use the existing direct-only native policy and fall back.
+
+TypeScript and83 identity,5 guest identity-broker,28 shell and23 resource tests pass.
+These include29 new meaningful avatar/profile regressions. Full current quality and
+ordinary signed builds are being verified separately. UX-02 stays not-run on both
+phones until actual available/missing/broken image and selected switch/restart cases
+run on source-bound physical hosts. Do not reclassify the previous fallback-only
+header or iPhone empty-workspace evidence as complete avatar proof.
+
+Foreground startup runs on the next task so an immediately cancelled shared profile
+read can release its admission slot before return. A real SQLite/resolver regression
+covers immediate background/foreground cancellation, not only a profile-port double.
+
+Each admitted source carries its fresh native operation cache key, which also keys
+the Avatar component. Replacement remounts isolate delayed old codec callbacks;
+same-user, same-byte rereads still obtain distinct keys. No Image cache is enabled.

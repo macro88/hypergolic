@@ -129,3 +129,40 @@ other audits are clean. The only authorized quality exception is the exact
 red; the separate exception review verifies complete fresh reports, source/tool
 hashes, coverage and installed patch closure. See [phase verification](../.planning/phases/02.5-public-identity-data/02.5-VERIFICATION.md).
 No source push or public fixture publication is implied by these checks.
+
+## Trusted shell avatar
+
+The ordinary identity owner shares this verified profile resolver with the header
+through an app-only `readProfile` method. The guest wire and native registration,
+list approval, cache signature checks and replacement ordering are unchanged;
+the shell does not manufacture a napplet registration to read its own profile.
+
+A process-owned store captures the selected public key and session epoch, starts
+without blocking the workspace, and cancels pending work immediately on identity
+transition or recovery. Background and unmount clear the in-memory image and abort
+the request; foreground return reads the profile again under the existing five-minute
+verified-cache policy. Only one selected image is retained, with a forty-second
+outer lifetime limit in addition to the existing profile and native request limits.
+
+Picture URLs must pass public HTTPS preflight and the existing app-only native
+public-address, DNS pinning, TLS, foreground and deadline checks. That transport
+requires a successful direct response; a redirect or denied destination produces
+the local fallback. Its two-MiB body bound and canonical Base64 checks precede
+existing PNG/JPEG/WebP/GIF admission, which caps canvas dimensions at4096 on each
+axis. Raster admission checks headers; the platform codec still owns full decode
+and its error also selects the fallback. SVG and other document/media types are
+not avatar sources. A signed profile authenticates its picture URL, not the image
+content served at that URL.
+
+Expo Image receives a local data URI with disk/memory caching disabled and animation
+autoplay disabled. The two-character npub fallback is deterministic. Image failure
+tracks the failed source. The native operation UUID also keys the avatar component,
+so a replacement remounts for the same identity and late codec errors from its
+predecessor cannot hide it. This key never grants a guest native authority.
+No profile URL or app-only native transport is granted to a WebView.
+
+Shared contract regressions cover verified cache sharing/cold reopening, missing,
+malformed and forged profiles, URL/body/type/dimension admission, native cancellation,
+late identity/background replies and same-identity source replacement. Physical
+available-image, codec-failure, identity-switch and restart evidence remains UX-02
+in Phase2.11; shared tests and packaging alone cannot pass that row.
