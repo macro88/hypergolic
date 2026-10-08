@@ -1328,3 +1328,49 @@ three complete cross-platform rows,58 open. No fresh application build/quality s
 is claimed. Doctor100/100, aislop98/100 exact approved exceptions and ordinary red
 remain visible. Phase2/2.11 active, weekly57%, ceiling about98%; local commit only,
 no application source push.
+
+
+## Physical iPhone actual OS reduced motion — 8 October 2026
+
+The complete nine-check ordinary native run passes. Actual Settings switch and
+public UIKit observations agree: original false, true while all six first/middle/
+last and left/right handle-to-overview/card-return pairs execute, then verified
+false restoration in the same run. Exact counters/drafts, native two-column order
+and selected card remain intact. The owned first view remains selected afterward.
+
+Twelve action-window contact sheets from216 original decoded frames and six full
+original PNGs were independently inspected. Actual native Settings shows green/on
+then grey/off. Reduced-motion windows show direct settled focused/overview changes
+without the prior normal spatial zoom sequence. The physical recording lasts
+184.958333 seconds at1178×2556; exact original byte parts/reassembly hashes and
+actual sparse/repeated frame timestamps are retained. Contact sheets are explicit
+derivatives; no exact duration, fixed frame rate or performance score is claimed.
+
+The first observer centre-tap missed the visible toggle inside its broad whole-row
+accessibility rectangle and left the OS switch off; no app motion cases ran. The
+second enabled actual motion and executed six pairs but encountered invalid native
+switch activation-point/hittability on Settings return and a background-app
+snapshot error. It remains incomplete. A separate narrow restoration observer
+already sees false, verifies original false and retains first-view state; its
+inherited broad proofScope text is not full motion proof. The complete rerun uses
+the visible toggle's actual foreground rectangle and foreground final captures.
+Only external observers changed. CoreDevice reported no passcode required.
+
+Private iphone-motion01 retains335 safe byte-verified files,106 deliberately named
+successful screenshots/hierarchies, native receipts/logs, observer predecessors,
+review and two original movie byte parts. Earlier full OS-navigation movies remain
+private temporary originals; safe named Motion captures/receipts are retained.
+Actual generated import strings are scanned out. Private imports/result containers,
+opaque snapshots, other-app inventories and application binaries are excluded.
+All1217 source inputs and observer inputs independently rehash; both local product
+seals and installed metadata remain unchanged. Installed iOS executable bytes were
+not retrieved. No primary reset/update, identity change, protected owner-view
+closure, secret export or uncertain-upload retry. Original OS motion value restored.
+
+Combined with prior normal geometry/video evidence, only iPhone UX-05 becomes
+passed. UX-10 gains motion evidence but remains partial for keyboard/Back/VoiceOver;
+Android parity remains open. All61 full requirements and other platform statuses
+persist: UX-01/UX-03/UX-06 are still three complete cross-platform rows,58 open.
+No application edit/build or fresh quality scan. Doctor100/100, aislop98/100 exact
+approved exceptions and ordinary red remain visible. Phase2/2.11 active, weekly57%,
+ceiling about98%; local commit only, no application source push.

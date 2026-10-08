@@ -126,16 +126,22 @@
           "remaining": "Complete the full named row. This ordinary physical subset proves three-view exact draft/counter retention, both-direction inward navigation, last-end stop/short cancellation, rendered live two-column previews and card return, plus exact new resource Keep open/close. Full inventory/order, first end, all-three scroll, deliberate empty, transition/reduced-motion/AX and published/fault cases remain open. A fresh ordinary first right-handle centre tap fails to establish overview; a later fresh PNG/XML remains focused. One separately recorded further centre tap opens overview. Root cause is unestablished; retain both results and complete first-tap/both-end/transition geometry and reduced-motion proof. Independent saved-data testing continues via actual hardware Back, which does not close this handle requirement. Four new first-tap observations in retained State Lab pass right target centre after cold process and right pill/left centre/left pill after overview return; original UX Lab keyboard/copy failure is not reproduced or explained. Root-cause investigation and full both-end/motion/accessibility acceptance stay open. Original owned UX12 Copy/PASTE plus five keyboard/Back preconditions now repeat and the first centre tap succeeds. Original ignored tap remains unexplained; no repair or full acceptance claimed."
         },
         "ios-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
             "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json",
             "iphone-gesture01/originals/receipt.json",
             "iphone-gesture01/originals/trace-report.json",
             "iphone-gesture01/visual-gesture-review.json",
             "iphone-gesture01/video/manifest.json",
-            "iphone-gesture01/video-review/contact-sheet-manifest.json"
+            "iphone-gesture01/video-review/contact-sheet-manifest.json",
+            "iphone-motion01/originals/receipt.json",
+            "iphone-motion01/originals/trace-report.json",
+            "iphone-motion01/visual-motion-review.json",
+            "iphone-motion01/video/manifest.json",
+            "iphone-motion01/video-review/contact-sheet-manifest.json"
           ],
-          "remaining": "Normal physical geometry and zoom behavior now proved for all six first/middle/last x left/right handle taps and six correct card returns, with three actual two-column native cards, complete stable order and retained exact counter/input. Independently inspected original video frames show selected view shrinking to its corresponding card and enlarging on return. Complete actual OS reduced-motion behavior before passing this full row; screen-reader controls belong to still-open UX-10."
+          "remaining": "None for the named iPhone normal overview zoom/two-column/card-return and reduced-motion requirement. Android parity, full keyboard/Back/screen-reader and broader capability/security/published/fault requirements remain open.",
+          "verifiedScope": "Prior17-check physical normal-motion evidence proves all six first/middle/last x left/right handle/card zoom pairs and actual native two-column geometry. Complete9-check ordinary iPhone rerun uses the actual OS Reduce Motion switch and matching public UIKit value: original false -> true for all six handle/card pairs -> verified false restoration, retaining exact counter/input, stable complete order and selected card. Independent12 action-window sheets and six original full PNGs show direct settled changes without the prior spatial zoom sequence. Original physical video is retained byte-identically, with actual sparse timestamps; no exact duration/frame budget/performance score claimed. Two earlier external observer failures and separate narrow restoration are preserved, not promoted to full acceptance. All1217 source/observer hashes, local product seals and installed metadata unchanged; installed iOS executable bytes not retrieved. No primary reset/update, identity change, protected owner-view closure or uncertain-upload retry."
         }
       }
     },
@@ -259,9 +265,14 @@
         "ios-physical": {
           "status": "partial",
           "evidence": [
-            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json"
+            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json",
+            "iphone-motion01/originals/receipt.json",
+            "iphone-motion01/originals/trace-report.json",
+            "iphone-motion01/visual-motion-review.json",
+            "iphone-motion01/video/manifest.json",
+            "iphone-motion01/video-review/contact-sheet-manifest.json"
           ],
-          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases."
+          "remaining": "Actual OS reduced-motion tuning is now proved by the complete9-check native run and original video/Settings review, including restoration of the original false value. Real keyboard entry/occlusion, focus restoration, screen-reader operation and platform-appropriate Back/dismissal across focused/settings/overview/approval still require full physical acceptance; native AX trees alone are not VoiceOver proof."
         }
       }
     },

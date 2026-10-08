@@ -259,3 +259,12 @@ UX-05 stays partial until actual reduced-motion testing. Android parity and UX-1
 remain open. All61 requirements and other statuses survive: three cross-platform
 rows complete,58 open. Phase2/2.11 and final quality remain active. See Plan03
 checkpoint. Local commit only; no source push.
+
+
+8 October physical reduced-motion checkpoint: all9 ordinary iPhone native checks
+pass with the actual OS switch enabled for six overview/card pairs and original
+false restored. Independent original video/Settings review completes iPhone UX-05
+with prior normal zoom/geometry proof. UX-10 keyboard/Back/VoiceOver and Android
+parity stay open. All61 requirements and other statuses persist: three complete
+cross-platform rows,58 open. Phase2/2.11 and final quality active. See Plan03
+checkpoint. Local source commit only; no source push.
