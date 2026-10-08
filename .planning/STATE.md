@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Android first right-handle tap discrepancy recorded; a further tap opens overview, cause unresolved and UX-05 partial. Saved-data close/reopen repeat executes via hardware Back; fresh full15-card baseline passes. iPhone full-order observer continues through overview selection. Phase2 open; weekly53%, ceiling about98%, no source push.
+stopped_at: Physical iPhone full-order nine checks pass; UX-03 and UX-06 complete on both phones. Android saved-data close/reopen/cold run continues; first-handle-tap gap unresolved. Phase2 open with59 of61 rows remaining; weekly53%, ceiling about98%, no source push.
 last_updated: "2026-10-08"
 last_activity: 2026-10-08
 state_head: 3c5b8eddecf4b7f624d1f2c8dbd45cb94f24edd9
@@ -1096,3 +1096,26 @@ iPhone nine-check order repeat remains running with its longer watchdog. No new
 main build/quality scan: Doctor100/100, aislop98/100 exact approved exceptions and
 ordinary clean verifier red remain current. UX-06 is still the only complete
 cross-platform final row. Weekly53%, ceiling about98%; no source push.
+
+
+## Complete physical iPhone workspace order — 8 October 2026
+
+The corrected external nine-check observer passes in the unchanged ordinary
+Release app. Complete baseline52-card order is retained; new independent UX
+views53/54/55 append with counters1/2/3 and distinct public drafts. Eight full
+native overlapping-page inventories prove exact append order, inward navigation
+and overview focus without reordering, Keep open preservation and exact54-card
+survivors after closing only new owned UX55. Surviving UX54 retains its counter2
+and exact draft. Seven original PNGs inspected. Private iphone-order01 retains99
+byte-verified originals; iphone-order-failed01 separately preserves119 originals
+from three intentional observation cancellations and one1,200s watchdog expiry.
+
+All410 owning inputs, sealed local normal app and installed main-app metadata
+remain unchanged. Installed iOS executable bytes were not retrieved. No main
+app install/restart, identity change, existing view closure or state injection.
+UX-03 and UX-06 now pass on both physical phones: two of61 final cross-platform
+rows complete,59 still open. Android saved-data close/reopen/restart remains
+live; no full storage or empty-workspace claim. Android first-handle-tap gap stays
+open. No fresh main build/quality scan; Doctor100/100, aislop98/100 exact approved
+exceptions and ordinary clean verifier red remain visible. Phase2 stays open;
+weekly53%, ceiling about98%; no source push.

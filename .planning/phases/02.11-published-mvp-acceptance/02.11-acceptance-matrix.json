@@ -58,11 +58,13 @@
           "verifiedScope": "Nine physical native-input checks with three distinct draft/counter instances. Full overlapping-page native card inventories prove exact baseline, append after each new view, unchanged order after inward navigation and overview focus, Keep open preservation and exact full survivor order after closing only the new third view. Seven original PNGs inspected; installed APK and all402 bound owning inputs unchanged. No restart during live-order proof."
         },
         "ios-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
-            "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json"
+            "iphone-order01/hg-order-physical-iphone05/receipt.json",
+            "iphone-order01/hg-order-physical-iphone05/trace-report.json",
+            "iphone-order01/visual-review.json"
           ],
-          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases."
+          "verifiedScope": "Nine original physical native-input checks with three independent public draft/counter instances. Eight complete overlapping-page inventories establish52-card baseline, exact appends53/54/55, unchanged full order after inward navigation and overview focus, Keep open preservation and exact54-card survivors after closing only owned third view. Seven original PNGs inspected; all410 owning inputs, sealed local normal app and installed main-app metadata unchanged. Installed iOS executable bytes not retrieved. No main app install/restart."
         }
       }
     },
