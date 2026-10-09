@@ -164,5 +164,10 @@ No profile URL or app-only native transport is granted to a WebView.
 Shared contract regressions cover verified cache sharing/cold reopening, missing,
 malformed and forged profiles, URL/body/type/dimension admission, native cancellation,
 late identity/background replies and same-identity source replacement. Physical
-available-image, codec-failure, identity-switch and restart evidence remains UX-02
-in Phase2.11; shared tests and packaging alone cannot pass that row.
+valid-image, missing/broken fallback, identity-switch and cold-restart journeys now
+pass UX-02 on both physical platforms. Android adds ten ordinary native-input
+cases with independently checked public keys, original UI snapshots and exact
+avatar crop bytes; the original identity and empty workspace return. Shared
+tests and packaging alone cannot pass the row. Missing/broken visual outcomes
+do not identify a particular native transport or codec failure branch. See the
+Phase2.11 acceptance matrix and profile-avatar checkpoint for the exact scope.

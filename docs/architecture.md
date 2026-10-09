@@ -59,7 +59,10 @@ queued native delivery. Phase 2.5 selected acceptance is recorded in `docs/publi
 The ordinary header now shares that resolver through an app-only selected-profile
 read. A process-owned avatar store binds user/epoch, cancels on transition/background,
 and supplies bounded native-HTTPS raster bytes as a local image source. Missing,
-denied or failed images use the deterministic fallback; physical UX-02 remains open.
+denied or failed images use the deterministic fallback. The controlled valid/missing/broken
+profile, identity-switch and cold-restart journey now passes UX-02 on both physical
+platforms; native transport fault attribution and broader identity security remain
+separate requirements.
 See the trusted shell avatar section in the identity document.
 
 The [external-link owner](external-links.md) provides native per-opening HTTPS review,

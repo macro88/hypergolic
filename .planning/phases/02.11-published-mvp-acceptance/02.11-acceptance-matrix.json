@@ -333,9 +333,12 @@
             "physical-android-tracer04/android-isolated-build/first-tracer08-receipt.json",
             "android-empty02/originals/receipt.json",
             "android-empty02/visual-review.json",
-            "android-empty02/observer/hg-empty-current-android-binding02.json"
+            "android-empty02/observer/hg-empty-current-android-binding02.json",
+            "android-identity-storage01/physical02/receipt.json",
+            "android-identity-storage01/physical02/independent-review.json",
+            "android-identity-storage01/physical02/backup-policy-review.json"
           ],
-          "remaining": "Fresh ordinary separate Release creates one identity without onboarding or external signer. Independent npub checksum/decoded-public-key comparison and two real process restarts reuse it; installed build bytes and current executable inputs are verified. Device reboot and native failed-read/no-replacement injection remain required; no private key read/export or full key-security claim."
+          "remaining": "Fresh ordinary separate Release creates one identity without onboarding/external signer. Independent npub checksum/decoded-public-key comparison and real process reuse pass. Added current normal Expo/SDK physical suite covers corrupt inventory/secret, missing inventory/secret, legacy inventory and missing wrapping key: two actual cold failed starts each keep exact recovery UI with no admitted header/WebView; native metadata/wrapping-key checkpoints show no persisted replacement. Five ciphertext restores recover original identity and original SDK saved value. Device reboot remains required; no zero generator-call, unlimited leak-absence or full key-security claim."
         },
         "ios-physical": {
           "status": "partial",
@@ -360,8 +363,14 @@
       "requiredEvidence": "Native code/config inspection, at-rest ciphertext/tamper tests, backup exclusion, secret absence in WebView/React persistence/logs/crash artifacts, controlled failure paths",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-identity-storage01/physical02/receipt.json",
+            "android-identity-storage01/physical02/independent-review.json",
+            "android-identity-storage01/physical02/backup-policy-review.json"
+          ],
+          "verifiedScope": "Current isolated nondebuggable ARM64 ordinary Expo Release and matching test APK use actual SecureStore57.0.3 and unchanged production bootstrap/native reader. Eighteen physical native modes pass6141 assertions; AES256 wrapping key is nonexportable and actual KeyInfo reports level1/TEE with existing per-storage-read authentication false. Six faults fail closed on twelve genuine stopped-process starts, native metadata remains equal with no new wrapping alias, and five original ciphertext restores retain exact public identity/original SDK saved data. Six bounded native scans find no raw32/hex/nsec/Base64 development-secret patterns in observed private persistence and own-UID logs; no host secret export. Actual sealed APK XML excludes SecureStore from cloud backup/device transfer. Both temporary apps are removed; retained APK unchanged.",
+          "remaining": "Device lock/unlock and reboot; real backup/device-transfer transport; complete secret absence in guest/shared/React persistence, heap/log/crash artifacts and all failure surfaces; complete iOS owning Expo parity and all remaining row requirements. SDK57.0.3 removes the exact unreadable slot in documented fault cases; other records and metadata stay unchanged. Saved SDK result is independently checked in original native XML but below screenshot viewport, with no full visible-value claim. The first stopped partial run and unknown ADB observation cause remain recorded; no complete ID02/Phase2 acceptance."
         },
         "ios-physical": {
           "status": "partial",
