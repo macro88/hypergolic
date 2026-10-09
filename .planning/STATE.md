@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Six of61 full requirements closed across both phones. Full iPhone published restart passes; note/profile individual signing and independent readbacks pass within scope. Protected backup needs owner authentication after recording stops; Android disconnected. Ceiling about98%, no source push.
+stopped_at: Six of61 full requirements closed across both phones. Full iPhone published restart passes; note/profile individual signing and independent readbacks pass within scope. Five public backup review/cancel checks pass; owner authentication/reveal is next with recording stopped; Android disconnected. Ceiling about98%, no source push.
 last_updated: "2026-10-09"
 last_activity: 2026-10-09
 state_head: 1294f873cc407cf9e6e18771690973518b674a5e
@@ -1692,3 +1692,6 @@ Physical continuation — 9 October 2026: iPhone UI control is restored after ow
 
 
 Physical signing continuation — 9 October2026: normal iPhone note/profile individual reject/approve and independent exact readbacks pass within the documented composite scope. Three retained predecessor checks plus four passing continuation checks; no replay of the original approved note. One relay acknowledges but does not independently return the events. Expanded-event accessibility/hash checks pass, but original black PNG/offscreen video leave visual JSON proof open. SIGN01/05/06 remain partial, all61 statuses unchanged (six complete/55 open). See Plan03 checkpoint for retained observer failures and evidence. Next protected backup review/cancel, then owner-only fresh authentication with recording stopped. Source push owner-only; latest usage85%, ceiling about98%.
+
+
+Physical backup continuation — 9 October2026: all five public backup review/cancellation checks pass with reviewed original pixels on the unchanged normal QA app. Exact development identity and original UX focus persist. Public review is ready for owner authentication after recording stops; no key/passcode or authenticated reveal is obtained. ID05 now records partial public-review scope only, all61 requirements remain (six complete/55 open). Fresh auth success/cancel/unavailable, exact export/reimport and Android parity remain open. Source push owner-only; usage85%, ceiling about98%.

@@ -424,3 +424,30 @@ products remain unchanged; the primary process persists and QA return reuses its
 process. These native-core results supplement ID01/02, not whole Expo bootstrap,
 device reboot/lock/auth/export, actual backup transport, full secret/log/crash
 absence or Android parity. All61 original Phase2 requirements/statuses persist.
+
+
+## Physical iPhone public backup review — 9 October2026
+
+Five checks pass on the unchanged signed normal QA app: exact selected development
+identity/focus, backup explanation and iOS screenshot/capture warning, cancellation
+before authentication, unchanged identity/original UX focus, and reopened public
+review left for owner authentication after recording stops. Original public review
+and cancellation pixels are inspected. The selected test never taps authenticated
+reveal or obtains a private key/passcode. This does not prove authentication,
+secret reveal or native effect counters.
+
+All1,221 current source inputs, both local app seals/installed metadata and primary
+process remain unchanged. Only the XCTest runner builds/installs. Its first compile
+kept unused signing helpers after removing their guest helper; the second removes
+that unused section and passes. The complete physical public-review run passes
+without a product change. The slow bounded Settings control search is retained;
+elapsed time is not authentication or performance acceptance evidence.
+
+Private evidence `iphone-public-backup-review01` retains original tests, attachments,
+driver/controller/build logs, seals and reviewed pixels. ID-05 is partial; fresh
+authentication success, authenticated cancel/failure/unavailable, secret handling,
+exact manual export/reimport and Android parity remain open. All61 requirements
+persist, six complete across both phones and55 open. The next step needs owner
+Face ID/passcode on the iPhone, observing the development backup and closing Done
+without sending or recording the key. Android is disconnected. No application
+rebuild/reset/publication/source push or fresh quality claim.

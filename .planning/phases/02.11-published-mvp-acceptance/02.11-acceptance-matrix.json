@@ -416,8 +416,14 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-public-backup-review01/run-01/receipt.json",
+            "iphone-public-backup-review01/run-01/trace-report.json",
+            "iphone-public-backup-review01/visual-review.json"
+          ],
+          "verifiedScope": "Five actual normal-app public-input checks verify the exact selected development identity, backup explanation/iOS screenshot warning, pre-authentication cancellation, unchanged identity/original UX focus, and reopened public review ready for owner authentication after test recording stops. The selected driver never taps or invokes authenticated reveal; no secret/passcode is obtained. Both local products/installed app metadata, all1,221 current source inputs and primary process remain unchanged. Only the XCTest runner builds and installs. Original public review/cancellation pixels are inspected. This is public review scope, not native authentication or export proof.",
+          "remaining": "Complete fresh physical authentication success, authenticated cancellation/failure/unavailable, secret-handling/capture/background cases and exact manual exported/imported public identity comparison, plus Android parity. Owner must authenticate on-device after recording stops; never send or record the private key."
         }
       }
     },
