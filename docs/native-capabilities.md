@@ -274,3 +274,24 @@ probe uses test-only HTTP WebContent configuration; normal Hypergolic apps and
 production core policies remain unchanged. This supplements SEC-02 without
 claiming DNS/UDP/public HTTPS, protected-key absence, all navigation/download/file/
 content paths or owning Expo/published parity. All61 row scopes/statuses persist.
+
+
+## Android native boundary preparation — 9 October 2026
+
+The [disposable instrumentation harness](../tests/native/android-boundary/README.md)
+compiles against the unchanged production host, all native transports and exact
+packaged runtime in an ordinary Expo Release app. Five prepared cases cover genuine
+opaque/main/matching-origin-child callbacks, native schema/generation/replay,
+one-use replies, queue limits and foreground-input/close revocation. Actual Expo
+context is retained; manually attached probe views have no JavaScript callback
+registration. Registry observations and real WebView replies are the scoped oracles.
+No secondary policy, fabricated frame or enabled application fault hook is used.
+
+The signed ARM64 app and instrumentation APK compile with 62 pinned native/build/runtime inputs and
+1,239 sealed source/generated inputs unchanged. App and test use the existing
+local development certificate; trusted runtime and ordinary JavaScript bundle match
+the reviewed bytes. A missing test compile dependency failed the first attempt;
+both original logs are retained. No installation or native execution occurs, and
+no matrix row advances. Protected signing, owning authorization, OS background,
+renderer/UTF-8/network/published faults and full Android/iOS parity remain open.
+Do not operate either phone until its owner confirms the backup panel is closed.

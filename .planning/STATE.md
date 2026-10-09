@@ -1739,3 +1739,19 @@ for preserved observer failures, original visual limits and bounded relay reads.
 Android public backup review awaits owner-only authentication/reveal/Done; iPhone
 Done/cancellation is also pending. No device UI/capture until closure is confirmed.
 No implementation edit, new build/full quality claim, source push or Phase 3 advance.
+
+
+## Offline Android boundary preparation — 9 October 2026
+
+Five source-linked actual-WebView instrumentation cases and a separate ordinary
+Expo Release target are compiled and sealed without device access. All62 native/
+build/runtime inputs and1,239 full source/generated inputs remain unchanged;
+signed ARM64 app and instrumentation APK share the existing development certificate and
+exact runtime/normal JavaScript bytes. The first missing test-dependency compile
+failure is retained. See [scope](../tests/native/android-boundary/README.md).
+No native test case has executed; all61 matrix scopes/platform statuses persist,
+six complete/55 open. No phone UI/capture/install until owner backup Done/closed;
+Android reveal/cancel and iPhone closure/cancel reports remain pending. Continue
+ordinary capability journeys and actual fault coverage after that handoff.
+No production/dependency-policy change, source push or Phase3 advance; usage90%,
+ceiling about98%. Final whole-product quality/physical sign-off remains open.
