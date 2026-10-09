@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Six of61 full requirements closed across both phones. Owner confirms repaired iPhone Face ID backup reveal works. Remaining auth/capture/export comparison and Android parity stay open; wait for owner to close secret panel before automation. Ceiling about98%, no source push.
+stopped_at: Six of61 full requirements complete/55 open. Current Android QA Release updated; note/profile decisions, independent exact signatures and additional full JSON visuals pass within partial scope. Empty baseline restored; next Android identity/native/capability faults. iPhone backup Done/cancel still pending; no phone UI access. Ceiling about98%, no source push.
 last_updated: "2026-10-09"
 last_activity: 2026-10-09
 state_head: 1294f873cc407cf9e6e18771690973518b674a5e
@@ -1701,3 +1701,29 @@ Backup failure continuation — 9 October2026: owner Face ID succeeds but backup
 
 
 Owner backup verification — 9 October2026: owner reports "yep worked" after the same-QA signed native handoff repair and manual fresh Face ID retry with recording stopped. The reveal failure is resolved by owner observation; actual callback timing and exact exported/imported public identity are not independently recorded. ID05 stays partial; all61 requirement/platform statuses remain unchanged (six complete/55 open). Do not access device UI until backup Done is confirmed. Authentication cancellation/unavailable, capture/background and Android parity remain. Documentation-only checkpoint; no new build/tests/quality claim or source push. Usage88%, ceiling about98%.
+
+
+## Current physical Android note/profile signing — 9 October 2026
+
+The current signed normal QA Release updates in place with the same app identifier,
+Hypergolic label and certificate. Protected development identity and deliberately
+empty workspace persist. Four original SDK note/profile reject/approve decisions
+verify exact trusted events/hashes before native actions. Both approved exact
+payloads and signatures independently return from nos.lol. Coracle EOSE and damus
+EOSE/connection failures limit independent persistence/denial observations; no
+native zero-signing counter claim. Two additional denied requests show fully
+scrolled exact JSON; the original four-review JSON was clipped but verified by
+native accessibility/hash checks. No approved event is replayed.
+
+The uncompressed observer failure and unsuccessful card-swipe cleanup are retained.
+Only the run-owned view closes using its exact native Close control; original empty
+workspace/identity return. All 1,226 inputs and primary/current installed APK hashes
+remain. Packaging signatures/permissions/alignment and SecureStore backup/transfer
+exclusions are inspected. No iPhone/key/passcode access, reset, source push or new
+full quality claim. Private evidence: `android-two-kind-approval04`.
+
+SIGN-01/05/06 now have partial Android coverage. BUILD-02 adds scoped current
+packaging/update/cold-entry/signing evidence and remains partial. Six of 61 full
+requirements are complete across both phones; 55 remain open. Next Android
+import/switch and broader native/capability/fault journeys; iPhone backup-panel
+closure/cancellation still needs owner confirmation. Usage 89%, ceiling about 98%.

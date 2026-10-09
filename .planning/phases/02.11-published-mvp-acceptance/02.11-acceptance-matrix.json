@@ -474,8 +474,16 @@
       "requiredEvidence": "At least note and another supported kind, full action/content/napplet/publisher/identity plus exact expandable event; Approve once/Reject; no silent route",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-two-kind-approval04/four-decisions/signing-receipt.json",
+            "android-two-kind-approval04/visual-denials/signing-receipt.json",
+            "android-two-kind-approval04/independent-relays/scope-review.json",
+            "android-two-kind-approval04/cleanup/receipt.json",
+            "android-two-kind-approval04/visual-review.json"
+          ],
+          "verifiedScope": "Current signed normal Android QA app retains its known protected development identity after in-place update/cold entry. Original SDK note/profile individual reject/approve flows verify exact trusted content, origin, publisher, selected identity, native individual controls and independently calculated event hashes. Both approved exact events and signatures read back from nos.lol. Coracle EOSE and damus EOSE/connection failures are disclosed; denied absence only covers successful bounded EOSE reads. Two additional denied requests show fully scrolled exact JSON; original four-decision JSON is clipped but complete through accessibility/hash verification. Only the owned new view closes via native Close, restoring original empty workspace; failed swipe/observer remain. All1,226 inputs and installed QA/primary APK hashes unchanged. No retained key/passcode access or publication replay.",
+          "remaining": "Complete all supported update routes and native request/session/version/key binding, mutate/reorder/duplicate/replay, independent denied native signer/effect counters, controlled relay receipt faults and interrupted/in-flight lifecycle cases on both platforms. This two-kind scoped evidence does not close full signing or Phase2 acceptance."
         },
         "ios-physical": {
           "status": "partial",
@@ -592,8 +600,16 @@
       "requiredEvidence": "Mutate/reorder/duplicate/replay submissions, request ID/session/version/key binding; independently verify event ID/signature/tags/content/pubkey and relay receipt",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-two-kind-approval04/four-decisions/signing-receipt.json",
+            "android-two-kind-approval04/visual-denials/signing-receipt.json",
+            "android-two-kind-approval04/independent-relays/scope-review.json",
+            "android-two-kind-approval04/cleanup/receipt.json",
+            "android-two-kind-approval04/visual-review.json"
+          ],
+          "verifiedScope": "Current signed normal Android QA app retains its known protected development identity after in-place update/cold entry. Original SDK note/profile individual reject/approve flows verify exact trusted content, origin, publisher, selected identity, native individual controls and independently calculated event hashes. Both approved exact events and signatures read back from nos.lol. Coracle EOSE and damus EOSE/connection failures are disclosed; denied absence only covers successful bounded EOSE reads. Two additional denied requests show fully scrolled exact JSON; original four-decision JSON is clipped but complete through accessibility/hash verification. Only the owned new view closes via native Close, restoring original empty workspace; failed swipe/observer remain. All1,226 inputs and installed QA/primary APK hashes unchanged. No retained key/passcode access or publication replay.",
+          "remaining": "Complete all supported update routes and native request/session/version/key binding, mutate/reorder/duplicate/replay, independent denied native signer/effect counters, controlled relay receipt faults and interrupted/in-flight lifecycle cases on both platforms. This two-kind scoped evidence does not close full signing or Phase2 acceptance."
         },
         "ios-physical": {
           "status": "partial",
@@ -620,8 +636,16 @@
       "requiredEvidence": "Independent local relay counts/logs for approve, reject, delay, disconnect, timeout/interrupted or partial publication; UI must not report unobserved success",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-two-kind-approval04/four-decisions/signing-receipt.json",
+            "android-two-kind-approval04/visual-denials/signing-receipt.json",
+            "android-two-kind-approval04/independent-relays/scope-review.json",
+            "android-two-kind-approval04/cleanup/receipt.json",
+            "android-two-kind-approval04/visual-review.json"
+          ],
+          "verifiedScope": "Current signed normal Android QA app retains its known protected development identity after in-place update/cold entry. Original SDK note/profile individual reject/approve flows verify exact trusted content, origin, publisher, selected identity, native individual controls and independently calculated event hashes. Both approved exact events and signatures read back from nos.lol. Coracle EOSE and damus EOSE/connection failures are disclosed; denied absence only covers successful bounded EOSE reads. Two additional denied requests show fully scrolled exact JSON; original four-decision JSON is clipped but complete through accessibility/hash verification. Only the owned new view closes via native Close, restoring original empty workspace; failed swipe/observer remain. All1,226 inputs and installed QA/primary APK hashes unchanged. No retained key/passcode access or publication replay.",
+          "remaining": "Complete all supported update routes and native request/session/version/key binding, mutate/reorder/duplicate/replay, independent denied native signer/effect counters, controlled relay receipt faults and interrupted/in-flight lifecycle cases on both platforms. This two-kind scoped evidence does not close full signing or Phase2 acceptance."
         },
         "ios-physical": {
           "status": "partial",
@@ -863,9 +887,14 @@
           "status": "partial",
           "evidence": [
             "physical-android-tracer04/android-isolated-build/first-tracer08-receipt.json",
-            "android-workspace01/receipt.json"
+            "android-workspace01/receipt.json",
+            "android-two-kind-approval04/signed-build/receipt.json",
+            "android-two-kind-approval04/signed-build/packaging-review.json",
+            "android-two-kind-approval04/qa-update/receipt.json",
+            "android-two-kind-approval04/cleanup/device-metadata.json"
           ],
-          "remaining": "Selected ordinary Android overview/media and installed-byte subset only. Complete all remaining named requirements; no full capability/build/Phase2 acceptance."
+          "remaining": "Selected ordinary Android overview/media and installed-byte subset only. Complete all remaining named requirements; no full capability/build/Phase2 acceptance.",
+          "verifiedScope": "Current-source signed normal arm64 QA Release compiles, preserves existing applicationId/Hypergolic label/certificate and restores generated packaging. Exact installed APK, signature,16KiB alignment, non-debuggable state, permissions, runtime/JS bytes and manifest-linked SecureStore cloud/device-transfer exclusions are verified. Data-preserving existing-QA update retains identity and cold entry/real note-profile SDK signing works on Android16/WebView153 without Metro forwarding. Full normal checks/quality and all-capability journeys remain separate; existing pinned Expo mismatches/advisory exceptions remain visible."
         },
         "ios-physical": {
           "status": "partial",
