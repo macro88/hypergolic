@@ -36,11 +36,17 @@
       "requiredEvidence": "Two controlled identities, valid/missing/broken profile image cases; avatar and short/full keys match after switch and restart",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
+          "status": "passed",
           "evidence": [
-            ".planning/debug/header-profile-avatar.md \u2014 shared repair and regression/build scope only; physical UX-02 remains unrun"
+            "android-avatar01/originals/receipt.json",
+            "android-avatar01/originals/independent-visual-key-review.json",
+            "android-avatar01/originals/cleanup-inventory.json",
+            "android-avatar01/public-profile-readback/receipt.json",
+            "android-avatar01/public-profile-readback/picture-url-head-status.json",
+            "android-avatar01/manifest.json"
           ],
-          "remaining": "Complete source-bound physical valid/missing/broken public-profile avatar, two-identity and restart cases. Trusted selected-profile wiring, bounded native image admission, stale-work cancellation, foreground retry and source-keyed codec replacement are repaired in27a3e4d. Shared regressions and ordinary signed packaging pass; they do not supply physical image or protected-switch proof."
+          "remaining": "None for the named Android avatar/fallback, controlled profiles, identity switch and restart requirement. Broader capability, security, published, accessibility, build and fault requirements remain open.",
+          "verifiedScope": "Ten ordinary physical native-input cases in the retained protected signed app: three independently retrieved signed public QA profiles, valid PNG raster, missing picture and broken404 fallback, normal secure import and exact short/full public keys/native selected-row metadata; confirmed/cancelled switch, real background/foreground and two stop/not-running/new-PID launches. Valid and missing avatar crop bytes persist across restart. Original identity/empty workspace restored; three disposable QA imports remain saved. All1226 bound inputs and installed APK bytes unchanged;421 owning inputs match the installed build. Ten original header PNGs plus four Settings and two confirmation originals inspected; Bech32 keys, original XML and exact original PNG crops independently verified. Some Settings selected-row/confirmation content is clipped; native metadata is independently checked. Observer hashes first captured mid-run, unchanged afterward; app inputs have separate preflight binding. No injected UI, owner key read, publication, build or new app installation. Missing/broken visual outcomes do not attribute a native transport error branch. Corrected empty-workspace observer failure retained before any identity input."
         },
         "ios-physical": {
           "status": "passed",

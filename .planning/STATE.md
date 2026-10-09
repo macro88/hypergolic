@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Six of61 full requirements complete/55 open. Android physical eight-case runs and strict independent LAN receiver audit pass; SEC01/02/03 partial. Temporary packages removed, all four old APKs preserved. Owner-approved cleanup complete: one current app on each phone; six iPhone test apps and older duplicate removed. Full protected/Expo/published/security scope remains. Ceiling about98%, no source push.
+stopped_at: Seven of61 full requirements complete/54 open. Android profile avatar ten-case physical journey and independent original UI/pixel review pass; UX02 complete on both phones. Original selected identity and empty workspace restored; only current app remains. Full Plan03/04 and protected/Expo/published/security scope remain. Usage97%, ceiling about98%; no source push.
 last_updated: "2026-10-09"
 last_activity: 2026-10-09
-state_head: e32e6aa
+state_head: eedb675
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1869,3 +1869,34 @@ apps/runners after jobs and uncertain side effects are reconciled; retain the
 current app ID for updates. AGENTS.md now makes this cleanup part of completion.
 This is device housekeeping, with no acceptance-row advancement or production
 implementation change. Full Phase2 remains open; usage94%, ceiling about98%.
+
+
+## Physical Android profile avatar acceptance — 9 October 2026
+
+Ten ordinary native-input avatar cases pass in the retained signed protected app.
+Three freshly read signed public profiles cover a valid PNG, missing picture and
+broken404 image. Normal secure import and saved selection agree with the rendered
+avatar and short/full public keys. Confirmed/cancelled switches, real background
+return and two stop/not-running/new-PID launches retain the correct raster or
+fallback. Valid and missing crop bytes are identical across restart.
+
+Ten original header PNGs, four Settings and two confirmation originals are
+inspected; independent Bech32/selected native XML and exact original PNG crop
+checks pass. Some Settings selected rows and confirmation content are clipped;
+metadata/full keys are checked separately. Missing/broken visual outcomes do not
+identify a native transport error branch. The original development identity and
+empty workspace return, with three disposable development imports saved. Only the
+current app remains installed; no extra app/runner was installed. All1226 bound
+inputs and APK bytes remain unchanged, with421 owning inputs matching build03.
+Observer hashes were first captured mid-run and remain unchanged afterward.
+
+The preflight's mistaken use of the shell title as a loaded-view indicator is
+corrected using the actual Nothing open UI before identity input. An EEXIST
+profile-generation preparation failure precedes any generation/publication;
+existing private development imports are reused with fresh public readback.
+Both originals remain. Private keys are excluded from the canonical private
+android-avatar01 capture. UX02 becomes passed on Android and both platforms;
+seven of61 full requirements complete/54 open. Full Plan03/04/Phase2 remain open.
+No implementation change, build/full quality rerun, new exception or source push.
+Prior Doctor100/430 and aislop98/two exact approved locked advisories retain their
+recorded scope; normal gate stays red. Usage97%, ceiling about98%.
