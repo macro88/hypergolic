@@ -77,6 +77,8 @@ def build(output):
                 raise RuntimeError('Unexpected package identity')
             if kind == 'app' and ('application-debuggable' in badging or "native-code: 'arm64-v8a'" not in badging):
                 raise RuntimeError('Expected nondebuggable ARM64 Release target')
+            if "application: label='Hypergolic'" not in badging:
+                raise RuntimeError('Both test packages must retain the Hypergolic application label')
             if kind == 'test' and (RUNNER not in manifest or PACKAGE not in manifest or 'targetPackage' not in manifest):
                 raise RuntimeError('Instrumentation target/runner missing')
             signature = subprocess.check_output([str(tools / 'apksigner'), 'verify', '--verbose', '--print-certs', str(target)], text=True)

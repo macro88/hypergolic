@@ -353,3 +353,37 @@ native test execution or a product fault. Canonical private evidence is
 `android-feed-lifecycle01` and `android-boundary-install01`. Full Plan03/04 and
 Phase2 remain open. Documentation-only checkpoint; no source push or fresh full
 quality/build claim. Usage91%, owner ceiling about98%.
+
+
+## Physical Android native transport/fault run — 9 October 2026
+
+All seven source-linked cases pass in one physical Android16/API36 run with498
+assertions on WebView153. Genuine main/opaque/matching-origin-child callbacks,
+original SDK positive controls, schema/generation/replay, one-use replies,
+per-view/global queues and consumed overload replay, native foreground-input/close
+revocation, UTF-8 wire/snapshot bounds and actual public renderer termination/
+fresh-generation recovery are exercised. All eleven owned probes close; all67
+source inputs and both installed test products remain unchanged during execution.
+This is native transport coverage with privileged diagnostic stimulus, without
+React JS callback registration; protected signer/storage authorization, real OS
+background/lock/app death, independent egress and verified-published parity remain.
+
+The runner now receives its own Hypergolic application label through the androidTest
+manifest. Its label and manifest become build/run seals. The signed build seals
+1,242 inputs and62 owning native/runtime pins. Target app bytes remain identical
+to the predecessor; only runner packaging changes. Label alone does not resolve
+the installer rejection. Inspection shows the real Xiaomi USB-install dialog with
+Install and countdown Deny controls. The already-authorized ordinary Install click
+succeeds; Remember my choice stays unchecked. Earlier owner-reported approval and
+rejected attempts remain, with their exact cause unconfirmed. No installer bypass
+or OS restriction change occurs.
+
+Both newly owned test packages are subsequently hash-verified and uninstalled;
+the prior launcher returns and both retained QA/primary APK hashes remain. Canonical
+private `android-native-boundary-physical01` preserves originals, source, build,
+installer reconciliation and cleanup. SEC01/03 become partial on Android; six of61
+full cross-platform rows complete/55 open. Pre-documentation source-bound Doctor100/430 and ten
+audits run; aislop98 contains only the two exact approved locked Forge/braces
+advisories. The normal verifier remains red, with full evidence preserved. No new
+exception, suppressed finding, production policy change or source push. Usage93%,
+ceiling about98%; full Plan03/04/Phase2 remain open.

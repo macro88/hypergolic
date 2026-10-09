@@ -9,6 +9,7 @@ gradle.beforeProject { project ->
       project.android.testBuildType = 'release'
       project.android.buildTypes.release.signingConfig = project.android.signingConfigs.debug
       project.android.sourceSets.androidTest.java.srcDir(new File(boundaryRoot, 'src'))
+      project.android.sourceSets.androidTest.manifest.srcFile(new File(boundaryRoot, 'AndroidManifest.xml'))
       project.dependencies.add('androidTestImplementation', project.project(':hypergolic-napplet-host'))
       project.dependencies.add('androidTestImplementation', project.project(':expo-modules-core'))
       project.dependencies.add('androidTestImplementation', 'androidx.webkit:webkit:1.17.0')

@@ -759,8 +759,15 @@
       "requiredEvidence": "Pin selected contracts; native tests forged sibling/frame/main-frame messages, navigation generation/stale sessions, ungranted operation and malformed/oversized envelopes",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-native-boundary-physical01/native-run/receipt.json",
+            "android-native-boundary-physical01/native-run/instrumentation.log",
+            "android-native-boundary-physical01/native-run/owned-cleanup.json",
+            "android-native-boundary-physical01/installer/scope-review.json"
+          ],
+          "verifiedScope": "One physical Android16/API36 WebView153 run passes all seven original source-linked transport cases with498 assertions: genuine main/opaque/matching-origin-child native callbacks and original SDK theme controls; schema/generation/sequence/replay denial; one-use replies; four-per-view/eight-global queue and consumed overload replay; native foreground-input/close lease revocation; measured UTF-8 wire/snapshot bounds; public-API renderer termination, destruction/revocation and different-handle/fresh-generation recovery. Eleven owned probes close. All67 source inputs and exact installed app/runner bytes persist during execution. Privileged test document-start stimulus and reflection observe real native paths; no React JS callback registration or alternate policy. Both temporary packages subsequently uninstall and both retained QA/primary hashes remain unchanged.",
+          "remaining": "Complete normal Expo permission/dispatch and protected signer/storage authority, navigation/resource/subscription/session faults, real OS background/lock/app death, verified-published lifecycle and all named native/physical parity requirements. Different renderer handles are not OS PIDs; no independent egress, private-key absence or full SEC claim follows."
         },
         "ios-physical": {
           "status": "partial",
@@ -805,8 +812,15 @@
       "requiredEvidence": "Renderer termination/reload, redirect/navigation attempts, cleanup/subscription teardown, queue/byte/session limits; no inherited privilege after failure",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-native-boundary-physical01/native-run/receipt.json",
+            "android-native-boundary-physical01/native-run/instrumentation.log",
+            "android-native-boundary-physical01/native-run/owned-cleanup.json",
+            "android-native-boundary-physical01/installer/scope-review.json"
+          ],
+          "verifiedScope": "One physical Android16/API36 WebView153 run passes all seven original source-linked transport cases with498 assertions: genuine main/opaque/matching-origin-child native callbacks and original SDK theme controls; schema/generation/sequence/replay denial; one-use replies; four-per-view/eight-global queue and consumed overload replay; native foreground-input/close lease revocation; measured UTF-8 wire/snapshot bounds; public-API renderer termination, destruction/revocation and different-handle/fresh-generation recovery. Eleven owned probes close. All67 source inputs and exact installed app/runner bytes persist during execution. Privileged test document-start stimulus and reflection observe real native paths; no React JS callback registration or alternate policy. Both temporary packages subsequently uninstall and both retained QA/primary hashes remain unchanged.",
+          "remaining": "Complete normal Expo permission/dispatch and protected signer/storage authority, navigation/resource/subscription/session faults, real OS background/lock/app death, verified-published lifecycle and all named native/physical parity requirements. Different renderer handles are not OS PIDs; no independent egress, private-key absence or full SEC claim follows."
         },
         "ios-physical": {
           "status": "partial",

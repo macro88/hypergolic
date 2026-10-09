@@ -70,7 +70,7 @@ def run(serial, build, output):
             if name.startswith(('src/', 'modules/', 'runtime/', 'plugins/', 'android/')) or name in ['index.ts', 'app.json', 'package.json', 'pnpm-lock.yaml'] or name.startswith('tests/native/android-boundary/') and not name.endswith('.md'):
                 if not (REPO / name).is_file() or sha(REPO / name) != digest:
                     raise RuntimeError('Compiled implementation/test input changed: rebuild before running')
-        observed.update({str(p.relative_to(REPO)): sha(p) for p in [HERE / 'run.py', HERE / 'build.py', HERE / 'init.gradle', HERE / 'src/org/nostrocket/hypergolic/boundary/BoundaryInstrumentation.java']})
+        observed.update({str(p.relative_to(REPO)): sha(p) for p in [HERE / 'run.py', HERE / 'build.py', HERE / 'init.gradle', HERE / 'AndroidManifest.xml', HERE / 'src/org/nostrocket/hypergolic/boundary/BoundaryInstrumentation.java']})
         return observed
 
     try:

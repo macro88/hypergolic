@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Six of 61 full requirements complete/55 open. Both backup panels owner-confirmed closed. Android ordinary Feed query/live/switch/background-return/close subset passes with independent exact signed events and owned empty cleanup; CAP02/03 partial. Separate physical probe app installed; matching test runner device-denied twice and absent, with no instrumentation run. Ceiling about98%, no source push.
+stopped_at: Six of61 full requirements complete/55 open. Android physical seven-case native fault run passes498 assertions with owned package cleanup; SEC01/03 partial. Query/subscription partial evidence persists. Both backup panels closed; full protected backup/Expo/published/security gates remain. Ceiling about98%, no source push.
 last_updated: "2026-10-09"
 last_activity: 2026-10-09
-state_head: 64310e84da07a8c260581dffc49f8f007ec9e9af
+state_head: 5acff153974c119f58b43c397854f90c35725cab
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1817,3 +1817,10 @@ retained apps are unchanged and QA remains in front. Owner observation of the
 second installer prompt is needed; source/OS policy is unchanged. See the latest
 [Plan04 checkpoint](phases/02.11-published-mvp-acceptance/02.11-04-CHECKPOINT.md).
 Usage92%, ceiling about98%; no source push.
+
+Current native checkpoint (2026-10-09): all seven physical Android transport/fault
+cases pass498 assertions; temporary app/runner removed, retained APKs unchanged.
+SEC01/03 partial; six of61 full rows complete/55 open. Installer dependency resolved
+through verified ordinary Install button; prior rejection cause unconfirmed. Full
+current Doctor100/430, aislop98 and ten audits retain only approved locked exceptions;
+normal gate remains red. See the latest Plan04 checkpoint. Usage93%, ceiling about98%.
