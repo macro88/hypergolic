@@ -375,8 +375,12 @@
       "requiredEvidence": "Valid/cancelled/malformed/out-of-range import tests; same npub after restart; switching back works; hex import not required",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-identity-lifecycle01/journey/receipt.json",
+            "android-identity-lifecycle01/visual-review.json"
+          ],
+          "remaining": "Ordinary current protected Release validates malformed/zero-scalar input, masked public-fixture import, cancellation without insertion, duplicate nochange, original saved selection and both imported/original public identities after actual cold processes. Full protected at-rest inspection and complete row acceptance remain open."
         },
         "ios-physical": {
           "status": "partial",
@@ -393,8 +397,14 @@
       "requiredEvidence": "Three sessions + pending approval, cancel-switch preservation, confirm-switch isolation, stale callback/replay rejection and no old event under new identity",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-identity-lifecycle01/journey/receipt.json",
+            "android-identity-lifecycle01/visual-review.json",
+            "android-identity-lifecycle01/relay-readback/receipt.json",
+            "android-identity-lifecycle01/cleanup/receipt.json"
+          ],
+          "remaining": "Thirteen supporting ordinary checks across retained observed continuations include three original SDK identities/drafts, background-paused exact native review, cancel-switch preservation/resume/native rejection, confirmed three-view reset/removal of old review, fresh new-identity exact hash/native rejection, account storage isolation, original restoration and real cold persistence. Three hashes have bounded absence on eight successful EOSE; one connection error is inconclusive. Owning native stale callback/replay/old-event zero-effect proof and full requirement acceptance remain open."
         },
         "ios-physical": {
           "status": "partial",
@@ -455,9 +465,11 @@
           "status": "partial",
           "evidence": [
             "android-state-close01/hg-android-state-close-physical02/receipt.json",
-            "android-state-close01/visual-review.json"
+            "android-state-close01/visual-review.json",
+            "android-identity-lifecycle01/journey/receipt.json",
+            "android-identity-lifecycle01/visual-review.json"
           ],
-          "remaining": "Original bundled SDK missing/empty/exact shared get/set, separate instance saved data, Keep open, owned close/reopen with new-instance missing isolation and actual cold-process persistence pass. All402 owning inputs and installed APK unchanged. Full user/publisher/d-tag cross-product, verified-published version/update comparisons, quota/type errors and untrusted namespace faults remain required."
+          "remaining": "Current ordinary same-app State views also prove original/new-user saved-key isolation and exact restoration, removing only run-owned keys. Original bundled SDK missing/empty/exact shared get/set, separate instance saved data, Keep open, owned close/reopen with new-instance missing isolation and actual cold-process persistence pass. All402 owning inputs and installed APK unchanged. Full user/publisher/d-tag cross-product, verified-published version/update comparisons, quota/type errors and untrusted namespace faults remain required."
         },
         "ios-physical": {
           "status": "partial",
@@ -891,9 +903,11 @@
             "android-two-kind-approval04/signed-build/receipt.json",
             "android-two-kind-approval04/signed-build/packaging-review.json",
             "android-two-kind-approval04/qa-update/receipt.json",
-            "android-two-kind-approval04/cleanup/device-metadata.json"
+            "android-two-kind-approval04/cleanup/device-metadata.json",
+            "android-identity-lifecycle01/journey/receipt.json",
+            "android-identity-lifecycle01/cleanup/receipt.json"
           ],
-          "remaining": "Selected ordinary Android overview/media and installed-byte subset only. Complete all remaining named requirements; no full capability/build/Phase2 acceptance.",
+          "remaining": "Current unchanged signed QA APK additionally passes identity import/switch and observed imported/original/empty cold-process persistence. Selected ordinary Android overview/media and installed-byte subset only. Complete all remaining named requirements; no full capability/build/Phase2 acceptance.",
           "verifiedScope": "Current-source signed normal arm64 QA Release compiles, preserves existing applicationId/Hypergolic label/certificate and restores generated packaging. Exact installed APK, signature,16KiB alignment, non-debuggable state, permissions, runtime/JS bytes and manifest-linked SecureStore cloud/device-transfer exclusions are verified. Data-preserving existing-QA update retains identity and cold entry/real note-profile SDK signing works on Android16/WebView153 without Metro forwarding. Full normal checks/quality and all-capability journeys remain separate; existing pinned Expo mismatches/advisory exceptions remain visible."
         },
         "ios-physical": {

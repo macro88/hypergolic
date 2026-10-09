@@ -129,3 +129,24 @@ The [physical checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.
 records all actions, original driver failures, source/product bounds and remaining
 work. Full multi-session/pending-authority switching, native protection/backup/
 delete and Android parity remain open; this is not final Phase 2 acceptance.
+
+
+## Ordinary physical Android identity lifecycle — 9 October 2026
+
+The current protected QA Release now has thirteen supporting physical checks
+across recorded continuations: malformed/zero-scalar denial, valid/cancelled public
+fixture import, duplicate nochange and imported/original selection after real cold
+processes. Two State Lab views and one Approval Lab view retain distinct drafts
+and the same paused native review when switching is cancelled. Confirmed switching
+resets all three SDK identities/drafts and removes the old review. Saved-key reads
+are isolated by identity; restoring the original recovers both exact saved strings.
+Only run-owned data/views are removed; the original empty workspace and identity
+survive another cold process. The public imported fixture remains inactive.
+
+The [physical checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md#current-physical-android-identity-import-and-lifecycle--9-october-2026)
+retains all original observer failures and visual limits. Three exact native hashes
+are independently recomputed; bounded relay EOSE absence supports its named scope
+without proving zero native signing/frame effects. Protected at-rest inspection,
+owning stale callback/replay faults, authenticated backup/deletion and complete
+Phase 2 acceptance remain open. Source implementation and installed APKs are
+unchanged; no new build or full quality run is claimed for these documentation edits.

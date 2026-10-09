@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Six of61 full requirements complete/55 open. Current Android QA Release updated; note/profile decisions, independent exact signatures and additional full JSON visuals pass within partial scope. Empty baseline restored; next Android identity/native/capability faults. iPhone backup Done/cancel still pending; no phone UI access. Ceiling about98%, no source push.
+stopped_at: Six of 61 full requirements complete/55 open. Android 13 identity checks plus owned empty/cold cleanup pass with unchanged current Release; ID03/04 partial. Public Android backup review awaits owner authentication/Done; iPhone Done/cancel pending. No device UI/capture while owner may reveal. Ceiling about98%, no source push.
 last_updated: "2026-10-09"
 last_activity: 2026-10-09
-state_head: 1294f873cc407cf9e6e18771690973518b674a5e
+state_head: d694d16ddf8eb7ad526c4456b3be8e41bb8d2d6b
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1727,3 +1727,15 @@ packaging/update/cold-entry/signing evidence and remains partial. Six of 61 full
 requirements are complete across both phones; 55 remain open. Next Android
 import/switch and broader native/capability/fault journeys; iPhone backup-panel
 closure/cancellation still needs owner confirmation. Usage 89%, ceiling about 98%.
+
+
+## Current Android identity checkpoint — 9 October 2026
+
+Thirteen ordinary identity checks and owned cleanup/cold-empty checks pass with
+the unchanged current Release. ID-03/04 Android now have partial evidence;
+STATE-01/BUILD-02 are supplemented. All 61 scopes remain, with six complete/55
+open. See the [physical checkpoint](phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md#current-physical-android-identity-import-and-lifecycle--9-october-2026)
+for preserved observer failures, original visual limits and bounded relay reads.
+Android public backup review awaits owner-only authentication/reveal/Done; iPhone
+Done/cancellation is also pending. No device UI/capture until closure is confirmed.
+No implementation edit, new build/full quality claim, source push or Phase 3 advance.
