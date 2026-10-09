@@ -190,7 +190,7 @@ AddressSanitizer/UndefinedBehaviorSanitizer. It checks eight undersized Huffman-
 allocations, an exact lossless RGBA round-trip and twelve short-header rejections.
 Its receipt hashes all 176 installed C/header files and checks their stability,
 plus the test source and Pod lock. Output stays in a fresh temporary directory;
-the compiled test binary is removed even on failure. This is host-source evidence.
+the compiled test binary and its debug-symbol bundle are removed even on failure. This is host-source evidence.
 Build and install the signed ordinary iPhone app separately, then test actual
 native image decoding. See [native dependency provenance](native-dependency-notices.md#source-built-ios-webp-repair--10-october-2026).
 

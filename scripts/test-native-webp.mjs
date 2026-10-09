@@ -53,7 +53,9 @@ try {
   process.exitCode = 1;
 } finally {
   rmSync(binary, {force: true});
+  rmSync(`${binary}.dSYM`, {recursive: true, force: true});
   receipt.compiledTestBinaryRemoved = true;
+  receipt.debugSymbolsRemoved = true;
   writeFileSync(path.join(output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n');
   console.log(JSON.stringify({status: receipt.status, evidenceDirectory: output, error: receipt.error}));
 }
