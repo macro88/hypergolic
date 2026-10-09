@@ -19,9 +19,10 @@ Node, pnpm, Expo, React, React Native, TypeScript, GSD, React Doctor and aislop 
 licenses. Temurin uses GPLv2 with the Classpath Exception. Android SDK packages carry
 Google's SDK terms; Gradle is Apache-2.0. The installed Kehto and Applesauce
 packages declare MIT licenses; their selected versions are pinned in the root/runtime
-manifests and lockfiles. Phase2.11 records installed production JavaScript license
-metadata separately from the still-open native license/notice review. This table
-is not a complete distribution license inventory.
+manifests and lockfiles. Phase2.11 records installed production JavaScript metadata
+and a [native dependency metadata/notice checkpoint](native-dependency-notices.md).
+Final shipped-component and notice coverage remain open. This table is not a
+complete distribution license inventory.
 
 ## Install and check
 

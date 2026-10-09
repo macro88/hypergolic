@@ -1772,3 +1772,17 @@ No physical matrix advancement: all61 scopes/statuses persist, six complete/55 o
 Both owner backup closure confirmations still gate phone access. Native/owning/
 protected/published/network and final full MVP acceptance remain open. Source push
 owner-only; no Phase3 advance. Latest usage90%, ceiling about98%.
+
+
+## Native dependency metadata inventory — 9 October 2026
+
+Offline Android Release resolution captures150 Maven declarations/11 project
+components and144 external artifact records; installed iOS metadata accounts for
+all98 locked root pods and ten generated library acknowledgements. Thirteen
+installed iOS-device framework binaries are ARM64-checked; all1,337 sealed inputs
+persist. Original notices/POMs/specs, failures and incomplete predecessors are
+retained. See [scope and remaining distribution review](../docs/native-dependency-notices.md).
+No production behavior, dependency pin, app data, phone UI or matrix status changes.
+BUILD-01/Phase2 remain open: six of61 complete/55 open. Both owner backup closure
+confirmations still gate physical input/capture. No source push or Phase3 advance;
+usage90%, ceiling about98%.
