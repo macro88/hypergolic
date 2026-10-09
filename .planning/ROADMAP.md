@@ -191,9 +191,10 @@ CAP-06 is selected-profile complete; broad CAP-14 gates remain open.
 
 **Current checkpoint — 9 October 2026:** Implementation through 2.9 is in place;
 complete MVP acceptance remains open. The [current acceptance matrix](phases/02.11-published-mvp-acceptance/02.11-acceptance-matrix.json)
-preserves all 61 requirements: UX-01/03/04/06/08 pass on both physical phones,
-leaving 56 full requirements open. Android UX-09 passes; iPhone restart/published
-lazy reload remains partial. iPhone avatar UX-02 passes; Android parity is open.
+preserves all 61 requirements: UX-01/03/04/06/08/09 pass on both physical phones,
+leaving 55 full requirements open. Both platforms now pass the complete named
+restart/published version-pin/lazy-reload/deliberate-empty journey. iPhone avatar
+UX-02 passes; Android parity is open.
 Ordinary signed builds and initial identity continuity have scoped physical proof,
 not final packaging or protected-identity acceptance. The designated development
 publisher exists and selected real published fixtures have been retrieved/tested;
@@ -205,10 +206,10 @@ Published Outbox admission stays withheld pending its required acceptance. The
 [Outbox register](phases/02.11-published-mvp-acceptance/02.11-OUTBOX-HANDOFF.md)
 retains every transferred native/device/fault requirement. Recent physical WK and
 real-Keychain probes supplement partial rows; they do not close whole app journeys.
-The 9 October readiness retry still times out before UI initialization after the
-owner-confirmed iPhone toggle. A disabled host developer-authorization policy is
-an unproven repair candidate; no OS setting has been changed. Android is currently
-disconnected. Final quality remains open under the exact existing approved locked
+On 9 October the owner enabled Mac developer authorization and completed the
+iPhone XCTest passcode prompt. Readiness and the full published restart journey
+now pass. Android is currently disconnected. Final quality remains open under the
+exact existing approved locked
 dependency exceptions; the ordinary verifier remains red.
 
 ### Phase 3: External signing

@@ -1686,3 +1686,6 @@ summary now matches all61 matrix requirements, five closed/56 open. Resume full
 physical app journeys when automation is repaired; avoid further isolated probes
 as a substitute for the missing end-to-end requirements. Latest usage81%, existing
 ceiling about98%; source push remains owner-controlled.
+
+
+Physical continuation — 9 October 2026: iPhone UI control is restored after owner authorization on Mac and phone. The existing signed normal QA app passes the complete eight-check verified-published State/Feed restart journey, with original screenshots reviewed. UX-09 now passes on both phones: all 61 original requirements remain, six complete and 55 open. See [Plan03 checkpoint](phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md) for exact scope and failed observer predecessors. Continue identity/signing and remaining capability/security/fault acceptance; final quality/build sign-off remains open. Source push owner-only; usage83%, ceiling about98%.

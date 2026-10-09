@@ -259,7 +259,7 @@
           "verifiedScope": "Complete ordinary verified-published State/Feed restart scope on a signed isolated Release, combined with retained complete deliberate-empty proof. Both genuine process-death/relaunch cases preserve independently decoded public identity, exact native UUIDs, full opening order, last active view and both signed event pins. Each inactive preview visibly shows Open to load; real native focus reloads the original SDK and State recovers its exact previously saved shared string. Only the two new owned published views close, returning the disposable workspace to deliberate empty. Five complete continuation checks use the existing two views/data; retained first-open/save predecessor and all observer failures stay explicit, not an uninterrupted green first-open run. All 1,221 runtime inputs and installed APK stay unchanged; original-build differences are five documentation files only; original main APK/PID preserved. No unsaved draft process-death, publication, new build or complete quality claim."
         },
         "ios-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
             "iphone-workspace01/hg-workspace-physical-iphone02/trace-report.json",
             "iphone-workspace01/hg-close-physical-iphone01/trace-report.json",
@@ -268,10 +268,14 @@
             "iphone-crossqueue01/run-05/receipt.json",
             "iphone-crossqueue01/run-05/trace-report.json",
             "iphone-crossqueue01/visual-review.json",
-            "iphone-crossqueue01/final-integrity.json"
+            "iphone-crossqueue01/final-integrity.json",
+            "iphone-published-restart03/run-03/receipt.json",
+            "iphone-published-restart03/run-03/trace-report.json",
+            "iphone-published-restart03/run-03/source-inputs.json",
+            "iphone-published-restart03/visual-review.json"
           ],
-          "remaining": "Complete the full named row. Nine-check physical subset proves independent three-view input, inward switch/early cancel/last end-stop, overview return, upward close warning/Keep open and cold focus/identity. Does not prove first end, full order/empty, continuous pacing, screen-reader or reduced-motion cases. Six-check physical close subset proves exact warning/confirmation, target removal with overview/two observed neighbors retained, neighbor live draft/counter and cold remaining focus/identity. Full inventory/order, saved-data, deliberate-empty and closed-target absence after cold restart remain open. Separate ordinary-entry disposable Release now passes complete deliberate-last-empty persistence across two real process restarts, exact protected identity and closed-target absence/new UUID/shared saved recovery. Full ordinary verified-published version-pin/order/lazy reload cases remain open; no temporary draft process-death recovery claim.",
-          "verifiedScope": "Owned ordinary bundled cold restore retains complete six-view order, generated identity and selected UX view. Other bundled views display Open to load; transient guest state resets. This does not establish published version pinning or all saved-state cases."
+          "remaining": "None for the named iPhone ordinary restart/order/last-active/version-pin/lazy-reload/saved-data/deliberate-empty requirement. Complete MVP identity/signing/capability/security/fault and final quality acceptance remain open.",
+          "verifiedScope": "Eight complete physical normal-app native-input checks open the exact independently verified published State/Feed events through ordinary Settings, compare publisher/access/event review, save and reread a unique shared State string, and retain complete opening order and exact trusted version pins through two actual terminate/not-running/launch cycles. State-last-active and Feed-last-active cases restore the same independently decoded public identity and native UUIDs. Both original inactive previews visibly show Open to load before native focus reloads the original SDK; State then rereads its exact saved value. Only the two newly owned published views close, preserving all six baseline views/order and restoring the original UX focus. Combined with retained complete deliberate-empty proof, this closes the named row. Two retained predecessors fail observer navigation before any published opening; the third full journey passes without a product change. All 1,221 current inputs, both local product seals, both installed metadata records and primary process remain unchanged. Original build differences are documentation/test files only; installed iOS executable bytes are not retrieved. Unsaved draft process-death, publication, Outbox acceptance and final build/quality sign-off remain open."
         }
       }
     },

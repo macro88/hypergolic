@@ -235,3 +235,12 @@ Runtime connected. All 1,221 runtime inputs and installed APK remain unchanged, 
 only five documentation differences from the original build. Main APK/PID are preserved.
 No application fix, unsaved draft recovery, Outbox publication, fresh packaging or full
 quality claim follows. All 61 full requirements remain, 5 complete across both phones.
+
+
+## Physical iPhone published restart journey — 9 October 2026
+
+The existing signed normal QA app passes all eight physical published State/Feed checks. Ordinary Settings verifies the exact public publisher, event and requested access; Feed still warns that Outbox is unavailable. State saves and rereads a fresh shared value. Two actual process terminations and launches restore complete opening order, independently decoded public identity, exact native UUIDs, last-active view and both signed event pins. Each inactive preview visibly shows Open to load before native focus reloads the original SDK; State recovers the exact saved value. Closing only the two newly owned published views preserves all six original views/order and returns to the original UX focus. Original screenshots and public accessibility records were reviewed.
+
+Two failed predecessors are retained: an offscreen Overview Open helper and a generic Done query that matched Settings Done. Neither opened a published view. The corrected third driver passes the complete journey with no application change. All 1,221 observed inputs, both local app seals, installed metadata and primary process stay unchanged. The runner alone was built/installed; installed iOS executable bytes were not retrieved. This proves the named restart requirement together with the prior deliberate-empty run; unsaved draft recovery, published Outbox support and final MVP completion remain open.
+
+UX-09 now passes on both physical phones; all 61 original requirements remain, six complete and 55 open. Identity/signing/capability/security/fault acceptance and final build/quality sign-off remain. Documentation-only checkpoint; no new application build, fresh quality scan or source push. Usage 83%, owner ceiling about 98%.
