@@ -54,6 +54,16 @@ accurate; generated `.codex/` stays local. Resolve missing product decisions bef
 auto-advancing. Finish with a coherent commit and authorized push, reporting the
 actual target, checks and remaining limits; a PR is not mandatory for every task.
 
+## Device test cleanup
+
+Keep the agreed current Hypergolic app ID stable for normal device updates.
+After each physical test batch, reconcile running jobs and uncertain side effects,
+then uninstall the temporary test apps and runner packages created for that batch.
+Verify their exact IDs are absent and the retained app remains installed unchanged.
+Record before/after inventories and cleanup results. Do not leave test launchers
+for the owner to remove. Preserve the retained app's data; removing older retained
+apps requires explicit owner approval because uninstalling erases local app data.
+
 ## Protocol changes
 
 Before changing a NAP/NIP surface, check its owning specification and record the

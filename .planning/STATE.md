@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Six of61 full requirements complete/55 open. Android physical eight-case runs and strict independent LAN receiver audit pass; SEC01/02/03 partial. Temporary packages removed, all four old APKs preserved. App consolidation decision needed before erasing old data. Full protected/Expo/published/security scope remains. Ceiling about98%, no source push.
+stopped_at: Six of61 full requirements complete/55 open. Android physical eight-case runs and strict independent LAN receiver audit pass; SEC01/02/03 partial. Temporary packages removed, all four old APKs preserved. Owner-approved cleanup complete: one current app on each phone; six iPhone test apps and older duplicate removed. Full protected/Expo/published/security scope remains. Ceiling about98%, no source push.
 last_updated: "2026-10-09"
 last_activity: 2026-10-09
 state_head: e32e6aa
@@ -1851,3 +1851,21 @@ published scope remain. Pre-documentation full source-bound Doctor100/430,
 aislop98 with only the exact two approved locked advisories, ten audits and all
 engines complete; normal gate stays red. No new exception/suppression/source push.
 Usage94%, ceiling about98%; full Plan03/04/Phase2 remain open.
+
+
+## Owner-approved phone cleanup — 9 October 2026
+
+The owner approved the three older Android removals and requested cleanup of all
+our iPhone test apps. Three exact hash-verified old Android packages are removed.
+iPhone cleanup removes six known probe/runner apps and its older duplicate
+Hypergolic build. Both inventories now contain only the agreed current
+emptyacceptance Hypergolic ID. Its Android APK hash and iPhone installed metadata
+match the pre-cleanup observations. No retained app is launched, reinstalled or
+reset; no private key or app data is read. Removal of every target ID is verified.
+
+Canonical private phone-cleanup-20261009 preserves original inventory, controller,
+command results and receipt. Future physical batches must remove their temporary
+apps/runners after jobs and uncertain side effects are reconciled; retain the
+current app ID for updates. AGENTS.md now makes this cleanup part of completion.
+This is device housekeeping, with no acceptance-row advancement or production
+implementation change. Full Phase2 remains open; usage94%, ceiling about98%.
