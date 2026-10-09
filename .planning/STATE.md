@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Current corrected signed iPhone package verified and preserved; owned intermediates removed. Android disconnected before zero-input secret actor; iPhone paired but locked. Clean-close decision pending. Full Phase2 seven of61 complete/54 open, usage13%, ceiling about98%; no source push.
-last_updated: "2026-10-09"
-last_activity: 2026-10-09
-state_head: f8963602f01cc72745c5c0b104b477f5b99ff88d
+stopped_at: Packaged native image mapping and compiled codec reporters independently verified; native patch provenance and shipped notices remain open. Android disconnected; iPhone locked; clean-close choice pending. Full Phase2 seven of61 complete/54 open, usage13%, ceiling about98%; no source push.
+last_updated: "2026-10-10"
+last_activity: 2026-10-10
+state_head: 473824536f2da1151744bd0c49b4328b7bc47242
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1946,3 +1946,5 @@ about98%; current source-bound quality verification follows this checkpoint.
 Configuration checkpoint (2026-10-09): selected NAP-CONFIG rejected registration now yields both negative ACK and requester-bound schemaError; broker regression red→green and six ordinary physical Android SDK checks pass after preserved-data same-ID/certificate update. Native Cancel/Save/invalid value, app isolation and process-death readback prefix remains scoped. Background oracle corrected to keeper PAUSED/launcher RESUMED. Both owned views close; keeper-only inventory. CAP11 Android partial; physical iOS, secret/purge/update/fault/published parity and first cold Settings press remain open. Typecheck35 presentation/100 Outbox/12 Chromium-WebKit, signed Android Release and both exports pass; full Doctor100/aislop98 with only exact approved dependencies. Full Phase2 remains seven of61 complete/54 open, usage12% below owner ceiling about98%; no source push.
 
 Readiness checkpoint (2026-10-09): current f896360 ordinary signed iPhoneOS ARM64 build passes same-ID/label/certificate, provisioning, entitlement, exact host and all1247 input checks. Portable79-file archive extraction and strict signature pass. Ready app preserved; only owned derived intermediates removed (about1.79GB). Android secret/purge actor stops at its first read-only observation after disconnection, with zero device inputs/writes/views. iPhone paired but locked; neither new physical configuration nor installed iOS bytes proved. Outbox100/100 passes. Full matrix unchanged seven of61 complete/54 open; clean-close decision pending, no deferral/private field selected. Prior source-bound quality belongs to f896360; this is a documentation-only checkpoint. Usage13%, owner ceiling about98%, no source push.
+
+Packaged dependency checkpoint (2026-10-10): all21 ordinary Android ARM64 ELF images map to selected archives or local allocated section bytes; all14 embedded iPhone frameworks match owning UUID/section bytes, including package-owned ExpoModulesJSI absent from the earlier Pods-only scan. Independent LLVM/Apple format checks pass. Compiled WebP1.1.0 and libaom3.0.0 reporters plus immutable upstream originals are captured; patch provenance is not inferred from these numbers. Existing dependency locks/artifacts, both signed products and1247 source inputs remain. Original observer failures are retained; owned temporary ELF extracts removed. Full notice/static/transitive review remains BUILD01, and no new security exception is selected. No phone changes, acceptance advancement, build/full quality rerun or source push. Seven of61 complete/54 open; Android disconnected, iPhone locked, clean-close decision pending. Usage13%, ceiling about98%.
