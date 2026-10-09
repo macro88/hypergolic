@@ -1786,3 +1786,16 @@ No production behavior, dependency pin, app data, phone UI or matrix status chan
 BUILD-01/Phase2 remain open: six of61 complete/55 open. Both owner backup closure
 confirmations still gate physical input/capture. No source push or Phase3 advance;
 usage90%, ceiling about98%.
+
+
+## Prebuilt image dependency provenance — 9 October 2026
+
+Five installed ExpoImage dependency frameworks match packaged Release bytes and
+are mapped to exact declared SPM pins/immutable upstream tag/license/package
+originals. libavif attribution follows its actual avif submodule; initial root
+license404 stays retained. Lower-bound libwebp/libaom dependencies are not promoted
+to verified compiled versions. See [source and distribution boundary](../docs/native-dependency-notices.md#expoimage-prebuilt-dependency-provenance--9-october-2026).
+Validation's stale three-complete count is corrected from the unchanged actual
+61-row matrix: six complete/55 open. Both phone backup closure reports still gate
+physical UI; no app/dependency changes, source push, Phase3 or acceptance advance.
+Usage90%, ceiling about98%.

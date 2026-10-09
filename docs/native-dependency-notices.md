@@ -70,3 +70,37 @@ linked iPhone application.
 No phone UI, protected key, app data, signing configuration, dependency pin or
 production behavior changes during this inventory. BUILD-01 and full Phase 2
 acceptance remain open; physical matrix statuses are unchanged.
+
+
+## ExpoImage prebuilt dependency provenance — 9 October 2026
+
+Installed ExpoImage57.0.4 declares five exact SPM build pins in
+`node_modules/expo-image/spm.config.json`. Each corresponding installed iOS-device
+framework is byte-identical to the package's Release prebuild; the Debug binary
+does not match. Immutable upstream tag resolutions and original licenses/package
+files are captured for these declared pins:
+
+| Product | Declared exact version | Immutable upstream license source |
+| --- | --- | --- |
+| SDWebImage | 5.21.6 | [License original](https://raw.githubusercontent.com/SDWebImage/SDWebImage/449e8f8f10377f620db8ad22ea81208eecf6325f/LICENSE) |
+| SDWebImageAVIFCoder | 0.12.0 | [License original](https://raw.githubusercontent.com/SDWebImage/SDWebImageAVIFCoder/b6455e16f2752d43e05d58ffbe38aac56e7c1149/LICENSE) |
+| SDWebImageSVGCoder | 1.8.0 | [License original](https://raw.githubusercontent.com/SDWebImage/SDWebImageSVGCoder/85b5d58ad02c207c496fa34426dc6560d6ae32f0/LICENSE) |
+| SDWebImageWebPCoder | 0.15.0 | [License original](https://raw.githubusercontent.com/SDWebImage/SDWebImageWebPCoder/12d83edbcc795fb7b5c0c3cb74d739108d3357d2/LICENSE) |
+| libavif | 1.0.0 | [libavif submodule original](https://raw.githubusercontent.com/AOMediaCodec/libavif/bc41fc5b22786976ca23664905875ccd104f55c4/LICENSE) |
+
+The libavif wrapper tag has no root LICENSE file. Its actual `avif` submodule
+points to AOMediaCodec/libavif commit
+`bc41fc5b22786976ca23664905875ccd104f55c4`; that source owns the captured license.
+The initial root-file404 failure remains recorded. No attribution is invented.
+
+This verifies declared build pins and identical packaged/installed Release bytes.
+It does not reproduce an upstream source build or prove that every declared pin
+is the actual compiler input. Package manifests also declare libwebp-Xcode from
+1.1.0 and libaom-Xcode from3.0.0. These are lower bounds, not verified compiled
+versions. The prebuilt build's resolved transitive versions and their notices still
+need exact provenance before the complete distribution review can close.
+
+Framework Info.plist version1.0 is packaging metadata and is not used as a
+third-party library version. CocoaPods source dependency ranges are also not
+substituted for the separate prebuilt SPM selections. App/native dependency pins,
+production behavior, phone UI and matrix acceptance remain unchanged.
