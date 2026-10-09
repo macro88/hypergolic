@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Android SIGN02 physical queue passes fourteen checks; both owned views cleaned and keeper unchanged. First Settings press gap remains UX05 partial. Seven of61 complete/54 open across both platforms. Full Phase2 active; usage12%, ceiling about98%; no source push.
+stopped_at: Android configuration schema-error repaired and six genuine SDK checks pass after same-ID update; both views cleaned. CAP11 Android partial, physical iOS and full secret/update/fault/published scope open. Seven of61 complete/54 open; usage12%, ceiling about98%; no source push.
 last_updated: "2026-10-09"
 last_activity: 2026-10-09
-state_head: 8a60fad263fe80108016e6b3d1af4c0ed6902284
+state_head: d86ccb3133c99d3164d769eae0f5b54c2cd98ce4
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1942,3 +1942,5 @@ and Phase2 stay open. Canonical private android-identity-storage01 retains the
 original builds, stopped partial run, final run and independent review. No source
 push, policy change, owner-app replacement or Phase3 advance. Usage4%, ceiling
 about98%; current source-bound quality verification follows this checkpoint.
+
+Configuration checkpoint (2026-10-09): selected NAP-CONFIG rejected registration now yields both negative ACK and requester-bound schemaError; broker regression red→green and six ordinary physical Android SDK checks pass after preserved-data same-ID/certificate update. Native Cancel/Save/invalid value, app isolation and process-death readback prefix remains scoped. Background oracle corrected to keeper PAUSED/launcher RESUMED. Both owned views close; keeper-only inventory. CAP11 Android partial; physical iOS, secret/purge/update/fault/published parity and first cold Settings press remain open. Typecheck35 presentation/100 Outbox/12 Chromium-WebKit, signed Android Release and both exports pass; full Doctor100/aislop98 with only exact approved dependencies. Full Phase2 remains seven of61 complete/54 open, usage12% below owner ceiling about98%; no source push.

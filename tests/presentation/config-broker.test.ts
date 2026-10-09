@@ -60,3 +60,17 @@ test('duplicate Save is rejected while the native write is pending; only the fir
  const first=h.broker.commit(id,{theme:'light',nested:{level:2}},{});await tick();await assert.rejects(h.broker.commit(id,{theme:'dark',nested:{level:3}},{}),(error:any)=>error.code==='BUSY');
  h.unlock();await first;assert.deepEqual(await h.get(),{theme:'light',nested:{level:2}});
 });
+
+test('rejected registrations deliver one canonical schema error to their captured requester and preserve ACK, values and peer isolation',async t=>{
+ const h=await setup(t),peer={...h.source,generation:'schema-error-peer',sessionId:'schema-error-peer-view',instanceId:'schema-error-peer-view'};
+ await h.register();await h.register(schema,1,peer);await h.dispatch({type:'config.subscribe'}).promise;await h.dispatch({type:'config.subscribe'},peer).promise;h.sent.length=0;
+ const cases=[{code:'secret-with-default',schema:{type:'object',properties:{token:{type:'string','x-napplet-secret':true,default:'forbidden-public-default'}}}},{code:'pattern-not-allowed',schema:{type:'object',properties:{name:{type:'string',pattern:'^(a|a)*$'}}}}];
+ for(const [index,invalid] of cases.entries()){
+  const bad=h.dispatch({type:'config.registerSchema',id:'bad-schema-'+index,schema:invalid.schema});await bad.promise;const reply=bad.reply();
+  assert.equal(reply.type,'config.registerSchema.result');assert.equal(reply.id,'bad-schema-'+index);assert.equal(reply.ok,false);assert.equal(reply.code,invalid.code);
+  assert.deepEqual(h.sent,[{generation:h.source.generation,message:{type:'config.schemaError',code:invalid.code,error:reply.error}}]);
+  assert.deepEqual(await h.get(),{theme:'dark',nested:{level:2}});assert.deepEqual(await h.get(peer),{theme:'dark',nested:{level:2}});h.sent.length=0;
+ }
+ const forged=h.dispatch({type:'config.registerSchema',id:'forged-schema',schema:cases[0]!.schema},h.source,{publisher:'04'.repeat(32)});await forged.promise;assert.equal(forged.reply(),null);assert.deepEqual(h.sent,[]);
+ h.revoke(h.source.generation);const revoked=h.dispatch({type:'config.registerSchema',id:'revoked-schema',schema:cases[0]!.schema});await revoked.promise;assert.equal(revoked.reply(),null);assert.deepEqual(h.sent,[]);
+});

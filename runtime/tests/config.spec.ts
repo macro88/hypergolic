@@ -9,7 +9,7 @@ async function open(page:Page){
    const envelope=JSON.parse(raw);if(envelope.type!=='capability')return;const wrapper=JSON.parse(envelope.message),message=wrapper.message;state.calls.push(message);let response:any=null;
    if(message.type==='config.registerSchema'){
     const properties=message.schema.properties??{},code=properties.token?.default!==undefined?'secret-with-default':properties.name?.pattern?'pattern-not-allowed':null;
-    response=code?{type:'config.registerSchema.result',id:message.id,ok:false,code,error:'Schema rejected: '+code}:{type:'config.registerSchema.result',id:message.id,ok:true};if(!code)state.registered=true;
+    response=state.rejectSchemaReply?{type:'config.registerSchema.result',id:message.id,ok:'invalid'}:code?{type:'config.registerSchema.result',id:message.id,ok:false,code,error:'Schema rejected: '+code}:{type:'config.registerSchema.result',id:message.id,ok:true};if(!code&&!state.rejectSchemaReply)state.registered=true;
    }
    if(message.type==='config.get'&&state.registered)response={type:'config.values',id:message.id,values:state.values};
    queueMicrotask(()=>{const result=JSON.stringify({type:'capability.result',sessionId:'config-browser',sequence:envelope.sequence,response:JSON.stringify({type:'routing.call.result',id:wrapper.id,response})});listeners.forEach(fn=>fn({data:result}));
@@ -47,4 +47,13 @@ test('one-shot configuration snapshots stay correlated and cannot duplicate live
  await page.evaluate(values=>(window as any).configPush({type:'config.values',values}),defaults);
  await guest.locator('#config-get').click();await expect(guest.locator('#config-read-count')).toHaveText(JSON.stringify({reads:2}));
  await expect(guest.locator('#config-events')).toHaveText(JSON.stringify([defaults,next]));
+});
+
+
+test('a rejected native schema reply reports both the failed registration and one SDK schema-error callback',async({page})=>{
+ const guest=await open(page);await page.evaluate(()=>(window as any).configNative.rejectSchemaReply=true);
+ await guest.locator('#config-register').click();await expect(guest.locator('#config-status')).toContainText('Request failed: Configuration schema was not applied.');
+ await expect(guest.locator('#config-errors')).toContainText('invalid-schema');
+ const errors=JSON.parse(await guest.locator('#config-errors').textContent()??'null');expect(errors).toHaveLength(1);expect(errors[0].code).toBe('invalid-schema');
+ await expect(guest.locator('#config-result')).toBeEmpty();await expect(guest.locator('#config-events')).toBeEmpty();
 });

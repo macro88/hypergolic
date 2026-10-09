@@ -135,7 +135,13 @@ export class ConfigBroker {
         endpoint.schema = schema; endpoint.version = version;
         if (endpoint.subscribed) {const values = await this.values(endpoint, revision); if (values !== null) this.push(endpoint, revision, {type: 'config.values', values});}
         return {type: 'config.registerSchema.result', id: request.id, ok: true};
-      } catch (error) {check(); return {type: 'config.registerSchema.result', id: request.id, ok: false, code: error instanceof ConfigSchemaError ? error.code : 'invalid-schema', error: error instanceof ShellStorageError ? 'Configuration storage is unavailable (' + error.code + ').' : 'Configuration schema was not applied.'};}
+      } catch (error) {
+        check();
+        const code = error instanceof ConfigSchemaError ? error.code : 'invalid-schema';
+        const message = error instanceof ShellStorageError ? 'Configuration storage is unavailable (' + error.code + ').' : 'Configuration schema was not applied.';
+        this.push(endpoint, revision, {type: 'config.schemaError', code, error: message});
+        return {type: 'config.registerSchema.result', id: request.id, ok: false, code, error: message};
+      }
     }
     if (request.type === 'config.get') {const values = await this.values(endpoint, revision); return values === null ? null : {type: 'config.values', id: request.id, values};}
     if (request.type === 'config.unsubscribe') {endpoint.subscribed = false; return null;}

@@ -35,6 +35,12 @@ handoff or trusted review. The shared service verifies output identity and prese
 the prepared content; guest MIME, caption and filename cannot choose sanitation
 policy. This makes the reviewed hash describe the actual native-owned output.
 
+The selected [configuration contract](notifications-configuration.md) now reports
+both a negative registration ACK and one requester-bound schema-error push. Six
+ordinary physical Android SDK checks verify the repair, preserved values and peer
+isolation after a data-preserving app update. Complete physical iOS, configuration
+fault/update and published acceptance remain open.
+
 ## Implemented
 
 `index.ts` registers `src/App.tsx` with Expo. Both native hosts run verified,

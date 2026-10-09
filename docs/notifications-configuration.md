@@ -56,7 +56,10 @@ homogeneous. Defaults, required fields, numeric/string/array limits and enum
 choices are checked before delivery. References, patterns, unsupported drafts and
 secret defaults are rejected. Property defaults take precedence over inherited ancestor defaults under the
 selected resolution rules. Invalid values are withheld; an invalid registration
-keeps the previous valid schema. Schema changes purge removed or invalid secrets.
+keeps the previous valid schema. A rejected registration returns a negative ACK
+and pushes one `config.schemaError` to its captured live requester. The native
+reply fallback likewise reports both outcomes, without delivery after revocation.
+Schema changes purge removed or invalid secrets.
 
 Configuration persistence is scoped to identity, publisher, application and the
 verified aggregate artifact hash. Instance IDs do not alter persistence. A
@@ -165,3 +168,37 @@ run's Home/return observation therefore does not prove background; a separate
 state-confirmed configuration run now passes exact saved-value readback.
 See the [physical checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md)
 for failed attempts, repaired observers and remaining limits.
+
+
+## Physical Android configuration repair — 9 October 2026
+
+Ordinary bundled Routing Lab checks prove native Cancel, exact Save and one live
+value push, invalid-value refusal, distinct application isolation and persisted
+values after actual process death. The older run's background oracle also matches
+unrelated stopped activities: independent review proves the keeper was PAUSED and
+the launcher RESUMED. This supports launcher/return readback, not a proved keeper
+STOPPED state or complete lifecycle fault acceptance. Failed runs remain retained.
+
+The SDK correctly reported rejected secret-default and pattern registrations,
+but its schema-error callback stayed empty. The selected NAP-CONFIG requires both
+the negative ACK and the error push. The broker and native-reply fallback now send
+both while retaining captured recipient and generation checks. The regression
+fails against the original broker and passes with the repair.
+
+The corrected ordinary signed Android app passes six original-SDK checks after an
+in-place update: selected public identity and empty workspace retained, valid
+schema and initial subscription, one exact callback for each rejection, no peer
+error delivery, and forged-control refusal. Previous valid values/subscriptions
+remain unchanged. Both owned views close; the original empty workspace and selected
+identity return. Only the retained app remains installed. Thirteen new PNGs and
+48 preceding originals are inspected; exact callback/value arrays are accessibility
+XML evidence because their complete text can be clipped/offscreen in PNG.
+
+Typechecking, 35 presentation, 100 Outbox and 12 Chromium/WebKit configuration
+checks pass, as do the signed Android Release and both production exports. Full
+Doctor is 100 and aislop is 98 with only the two existing exact dependency
+exceptions; the unchanged normal gate remains red. Android CAP-11 becomes partial.
+Physical iOS callback parity, secret set/clear/purge, full identity/publisher/version
+isolation, verified updates, faults/races and published parity remain required.
+The first cold Settings press still misses before a separately observed warm
+continuation; UX-05 remains open. No source push or Phase 2 completion claim.

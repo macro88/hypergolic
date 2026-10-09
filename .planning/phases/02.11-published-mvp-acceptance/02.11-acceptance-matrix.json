@@ -1201,8 +1201,17 @@
       "requiredEvidence": "Declarative config validates selected schema features, persists by owner, notifies the live app and handles restart/incompatible updates safely",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-configuration01/prior-physical/run03/receipt.json",
+            "android-configuration01/prior-physical/run04/receipt.json",
+            "android-configuration01/reports/hg-config-actual-background-independent-review-20261009.json",
+            "android-configuration01/corrected-physical/receipt.json",
+            "android-configuration01/visual-review/independent-review.json",
+            "android-configuration01/install/receipt.json"
+          ],
+          "verifiedScope": "Ordinary original-SDK/native-editor Cancel, exact Save and one live value push, invalid-value refusal, app isolation and saved-value readback after actual process death. Older background oracle corrected to keeper PAUSED/launcher RESUMED; only launcher/return readback. Selected-contract schema-error defect fixed; six new physical SDK checks prove failed ACKs plus one exact own callback per rejection, unchanged valid values/subscriptions, no peer delivery and forged-control refusal. Same-ID/certificate in-place update preserves selected public identity/empty workspace. Both owned views close; keeper-only inventory. Exact arrays from original XML; thirteen new and48 preceding PNGs reviewed.",
+          "remaining": "Complete secret set/clear/purge, identity/publisher/version isolation, verified incompatible updates, faults/races and published parity. Corrected physical iOS callback acceptance remains required; the first cold Settings press still misses and UX05 remains partial."
         },
         "ios-physical": {
           "status": "partial",
