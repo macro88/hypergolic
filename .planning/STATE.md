@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Six of61 full requirements closed across both phones. Full iPhone published restart passes; note/profile individual signing and independent readbacks pass within scope. Five public backup review/cancel checks pass; owner authentication/reveal is next with recording stopped; Android disconnected. Ceiling about98%, no source push.
+stopped_at: Six of61 full requirements closed across both phones. Owner confirms repaired iPhone Face ID backup reveal works. Remaining auth/capture/export comparison and Android parity stay open; wait for owner to close secret panel before automation. Ceiling about98%, no source push.
 last_updated: "2026-10-09"
 last_activity: 2026-10-09
 state_head: 1294f873cc407cf9e6e18771690973518b674a5e
@@ -1698,3 +1698,6 @@ Physical backup continuation — 9 October2026: all five public backup review/ca
 
 
 Backup failure continuation — 9 October2026: owner Face ID succeeds but backup fails with identity unchanged/no secret. A reproduced post-authentication inactive-state rejection path is patched with a live/cancellable five-second native wait before secret read. All66 owning-source tests and shared353+13 pass; signed iPhone Release compiles. Specific physical root cause/successful reveal still need owner retry; ID05/Phase2 stay partial (six of61 complete/55 open). Original products/main app preserved; same QA bundle/Hypergolic label. Standard check retains six existing Expo mismatches; exact existing advisory exceptions remain visible. No source push; usage87%, ceiling about98%.
+
+
+Owner backup verification — 9 October2026: owner reports "yep worked" after the same-QA signed native handoff repair and manual fresh Face ID retry with recording stopped. The reveal failure is resolved by owner observation; actual callback timing and exact exported/imported public identity are not independently recorded. ID05 stays partial; all61 requirement/platform statuses remain unchanged (six complete/55 open). Do not access device UI until backup Done is confirmed. Authentication cancellation/unavailable, capture/background and Android parity remain. Documentation-only checkpoint; no new build/tests/quality claim or source push. Usage88%, ceiling about98%.

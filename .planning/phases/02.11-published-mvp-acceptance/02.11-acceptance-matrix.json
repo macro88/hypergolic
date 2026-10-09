@@ -420,10 +420,14 @@
           "evidence": [
             "iphone-public-backup-review01/run-01/receipt.json",
             "iphone-public-backup-review01/run-01/trace-report.json",
-            "iphone-public-backup-review01/visual-review.json"
+            "iphone-public-backup-review01/visual-review.json",
+            "iphone-backup-foreground01/signed-build/receipt.json",
+            "iphone-backup-foreground01/qa-update/receipt.json",
+            "iphone-backup-foreground01/public-recheck/receipt.json",
+            "iphone-backup-foreground01/owner-success.json"
           ],
-          "verifiedScope": "Five actual normal-app public-input checks verify the exact selected development identity, backup explanation/iOS screenshot warning, pre-authentication cancellation, unchanged identity/original UX focus, and reopened public review ready for owner authentication after test recording stops. The selected driver never taps or invokes authenticated reveal; no secret/passcode is obtained. Both local products/installed app metadata, all1,221 current source inputs and primary process remain unchanged. Only the XCTest runner builds and installs. Original public review/cancellation pixels are inspected. This is public review scope, not native authentication or export proof.",
-          "remaining": "Complete fresh physical authentication success, authenticated cancellation/failure/unavailable, secret-handling/capture/background cases and exact manual exported/imported public identity comparison, plus Android parity. Owner must authenticate on-device after recording stops; never send or record the private key."
+          "verifiedScope": "Five actual normal-app public-input checks verify the exact selected development identity, backup explanation/iOS screenshot warning, pre-authentication cancellation, unchanged identity/original UX focus, and reopened public review ready for owner authentication after test recording stops. The selected driver never taps or invokes authenticated reveal; no secret/passcode is obtained. Both local products/installed app metadata, all1,221 current source inputs and primary process remain unchanged. Only the XCTest runner builds and installs. Original public review/cancellation pixels are inspected. This is public review scope, not native authentication or export proof. Subsequent backup-only native handoff repair compiles in a signed normal Release and updates the same QA app without reset. Five rebuilt public review/cancel checks pass with 1,226 immutable inputs. After recording stops, the owner reports that the fresh Face ID backup retry worked. This is owner-confirmed physical authentication/reveal; tools do not inspect the key or verify its exact derived public identity. The specific callback timing on hardware remains unrecorded.",
+          "remaining": "Authenticated cancellation/failure/unavailable, secret-handling/capture/background cases and exact manual exported/imported public identity comparison, plus Android parity. Owner-confirmed reveal success does not complete these cases. Never send or record the private key; leave device UI alone until the owner closes the backup panel."
         }
       }
     },
