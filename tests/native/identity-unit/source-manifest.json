@@ -10,7 +10,7 @@
     "modules/identity-owner/ios/NativeIdentityOwnerContext.swift": "89110ec102d8c389621a2f6663bdd01b268e7cbd9790b50d15eb15afca53710b",
     "modules/identity-store/ios/ApplicationIdentityLifecycle.swift": "6ecbdd8b0f57bc9de49b3a4bd82b8d67424f63f970181ac036f40668e71059f4",
     "modules/identity-store/ios/Contracts.swift": "715f5ce7b1a504853e5a059e6d8b2050e460c7c225047d800d4e21016d45b464",
-    "modules/identity-store/ios/DeletionGrantAuthority.swift": "4cf96ae2128a26efab4027143a98f79fdb3adb3a6d2ce69c14eea590e9ff901d",
+    "modules/identity-store/ios/DeletionGrantAuthority.swift": "f9778aadf857bad15cfbdb7092d98b6b438961c0926547a6c9a76c2ab0cbb836",
     "modules/identity-store/ios/ExcludedAtomicFiles.swift": "8473e7ef83e83618b4e9273ef17e73c737de05f1cc0c39777c68e4aa6da03052",
     "modules/identity-store/ios/ExpoIdentityRuntimeLifetime.swift": "ed4e3038c66c1a71cf6d037276b6cd9a14702eb498ef610e89a2eb84380ae685",
     "modules/identity-store/ios/HypergolicIdentityActionsModule.swift": "947dc616c7792c2b59922792eff3f2037183e4cecf7367440adbf3ad76600d3e",
@@ -22,7 +22,7 @@
     "modules/identity-store/ios/NativeIdentityAuthorizationServices.swift": "e9497f9e94972bf91b2bb7eab8d1d43d4dd9765706aa0313b5347ae12b48fcb7",
     "modules/identity-store/ios/NativeIdentityRuntimeLease.swift": "1d817b2c7f8946099d9251c5c35083540f2d146968fb86270c950322b6bbd67b",
     "modules/identity-store/ios/NostrSecretBech32.swift": "24195cd8a4e26922ec48730ccd8f5aca1e5e724a96767d31ed264731ec037821",
-    "modules/identity-store/ios/SystemDeviceAuthentication.swift": "c3df3b6c8bbce1fdb44a2c3d60a669e6e264c5c17f24dfdc5d7bd5921f416b68",
+    "modules/identity-store/ios/SystemDeviceAuthentication.swift": "f69883e4fdb03a2301a9af6f3632a072e3232ceefcca122207f6ab33742e18c5",
     "modules/identity-store/ios/SystemKeychain.swift": "a95ea43438fd9bf54d8987bcd7d245b6b644ae7bf46ceabf87e60c883e4710cf",
     "modules/identity-store/ios/IdentityStoreAvailability.swift": "29d7cc586326d47a94fc8fa067980db108c59ef00bf48033d4cb83bd1d664530"
   },
@@ -32,7 +32,8 @@
     "BridgeTests.swift": "18572134bf63944f7defe6c2842d78ea47b8db469a1626e42253b8a4714159b4",
     "DeletionAuthorityTests.swift": "9c6b4f3f04e13db0b8445a307b4d0a7e118f6a0ccb840d38ce422fa224e48e17",
     "StoreTests.swift": "80630b45bd56e1eb405a59b553298b087b79fbaa3339ed7b32d483cc94a19a2f",
-    "TestPorts.swift": "75c9cb91aa8a4d6534ff9b0de411ca2bb87095b0a2a4c1004407ea3b0648457a"
+    "TestPorts.swift": "75c9cb91aa8a4d6534ff9b0de411ca2bb87095b0a2a4c1004407ea3b0648457a",
+    "BackupForegroundTests.swift": "4a32413d7e1aada6cf6f86664d572838d6f5fbeff75111eca3e53aa8912a306e"
   },
   "scope": "macOS-hosted deterministic native core tests; one-shot claim is admission only, not generic runtime isolation; actual Expo/LAContext/UIKit lifecycle execution is not covered"
 }

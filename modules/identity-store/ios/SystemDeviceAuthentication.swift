@@ -1,5 +1,6 @@
 import Foundation
 import LocalAuthentication
+import UIKit
 
 private enum NativeAuthenticationAction: Sendable { case deletion, backup }
 
@@ -27,6 +28,13 @@ struct SystemDeviceBackupAuthentication: DeviceBackupAuthentication {
     canPresent: @escaping @Sendable () -> Bool) async throws {
     try await DeviceAuthenticationProcess.shared.authenticate(action: .backup, attemptID: attemptID,
       reason: "Authenticate to reveal the backup for your selected identity.", canPresent: canPresent)
+    // Face ID's reply can precede UIKit becoming active. Do not read backup
+    // material until presentation is active and the same native attempt is live.
+    try await BackupForegroundGate.wait(canPresent: canPresent) {
+      guard UIApplication.shared.isProtectedDataAvailable,
+        UIApplication.shared.applicationState != .background else { return .revoked }
+      return UIApplication.shared.applicationState == .active ? .active : .inactive
+    }
   }
   @MainActor func cancelBackupAuthentication(attemptID: UInt64) {
     DeviceAuthenticationProcess.shared.cancel(action: .backup, attemptID: attemptID)

@@ -322,3 +322,6 @@ native byte validation and retains canonical SDK MIME separately from the provid
 receipt. Recovery owns a distinct two-redirect fixed-hash GET profile with fresh
 public DNS/TLS per hop; alternate-origin absence stays unknown. Approved PUTs
 remain exact one-use transfers without redirects. See [upload access](upload-access.md).
+
+
+Native iOS backup handoff: successful LocalAuthentication must also regain active UIKit presentation before any backup-secret read. The backup adapter waits at most five seconds while rechecking the same native attempt, cancellation, background and protected-data availability. Existing selected-identity/inventory/deadline/capture/panel checks still apply. Core regressions and the signed native build pass; actual physical reveal remains an owner-device acceptance step. See [identity storage](identity-storage.md).

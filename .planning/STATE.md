@@ -1695,3 +1695,6 @@ Physical signing continuation — 9 October2026: normal iPhone note/profile indi
 
 
 Physical backup continuation — 9 October2026: all five public backup review/cancellation checks pass with reviewed original pixels on the unchanged normal QA app. Exact development identity and original UX focus persist. Public review is ready for owner authentication after recording stops; no key/passcode or authenticated reveal is obtained. ID05 now records partial public-review scope only, all61 requirements remain (six complete/55 open). Fresh auth success/cancel/unavailable, exact export/reimport and Android parity remain open. Source push owner-only; usage85%, ceiling about98%.
+
+
+Backup failure continuation — 9 October2026: owner Face ID succeeds but backup fails with identity unchanged/no secret. A reproduced post-authentication inactive-state rejection path is patched with a live/cancellable five-second native wait before secret read. All66 owning-source tests and shared353+13 pass; signed iPhone Release compiles. Specific physical root cause/successful reveal still need owner retry; ID05/Phase2 stay partial (six of61 complete/55 open). Original products/main app preserved; same QA bundle/Hypergolic label. Standard check retains six existing Expo mismatches; exact existing advisory exceptions remain visible. No source push; usage87%, ceiling about98%.

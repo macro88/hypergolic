@@ -401,3 +401,26 @@ final class DeletionGrantAuthority: NativeIdentityGrantOwner, NativeVaultStateOb
     }
   }
 }
+
+
+enum BackupPresentationState: Sendable { case active, inactive, revoked }
+
+/// Authentication success is not itself proof that UIKit has resumed active presentation.
+enum BackupForegroundGate {
+  @MainActor static func wait(canPresent: @escaping @Sendable () -> Bool,
+    state: @escaping @MainActor () -> BackupPresentationState,
+    lifetime: Duration = .seconds(5)) async throws {
+    let clock = ContinuousClock(), deadline = ContinuousClock.now.advanced(by: lifetime)
+    while true {
+      guard canPresent(), !Task.isCancelled else { throw DeletionActionFailure.denied }
+      guard clock.now < deadline else { throw DeletionActionFailure.unavailable }
+      switch state() {
+      case .active: return
+      case .revoked: throw DeletionActionFailure.denied
+      case .inactive: break
+      }
+      do { try await Task.sleep(for: .milliseconds(20)) }
+      catch { throw DeletionActionFailure.denied }
+    }
+  }
+}

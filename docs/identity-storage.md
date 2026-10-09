@@ -451,3 +451,36 @@ persist, six complete across both phones and55 open. The next step needs owner
 Face ID/passcode on the iPhone, observing the development backup and closing Done
 without sending or recording the key. Android is disconnected. No application
 rebuild/reset/publication/source push or fresh quality claim.
+
+
+## Backup handoff after successful Face ID — 9 October2026
+
+The owner reports successful Face ID followed by trusted backup failure. The
+public physical screenshot shows the error with the same development npub and
+no secret. The old flow resumes authentication completion immediately, while
+the presenter requires active UIKit. This rejection path is reproduced; its role
+in the specific device failure remains provisional until owner retry. Apple's
+asynchronous policy reply does not establish active presentation readiness.
+
+The backup-only adapter now waits asynchronously for active UIKit before the
+authority can read backup material. The five-second bound continuously checks
+native attempt liveness, cancellation, background and protected-data loss. The
+existing60-second authority deadline, selected identity/revision/inventory checks
+and panel capture/lifecycle guards remain. Deletion authentication is unchanged.
+No secret transport or capture exception is added.
+
+Two foreground cases fail with the strict immediate check. The complete66-test
+owning-source suite then passes, including six new cases; all original test bodies
+remain unchanged. Shared security/bootstrap353+13 and TypeScript pass. The signed
+iPhone Release compiles the real UIKit/LAContext adapter using the same QA bundle,
+Hypergolic label and signing team; both original products remain preserved. This
+is core/build evidence, not successful physical reveal. The standard check still
+fails six existing Expo patch mismatches pinned under the selected dependency-age
+policy. Separate full quality reports retain exact accepted advisory exceptions.
+
+Private repair group `iphone-backup-foreground01` retains owner failure, red/green
+tests, old frozen manifest, build/input seals and subsequent public device recheck.
+Actual authenticated success/cancel/unavailable, secret handling, export/reimport
+and Android parity remain open. ID-05/Phase2 remain partial: six of61 requirements
+complete across both phones,55 open. Owner must retry authentication manually
+after recording stops. Source push remains owner-only.
