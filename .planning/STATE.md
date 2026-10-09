@@ -1755,3 +1755,20 @@ Android reveal/cancel and iPhone closure/cancel reports remain pending. Continue
 ordinary capability journeys and actual fault coverage after that handoff.
 No production/dependency-policy change, source push or Phase3 advance; usage90%,
 ceiling about98%. Final whole-product quality/physical sign-off remains open.
+
+
+## Android emulator fault validation — 9 October 2026
+
+All seven source-linked actual-WebView cases pass with493 assertions on disposable
+Android API36/ARM64/WebView133, then pass through the repeatable runner with exact
+source/installed-byte and owned cleanup validation. The test-only Android reply
+observer is corrected; original native and preflight parser failures remain.
+Actual UTF-8 wire/snapshot bounds, both overload replay counters and real public
+renderer termination/revocation/fresh generation augment the five existing cases.
+All62 pinned production/build/runtime inputs and installed products persist.
+Owned emulator shuts down; temporary userdata is removed, with original AVDs and
+both phone UIs untouched. See [scope](../tests/native/android-boundary/README.md).
+No physical matrix advancement: all61 scopes/statuses persist, six complete/55 open.
+Both owner backup closure confirmations still gate phone access. Native/owning/
+protected/published/network and final full MVP acceptance remain open. Source push
+owner-only; no Phase3 advance. Latest usage90%, ceiling about98%.

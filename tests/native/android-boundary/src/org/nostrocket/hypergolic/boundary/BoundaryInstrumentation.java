@@ -9,6 +9,8 @@ import android.os.SystemClock;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewRenderProcess;
+import java.nio.charset.StandardCharsets;
 import android.widget.FrameLayout;
 import androidx.webkit.JavaScriptReplyProxy;
 import androidx.webkit.ScriptHandler;
@@ -205,9 +207,9 @@ public final class BoundaryInstrumentation extends Instrumentation {
     }
     void send(int... sequences) throws Exception {
       JSONArray values = new JSONArray(); for (int sequence : sequences) values.put(sequence);
-      main("if(!window.boundaryReplies){window.boundaryReplies={};addEventListener('message',event=>{"
-        + "if(event.isTrusted&&event.source===window&&event.data?.type==='hypergolic.native-response'){"
-        + "const response=JSON.parse(event.data.message);window.boundaryReplies[response.sequence]=response;}});}"
+      main("if(!window.boundaryReplies){window.boundaryReplies={};HypergolicHost.addEventListener('message',event=>{"
+        + "const response=JSON.parse(event.data);if(response.type==='capability.result'&&response.sessionId==="
+        + JSONObject.quote(generation) + "){window.boundaryReplies[response.sequence]=response;}});}"
         + "for(const sequence of " + values + "){HypergolicHost.postMessage(JSON.stringify({type:'capability',sessionId:"
         + JSONObject.quote(generation) + ",sequence,message:JSON.stringify({type:'storage.set',id:'native-'+sequence,key:'literal',value:'public test data'})}));}return {sent:true};");
     }
@@ -217,7 +219,7 @@ public final class BoundaryInstrumentation extends Instrumentation {
     }
     void close() throws Exception {
       if (closed) return; closed = true;
-      ui(() -> { script.remove(); WebViewCompat.removeWebMessageListener(view, observer); host.destroySession(); container.removeView(host); return null; });
+      ui(() -> { if (!Boolean.TRUE.equals(field(host, "disposed"))) { script.remove(); WebViewCompat.removeWebMessageListener(view, observer); host.destroySession(); } container.removeView(host); return null; });
     }
     JSONObject receipt() throws Exception {
       return new JSONObject().put("session", session).put("generation", generation).put("frames", frames)
@@ -300,6 +302,11 @@ public final class BoundaryInstrumentation extends Instrumentation {
     String fresh=tokens(third).get(0);JSONObject snapshot=new JSONObject(take(third,fresh));
     check("native-2".equals(new JSONObject(snapshot.getString("request")).getString("id")),"Overloaded sequence consumed and replay denied");
     finish(fresh,"fresh");check("fresh".equals(third.response(2).getString("response")),"Fresh sequence gets own response");
+    first.send(5,6);until("only fresh sequence after per-view overload",()->{try{return tokens(first).size()==4;}catch(Exception error){return false;}});
+    List<String> added=new ArrayList<>(tokens(first));added.removeAll(firstTokens);check(added.size()==1,"Exactly one new per-view authority after overload replay");
+    String perView=added.get(0);JSONObject perViewSnapshot=new JSONObject(take(first,perView));
+    check("native-6".equals(new JSONObject(perViewSnapshot.getString("request")).getString("id")),"Per-view overloaded sequence consumed and cannot replay after capacity frees");
+    finish(perView,"per-view fresh");check("per-view fresh".equals(first.response(6).getString("response")),"Fresh per-view sequence gets its own native response");
     first.close();second.close();third.close();passed(step,before);
   }
   private void lifecycle() throws Exception {
@@ -317,6 +324,57 @@ public final class BoundaryInstrumentation extends Instrumentation {
     check(next.main("return {count:Object.keys(window.boundaryReplies).length};").getInt("count")==1,"No stale callback crosses native generation");
     next.close();passed(step,before);
   }
+  private void utf8() throws Exception {
+    step="actual-native-utf8-wire-and-snapshot-bounds";int before=assertions;Probe p=new Probe();
+    int limit=CapabilityLeaseRegistry.MAX_BYTES;
+    JSONObject envelope=p.main("let wire=JSON.stringify({type:'capability',sessionId:"+JSONObject.quote(p.generation)
+      +",sequence:1,message:JSON.stringify({type:'storage.set',id:'oversize-wire',key:'literal',value:'é'.repeat(1048400)})});"
+      +"const bytes=new TextEncoder().encode(wire).length;if(bytes>"+limit+")throw Error('Probe envelope baseline too large');"
+      +"wire+=' '.repeat("+(limit+1)+"-bytes);HypergolicHost.postMessage(wire);return {bytes:new TextEncoder().encode(wire).length,characters:wire.length};");
+    check(envelope.getInt("bytes")==limit+1&&envelope.getInt("characters")<limit,"Actual valid UTF-8 envelope exceeds byte bound despite fewer characters");
+    p.barrier();check(tokens(p).isEmpty(),"Oversized native envelope creates no authority");
+    p.send(1);until("valid sequence survives oversized wire",()->{try{return tokens(p).size()==1;}catch(Exception error){return false;}});
+    String first=tokens(p).get(0);JSONObject snapshot=new JSONObject(take(p,first));
+    check("native-1".equals(new JSONObject(snapshot.getString("request")).getString("id")),"Admitted snapshot belongs to the positive small request");
+    JSONObject registration=snapshot.getJSONObject("registration");
+    String largeRequest=new JSONObject().put("type","storage.set").put("id","oversize-snapshot").put("key","literal").put("value","é".repeat(1048476)).toString();
+    int nativeBytes=new JSONObject().put("registration",registration).put("request",largeRequest).toString().getBytes(StandardCharsets.UTF_8).length;
+    check(nativeBytes>limit,"Exact captured registration plus request exceeds native snapshot byte bound");
+    p.observations.put(new JSONObject().put("capturedNativeSnapshotBytes",nativeBytes).put("limit",limit).put("generation",p.generation));
+    finish(first,"before-byte-denial");check("before-byte-denial".equals(p.response(1).getString("response")),"First exact native reply remains valid");
+    JSONObject wire=p.main("const wire=JSON.stringify({type:'capability',sessionId:"+JSONObject.quote(p.generation)
+      +",sequence:2,message:JSON.stringify({type:'storage.set',id:'oversize-snapshot',key:'literal',value:'é'.repeat(1048476)})});"
+      +"HypergolicHost.postMessage(wire);return {bytes:new TextEncoder().encode(wire).length};");
+    check(wire.getInt("bytes")<=limit,"Actual wire is within bound while the native snapshot is oversized");
+    check(p.response(2).isNull("response"),"Native snapshot byte bound denies the request");
+    check(tokens(p).isEmpty(),"Snapshot rejection creates no lease");
+    p.send(2,3);until("only fresh sequence after snapshot denial",()->{try{return tokens(p).size()==1;}catch(Exception error){return false;}});
+    String fresh=tokens(p).get(0);JSONObject freshSnapshot=new JSONObject(take(p,fresh));
+    check("native-3".equals(new JSONObject(freshSnapshot.getString("request")).getString("id")),"Snapshot denial consumes its sequence and rejects replay");
+    finish(fresh,"after-byte-denial");check("after-byte-denial".equals(p.response(3).getString("response")),"Fresh exact response after byte denial");
+    p.close();passed(step,before);
+  }
+  private void renderer() throws Exception {
+    step="actual-renderer-termination-and-fresh-generation";int before=assertions;Probe p=new Probe();
+    check(android.os.Build.VERSION.SDK_INT>=29,"Public renderer termination requires Android API29 or newer");
+    WebViewRenderProcess oldProcess=ui(()->p.view.getWebViewRenderProcess());check(oldProcess!=null,"Real out-of-process renderer handle exists");
+    p.send(1,2);until("claimed and queued work before real renderer termination",()->{try{return tokens(p).size()==2;}catch(Exception error){return false;}});
+    List<String> pending=tokens(p);take(p,pending.get(0));
+    check(ui(oldProcess::terminate),"Actual public native renderer termination succeeds");
+    until("production render-process-gone destroys host and revokes generation",()->{try{return Boolean.TRUE.equals(field(p.host,"disposed"))&&!leases.sessionActive(p.generation);}catch(Exception error){return false;}});
+    check(ui(()->p.host.getChildCount())==0&&ui(()->p.view.getParent())==null,"Production renderer fault removes the real destroyed WebView");
+    for(String token:pending)check(!leases.isActive(token)&&leases.take(token)==null,"No claimed or queued authority survives actual renderer death");
+    p.observations.put(new JSONObject().put("fault","public-Android-renderer-termination").put("generation",p.generation).put("oldRendererHandle",System.identityHashCode(oldProcess)));
+    p.close();Probe next=new Probe();WebViewRenderProcess nextProcess=ui(()->next.view.getWebViewRenderProcess());
+    check(nextProcess!=null&&nextProcess!=oldProcess,"New real renderer handle differs after death");check(!next.generation.equals(p.generation),"Fresh immutable native generation after renderer death");
+    for(String token:pending)finish(token,"stale-renderer-reply");
+    next.send(1);until("fresh renderer admits its own request",()->{try{return tokens(next).size()==1;}catch(Exception error){return false;}});
+    String fresh=tokens(next).get(0);take(next,fresh);finish(fresh,"fresh-renderer-only");
+    check("fresh-renderer-only".equals(next.response(1).getString("response")),"Replacement renderer receives current response only");
+    check(next.main("return {count:Object.keys(window.boundaryReplies).length};").getInt("count")==1,"Stale callbacks cannot reach replacement renderer");
+    next.observations.put(new JSONObject().put("freshRendererHandle",System.identityHashCode(nextProcess)).put("generation",next.generation));
+    next.close();passed(step,before);
+  }
   @Override public void onStart() {
     Bundle result=new Bundle();
     try {
@@ -330,7 +388,7 @@ public final class BoundaryInstrumentation extends Instrumentation {
       activity=startActivitySync(intent);
       until("ordinary Expo host exists",()->{template=find(activity.getWindow().getDecorView());return template!=null;});
       ui(()->{container=new FrameLayout(activity);((ViewGroup)activity.findViewById(android.R.id.content)).addView(container,new ViewGroup.LayoutParams(-1,-1));return null;});
-      isolation();schema();childFrame();bounds();lifecycle();
+      isolation();schema();childFrame();bounds();lifecycle();utf8();renderer();
       result.putString("result","passed");
     } catch(Throwable error) {
       result.putString("result","failed");result.putString("step",step);result.putString("errorType",error.getClass().getSimpleName());

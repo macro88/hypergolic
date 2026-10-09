@@ -295,3 +295,25 @@ both original logs are retained. No installation or native execution occurs, and
 no matrix row advances. Protected signing, owning authorization, OS background,
 renderer/UTF-8/network/published faults and full Android/iOS parity remain open.
 Do not operate either phone until its owner confirms the backup panel is closed.
+
+
+## Android emulator native fault checkpoint — 9 October 2026
+
+The [source-linked harness](../tests/native/android-boundary/README.md) now passes
+all seven cases with493 assertions in one disposable Android API36/ARM64 run,
+then passes again through the exact-source/installed-byte/cleanup runner. Actual
+native main/opaque/matching-origin-child callbacks, original SDK theme barriers,
+schema/generation/replay, one-use replies, both overload replay counters, native
+foreground-input/close revocation, measured UTF-8 wire/snapshot bounds and real
+public-API renderer death/fresh-generation recovery are exercised. WebView133 is
+the selected emulator provider; no physical-device inference follows.
+
+The initial iOS-style reply observer failure and preflight-only dotted-path parser
+failure are retained. Android's native message-object observer replaces the
+incorrect test oracle; production dispatch is unchanged. The2,097,521-byte native
+snapshot exceeds the2,097,152-byte bound despite an in-bound wire. Real renderer
+handles differ after actual production destruction/revocation, without OS PID or
+protected signer claims. All62 pinned production/build/runtime inputs and installed
+products persist. The owned emulator stops and its disposable userdata is removed;
+original AVDs and phone UI remain untouched. All61 matrix scopes/statuses persist,
+six complete/55 open. Owning physical journeys and final full MVP gates remain.
