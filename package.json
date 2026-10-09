@@ -46,7 +46,8 @@
     "test:routing": "node --experimental-strip-types --test tests/routing/*.test.ts",
     "test:routing:native": "python3 tests/native/routing/unit.py",
     "test:presentation": "node --experimental-strip-types --test tests/presentation/*.test.ts",
-    "test:outbox": "node --experimental-strip-types --test tests/outbox/*.test.ts"
+    "test:outbox": "node --experimental-strip-types --test tests/outbox/*.test.ts",
+    "test:native-webp": "node scripts/test-native-webp.mjs"
   },
   "dependencies": {
     "applesauce-core": "6.2.0",
@@ -90,6 +91,15 @@
     "patchedDependencies": {
       "node-forge@1.4.0": "patches/node-forge@1.4.0.patch",
       "braces@3.0.3": "tools/quality/patches/braces@3.0.3.patch"
+    }
+  },
+  "expo": {
+    "autolinking": {
+      "ios": {
+        "buildFromSource": [
+          "^expo-image$"
+        ]
+      }
     }
   }
 }

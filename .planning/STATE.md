@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Packaged native image mapping and compiled codec reporters independently verified; native patch provenance and shipped notices remain open. Android disconnected; iPhone locked; clean-close choice pending. Full Phase2 seven of61 complete/54 open, usage13%, ceiling about98%; no source push.
+stopped_at: iOS ExpoImage source build with pinned WebP1.6.0 passes signed packaging and host sanitizer regression; full native provenance/notices and physical parity remain open. Android disconnected, iPhone locked, clean-close decision pending. Phase2 seven of61 complete/54 open; usage13%, ceiling about98%; no source push.
 last_updated: "2026-10-10"
 last_activity: 2026-10-10
-state_head: 473824536f2da1151744bd0c49b4328b7bc47242
+state_head: c420384ae724f186657ccbcbc11f510ff4775d38
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1948,3 +1948,13 @@ Configuration checkpoint (2026-10-09): selected NAP-CONFIG rejected registration
 Readiness checkpoint (2026-10-09): current f896360 ordinary signed iPhoneOS ARM64 build passes same-ID/label/certificate, provisioning, entitlement, exact host and all1247 input checks. Portable79-file archive extraction and strict signature pass. Ready app preserved; only owned derived intermediates removed (about1.79GB). Android secret/purge actor stops at its first read-only observation after disconnection, with zero device inputs/writes/views. iPhone paired but locked; neither new physical configuration nor installed iOS bytes proved. Outbox100/100 passes. Full matrix unchanged seven of61 complete/54 open; clean-close decision pending, no deferral/private field selected. Prior source-bound quality belongs to f896360; this is a documentation-only checkpoint. Usage13%, owner ceiling about98%, no source push.
 
 Packaged dependency checkpoint (2026-10-10): all21 ordinary Android ARM64 ELF images map to selected archives or local allocated section bytes; all14 embedded iPhone frameworks match owning UUID/section bytes, including package-owned ExpoModulesJSI absent from the earlier Pods-only scan. Independent LLVM/Apple format checks pass. Compiled WebP1.1.0 and libaom3.0.0 reporters plus immutable upstream originals are captured; patch provenance is not inferred from these numbers. Existing dependency locks/artifacts, both signed products and1247 source inputs remain. Original observer failures are retained; owned temporary ELF extracts removed. Full notice/static/transitive review remains BUILD01, and no new security exception is selected. No phone changes, acceptance advancement, build/full quality rerun or source push. Seven of61 complete/54 open; Android disconnected, iPhone locked, clean-close decision pending. Usage13%, ceiling about98%.
+
+
+WebP source repair checkpoint — 10 October2026: the permanent iOS configuration
+selects ExpoImage source compilation and pins libwebp1.6.0. The signed ordinary ARM64
+iPhoneOS product keeps the retained ID/label/certificate; no phone install occurs.
+Four owning decoder files match immutable upstream source and packaged disassembly
+shows measure/capacity/allocation before table writes. The repository ASan/UBSan
+regression passes with its corrected explicit macOS SDK and verifies176 C/header
+inputs unchanged. Full native dependency/notices, physical decoder and final
+source-bound quality acceptance remain open. The matrix stays seven of61 complete.

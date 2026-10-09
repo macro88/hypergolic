@@ -172,6 +172,28 @@ preserve Android:
 pnpm run prebuild:ios
 ```
 
+The iOS image module builds from source through the package-specific
+`expo.autolinking.ios.buildFromSource` selection in `package.json`. The permanent
+`expo-build-properties` configuration pins its CocoaPods WebP dependency to 1.6.0.
+This replaces the older WebP decoder in the precompiled ExpoImage framework;
+a JavaScript export alone cannot update the native codec. Regenerate the native
+project and install pods after changing this configuration:
+
+```sh
+pnpm run prebuild:ios
+pod install --project-directory=ios
+pnpm run test:native-webp
+```
+
+The regression compiles the installed codec's 119 C files with the macOS SDK and
+AddressSanitizer/UndefinedBehaviorSanitizer. It checks eight undersized Huffman-table
+allocations, an exact lossless RGBA round-trip and twelve short-header rejections.
+Its receipt hashes all 176 installed C/header files and checks their stability,
+plus the test source and Pod lock. Output stays in a fresh temporary directory;
+the compiled test binary is removed even on failure. This is host-source evidence.
+Build and install the signed ordinary iPhone app separately, then test actual
+native image decoding. See [native dependency provenance](native-dependency-notices.md#source-built-ios-webp-repair--10-october-2026).
+
 The Simulator build command installs dependencies and starts Metro as needed:
 
 ```sh

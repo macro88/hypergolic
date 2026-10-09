@@ -152,3 +152,51 @@ name-based scan. This count does not establish complete attribution coverage.
 Complete native/transitive patch provenance, static-linked component inventory,
 JavaScript/runtime reconciliation and original notices embedded in both final
 products remain required. BUILD-01 and full Phase 2 acceptance remain open.
+
+
+## Source-built iOS WebP repair — 10 October 2026
+
+The old precompiled ARM64 decoder's Huffman wrapper does not contain the
+measure-first/allocate-capacity sequence from the
+[upstream security fix](https://chromium.googlesource.com/webm/libwebp/+/902bc9190331343b2017211debcec8d2ab87e17a).
+That conclusion comes from bounded wrapper disassembly compared with original
+and backported upstream source, rather than the 1.1.0 version reporter alone.
+It does not establish a live exploit, the entire compiler source tree or actual
+selection of the alternate decoder on a phone.
+
+The permanent iOS configuration now uses Expo's supported
+[per-package source build](https://docs.expo.dev/guides/prebuilt-expo-modules/)
+for `expo-image`, with an explicit CocoaPods `libwebp` 1.6.0 pin. Native regeneration,
+pod installation and a signed ordinary-entry ARM64 iPhoneOS Release succeed.
+The retained bundle identifier, app label and signing certificate stay the same;
+this product has not been installed on a phone. The earlier signed app is preserved.
+The new main executable SHA-256 is
+`5a95473cb09aed2a7666348ed640eb989228c9511f4f8cc737347c1f7af28dc9`.
+Its packaged `_VP8LBuildHuffmanTable` first measures without an output table, checks
+segment capacity and allocates before writing. The build log also records compilation
+of the owning installed Huffman source.
+
+Four installed lossless-decoder files and `COPYING` match the immutable 1.6.0
+release commit `4fa21912338357f89e4fd51cf2368325b59e9bd9` byte for byte.
+The captured Huffman source SHA-256 is
+`15c1d89d7567c2121bae05ce8dea6deba160945dd398bc6d6b9a88b40ba523eb`.
+Original `PATENTS`, `AUTHORS` and `NEWS` are retained too; CocoaPods did not install
+those three files. Capturing them does not mean they are shipped in the app.
+
+`pnpm run test:native-webp` compiles all 119 installed codec C files with host
+ASan/UBSan and passes eight undersized-table growth cases, a pixel-exact lossless
+RGBA round-trip and twelve truncated-header rejections. The runner hashes all 176
+installed C/header files and checks that its inputs remain unchanged. Its first
+repository run failed because the compiler lacked a macOS SDK path; explicitly
+resolving and passing that SDK repairs the runner. The earlier standalone CMake
+attempt failed because the installed Pod source omits `CMakeLists.txt`. Both
+original failures remain recorded. No sanitizer finding was hidden.
+
+The source-built image dependency selection differs from the previous precompiled
+SPM chain: SDWebImage 5.21.7, AVIFCoder 0.11.1, SVGCoder 1.7.0, WebPCoder 0.14.6,
+libavif 1.0.0 and libdav1d 1.2.0 are the observed Pod resolutions. Only WebP has the
+new explicit version pin. Their complete patch/provenance review, static-linked
+inventory and shipped original notices remain required. The host regression and
+signed local build do not close physical decoder behavior, BUILD-01, final numeric
+quality or any other complete cross-platform acceptance row. No new security
+exception or source push is authorized by this repair.
