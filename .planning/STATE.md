@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Six of 61 full requirements complete/55 open. Both backup panels owner-confirmed closed. Android ordinary Feed query/live/switch/background-return/close subset passes with independent exact signed events and owned empty cleanup; CAP02/03 partial. Separate physical native probe install denied by device. Ceiling about98%, no source push.
+stopped_at: Six of 61 full requirements complete/55 open. Both backup panels owner-confirmed closed. Android ordinary Feed query/live/switch/background-return/close subset passes with independent exact signed events and owned empty cleanup; CAP02/03 partial. Separate physical probe app installed; matching test runner device-denied twice and absent, with no instrumentation run. Ceiling about98%, no source push.
 last_updated: "2026-10-09"
 last_activity: 2026-10-09
-state_head: bb65103d1024ed5dcf1ab207bcca71cf1031fb09
+state_head: 64310e84da07a8c260581dffc49f8f007ec9e9af
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1810,3 +1810,10 @@ install is device-denied; no instrumentation runs. See the latest
 [Plan03 checkpoint](phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md)
 for exact scope, visual/counter gaps and retained failures. Usage91%, ceiling
 about98%; no source push or fresh full quality claim.
+
+Current resource checkpoint (2026-10-09): exact native probe app installs;
+matching runner installation is device-denied twice. No native test executes,
+retained apps are unchanged and QA remains in front. Owner observation of the
+second installer prompt is needed; source/OS policy is unchanged. See the latest
+[Plan04 checkpoint](phases/02.11-published-mvp-acceptance/02.11-04-CHECKPOINT.md).
+Usage92%, ceiling about98%; no source push.
