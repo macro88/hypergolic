@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Six of 61 full requirements complete/55 open. Android 13 identity checks plus owned empty/cold cleanup pass with unchanged current Release; ID03/04 partial. Public Android backup review awaits owner authentication/Done; iPhone Done/cancel pending. No device UI/capture while owner may reveal. Ceiling about98%, no source push.
+stopped_at: Six of 61 full requirements complete/55 open. Both backup panels owner-confirmed closed. Android ordinary Feed query/live/switch/background-return/close subset passes with independent exact signed events and owned empty cleanup; CAP02/03 partial. Separate physical native probe install denied by device. Ceiling about98%, no source push.
 last_updated: "2026-10-09"
 last_activity: 2026-10-09
-state_head: d694d16ddf8eb7ad526c4456b3be8e41bb8d2d6b
+state_head: bb65103d1024ed5dcf1ab207bcca71cf1031fb09
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1799,3 +1799,14 @@ Validation's stale three-complete count is corrected from the unchanged actual
 61-row matrix: six complete/55 open. Both phone backup closure reports still gate
 physical UI; no app/dependency changes, source push, Phase3 or acceptance advance.
 Usage90%, ceiling about98%.
+
+
+Current continuation (2026-10-09): owner confirms both backup panels closed.
+Android original bundled Feed query/live/switch/OS-return/explicit-close subset
+passes across retained reconciled continuations, with two independently verified
+exact signed notes and only-owned empty cleanup. CAP02/03 are partial; six of61
+full cross-platform rows complete/55 open. The separate physical boundary probe
+install is device-denied; no instrumentation runs. See the latest
+[Plan03 checkpoint](phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md)
+for exact scope, visual/counter gaps and retained failures. Usage91%, ceiling
+about98%; no source push or fresh full quality claim.
