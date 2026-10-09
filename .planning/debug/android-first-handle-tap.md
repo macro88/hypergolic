@@ -91,3 +91,14 @@ Next: capture callback-level delivery/guard state around a newly discriminating
 first-press or background-transition trigger before choosing a repair. BusyRef
 across background/animation is an unverified hypothesis only. Preserve both
 failures and avoid another uninformative passing-context rerun.
+
+
+### Signing queue comparison — 9 October 2026
+
+Another first cold-start120ms Settings centre press misses before any view or
+handle input. A separately observed instant tap opens Settings; subsequent two
+instant-input queue actors reach real trusted reviews. One stops on an external
+header-readiness assumption, the modal-aware observer completes. Both clean only
+their owned views. These are separate observations, not duration/callback or
+shared handle root-cause proof. No product change; UX05 remains partial. Original
+receipts and native captures are retained in private android-signing-queue01.

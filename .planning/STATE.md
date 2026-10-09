@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Current Android first Settings press missed; cold-start and four handle presses pass before keyboard assertion. Both incomplete actors retained, owned views cleaned, keeper unchanged. UX05 partial; seven of61 complete/54 open. Full Phase2 active; usage8%, ceiling about98%; no source push.
+stopped_at: Android SIGN02 physical queue passes fourteen checks; both owned views cleaned and keeper unchanged. First Settings press gap remains UX05 partial. Seven of61 complete/54 open across both platforms. Full Phase2 active; usage12%, ceiling about98%; no source push.
 last_updated: "2026-10-09"
 last_activity: 2026-10-09
 state_head: 8a60fad263fe80108016e6b3d1af4c0ed6902284

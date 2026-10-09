@@ -541,8 +541,14 @@
       "requiredEvidence": "Multiple requests same/different sessions; actual dismissal/back/swipe behavior; only deliberate resume shows next",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "passed",
+          "evidence": [
+            "android-signing-queue01/run03/receipt.json",
+            "android-signing-queue01/review/independent-review.json",
+            "android-signing-queue01/hg-android-queue-cleanup-recheck-20261009.json"
+          ],
+          "verifiedScope": "Ordinary retained physical Release, two fresh SDK origins and three requests each: fourteen checks, six exact requester/identity/payload/hash-bound single reviews, actual Android Back and Dismiss reject current and globally pause, other-origin submission stays paused, two explicit Resume actions return sequence2, four individual Rejects, six original correlated SDK Failed rows, two card-bound native badges. Downward sheet swipe retains the same review because this Modal has no drag-dismiss contract. Owned views close and original empty workspace/identity return. Full JSON and SDK result labels are clipped/offscreen in PNGs; exact values are original native accessibility XML, independently verified. No Approve input; no native signer/network effect-counter claim.",
+          "remaining": "None for the named Android queue/presentation/dismissal requirement. iOS input-variant parity and all separate signing/security/expiry/effect requirements remain open."
         },
         "ios-physical": {
           "status": "partial",
