@@ -250,3 +250,39 @@ is unchanged and the preceding quality reports are historical whole-repository
 reports after these edits. No new packaging or quality scan is claimed. Phase 2
 remains active; weekly usage is 65%, with an authorized ceiling near 98%. No source
 push or source remote change.
+
+
+## Physical iPhone note/profile approval — 9 October 2026
+
+The unchanged signed normal QA app completes individual note and profile review,
+rejection and approval with the known disposable development identity. Seven
+checks combine three retained predecessor checks and four passing continuation
+checks. Failed observers remain retained: paused queue needed explicit Resume;
+React Native exposed the same exact-event text in parent/leaf nodes; SDK success
+uses `Event ID <hash>`. The previously approved note was independently reconciled
+before continuing and was never republished. Production code is unchanged.
+
+Independent read-only NIP-01 checks verify both approved hashes, Schnorr signatures,
+kind, content, tags, time and selected public key from damus and nos.lol. The app
+reports three relay acknowledgements, while bucket.coracle returns EOSE without
+either exact event; acknowledgement does not establish independent persistence.
+Both rejected hashes are absent in bounded relay reads, which does not prove zero
+native signing effects. Trusted profile review pixels show the exact content,
+origin, publisher, identity, destinations and individual actions. Expanded JSON
+is present in native accessibility and independently hashes correctly, but its
+original PNG is black and it is below the decoded video viewport. Visual proof
+of that expanded JSON remains open.
+
+Only the owned current Approval view closes; the original six-view order and UX
+focus return. All1,221 current source inputs, both local product seals/installed
+metadata and the primary process remain unchanged. Original-build differences
+are documentation/tests only; installed executable bytes were not retrieved.
+No app reset/rebuild, private-key access, uncertain replay or source push.
+
+Private evidence group `iphone-two-kind-approval04` retains all four runs, original
+attachments and independent readers. SIGN-01/05/06 stay partial. All61 original
+requirements and statuses remain: six complete across both phones,55 open. Next
+protected backup needs real device authentication after test recording stops;
+all-route signing, native counters/faults, Android parity and final quality remain
+open. This documentation checkpoint does not rerun or change historical quality
+results or their explicitly accepted dependency exceptions.

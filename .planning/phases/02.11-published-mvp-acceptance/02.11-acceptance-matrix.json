@@ -474,10 +474,15 @@
             "iphone-relay-outcomes01/03/trace-report.json",
             "iphone-relay-outcomes01/03/independent-relay-review.json",
             "iphone-relay-outcomes01/03/relay/frames.jsonl",
-            "iphone-relay-outcomes01/review.json"
+            "iphone-relay-outcomes01/review.json",
+            "iphone-two-kind-approval04/run-04/receipt.json",
+            "iphone-two-kind-approval04/run-04/trace-report.json",
+            "iphone-two-kind-approval04/first-note-reconciliation03/receipt.json",
+            "iphone-two-kind-approval04/independent-relay04/receipt.json",
+            "iphone-two-kind-approval04/visual-review.json"
           ],
-          "verifiedScope": "Ten physical ordinary-entry iPhone checks include seven original SDK kind1 requests with full trusted content, requesting fixture, publisher, selected identity, explicit Approve once/Reject and expanded immutable event. External hash/signature verification matches the actual approved frames. No silent approval is used.",
-          "remaining": "Complete another supported kind, all supported update routes, remaining native signing boundaries and Android parity. The note-only subset does not close this row."
+          "verifiedScope": "Ten physical ordinary-entry iPhone checks include seven original SDK kind1 requests with full trusted content, requesting fixture, publisher, selected identity, explicit Approve once/Reject and expanded immutable event. External hash/signature verification matches the actual approved frames. No silent approval is used. Additional normal-app physical note/profile (kinds1/0) individual review/reject/approve evidence combines three retained predecessor checks with four passing continuation checks. The note was reconciled before continuation and never republished. Both approved exact event IDs/signatures/content/tags/timestamps/selected public key independently return from damus and nos.lol. Bucket.coracle acknowledges but returns EOSE without the exact events; no persistence claim for that destination. Both denied hashes are absent in bounded relay reads, not native signer counters. Trusted profile content/origin/publisher/identity/destination/action pixels are reviewed. Expanded JSON is independently hashed and verified through native accessibility; the original expanded PNG is black and video JSON is below the viewport, so this scope supplies no visual JSON proof. Only the owned new view closes and the original six-view order/focus returns; app/source/product seals and primary process remain unchanged.",
+          "remaining": "Complete all supported update routes, expanded JSON visual proof for the new two-kind scope, remaining native signing boundaries and Android parity. Two-kind positive/rejection evidence alone does not close this row."
         }
       }
     },
@@ -587,9 +592,14 @@
             "iphone-relay-outcomes01/03/trace-report.json",
             "iphone-relay-outcomes01/03/independent-relay-review.json",
             "iphone-relay-outcomes01/03/relay/frames.jsonl",
-            "iphone-relay-outcomes01/review.json"
+            "iphone-relay-outcomes01/review.json",
+            "iphone-two-kind-approval04/run-04/receipt.json",
+            "iphone-two-kind-approval04/run-04/trace-report.json",
+            "iphone-two-kind-approval04/first-note-reconciliation03/receipt.json",
+            "iphone-two-kind-approval04/independent-relay04/receipt.json",
+            "iphone-two-kind-approval04/visual-review.json"
           ],
-          "verifiedScope": "Seven exact expanded physical review hashes are independently calculated. Six individually approved original SDK events produce eighteen local relay EVENT frames, exactly one per reviewed destination, with matching kind/content/tags/created_at/pubkey/hash and independently verified fresh Schnorr signatures. Real ACKs are bound to the same IDs and compared with native/SDK outcomes.",
+          "verifiedScope": "Seven exact expanded physical review hashes are independently calculated. Six individually approved original SDK events produce eighteen local relay EVENT frames, exactly one per reviewed destination, with matching kind/content/tags/created_at/pubkey/hash and independently verified fresh Schnorr signatures. Real ACKs are bound to the same IDs and compared with native/SDK outcomes. Additional normal-app physical note/profile (kinds1/0) individual review/reject/approve evidence combines three retained predecessor checks with four passing continuation checks. The note was reconciled before continuation and never republished. Both approved exact event IDs/signatures/content/tags/timestamps/selected public key independently return from damus and nos.lol. Bucket.coracle acknowledges but returns EOSE without the exact events; no persistence claim for that destination. Both denied hashes are absent in bounded relay reads, not native signer counters. Trusted profile content/origin/publisher/identity/destination/action pixels are reviewed. Expanded JSON is independently hashed and verified through native accessibility; the original expanded PNG is black and video JSON is below the viewport, so this scope supplies no visual JSON proof. Only the owned new view closes and the original six-view order/focus returns; app/source/product seals and primary process remain unchanged.",
           "remaining": "Complete mutate/reorder/duplicate/replay submissions, request ID/session/version/key binding, in-flight revocation and owning native counters on both platforms. Exact immutable positive-event/receipt evidence alone is partial."
         }
       }
@@ -610,9 +620,14 @@
             "iphone-relay-outcomes01/03/trace-report.json",
             "iphone-relay-outcomes01/03/independent-relay-review.json",
             "iphone-relay-outcomes01/03/relay/frames.jsonl",
-            "iphone-relay-outcomes01/review.json"
+            "iphone-relay-outcomes01/review.json",
+            "iphone-two-kind-approval04/run-04/receipt.json",
+            "iphone-two-kind-approval04/run-04/trace-report.json",
+            "iphone-two-kind-approval04/first-note-reconciliation03/receipt.json",
+            "iphone-two-kind-approval04/independent-relay04/receipt.json",
+            "iphone-two-kind-approval04/visual-review.json"
           ],
-          "verifiedScope": "An independent TLS-fronted local relay observes zero EVENT frames for the individually rejected original SDK note. Actual approved accept/reject/delay/no-ACK-timeout/disconnect/mixed outcomes are captured on three distinct configured WSS paths. Eighteen signed frames match their exact native reviews. Native/SDK success appears only for observed acceptance; all rejected and unknown outcomes remain failures. The original network defaults, six saved views and owned UX state are restored. Two predecessor observer failures are retained.",
+          "verifiedScope": "An independent TLS-fronted local relay observes zero EVENT frames for the individually rejected original SDK note. Actual approved accept/reject/delay/no-ACK-timeout/disconnect/mixed outcomes are captured on three distinct configured WSS paths. Eighteen signed frames match their exact native reviews. Native/SDK success appears only for observed acceptance; all rejected and unknown outcomes remain failures. The original network defaults, six saved views and owned UX state are restored. Two predecessor observer failures are retained. Additional normal-app physical note/profile (kinds1/0) individual review/reject/approve evidence combines three retained predecessor checks with four passing continuation checks. The note was reconciled before continuation and never republished. Both approved exact event IDs/signatures/content/tags/timestamps/selected public key independently return from damus and nos.lol. Bucket.coracle acknowledges but returns EOSE without the exact events; no persistence claim for that destination. Both denied hashes are absent in bounded relay reads, not native signer counters. Trusted profile content/origin/publisher/identity/destination/action pixels are reviewed. Expanded JSON is independently hashed and verified through native accessibility; the original expanded PNG is black and video JSON is below the viewport, so this scope supplies no visual JSON proof. Only the owned new view closes and the original six-view order/focus returns; app/source/product seals and primary process remain unchanged.",
           "remaining": "Complete independent native signing-effect counters for denial and remaining interrupted/in-flight cancellation cases, plus Android parity. Zero relay frames is a bounded network observation, not proof of zero signing. Full SIGN/Phase 2 acceptance remains open."
         }
       }

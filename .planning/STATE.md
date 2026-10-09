@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Five of61 full requirements closed across both phones. Prioritize full physical app journeys; iPhone toggle retry still fails before UI initialization, Android disconnected. Host developer authorization disabled; candidate repair needs owner review. Ceiling about98%, no source push.
+stopped_at: Six of61 full requirements closed across both phones. Full iPhone published restart passes; note/profile individual signing and independent readbacks pass within scope. Protected backup needs owner authentication after recording stops; Android disconnected. Ceiling about98%, no source push.
 last_updated: "2026-10-09"
 last_activity: 2026-10-09
 state_head: 1294f873cc407cf9e6e18771690973518b674a5e
@@ -1689,3 +1689,6 @@ ceiling about98%; source push remains owner-controlled.
 
 
 Physical continuation — 9 October 2026: iPhone UI control is restored after owner authorization on Mac and phone. The existing signed normal QA app passes the complete eight-check verified-published State/Feed restart journey, with original screenshots reviewed. UX-09 now passes on both phones: all 61 original requirements remain, six complete and 55 open. See [Plan03 checkpoint](phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md) for exact scope and failed observer predecessors. Continue identity/signing and remaining capability/security/fault acceptance; final quality/build sign-off remains open. Source push owner-only; usage83%, ceiling about98%.
+
+
+Physical signing continuation — 9 October2026: normal iPhone note/profile individual reject/approve and independent exact readbacks pass within the documented composite scope. Three retained predecessor checks plus four passing continuation checks; no replay of the original approved note. One relay acknowledges but does not independently return the events. Expanded-event accessibility/hash checks pass, but original black PNG/offscreen video leave visual JSON proof open. SIGN01/05/06 remain partial, all61 statuses unchanged (six complete/55 open). See Plan03 checkpoint for retained observer failures and evidence. Next protected backup review/cancel, then owner-only fresh authentication with recording stopped. Source push owner-only; latest usage85%, ceiling about98%.
