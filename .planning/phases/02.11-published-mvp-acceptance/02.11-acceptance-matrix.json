@@ -137,9 +137,13 @@
             "android-gesture04/originals/hg-android-gesture-physical03/receipt.json",
             "android-gesture04/visual-review.json",
             "android-gesture04/video-review/hg-android-overview-video-review01/manifest.json",
-            "android-gesture04/video/manifest.json"
+            "android-gesture04/video/manifest.json",
+            "android-first-press04/run01/receipt.json",
+            "android-first-press04/run02/receipt.json",
+            "android-first-press04/run02/independent-review.json",
+            "android-first-press04/review/hg-first-press-cleanup-recheck-20261009.json"
           ],
-          "remaining": "The complete twelve-control first/middle/last x left/right x normal/reduced native repeat passes with exact selected state and two-column geometry. Sparse normal recordings include zoom intermediates; reduced sequences settle directly but individual mixed-layout frames occur, so no zero-intermediate-frame or exact pacing claim follows. The earlier first centre tap left the ordinary app focused and only a later tap opened overview. Separate cold-process and original keyboard/Copy/PASTE repetitions passed but neither reproduced nor explained that failure. Root cause and any required repair remain unresolved; keep UX05 partial rather than treating later passes as a fix. Full keyboard/Back/TalkBack and current full-app published/security/fault acceptance remain separate requirements."
+          "remaining": "The complete twelve-control first/middle/last x left/right x normal/reduced native repeat passes with exact selected state and two-column geometry. Sparse normal recordings include zoom intermediates; reduced sequences settle directly but individual mixed-layout frames occur, so no zero-intermediate-frame or exact pacing claim follows. The earlier first centre tap left the ordinary app focused and only a later tap opened overview. Separate cold-process and original keyboard/Copy/PASTE repetitions passed but neither reproduced nor explained that failure. Root cause and any required repair remain unresolved; keep UX05 partial rather than treating later passes as a fix. Full keyboard/Back/TalkBack and current full-app published/security/fault acceptance remain separate requirements. Current empty-overview Settings press also missed before any new view or handle input; cold start then four last-view Settings-return handle presses pass before a keyboard-visibility assertion stops the actor. Both incomplete runs retained; native action/age queues do not establish callback delivery or a shared root cause. Owned views cleaned and keeper unchanged; no product repair."
         },
         "ios-physical": {
           "status": "passed",

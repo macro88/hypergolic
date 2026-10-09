@@ -1,7 +1,7 @@
 ---
 status: investigating
 phase: 2.11
-updated: 2026-10-08
+updated: 2026-10-09
 ---
 
 # Android first right-handle tap discrepancy
@@ -61,3 +61,33 @@ The failed first tap remains unexplained and retained. The repeat supplies no
 keyboard/copy root cause or repair proof; UX-05 stays partial. Stop repeating
 this same passing precondition without a new discriminating trigger. Continue
 other native acceptance while preserving the intermittent-failure investigation.
+
+
+## Current empty-workspace Settings miss — 9 October 2026
+
+A new ordinary120ms enabled-header-centre press fails to open Settings in the
+unchanged current retained app; later original PNG/XML still shows empty overview.
+No handle input, new view or key action occurs. This broadens the investigation
+beyond handle arbitration but does not establish the same cause as the old miss.
+
+After a genuine stopped-process cold launch, Settings works and four first
+last-view handle taps after Settings return (both sides, instant/120ms) open
+native two-column overview. A keyboard-visibility assertion stops the next
+context before a handle stimulus. Transient keyboard text/failure line was not
+retained; no keyboard product failure is assigned. Both actors remain incomplete.
+The three owned views close in finally cleanup; original empty workspace and
+identity return, with only the unchanged keeper APK installed. iPhone fresh
+inventory is device-locked; prior seven-app cleanup proof remains.
+
+Independent driver/hash/XML review and eleven original PNGs are preserved in
+private android-first-press04. All1226 current inputs remain unchanged, with421
+owning inputs matching the installed app. InputDispatcher action/age strings
+and focused window do not establish native coordinates, event identity, callback
+delivery or root cause. Age-changing newMotionEvents strings are not unique
+events. No production fix, full twelve-context claim or motion/pacing acceptance.
+Prior complete normal/reduced positional evidence remains; UX05 stays partial.
+
+Next: capture callback-level delivery/guard state around a newly discriminating
+first-press or background-transition trigger before choosing a repair. BusyRef
+across background/animation is an unverified hypothesis only. Preserve both
+failures and avoid another uninformative passing-context rerun.
