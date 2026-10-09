@@ -32,14 +32,14 @@ def snapshot():
     return {str(path.relative_to(REPO)): sha(path) for path in sorted(set(paths))}
 
 
-def build(output):
+def build(output, network_control=False):
     output = output.resolve()
     if output == REPO or REPO in output.parents:
         raise RuntimeError('Use a fresh external output directory for sealed products')
     output.mkdir(parents=True, exist_ok=False)
     receipt = {'schema': 1, 'status': 'incomplete', 'installed': False, 'executed': False,
         'physicalAcceptance': False, 'applicationId': PACKAGE, 'testApplicationId': PACKAGE + '.test',
-        'runner': RUNNER, 'dateUTC': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        'runner': RUNNER, 'networkControlCleartext': network_control, 'dateUTC': datetime.datetime.now(datetime.timezone.utc).isoformat(),
         'scope': 'Offline Release compilation only; no physical WebView, security or Expo acceptance claim'}
     before = snapshot()
     (output / 'source-inputs.json').write_text(json.dumps(before, indent=2) + '\n')
@@ -53,6 +53,8 @@ def build(output):
         command = ['./android/gradlew', '-p', 'android', '--init-script', str(HERE / 'init.gradle'),
             '-Dhypergolic.boundaryRoot=' + str(HERE), ':app:assembleRelease', ':app:assembleReleaseAndroidTest',
             '--no-daemon', '--max-workers=2', '-PreactNativeArchitectures=arm64-v8a', '-PhypergolicUploadProof=false']
+        if network_control:
+            command.insert(5, '-Dhypergolic.boundaryNetworkControl=true')
         receipt['command'] = command
         env = {key: value for key, value in os.environ.items() if key != 'ENTRY_FILE' and not key.startswith('HYPERGOLIC_KEY')}
         with (output / 'gradle.log').open('w') as log:
@@ -79,6 +81,8 @@ def build(output):
                 raise RuntimeError('Expected nondebuggable ARM64 Release target')
             if "application: label='Hypergolic'" not in badging:
                 raise RuntimeError('Both test packages must retain the Hypergolic application label')
+            if kind == 'app' and network_control and 'usesCleartextTraffic' not in manifest:
+                raise RuntimeError('Test-only receiver-control manifest overlay missing')
             if kind == 'test' and (RUNNER not in manifest or PACKAGE not in manifest or 'targetPackage' not in manifest):
                 raise RuntimeError('Instrumentation target/runner missing')
             signature = subprocess.check_output([str(tools / 'apksigner'), 'verify', '--verbose', '--print-certs', str(target)], text=True)
@@ -114,4 +118,6 @@ def build(output):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
-    build(parser.parse_args().output)
+    parser.add_argument('--network-control', action='store_true', help='Disposable cleartext receiver control overlay; no ordinary app change')
+    args = parser.parse_args()
+    build(args.output, args.network_control)

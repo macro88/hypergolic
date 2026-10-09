@@ -7,6 +7,9 @@ gradle.beforeProject { project ->
       project.android.defaultConfig.testApplicationId = 'org.nostrocket.hypergolic.androidboundaryprobe.test'
       project.android.defaultConfig.testInstrumentationRunner = 'org.nostrocket.hypergolic.boundary.BoundaryInstrumentation'
       project.android.testBuildType = 'release'
+      if (System.getProperty('hypergolic.boundaryNetworkControl') == 'true') {
+        project.android.sourceSets.release.manifest.srcFile(new File(boundaryRoot, 'NetworkControlManifest.xml'))
+      }
       project.android.buildTypes.release.signingConfig = project.android.signingConfigs.debug
       project.android.sourceSets.androidTest.java.srcDir(new File(boundaryRoot, 'src'))
       project.android.sourceSets.androidTest.manifest.srcFile(new File(boundaryRoot, 'AndroidManifest.xml'))

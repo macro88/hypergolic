@@ -789,8 +789,15 @@
       "requiredEvidence": "Native malicious fixtures probe parent/native APIs, origin/storage, fetch/XHR/WS/forms/images/navigation/popups/downloads/file/content URLs; external receiver confirms blocked escapes",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-native-network04/physical04/native/receipt.json",
+            "android-native-network04/physical04/native/instrumentation.log",
+            "android-native-network04/physical04/receiver-and-device.json",
+            "android-native-network04/physical04/retained-package-inventory.json"
+          ],
+          "verifiedScope": "Two source-linked physical Android16/API36/WebView153 native runs pass eight cases with565 assertions each. Final independent reachable LAN HTTP/TCP receiver observes only two unrestricted same-app WebView controls and two TCP accepts, with no guest requests or additional accepts through a one-second quiet interval. Six exact nonce/path/effective-CSP failures plus fetch/XHR/WebSocket/image/script/CSS/worker/popup outcomes, a connected POST form with unchanged location, original allow-scripts sandbox and SDK barrier are captured from the actual opaque guest. Twelve owned probes close;69 source inputs and exact installed products persist. Test-only cleartext-control overlay and privileged native diagnostic stimulus are explicit scope limits. Original failed installer and favicon audit remain; only receiver control HTML changes for the final strict audit. Both temporary packages uninstall, receivers stop and all four retained old APK hashes remain.",
+          "remaining": "Complete all named row requirements: protected-key absence, full navigation/download/file/content and all-origin escape probes, DNS/UDP/publicHTTPS, normal Expo domain authorization/dispatch and verified-published parity. Selected LAN HTTP/TCP evidence under a disposable cleartext-control overlay cannot pass the full row."
         },
         "ios-physical": {
           "status": "partial",

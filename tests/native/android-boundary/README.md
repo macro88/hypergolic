@@ -176,3 +176,71 @@ audits run; aislop98 contains only the two exact approved locked Forge/braces
 advisories. The normal verifier remains red, with full evidence preserved. No new
 exception, suppressed finding, production policy change or source push. Usage93%,
 ceiling about98%; full Plan03/04/Phase2 remain open.
+
+
+## Optional independent network case
+
+The eight-case mode requires an independently observed private LAN HTTP receiver,
+a fresh32-character hexadecimal nonce, and a disposable cleartext-control build:
+
+```sh
+python3 tests/native/android-boundary/build.py --network-control --output "$SEALED_BUILD"
+# Install only the sealed disposable app and test APKs under the device owner's approval.
+python3 tests/native/android-boundary/run.py --serial "$DEVICE_SERIAL" \
+  --build "$SEALED_BUILD" --output "$NATIVE_EVIDENCE" \
+  --network-receiver "$LAN_HTTP_ORIGIN" --network-nonce "$RECEIVER_NONCE"
+```
+
+The receiver must return a body whose text is `boundary-control-ok` at
+`/<nonce>/control/before` and `/<nonce>/control/after`. Give these unrestricted
+control pages an inline data favicon to avoid automatic favicon traffic.
+Independently log every HTTP request and accepted TCP connection throughout the
+native run and a bounded quiet interval. Require exactly the two controls from
+the target phone, two TCP accepts and zero additional requests/connections.
+The native runner's receipt alone cannot prove this external observation.
+
+The test stimulates fetch/XHR/WebSocket/image/script/stylesheet/worker/form/popup
+in the actual opaque guest. Six exact nonce/path/effective-CSP violations,
+eight denied API outcomes, a connected POST form with unchanged location, the
+original sandbox and original SDK theme barrier must all pass. Diagnostic native
+injection is privileged stimulus; it does not represent a guest CSP bypass.
+
+The control manifest overlays only the disposable Release build when explicitly
+selected. It allows LAN cleartext controls without editing generated packaging,
+ordinary app configuration, production native sources or the pinned runtime.
+The build/run seals include both new test files; mismatched network arguments and
+control-build receipts fail before instrumentation. Default mode retains seven
+cases with no overlay. Receiver controls use ordinary WebViews in the same app;
+the owning host retains mixed-content, native interception and CSP restrictions.
+Remove only exact owned disposable test packages after reconciliation.
+
+## Physical receiver checkpoint — 9 October 2026
+
+Two physical Android16/API36/WebView153 runs pass all eight selected native cases,
+565 assertions each. The final strict LAN audit observes only two controls and
+two TCP accepts, with zero guest/additional traffic through the one-second quiet
+interval. Twelve owned probes close;69 test/owning source inputs and both exact
+installed products remain unchanged. Build seals1,244 inputs and62 owning pins.
+The predecessor receiver audit remains failed because of two automatic control
+favicons; its native run passed. The final correction changes only receiver
+control HTML to use a data favicon, retaining the strict audit.
+
+An initial terminal install rejection remains despite an observed ordinary
+instantaneous Install click. Filtered timestamps show input before cancellation;
+its exact cause is unconfirmed. Normal120ms button presses subsequently install
+both exact APKs. No OS security setting, installer identity or remembered consent
+changes. All attempts remove owned test packages and stop receivers. Read-only
+inventory identifies four retained historical app IDs; their APK hashes remain
+unchanged and their data is preserved. Owner selection is needed before old-app
+consolidation, because uninstalling an app erases its local identities/settings.
+
+Canonical private `android-native-network04` preserves119 byte-verified originals.
+SEC02 becomes Android partial; six of61 full cross-platform requirements remain
+complete/55 open. This is bounded LAN HTTP/TCP evidence under the disposable
+control overlay, with privileged fixed stimulus. DNS/UDP/publicHTTPS,
+protected-key absence, full navigation/download/file/content, normal Expo domain
+authorization and published parity remain open. Pre-documentation source-bound
+Doctor100/430, ten audits and all engines complete; aislop98 has only the two exact
+approved locked Forge/braces advisories. The normal quality gate remains red.
+No new exception, production policy change or source push. Usage94%; full
+Plan03/04/Phase2 remain open under the approximately98%-used ceiling.

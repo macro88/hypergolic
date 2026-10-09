@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Six of61 full requirements complete/55 open. Android physical seven-case native fault run passes498 assertions with owned package cleanup; SEC01/03 partial. Query/subscription partial evidence persists. Both backup panels closed; full protected backup/Expo/published/security gates remain. Ceiling about98%, no source push.
+stopped_at: Six of61 full requirements complete/55 open. Android physical eight-case runs and strict independent LAN receiver audit pass; SEC01/02/03 partial. Temporary packages removed, all four old APKs preserved. App consolidation decision needed before erasing old data. Full protected/Expo/published/security scope remains. Ceiling about98%, no source push.
 last_updated: "2026-10-09"
 last_activity: 2026-10-09
-state_head: 5acff153974c119f58b43c397854f90c35725cab
+state_head: e32e6aa
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1824,3 +1824,30 @@ SEC01/03 partial; six of61 full rows complete/55 open. Installer dependency reso
 through verified ordinary Install button; prior rejection cause unconfirmed. Full
 current Doctor100/430, aislop98 and ten audits retain only approved locked exceptions;
 normal gate remains red. See the latest Plan04 checkpoint. Usage93%, ceiling about98%.
+
+
+## Physical Android independent network audit — 9 October 2026
+
+Two eight-case physical native runs pass565 assertions each. The final independent
+LAN HTTP/TCP receiver sees only two before/after unrestricted same-app WebView
+controls and two TCP accepts, with zero guest/additional traffic through the
+one-second quiet interval. Six exact nonce/path CSP denials, eight API outcomes,
+form/sandbox and original SDK controls pass. Twelve owned probes close;69 inputs
+and installed products persist. The optional disposable cleartext-control overlay
+leaves ordinary production packaging and host/runtime policy unchanged.
+
+The original instantaneous-click installation rejection and first receiver audit's
+two automatic control favicons remain. Normal120ms Install presses succeed;
+inline data favicons on control HTML permit the unchanged strict audit to pass.
+Both temporary packages are removed and receivers stopped. All four retained
+historical APK hashes remain unchanged. Read-only inventory distinguishes latest
+acceptance, older fixture and two earlier builds; consolidation requires choosing
+one app ID and owner approval before erasing old app data.
+
+Canonical private android-native-network04 preserves119 byte-verified originals.
+SEC02 becomes Android partial; six of61 full rows complete/55 open. Protected-key,
+normal Expo, full navigation/download/file/content, DNS/UDP/publicHTTPS and
+published scope remain. Pre-documentation full source-bound Doctor100/430,
+aislop98 with only the exact two approved locked advisories, ten audits and all
+engines complete; normal gate stays red. No new exception/suppression/source push.
+Usage94%, ceiling about98%; full Plan03/04/Phase2 remain open.

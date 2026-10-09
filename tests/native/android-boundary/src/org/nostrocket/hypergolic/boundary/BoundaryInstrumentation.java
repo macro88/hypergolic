@@ -10,6 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewRenderProcess;
+import android.webkit.WebViewClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import android.widget.FrameLayout;
 import androidx.webkit.JavaScriptReplyProxy;
@@ -144,6 +148,7 @@ public final class BoundaryInstrumentation extends Instrumentation {
           + "const timeout=setTimeout(()=>{removeEventListener('message',listen);reject(Error('Theme barrier timeout'));},2000);"
           + "const listen=event=>{if(event.source!==parent||event.data?.id!==id)return;clearTimeout(timeout);removeEventListener('message',listen);resolve(event.data);};"
           + "addEventListener('message',listen);parent.postMessage({type:'theme.get',id},'*');});}"
+          + "else if(command.operation==='network'){" + NetworkProbe.SCRIPT + "}"
           + "else throw Error('Unknown diagnostic operation');report({kind:'result',id:command.id,value});}"
           + "catch(error){report({kind:'result',id:command.id,error:String(error)});}};"
           + "addEventListener('DOMContentLoaded',()=>report({kind:'frame',href:location.href,nativeBridge:typeof HypergolicHost}),{once:true});})();";
@@ -375,6 +380,57 @@ public final class BoundaryInstrumentation extends Instrumentation {
     next.observations.put(new JSONObject().put("freshRendererHandle",System.identityHashCode(nextProcess)).put("generation",next.generation));
     next.close();passed(step,before);
   }
+  private void receiverControl(String target, String name) throws Exception {
+    AtomicReference<String> result=new AtomicReference<>();
+    AtomicReference<String> error=new AtomicReference<>();
+    WebView control=ui(()->{
+      WebView view=new WebView(activity);container.addView(view,new FrameLayout.LayoutParams(-1,-1));
+      view.getSettings().setJavaScriptEnabled(true);
+      view.setWebViewClient(new WebViewClient(){
+        @Override public void onPageFinished(WebView view,String url){
+          if(!target.equals(url)){error.set("Unexpected control navigation");return;}
+          view.evaluateJavascript("document.body.textContent",result::set);
+        }
+        @Override public void onReceivedError(WebView view,WebResourceRequest request,WebResourceError failure){
+          if(request.isForMainFrame())error.set("Receiver control load failed");
+        }
+      });
+      view.loadUrl(target);return view;
+    });
+    try {
+      until("independent WebView receiver control "+name,()->result.get()!=null||error.get()!=null);
+      check(error.get()==null,"Unrestricted same-app WebView reaches independent receiver");
+      check("boundary-control-ok".equals(new JSONArray("["+result.get()+"]").getString(0).trim()),"Exact receiver control body");
+    } finally {ui(()->{control.stopLoading();container.removeView(control);control.destroy();return null;});}
+  }
+  private void network() throws Exception {
+    step="independent-network-receiver-and-guest-denials";int before=assertions;
+    String origin=arguments.getString("receiverURL",""),nonce=arguments.getString("receiverNonce","");
+    URI uri=new URI(origin);
+    check("http".equals(uri.getScheme())&&uri.getHost()!=null&&uri.getPort()>0&&uri.getRawPath().isEmpty()&&uri.getRawUserInfo()==null&&uri.getRawQuery()==null&&uri.getRawFragment()==null&&nonce.matches("[a-f0-9]{32}"),"Explicit bounded receiver configuration");
+    check(getTargetContext().getApplicationInfo().flags!=0&&(getTargetContext().getApplicationInfo().flags&android.content.pm.ApplicationInfo.FLAG_USES_CLEARTEXT_TRAFFIC)!=0,"Test-only receiver control overlay active");
+    String base=origin+"/"+nonce;
+    receiverControl(base+"/control/before","before");
+    Probe p=new Probe();JSONObject value=p.guest("network",new JSONObject().put("target",base+"/guest").toString());
+    JSONObject denied=value.getJSONObject("denied");
+    check(denied.length()==8,"Exact eight observable API outcomes");
+    for(String method:new String[]{"fetch","xhr","websocket","image","script","css","worker","popup"})check(denied.getBoolean(method),"Real guest denial: "+method);
+    JSONArray violations=value.getJSONArray("violations");
+    String[][] required={{"fetch","connect-src"},{"xhr","connect-src"},{"websocket","connect-src"},{"image","img-src"},{"script","script-src","script-src-elem"},{"css","style-src","style-src-elem"}};
+    for(String[] requirement:required){
+      boolean observed=false;
+      for(int i=0;i<violations.length();i++){
+        JSONObject violation=violations.getJSONObject(i);boolean directive=false;
+        for(int j=1;j<requirement.length;j++)if(requirement[j].equals(violation.getString("directive")))directive=true;
+        if(directive&&violation.getString("uri").endsWith("/"+nonce+"/guest/"+requirement[0]))observed=true;
+      }
+      check(observed,"Exact effective CSP directive and nonce-bound URI: "+requirement[0]);
+    }
+    JSONObject form=value.getJSONObject("form");
+    check((base+"/guest/form").equals(form.getString("action"))&&"post".equals(form.getString("method"))&&form.getBoolean("connected")&&form.getBoolean("locationUnchanged"),"Real form submission cannot navigate original guest");
+    check("allow-scripts".equals(p.main("return {sandbox:document.querySelector('#napplet').getAttribute('sandbox')};").getString("sandbox")),"Original sandbox restrictions retained");
+    p.barrier();p.close();receiverControl(base+"/control/after","after");passed(step,before);
+  }
   @Override public void onStart() {
     Bundle result=new Bundle();
     try {
@@ -389,6 +445,7 @@ public final class BoundaryInstrumentation extends Instrumentation {
       until("ordinary Expo host exists",()->{template=find(activity.getWindow().getDecorView());return template!=null;});
       ui(()->{container=new FrameLayout(activity);((ViewGroup)activity.findViewById(android.R.id.content)).addView(container,new ViewGroup.LayoutParams(-1,-1));return null;});
       isolation();schema();childFrame();bounds();lifecycle();utf8();renderer();
+      if(arguments.containsKey("receiverURL")||arguments.containsKey("receiverNonce"))network();
       result.putString("result","passed");
     } catch(Throwable error) {
       result.putString("result","failed");result.putString("step",step);result.putString("errorType",error.getClass().getSimpleName());
