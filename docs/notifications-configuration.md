@@ -575,3 +575,44 @@ python3 -B tests/native/presentation/notify-publisher-physical-android.py --seri
 The fixture scalars are deliberately public test values and must never publish.
 The local source delegates unrelated coordinates/HTML to ordinary transport;
 these controlled samples do not establish external relay or HTTPS acceptance.
+
+
+## Notification concurrent-capacity repair — 11 October 2026
+
+Two new regressions using the actual shared broker and disk SQLite permission
+store reproduce a capacity race:20 concurrent sends admit12 cards for one source
+(limit8), and40 sends across five independently permitted sources admit40 cards
+(global limit32). The early capacity check runs before an asynchronous permission
+read, so multiple callers can observe the same free capacity. The broker now
+rechecks both bounds after that read and the active-authority check, before ID
+allocation or card publication. No asynchronous operation separates the final
+capacity check from insertion. Existing limits, rate policy and wire replies are
+unchanged; excess calls receive the original `rate limited` error without an ID.
+
+Both regressions pass after the change; all46 presentation tests and TypeScript
+pass. They additionally verify unique admitted IDs, no ID allocation for excess
+calls, exact host timeout callbacks and positive sends after expiry/slot release.
+These are shared host tests with a native-port double; their counters are not
+physical native zero-effect evidence. Both ordinary Expo exports pass. Complete
+local React Doctor scans441 files with zero diagnostics/skipped checks; score null.
+The final full external audit/score remain pending specific authorization. The
+last complete aislop98 reflects its earlier source, with only the two approved
+locked advisories; it is not a new full-source quality result for this repair.
+
+The current signed Android notification test APK is rebuilt after the fix with
+unchanged ID/label/certificate and restored composition/real owner. The preceding
+prepared APK remains historical evidence and must not be used for current-code
+acceptance. Both ordinary ARM64 Android and iPhoneOS Release products also build
+and verify with their retained Hypergolic IDs, labels and certificates. The iPhone
+build uses its cached signing profile with provisioning updates disabled. Source/
+native input maps and prior signed products are preserved and compared. No APK/
+iPhone installation, device input, test identity change or physical concurrency
+acceptance occurs. Use the newly sealed ordinary product when restoring after the
+future publisher batch, not the superseded normal APK from before this repair.
+
+Android remains disconnected at the last USB observation. The six signed publisher
+checks and physical concurrent/fault/iOS parity remain open. Removal of the earlier
+owned shell-UID helper still requires reconnection and an exact hash check. CAP-10
+stays partial; the full matrix remains seven of61 complete/54 open. Clean-close
+policy and external quality authorization remain unanswered. No source push,
+quality waiver or Phase3 advance. Private evidence: notification-concurrency01.

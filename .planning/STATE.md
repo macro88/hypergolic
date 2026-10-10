@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Signed notification publisher-isolation suite prepared and packaged, host checks pass; zero-input pre-install disconnect, no test APK installed, helper cleanup pending reconnection. CAP10 partial; seven of61 complete/54 open, external quality approvals pending, no source push.
+stopped_at: Reproduced/fixed notification concurrent-capacity race;46 presentation tests, TypeScript, both exports and both ordinary signed products pass. Current signed notification APK rebuilt; physical publisher/concurrency tests and helper cleanup await device reconnect. CAP10 partial;7/61 complete/54 open, full external quality approvals pending, no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: b781e65730a3521ece93ded8881637a8ffd79199
+state_head: 1d48262718b8a641c9b01e36e5886d50c56c2df8
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2367,3 +2367,44 @@ Signed physical, identity/version, races/zero effects, hostile/priority variants
 external published and iOS/minimum-platform/usability acceptance remain open.
 Private evidence identifier: android-notification-publishers01. Usage25% remains
 below the owner's latest about98% ceiling.
+
+
+## Notification concurrent-capacity repair — 11 October 2026
+
+Two new regressions using the actual shared broker and disk SQLite permission
+store reproduce a capacity race:20 concurrent sends admit12 cards for one source
+(limit8), and40 sends across five independently permitted sources admit40 cards
+(global limit32). The early capacity check runs before an asynchronous permission
+read, so multiple callers can observe the same free capacity. The broker now
+rechecks both bounds after that read and the active-authority check, before ID
+allocation or card publication. No asynchronous operation separates the final
+capacity check from insertion. Existing limits, rate policy and wire replies are
+unchanged; excess calls receive the original `rate limited` error without an ID.
+
+Both regressions pass after the change; all46 presentation tests and TypeScript
+pass. They additionally verify unique admitted IDs, no ID allocation for excess
+calls, exact host timeout callbacks and positive sends after expiry/slot release.
+These are shared host tests with a native-port double; their counters are not
+physical native zero-effect evidence. Both ordinary Expo exports pass. Complete
+local React Doctor scans441 files with zero diagnostics/skipped checks; score null.
+The final full external audit/score remain pending specific authorization. The
+last complete aislop98 reflects its earlier source, with only the two approved
+locked advisories; it is not a new full-source quality result for this repair.
+
+The current signed Android notification test APK is rebuilt after the fix with
+unchanged ID/label/certificate and restored composition/real owner. The preceding
+prepared APK remains historical evidence and must not be used for current-code
+acceptance. Both ordinary ARM64 Android and iPhoneOS Release products also build
+and verify with their retained Hypergolic IDs, labels and certificates. The iPhone
+build uses its cached signing profile with provisioning updates disabled. Source/
+native input maps and prior signed products are preserved and compared. No APK/
+iPhone installation, device input, test identity change or physical concurrency
+acceptance occurs. Use the newly sealed ordinary product when restoring after the
+future publisher batch, not the superseded normal APK from before this repair.
+
+Android remains disconnected at the last USB observation. The six signed publisher
+checks and physical concurrent/fault/iOS parity remain open. Removal of the earlier
+owned shell-UID helper still requires reconnection and an exact hash check. CAP-10
+stays partial; the full matrix remains seven of61 complete/54 open. Clean-close
+policy and external quality authorization remain unanswered. No source push,
+quality waiver or Phase3 advance. Private evidence: notification-concurrency01.

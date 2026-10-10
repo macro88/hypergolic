@@ -66,6 +66,13 @@ is pending after a zero-input pre-install disconnect. This test-only composition
 is restored after packaging and grants no new production authority. See the
 [notification preparation checkpoint](notifications-configuration.md#protected-android-notification-publisher-preparation--11-october-2026).
 
+The shared notification broker rechecks per-source/global card capacity after its
+asynchronous permission read and before allocating a card ID. Concurrent disk-SQLite
+host regressions verify the original limits and positive recovery after capacity
+release. Both current ordinary signed products and exports pass; physical concurrency
+and native zero-effect evidence remain open. See the
+[capacity repair checkpoint](notifications-configuration.md#notification-concurrent-capacity-repair--11-october-2026).
+
 ## Implemented
 
 `index.ts` registers `src/App.tsx` with Expo. Both native hosts run verified,

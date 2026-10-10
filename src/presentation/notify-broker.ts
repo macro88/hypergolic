@@ -102,6 +102,9 @@ export class NotifyBroker {
     await this.permissions.revoke(owner, channel); owner.assertActive();
   }
   listPermissions(owner: TrustedUser) {return this.permissions.list(owner);}
+  private atCapacity(generation: string): boolean {
+    return this.cards.length >= NOTIFY_LIMITS.cards || this.cards.filter(card => card.origin.generation === generation).length >= NOTIFY_LIMITS.perSource;
+  }
   private async operate(endpoint: Endpoint, request: NotifyMessage, active: () => void): Promise<Readonly<Record<string, unknown>> | null> {
     const now = this.now(); if (now - endpoint.window >= 60_000) {endpoint.window = now; endpoint.sends = 0; endpoint.asks = 0;}
     if (request.type === 'notify.channel.register') {
@@ -125,8 +128,10 @@ export class NotifyBroker {
     if (request.type !== 'notify.send') return null;
     const error = (reason: string) => ({type: 'notify.send.result', id: request.id, error: reason});
     if (!registered) return error('invalid channel');
-    if (++endpoint.sends > NOTIFY_LIMITS.sendsPerMinute || this.cards.length >= NOTIFY_LIMITS.cards || this.cards.filter(value => value.origin.generation === endpoint.registration.generation).length >= NOTIFY_LIMITS.perSource) return error('rate limited');
+    if (++endpoint.sends > NOTIFY_LIMITS.sendsPerMinute || this.atCapacity(endpoint.registration.generation)) return error('rate limited');
     if (this.blocked.has(key) || !await this.permissions.has(owner, channel)) return error('permission denied'); active();
+    // Permission reads yield; recheck capacity before allocating an ID or publishing.
+    if (this.atCapacity(endpoint.registration.generation)) return error('rate limited');
     const id = this.native.newChannelId(); routingText(id, 128);
     if (this.cards.some(card => card.id === id)) return error('notification unavailable');
     const priority = request.priority ?? endpoint.channels.get(channel)?.defaultPriority ?? 'normal';
