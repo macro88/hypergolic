@@ -895,3 +895,12 @@ boot-framework JSON. It requires no app install or screen unlock. Source/class/
 DEX/fixture hashes, actual UID/API/boot loader and unchanged retained APK/inventory
 are recorded. Exact owned temporary files are hash-checked and removed. This
 proves neither ordinary app/guest/protected-signer composition nor phone lifecycle.
+
+
+The native Outbox core suite now includes strict JSON syntax regressions before
+Android object decoding. Its physical framework runner defaults to all 106 core
+assertions; append `--ack-grammar` for the focused 37-assertion subset. Failed probe
+logs are captured only for the exact reported disposable PID. Both modes verify
+remote-file removal and unchanged keeper/inventory. Host core, 38 TLS writer and
+27-per-platform owner cases remain distinct from ordinary app/protected-signer
+and full physical acceptance. See the [parser repair](outbox-routing.md#android-ack-json-syntax--11-october-2026).

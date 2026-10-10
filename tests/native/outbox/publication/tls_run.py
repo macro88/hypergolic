@@ -4,6 +4,7 @@ import argparse,base64,hashlib,importlib.util,json,os,socket,ssl,subprocess,thre
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[3]
 spec=importlib.util.spec_from_file_location('native_core',HERE/'run.py');core=importlib.util.module_from_spec(spec);spec.loader.exec_module(core)
+INVALID_ACK_MODES=['invalid-single-quotes','invalid-bare-string','invalid-uppercase-boolean','invalid-semicolon','invalid-block-comment','invalid-line-comment','invalid-raw-control']
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def inputs():return {**core.inputs(),**{str(p.relative_to(ROOT)):digest(p) for p in [Path(__file__),HERE/'TLSProof.java',HERE/'TLSProof.swift',ROOT/'tests/native/android-published-https/PublishedHttpsTlsProof.java']}}
 def run(command,out,name,cwd=ROOT):
@@ -56,6 +57,16 @@ def serve(listener,key,cert,mode,fixture,trace,errors):
    if mode=='trailing-data':ack_wire+=' trailing data'
    elif mode=='trailing-nul':ack_wire+='\0 trailing data'
    elif mode=='concatenated':ack_wire+=json.dumps(['OK',event_id,False,'second response'],separators=(',',':'))
+   if mode in INVALID_ACK_MODES:
+    ack_wire={
+     'invalid-single-quotes':"['OK','"+event_id+"',true,'stored']",
+     'invalid-bare-string':'[OK,"'+event_id+'",true,stored]',
+     'invalid-uppercase-boolean':'["OK","'+event_id+'",TRUE,"stored"]',
+     'invalid-semicolon':'["OK";"'+event_id+'";true;"stored"]',
+     'invalid-block-comment':'/* comment */ '+ack_wire,
+     'invalid-line-comment':'// comment\n'+ack_wire,
+     'invalid-raw-control':'["OK","'+event_id+'",true,"sto\tred"]'
+    }[mode]
    peer.sendall(frame(json.dumps(['NOTICE','ordinary'],separators=(',',':')))+frame(ack_wire))
    trace.append({'phase':'ack','value':ack,'wire':ack_wire,'wireBytes':len(ack_wire.encode()),'wireSha256':hashlib.sha256(ack_wire.encode()).hexdigest()})
  except Exception as error:errors.append(str(error))
@@ -74,7 +85,7 @@ def main():
   run(['javac','-Xlint:all','-Werror','-cp',cp,'-d',str(out/'classes'),str(HERE/'TLSProof.java'),str(ROOT/'tests/native/android-published-https/PublishedHttpsTlsProof.java')],out,'android-proof-compile')
   binary=out/'ios-proof';run(['xcrun','swiftc','-swift-version','6','-D','HYPERGOLIC_NETWORK_PROOF','-warnings-as-errors','-parse-as-library',*(str(core.IOS/n) for n in core.I_NAMES),str(HERE/'TLSProof.swift'),'-o',str(binary)],out,'ios-proof-compile')
   for platform in ['android','ios']:
-   for mode in ['accepted','accepted-close','rejected','missing','wrong-id','malformed','revoke-before-send','trailing-data','trailing-nul','concatenated','oversized-reason','multibyte-overflow']:
+   for mode in ['accepted','accepted-close','rejected','missing','wrong-id','malformed','revoke-before-send','trailing-data','trailing-nul','concatenated','oversized-reason','multibyte-overflow']+INVALID_ACK_MODES:
     listener=socket.socket();listener.bind(('127.0.0.1',0));listener.listen(1);port=listener.getsockname()[1];trace=[];errors=[]
     thread=threading.Thread(target=serve,args=(listener,key,cert,mode,fixture,trace,errors),daemon=True);thread.start()
     command=['java','-cp',cp,'org.nostrocket.hypergolic.host.TLSProof',str(port),str(cert),str(p12),mode,str(HERE/'fixtures.json')] if platform=='android' else [str(binary),str(port),str(der),mode,str(HERE/'fixtures.json')]

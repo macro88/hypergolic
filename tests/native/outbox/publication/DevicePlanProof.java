@@ -14,7 +14,8 @@ public final class DevicePlanProof {
     ClassLoader boot = String.class.getClassLoader();
     if (JSONObject.class.getClassLoader() != boot || JSONArray.class.getClassLoader() != boot || JSONTokener.class.getClassLoader() != boot) throw new AssertionError("JSON is not supplied by boot framework");
     System.out.println(new JSONObject().put("phase", "runtime").put("sdk", Build.VERSION.SDK_INT).put("uid", Process.myUid())
-      .put("model", Build.MODEL).put("frameworkJson", true).put("jsonLoader", String.valueOf(boot)));
-    PlanProof.main(args);
+      .put("pid", Process.myPid()).put("model", Build.MODEL).put("frameworkJson", true).put("jsonLoader", String.valueOf(boot)));
+    if (args.length == 2 && args[1].equals("--ack-grammar")) PlanProof.acknowledgementGrammarProof();
+    else PlanProof.main(args);
   }
 }

@@ -530,3 +530,11 @@ profile and original-notice checks. Its owning Swift inputs match the preceding
 verified iPhone build; the parser repair was Android-only. The new ready copy
 preserves the stable identity and previous product. This packaging evidence
 closes no physical requirement. See the [iPhone build checkpoint](outbox-routing.md#signed-ordinary-iphone-build-verification--11-october-2026).
+
+
+Android's native Outbox ACK capture now validates bounded JSON-array syntax before
+its lenient platform object parser. Malformed syntax cannot become an accepted
+receipt; exact correlation and first-ACK retention remain. Physical framework
+core tests and controlled native owner transports verify the selected faults,
+while ordinary app/protected signing and full acceptance remain open. See the
+[JSON syntax checkpoint](outbox-routing.md#android-ack-json-syntax--11-october-2026).

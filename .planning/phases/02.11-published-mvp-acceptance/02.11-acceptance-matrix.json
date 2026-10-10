@@ -1406,9 +1406,12 @@
           "evidence": [
             "android-outbox-platform-core01/physical-core02/receipt.json",
             "android-outbox-platform-core01/physical-core02/physical-proof.log",
-            "android-outbox-platform-core01/owned-helper-cleanup/receipt.json"
+            "android-outbox-platform-core01/owned-helper-cleanup/receipt.json",
+            "android-outbox-json-grammar01/physical-green02/receipt.json",
+            "android-outbox-json-grammar01/physical-green02/physical-proof.log",
+            "android-outbox-json-grammar01/physical-red04/owned-proof-runtime-failure.log"
           ],
-          "verifiedScope": "Physical API36 shell-UID execution of current compiled native plan/approval/ACK primitives: all69 existing assertions pass against boot-framework JSONObject/JSONArray/JSONTokener, with no packaged org.json definitions. Selected native source/class/API/Kotlin/DEX/fixture hashes are sealed. Immutable event/identity/hash/destination, one-use pair replay, approval revocation and bounded malformed/trailing/raw-NUL/concatenated ACK cases pass. Hash-matching temporary files and prior owned notification helper are removed; retained ordinary APK path/hash and package inventory stay exact.",
+          "verifiedScope": "Physical API36 shell-UID execution of current compiled native plan/approval/ACK primitives: all69 existing assertions pass against boot-framework JSONObject/JSONArray/JSONTokener, with no packaged org.json definitions. Selected native source/class/API/Kotlin/DEX/fixture hashes are sealed. Immutable event/identity/hash/destination, one-use pair replay, approval revocation and bounded malformed/trailing/raw-NUL/concatenated ACK cases pass. Hash-matching temporary files and prior owned notification helper are removed; retained ordinary APK path/hash and package inventory stay exact. Current physical boot-framework parser reproduces single-quoted ACK acceptance before the syntax repair; exact owned PID crash log confirms the expected-denial assertion. Repaired current source passes106 owning plan/ACK assertions, including15 malformed forms and valid escaped/whitespace/nested-other compatibility. Disposable shellUID2000 and exact file cleanup/unchanged keeper remain explicit; no ordinary app/guest/protected-signer or complete fault claim.",
           "remaining": "Standalone shell UID is not ordinary app-UID/Expo/guest/protected-signer or source/domain/view composition proof. Current installed app code, full wrong-owner/generation/view/identity, concurrent/late callback, lifecycle, native zero signing/emission, public/controlled transport and published parity remain required. Existing approval proof supplies a clock; Android suspend behavior is untested."
         },
         "ios-physical": {

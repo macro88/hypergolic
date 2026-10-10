@@ -23,7 +23,7 @@ MODES = ['accepted', 'accepted-close', 'rejected', 'missing', 'wrong-id', 'malfo
          'auth-required', 'revoke-before-send', 'trailing-data', 'trailing-nul',
          'concatenated', 'oversized-reason', 'multibyte-overflow',
          'job-cancel-before-send', 'revoke-after-send', 'job-cancel-after-send',
-         'silent-timeout', 'slow-notices', 'notice-flood', 'oversized-frame']
+         'silent-timeout', 'slow-notices', 'notice-flood', 'oversized-frame'] + tls.INVALID_ACK_MODES
 ROUTE_BEFORE = '''    return queryWithTransport(url, event, PublishedHttpsRequestOwner.addressPolicy(), control, stop,
         InetAddress::getAllByName, DNS, defaultFactory(), HttpsURLConnection.getDefaultHostnameVerifier());'''
 ROUTE_AFTER = '    return OwnerTLSRoute.publish(url, event, control, stop);'

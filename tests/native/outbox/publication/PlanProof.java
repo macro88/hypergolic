@@ -37,6 +37,46 @@ public final class PlanProof {
     deniedAck(id, valid + "\u0000");
     deniedAck(id, valid + "\u0000 trailing data");
     deniedAck(id, valid + ackWire(id, false, "second response"));
+    acknowledgementGrammar(id);
+  }
+  private static void acknowledgementGrammar(String id) {
+    String valid = ackWire(id, true, "stored");
+    for (String wire : new String[] {
+      "['OK','" + id + "',true,'stored']",
+      "[OK,\"" + id + "\",true,stored]",
+      "[\"OK\",\"" + id + "\",TRUE,\"stored\"]",
+      "[\"OK\";\"" + id + "\";true;\"stored\"]",
+      "/* comment */ " + valid,
+      "// comment\n" + valid,
+      "[\"OK\",\"" + id + "\",true,\"sto\tred\"]"
+    }) deniedAck(id, wire);
+    for (String wire : new String[] {
+      "[\"NOTICE\",{key:1}]",
+      "[\"NOTICE\",{\"key\"=1}]",
+      "[\"NOTICE\",{\"key\":01}]",
+      "[\"NOTICE\",{\"key\":1.}]",
+      "[\"NOTICE\",{\"key\":1e+}]",
+      "[\"NOTICE\",{\"key\":+1}]",
+      "[\"NOTICE\",,true]",
+      "[\"NOTICE\",{\"key\":1,}]"
+    }) deniedAck(id, wire);
+    String reason = "tab\tline\nquote\"backslash\\slash/😀";
+    OutboxAcknowledgement escaped = new OutboxAcknowledgement(id);
+    try {
+      check(escaped.classify(" \t\r\n" + ackWire(id, false, reason) + " \n") == PublishedRelayWssQuery.TextKind.EOSE);
+      check(!escaped.getResult().getAccepted()); check(escaped.getResult().getReason().equals(reason));
+      for (String wire : new String[] {
+        "[\"NOTICE\",\"ordinary\"]",
+        "[\"UNKNOWN\",{\"nested\":[null,true,false,0,-0,1.5,1e-5],\"escaped\":\"\\u0041\"}]"
+      }) {
+        OutboxAcknowledgement other = new OutboxAcknowledgement(id);
+        check(other.classify(wire) == PublishedRelayWssQuery.TextKind.OTHER); check(other.getResult() == null);
+      }
+    } catch (Exception error) { throw new AssertionError("Valid JSON denied", error); }
+  }
+  static void acknowledgementGrammarProof() throws Exception {
+    acknowledgementGrammar("0".repeat(64));
+    System.out.println(new JSONObject().put("status", "passed").put("proof", "ack-grammar").put("assertions", assertions));
   }
   public static void main(String[] args) throws Exception {
     JSONObject fixture = new JSONObject(Files.readString(Path.of(args[0])));

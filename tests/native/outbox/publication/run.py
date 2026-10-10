@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[4]
 HERE=Path(__file__).resolve().parent
 ANDROID=ROOT/'modules/napplet-host/android'
 IOS=ROOT/'modules/napplet-host/ios'
-A_NAMES=['OutboxAcknowledgement.kt','NativeOutboxPlan.kt','OutboxPublicationOwner.kt','ApprovalTransport.kt','ApprovalLeaseRegistry.java','NativeApprovalAuthority.java','PublishedRelayWssQuery.java','PublishedRelayWssIo.java']
+A_NAMES=['OutboxResponseJson.java','UploadJsonBounds.java','OutboxAcknowledgement.kt','NativeOutboxPlan.kt','OutboxPublicationOwner.kt','ApprovalTransport.kt','ApprovalLeaseRegistry.java','NativeApprovalAuthority.java','PublishedRelayWssQuery.java','PublishedRelayWssIo.java']
 I_NAMES=['NativeUploadAuthority.swift','UploadFileProfile.swift','UploadPngMetadata.swift','UploadPngProfile.swift','NativeOutboxPlan.swift','OutboxAcknowledgement.swift','OutboxPublicationOwner.swift','NativeApprovalAuthority.swift','CapabilityLeaseRegistry.swift','ApprovalTransport.swift','PublicAddressPolicy.swift','PublishedHTTPResponse.swift','PublishedPinnedHTTPS.swift','PublishedRelayWebSocketHandshake.swift','PublishedRelayWebSocketFrames.swift','PublishedRelayWebSocketClientFrames.swift','PublishedRelayWebSocketQuery.swift','PublishedRelayEnvelope.swift']
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 def inputs():

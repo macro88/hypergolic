@@ -214,3 +214,56 @@ reports that it has not been unlocked recently. Physical ordinary-app, guest,
 protected-signer, lifecycle, published and complete fault/security checks remain
 open, as do full external quality, dependency-age and clean-close decisions.
 The physical matrix remains seven of 61 complete, with 54 open.
+
+
+## Android ACK JSON syntax — 11 October 2026
+
+The compiled Android ACK handler could capture non-JSON replies because its
+object parser accepts extra syntax. The host baseline captures single-quoted and
+bare strings, uppercase booleans and unescaped string controls. The physical
+API 36 boot-framework parser independently reproduces single-quoted acceptance.
+The exact disposable probe's crash log records the expected-denial assertion;
+Android Runtime's uncaught-exception handler terminates that shell process.
+Earlier exit-137 observations alone did not establish this cause. A test-wrapper
+checked-exception compile failure is retained separately.
+
+`OutboxResponseJson` now validates one complete relay-array JSON text before the
+existing platform parser allocates its graph. The existing 2 MiB and depth-12
+bounds remain. Strings/escapes, lowercase literals, number syntax, array/object
+separators and JSON whitespace are checked without building a second object graph.
+The platform parser still supplies the decoded values; exact event correlation,
+Boolean/reason limits and first-ACK retention remain unchanged. Invalid post-send
+syntax leaves the result unknown. The selected [NIP-01 revision](https://github.com/nostr-protocol/nips/blob/0046368a747c5c25ae2bec28bae0e537744c8f10/01.md)
+uses JSON relay arrays; [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259)
+provides their syntax. No new wire field or caller authority is introduced.
+
+All 106 Android and 97 Swift host core assertions pass. The actual physical
+Android repeats all 106 using boot-framework JSON under shell UID 2000, with
+no packaged org.json definitions. Fifteen malformed grammar cases are denied;
+valid escaped rejection text, JSON whitespace and nested other-message data
+remain usable without capturing a foreign ACK. The driver also offers
+`--ack-grammar` for the focused 37-assertion subset and retains failure logs only
+for its exact disposable PID. All staged files are hash-checked, removed and
+verified absent; the installed keeper and package inventory remain unchanged.
+
+The native TLS writer/classifier suite passes 38 cases. Each Android and Swift
+owner suite passes 27 cases plus capacity/replay/recovery. Independent receivers
+observe the exact signed public fixture and malformed reply bytes; the seven
+new reply forms produce unknown receipts. These controlled host transports do
+not exercise a protected signer or ordinary app guest.
+
+Outbox 102, security 353, bootstrap 13, TypeScript, ordinary Android prebuild and
+signed ARM64 assembly pass. The new signed candidate preserves ID/name/certificate,
+permissions, all 85 originals, JavaScript, 21 native images, three prior DEX files
+and 96 assets; only classes4.dex changes. Generated packaging restores without
+conflicts. No install occurs, and both retained iPhone ready copies stay exact.
+The local Doctor scan has 442 files, no findings/skips and no numeric score;
+source-only aislop has 436 supported files, no findings and 97 unsupported files.
+The initial maintainability warning and final unsuppressed scan remain retained;
+external audit and numeric scoring are still deferred pending approval.
+
+This is a protocol-parser repair and physical primitive subset, not full JSON
+conformance, protected signing, ordinary app/guest composition, physical lifecycle
+or complete published/fault/security acceptance. OB-05 stays partial and the full
+matrix remains seven of 61 complete, with 54 open. Both phones still need recent
+unlock for interactive journeys. No public write, source push or Phase 3 advance.

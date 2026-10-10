@@ -34,6 +34,15 @@ enum CapabilityTransport { static let leases = CapabilityLeaseRegistry() }
     deniedAck(id, valid + "\u{0}")
     deniedAck(id, valid + "\u{0} trailing data")
     deniedAck(id, valid + (try wire(["OK", id, false, "second response"])))
+    for text in [
+      "['OK','\(id)',true,'stored']",
+      "[OK,\"\(id)\",true,stored]",
+      "[\"OK\",\"\(id)\",TRUE,\"stored\"]",
+      "[\"OK\";\"\(id)\";true;\"stored\"]",
+      "/* comment */ " + valid,
+      "// comment\n" + valid,
+      "[\"OK\",\"\(id)\",true,\"sto\tred\"]"
+    ] { deniedAck(id, text) }
   }
   static func main() throws {
     let data = try Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[1]))

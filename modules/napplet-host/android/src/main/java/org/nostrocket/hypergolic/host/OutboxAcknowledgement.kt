@@ -10,7 +10,7 @@ internal class OutboxAcknowledgement(private val eventId: String) {
   @Volatile var result: Ack? = null
     private set
   @Synchronized fun classify(text: String): PublishedRelayWssQuery.TextKind {
-    if (!UploadJsonBounds.accepts(text, 2 * 1024 * 1024) || text.indexOf('\u0000') >= 0) throw IOException("Invalid relay response")
+    if (!OutboxResponseJson.accepts(text)) throw IOException("Invalid relay response")
     val value = runCatching {
       val parser = JSONTokener(text)
       val parsed = JSONArray(parser)

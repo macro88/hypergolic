@@ -20,7 +20,7 @@ receiver=importlib.util.module_from_spec(spec);spec.loader.exec_module(receiver)
 MODES=['accepted','accepted-close','rejected','missing','wrong-id','malformed','auth-required',
        'revoke-before-send','trailing-data','trailing-nul','concatenated','oversized-reason','multibyte-overflow',
        'task-cancel-before-send','revoke-after-send','task-cancel-after-send',
-       'silent-timeout','slow-notices','notice-flood','oversized-frame']
+       'silent-timeout','slow-notices','notice-flood','oversized-frame'] + tls.INVALID_ACK_MODES
 
 
 def inputs():

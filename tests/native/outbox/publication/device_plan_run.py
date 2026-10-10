@@ -22,6 +22,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial',required=True)
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--ack-grammar',action='store_true',help='Run only the focused ACK grammar regression on framework JSON')
     args=parser.parse_args()
     out=args.output.resolve();out.mkdir(parents=True,exist_ok=False)
     sdk=ROOT/'.tools/android-sdk';tools=sdk/'build-tools/36.0.0';android=sdk/'platforms/android-36/android.jar'
@@ -32,8 +33,16 @@ def main():
         with (out/(name+'.log')).open('w') as log:
             subprocess.run(command,cwd=cwd,stdout=log,stderr=subprocess.STDOUT,check=True,timeout=180)
     def device(*values):
-        result=subprocess.run([*adb,*values],capture_output=True,text=True,check=True,timeout=30)
-        receipt['runs'].append({'arguments':list(values),'stdout':result.stdout,'stderr':result.stderr})
+        result=subprocess.run([*adb,*values],capture_output=True,text=True,timeout=30)
+        receipt['runs'].append({'arguments':list(values),'stdout':result.stdout,'stderr':result.stderr,'exitCode':result.returncode})
+        if result.returncode and 'org.nostrocket.hypergolic.host.DevicePlanProof' in values:
+            rows=result.stdout.splitlines()
+            if rows:
+                pid=json.loads(rows[0]).get('pid')
+                if isinstance(pid,int) and pid>0:
+                    error=subprocess.run([*adb,'shell','logcat','--pid',str(pid),'-d','-v','brief','-s','AndroidRuntime:E'],capture_output=True,text=True,timeout=30)
+                    (out/'owned-proof-runtime-failure.log').write_text(error.stdout+error.stderr)
+        result.check_returncode()
         return result.stdout.strip()
     def remote_sha(remote):
         value=device('shell','sha256sum',remote)
@@ -83,11 +92,12 @@ def main():
             assert remote_sha(remote)==owned[remote]
         jar_remote=next(path for path in owned if path.endswith('.jar'))
         fixture_remote=next(path for path in owned if path.endswith('.json'))
-        result=device('shell','env','CLASSPATH='+jar_remote,'app_process','/system/bin','org.nostrocket.hypergolic.host.DevicePlanProof',fixture_remote)
+        extra=['--ack-grammar'] if args.ack_grammar else []
+        result=device('shell','env','CLASSPATH='+jar_remote,'app_process','/system/bin','org.nostrocket.hypergolic.host.DevicePlanProof',fixture_remote,*extra)
         (out/'physical-proof.log').write_text(result+'\n')
         rows=[json.loads(line) for line in result.splitlines()]
         assert len(rows)==2 and rows[0]['frameworkJson'] is True and rows[0]['sdk']==36 and rows[0]['uid']==2000
-        assert rows[1]['status']=='passed' and rows[1]['assertions']==69
+        assert rows[1]['status']=='passed' and rows[1]['assertions']==(37 if args.ack_grammar else 106)
         receipt['proof']=rows
         assert all(sha(ROOT/path)==value for path,value in receipt['sourceBefore'].items())
         assert all(sha(ROOT/path)==value for path,value in compiled.items())

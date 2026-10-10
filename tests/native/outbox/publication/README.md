@@ -7,7 +7,7 @@ The runner compiles the actual Android module and exercises its immutable Kotlin
 Coverage includes event/identity/hash mutation, reviewed targets, one-use primary/ancillary relay pairs, signature consistency across targets, denied unprepared review, replay, and native background/revocation before frame emission. Receipts seal source and logs. This is native core and compilation evidence, not a device journey, public DNS/TLS publication or protected signing acceptance.
 
 
-The companion `tls_run.py --output <fresh-external-directory>` uses disposable loopback TLS endpoints through the existing host-only policy seams. Both actual native plan/approval gates and WSS EVENT writers are exercised, with exact public signed fixture bytes independently checked by the relay. Twelve cases per platform cover accepted/rejected ACKs, accepted followed by closure, no ACK, foreign ID, malformed boolean, revocation at final emission, trailing data/NUL, concatenated messages and ASCII/multibyte reason overflow. This does not prove public DNS, guest admission, Android protected signing or physical-iPhone signing. Private TLS keys are deleted after the run.
+The companion `tls_run.py --output <fresh-external-directory>` uses disposable loopback TLS endpoints through the existing host-only policy seams. Both actual native plan/approval gates and WSS EVENT writers are exercised, with exact public signed fixture bytes independently checked by the relay. Nineteen cases per platform cover accepted/rejected ACKs, accepted followed by closure, no ACK, foreign ID, malformed boolean, revocation at final emission, trailing data/NUL, concatenated messages and ASCII/multibyte reason overflow. This does not prove public DNS, guest admission, Android protected signing or physical-iPhone signing. Private TLS keys are deleted after the run.
 
 The existing native WSS writers allow an 8192-byte text frame. Shared request capture and both native review captures enforce the complete signed EVENT size before review/signing, including signature overhead, UTF-8 and escaping. An oversized existing relay list blocks review rather than being silently omitted.
 
@@ -15,7 +15,7 @@ The existing native WSS writers allow an 8192-byte text frame. Shared request ca
 
 `owning_tls_run.py --output <fresh-external-directory>` exercises the actual Swift
 publication owner through the same approval registry, final send gate, receipt
-classifier and WSS writer. Twenty controlled host cases include AUTH, task
+classifier and WSS writer. Twenty-seven controlled host cases include AUTH, task
 cancellation, post-frame revocation, slow/flooded replies and size faults. A
 separate concurrent case verifies four active sends, capacity/replay denial and
 recovery. Independent receivers check exact EVENTs and zero frames for approval
@@ -80,3 +80,25 @@ All twenty single cases pass. Task cancellation in the existing before-send call
 The concurrent case withholds four ACKs until four exact EVENTs are observed. The fifth reviewed pair gets a capacity denial; its replay throws the native replay error. Releasing four replies permits a fresh sixth pair. The receiver observes five exact EVENTs and refuses any extra TCP connection. Reflection checks the actual owner counter only after tasks settle; all single and concurrent cases return it to zero. This checks capacity restoration, not timer/connection lifetime or general memory-leak acceptance.
 
 Twenty-six source inputs, two compiled test binaries and all original receiver/log outputs are hash-bound. The disposable TLS key is deleted. No ordinary app rebuild/install, protected signer, guest/Expo, public DNS, physical iPhone or OS-lifecycle claim follows. Both retained native products remain unchanged, and no physical requirement becomes complete from this host subset.
+
+
+## Current strict Android ACK syntax coverage
+
+`OutboxResponseJson` checks bounded relay-array JSON grammar before Android's
+lenient object parser. Current host cores pass 106 Android / 97 Swift assertions;
+physical API 36 framework JSON repeats all 106 Android assertions under shell UID
+2000. Add `--ack-grammar` to `device_plan_run.py` for the focused 37 assertions.
+The runtime record includes the probe PID; only that PID's AndroidRuntime crash
+log is captured on failure. Exact staged files are removed and keeper/inventory
+are verified unchanged.
+
+The baseline host captures four non-JSON forms, and physical framework JSON
+reproduces single-quoted ACK acceptance. The owned crash log proves an expected-
+denial assertion followed by Android Runtime process termination; exit 137 alone
+was insufficient. A checked-exception wrapper compile failure is distinct.
+Fifteen malformed cases now deny capture; escaped rejection reasons, JSON
+whitespace and valid nested other-message syntax retain their expected behavior.
+The current TLS suite passes 38 cases and each owner suite passes 27 plus capacity
+recovery, including seven malformed wire replies. Original older counts above
+refer to their earlier checkpoints. This is selected syntax coverage, not an
+exhaustive grammar or full native/physical acceptance claim.

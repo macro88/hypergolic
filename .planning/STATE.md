@@ -2891,3 +2891,31 @@ iPhone reports no recent unlock. Matrix seven of 61 complete, 54 open. Full
 physical/published/protected-signer/fault/security/quality/age/sign-off gates and
 clean-close decision remain open; no Phase 3 advancement. See the signed iPhone
 build checkpoint in Outbox docs.
+
+
+## Android native Outbox JSON syntax repair — 11 October 2026
+
+Host captures non-JSON ACK forms; physical boot-framework JSON reproduces the
+single-quoted case. Exact disposable PID crash log confirms expected-denial
+assertion and RuntimeInit termination; earlier exit 137 alone is not a cause
+claim. Checked-exception test-wrapper failure is distinct and retained.
+Bounded syntax validation now precedes lenient object decoding, preserving exact
+ACK correlation/Boolean/reason/first-result semantics and existing size/depth
+limits. No wire/authority change.
+
+Final host core 106 Android / 97 Swift, physical framework 106, TLS writer 38,
+and each owner 27 plus capacity/replay/recovery pass. Independent exact EVENT/reply
+observation remains host-only. Staged physical files absent and installed keeper/
+inventory unchanged. Source, compiled inputs and logs stay bound. Outbox102,
+security353/bootstrap13, TypeScript, ordinary prebuild and signed ARM64 Android
+candidate pass; stable ID/name/cert/permissions, 85 originals/JavaScript/21 ELF/
+three DEX/96 assets exact, only classes4.dex changes. Generated packaging restores.
+Both iPhone ready copies exact; no installation or ordinary UI/identity/publication.
+
+Doctor442/no findings/skips/score off and source-only aislop436/no findings/97
+unsupported/audit off preserve their limits. Initial maintainability finding is
+retained; final named-delimiter source scan is unsuppressed. External audit/score
+approvals pending. OB05 remains partial; full matrix7/61 complete/54 open, both
+phones locked. Complete ordinary app/guest/protected-signer/published/lifecycle/
+fault/security/quality/age/clean-close sign-off remains; no Phase3/source push.
+See the Android ACK JSON syntax checkpoint in Outbox docs.
