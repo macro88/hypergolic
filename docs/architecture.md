@@ -515,3 +515,11 @@ Exact test files and the previously-owned notification observer are removed with
 hash/absence checks. This adds physical OB-05 supporting evidence; ordinary app,
 guest, protected signer, lifecycle and complete native fault requirements stay
 open. See the [platform parser checkpoint](outbox-routing.md#physical-android-framework-parser-and-plan--11-october-2026).
+
+The Swift publication owner also passes twenty controlled host receipt/cancellation
+cases and a concurrent capacity/replay/recovery case through its existing proof
+route. Post-send actions follow independent exact EVENT observation while ACKs
+are withheld. Unknown receipts and peer closure stay distinct from zero-frame
+pre-send cancellation. Source, binaries and outputs remain bound; physical iPhone,
+ordinary app/guest/protected signer and full lifecycle/fault sign-off stay open.
+See the [Swift owner checkpoint](outbox-routing.md#swift-host-owner-cancellation-and-capacity--11-october-2026).

@@ -876,6 +876,13 @@ compiled inputs are sealed, and ordinary source stays unchanged. These host proo
 JSON, protected signing, owning Expo/guest or physical-device acceptance. See the
 [native proof README](../tests/native/outbox/publication/README.md) for the detailed
 scope; valid local reports do not close full numeric external quality gates.
+The expanded Swift owner suite retains all13 earlier cases and adds real task
+cancellation, independently triggered post-frame revocation/cancellation, bounded
+slow/flood/oversized replies and four-send capacity/replay/recovery. It checks the
+actual owner counter after settled tasks; it does not claim general timer/leak
+acceptance. Both compiled test binaries and26 source inputs are sealed. Production
+sources, ordinary products and device data remain unchanged.
+
 
 For the Android platform-parser subset on a connected physical API36 device:
 

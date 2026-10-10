@@ -157,3 +157,30 @@ remain open. No native publication-owner receipt or zero protected-sign count is
 claimed. OB-06 and complete cross-platform fault/quality/sign-off remain open;
 the full matrix stays seven of61 complete,54 open. No app install/rebuild, external
 publication, source push or fresh numeric quality claim follows.
+
+
+## Swift host owner cancellation and capacity — 11 October 2026
+
+The actual Swift owner now passes twenty single-publication cases and a concurrent
+four-send capacity/replay/recovery case. The original thirteen cases remain covered.
+Task cancellation at the final before-send hook emits zero EVENTs. Post-send tests
+first observe the exact EVENT independently, then signal approval revocation or
+real Task cancellation while holding the connection open without an ACK. Receipts
+stay unknown and the peer closes; observed latencies are23ms and6ms respectively.
+Pre-send task cancellation takes5ms. These are controlled host measurements.
+
+Silent and keepalive-only responses stop at10,010ms and10,009ms. Flooded notices,
+oversized declared frames and existing ACK faults yield bounded unknown receipts.
+Four ACKs are withheld while a fifth pair receives capacity denial; the consumed
+pair's replay is denied. A fresh sixth target succeeds after release. The relay
+observes five exact EVENTs in that case and no extra TCP connection. The owner's
+actual active counter returns to zero after every settled case. This is capacity
+restoration evidence, not complete scheduling/connection-lifetime or leak proof.
+
+The existing proof-only route/anchor/hook is unchanged; production sources and
+clock remain actual. Swift6 warnings-as-errors compilation,26 source fingerprints,
+both proof binaries and original receiver/log outputs bind the result. TLS private
+material is removed. No app build/install, protected signing, ordinary guest/Expo,
+public DNS, physical iPhone or OS-lifecycle acceptance follows. Both retained native
+products stay unchanged. No new numeric quality claim, source push, complete
+physical row or phase closure; matrix seven of61 complete,54 open.

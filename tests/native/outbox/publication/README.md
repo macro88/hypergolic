@@ -15,9 +15,11 @@ The existing native WSS writers allow an 8192-byte text frame. Shared request ca
 
 `owning_tls_run.py --output <fresh-external-directory>` exercises the actual Swift
 publication owner through the same approval registry, final send gate, receipt
-classifier and WSS writer. Thirteen controlled host cases add an AUTH challenge to
-the twelve cases above. The independent receiver checks the exact EVENT and records
-zero EVENT frames for revocation immediately before send.
+classifier and WSS writer. Twenty controlled host cases include AUTH, task
+cancellation, post-frame revocation, slow/flooded replies and size faults. A
+separate concurrent case verifies four active sends, capacity/replay denial and
+recovery. Independent receivers check exact EVENTs and zero frames for approval
+or task cancellation immediately before send.
 
 The `HYPERGOLIC_NETWORK_PROOF` compilation condition enables only the test route,
 public certificate anchor and pre-send revocation hook. Ordinary builds omit that
@@ -67,3 +69,14 @@ On the physical API36 phone, all 69 existing plan/ACK assertions pass. This incl
 The source/configuration and 388 compiled module class inputs, Android API JAR, Kotlin dependency, DEX/test JAR and exact public fixture are sealed. Both staged remote files must match their hashes before execution and removal; cleanup verifies their absence plus unchanged third-party package inventory and retained APK path/hash. The first proof's inventory regex had excess escaping. The corrected regex is checked against actual DEX output and an injected org.json class-definition line before the final device run is accepted; both original results remain retained.
 
 This is physical execution of standalone native primitives under shell UID. It does not prove the ordinary installed app includes the latest code, app-UID/Expo/guest composition, protected signing, system authentication, view lifecycle, public TLS sending or complete native fault acceptance. The existing approval proof supplies its own monotonic clock; Android suspend behavior remains open. OB-05 gains this explicit partial subset; no complete requirement closes.
+
+
+## Swift owner cancellation, bounded replies and capacity
+
+The expanded owning suite compiles actual Swift native sources with Swift6 and warnings as errors, using only the existing `HYPERGOLIC_NETWORK_PROOF` route/anchor/before-send hook. `OwnerProofSupport.swift` supplies the same host capability-registry composition and starts each task only after its cancellation handle is installed. It does not replace the production clock, approval, plan, owner, receipt classifier or WSS implementation.
+
+All twenty single cases pass. Task cancellation in the existing before-send callback emits zero EVENTs. For post-send approval revocation and task cancellation, the independent receiver first verifies the exact EVENT, writes a readiness marker and keeps the connection open without an ACK. The owning task then revokes/cancels, returns unknown and closes the peer; both outcomes occur well before the transport deadline. Silent and keepalive-only peers both stop at about ten seconds on Swift; Android's separate idle-read timeout is not assumed here. Sixty-five notices and a declared frame over2MiB also yield bounded unknown receipts.
+
+The concurrent case withholds four ACKs until four exact EVENTs are observed. The fifth reviewed pair gets a capacity denial; its replay throws the native replay error. Releasing four replies permits a fresh sixth pair. The receiver observes five exact EVENTs and refuses any extra TCP connection. Reflection checks the actual owner counter only after tasks settle; all single and concurrent cases return it to zero. This checks capacity restoration, not timer/connection lifetime or general memory-leak acceptance.
+
+Twenty-six source inputs, two compiled test binaries and all original receiver/log outputs are hash-bound. The disposable TLS key is deleted. No ordinary app rebuild/install, protected signer, guest/Expo, public DNS, physical iPhone or OS-lifecycle claim follows. Both retained native products remain unchanged, and no physical requirement becomes complete from this host subset.
