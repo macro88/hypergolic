@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Relay-list fixture integrated and both signed packages pass; Android updated in place and original SDK rejection/approval plus exact signed retrieval on one public relay verified. Original identity/empty workspace restored and keeper-only cleanup verified. Outbox routing/fanout and iPhone remain open; seven of61 complete/54 open, usage20%, ceiling about98%, no source push.
+stopped_at: Android protected-owner configuration proves five publisher-isolation checks and four incompatible-update/restart checks in separate physical subsets; original failures retained and normal APK/identity/empty state restored. Full fault/published/iOS and quality/product-decision gaps remain; seven of61 complete/54 open, no source push.
 last_updated: "2026-10-10"
 last_activity: 2026-10-10
-state_head: d7ef80783663163da0208d2f23b475416de0e393
+state_head: 4ba4283fd04c2a6c6135859ad5880079d1e56535
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2178,3 +2178,46 @@ delivery evidence, and instrument the handle independently before selecting a
 shared repair. Do not treat an ADB command exit0 as delivered input or retry any
 publication/identity effect automatically. Existing quality and product-decision
 gaps remain; this checkpoint changes documentation only.
+
+## Physical Android configuration publisher and version isolation — 10 October 2026
+
+Five checks verify that two signed publishers with the same app ID and exact HTML/
+aggregate hash keep separate saved values. Native editors identify each publisher
+and version; fresh original SDK reads verify both values after switching between
+their instances. Run04 retains an overall failure at its later update-control
+observer, before update dispatch. Its five passing publisher checks are reviewed
+separately; the original failed result remains unchanged.
+
+A separate four-check update run passes: declining the verified incompatible
+update preserves the original instance and values; accepting it starts a new
+instance with a string enum default and no old token; saving the new string schema
+succeeds; actual process death restores the exact new pinned version and values.
+The ordinary protected identity owner, real vault and native editor/store are used.
+Only the signed sample source is supplied locally, so this proves neither external
+relay/HTTPS publication nor physical iOS parity.
+
+All five data-preserving signed test updates keep the retained application ID,
+label and certificate. Each terminal batch or its bounded reconciliation restores
+the exact normal APK, original identity/empty workspace and unchanged package
+inventory. The three exact initially empty sample scopes are erased after testing.
+No key import, vault replacement, data reset, device-policy change or new test app
+is used. Production source composition is restored after packaging; the builder
+preserves unknown concurrent edits and its two failure/restoration paths pass.
+
+Seven original PNGs are inspected. Native publisher/version metadata and the new
+enum choices are visible. Full guest JSON is clipped/offscreen and verified from
+original XML plus fresh SDK read counts. The scrolled update capture omits its
+header; exact native review/decision IDs and old/new event IDs remain attributable.
+Earlier observer failures and their cleanup receipts stay preserved. Observed
+120ms presses do not establish instant-press or complete accessibility acceptance.
+
+TypeScript and all40 presentation tests pass, including four signed-source cases.
+Complete local React Doctor scans437 files with zero diagnostics; its external
+numeric score remains unrequested pending specific approval. Aislop remains98
+with only the two previously approved locked-patch advisories and an ordinary red
+gate. No new quality exception or source push is claimed.
+
+Private evidence identifier: android-configuration-namespace01. CAP-11 stays
+partial; full fault/race cases, external published journeys, physical iOS parity
+and complete usability remain required. The full matrix stays seven of61 complete
+and54 open. Phase2 and all unfinished plans remain open; no Phase3 advance.

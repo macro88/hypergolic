@@ -1,4 +1,4 @@
-/** Sign exact Routing Lab bytes with public test scalar 2; never publish. */
+/** Sign exact Routing Lab bytes with public test scalars 2 and 3; never publish. */
 import {readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {finalizeEvent} from 'nostr-tools/pure';
@@ -14,5 +14,14 @@ const rows=[['caller',['notify']],['peer',['notify']],['no-notify',['theme']],['
 const original = rows.find(row => row.role === 'config-caller'), updatedHtml = html + '\n<!-- distinct signed configuration version -->\n', updatedHash = hash(updatedHtml), updatedAggregate = hash(updatedHash + ' /index.html\n');
 const updatedEvent = finalizeEvent({kind:35129,created_at:1791165600,content:'',tags:[['d',original.appId],['path','/index.html',updatedHash],['x',updatedAggregate,'aggregate'],['requires','config']]},secret);
 rows.push({...original,role:'config-update',event:updatedEvent,htmlHash:updatedHash,html:updatedHtml});
-await writeFile(new URL('tests/native/presentation/published-fixture.ts',root),'/** Generated local signed artifacts; public test scalar 2. No publication. */\nexport const SIGNED_PRESENTATION_ARTIFACTS = '+JSON.stringify(rows)+' as const;\n');
+const collisionSecret = new Uint8Array(32); collisionSecret[31] = 3;
+const collisionEvent = finalizeEvent({kind:35129,created_at:1791079200,content:'',tags:[['d',original.appId],['path','/index.html',htmlHash],['x',aggregate,'aggregate'],['requires','config']]},collisionSecret);
+rows.push({...original,role:'config-collision',event:collisionEvent,address:naddrEncode({kind:35129,pubkey:collisionEvent.pubkey,identifier:original.appId})});
+const integerField = 'count:{type:"integer",title:"Item count",minimum:1,maximum:12,default:3';
+if (html.split(integerField).length !== 2) throw new Error('Expected one exact original configuration integer field');
+const incompatibleHtml = html.replace(integerField, 'count:{type:"string",title:"Item count",enum:["fresh-version","other-version"],default:"fresh-version"');
+const incompatibleHash = hash(incompatibleHtml), incompatibleAggregate = hash(incompatibleHash+' /index.html\n');
+const incompatibleEvent = finalizeEvent({kind:35129,created_at:1791252000,content:'',tags:[['d',original.appId],['path','/index.html',incompatibleHash],['x',incompatibleAggregate,'aggregate'],['requires','config']]},secret);
+rows.push({...original,role:'config-incompatible-update',event:incompatibleEvent,htmlHash:incompatibleHash,html:incompatibleHtml});
+await writeFile(new URL('tests/native/presentation/published-fixture.ts',root),'/** Generated local signed artifacts; public test scalars 2 and 3. No publication. */\nexport const SIGNED_PRESENTATION_ARTIFACTS = '+JSON.stringify(rows)+' as const;\n');
 console.log(JSON.stringify(rows.map(({role,appId,event,htmlHash})=>({role,appId,eventId:event.id,publisher:event.pubkey,htmlHash}))));

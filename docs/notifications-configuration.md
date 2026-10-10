@@ -307,3 +307,64 @@ Publisher/version isolation, incompatible updates, faults/races, published journ
 physical iOS parity and complete usability remain open. CAP-11 stays partial.
 Application/native inputs are unchanged; this documentation checkpoint claims no
 new build or quality run. See [the full checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md).
+
+## Physical Android configuration publisher and version isolation — 10 October 2026
+
+Five checks verify that two signed publishers with the same app ID and exact HTML/
+aggregate hash keep separate saved values. Native editors identify each publisher
+and version; fresh original SDK reads verify both values after switching between
+their instances. Run04 retains an overall failure at its later update-control
+observer, before update dispatch. Its five passing publisher checks are reviewed
+separately; the original failed result remains unchanged.
+
+A separate four-check update run passes: declining the verified incompatible
+update preserves the original instance and values; accepting it starts a new
+instance with a string enum default and no old token; saving the new string schema
+succeeds; actual process death restores the exact new pinned version and values.
+The ordinary protected identity owner, real vault and native editor/store are used.
+Only the signed sample source is supplied locally, so this proves neither external
+relay/HTTPS publication nor physical iOS parity.
+
+All five data-preserving signed test updates keep the retained application ID,
+label and certificate. Each terminal batch or its bounded reconciliation restores
+the exact normal APK, original identity/empty workspace and unchanged package
+inventory. The three exact initially empty sample scopes are erased after testing.
+No key import, vault replacement, data reset, device-policy change or new test app
+is used. Production source composition is restored after packaging; the builder
+preserves unknown concurrent edits and its two failure/restoration paths pass.
+
+Seven original PNGs are inspected. Native publisher/version metadata and the new
+enum choices are visible. Full guest JSON is clipped/offscreen and verified from
+original XML plus fresh SDK read counts. The scrolled update capture omits its
+header; exact native review/decision IDs and old/new event IDs remain attributable.
+Earlier observer failures and their cleanup receipts stay preserved. Observed
+120ms presses do not establish instant-press or complete accessibility acceptance.
+
+TypeScript and all40 presentation tests pass, including four signed-source cases.
+Complete local React Doctor scans437 files with zero diagnostics; its external
+numeric score remains unrequested pending specific approval. Aislop remains98
+with only the two previously approved locked-patch advisories and an ordinary red
+gate. No new quality exception or source push is claimed.
+
+Private evidence identifier: android-configuration-namespace01. CAP-11 stays
+partial; full fault/race cases, external published journeys, physical iOS parity
+and complete usability remain required. The full matrix stays seven of61 complete
+and54 open. Phase2 and all unfinished plans remain open; no Phase3 advance.
+
+The protected-source packaging command is:
+
+```sh
+source .tools/use-local-tools.sh
+python3 -B tests/native/presentation/build-protected.py --output /tmp/hypergolic-config-build
+```
+
+The output directory must be new. This Android-only test entry is separate from
+`index.ts`; it is packaged with the retained test ID/certificate and restores the
+ordinary source composition after building. The observer supports `--section
+publishers`, `--section updates`, or the default combined run, plus the sealed
+`--build`, `--apk`, `--output`, `--serial` and exact `--package` arguments. Protected
+runs require the designated disposable development identity, an empty workspace
+and initially absent exact sample records. Match the installed package/certificate
+and product hash before testing; afterward restore the normal package and verify
+its identity, workspace and inventory. The separate `published.tsx` fixture uses
+public-only fake identities and must never replace the retained protected-owner app.

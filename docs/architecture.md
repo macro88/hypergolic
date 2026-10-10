@@ -50,8 +50,13 @@ exact cancellation preservation, confirmed remounts, separate identity-scoped
 values and restoration on both return switches. Both modified scopes restore
 defaults and the original identity/empty workspace; keeper inventory and bytes
 verify. Earlier application and observer failures remain recorded.
-Complete physical iOS, broader owner/version isolation, configuration fault/update
-and published acceptance remain open.
+Five further physical Android checks verify separate publisher scopes with the
+same app ID/hash, using the real protected owner and a signed local source. A
+separate four-case incompatible-update run verifies decline preservation, fresh
+new-version defaults, native Save and exact pinned cold restoration. All owned
+sample scopes and views are cleaned; normal app bytes and inventory are restored.
+Complete physical iOS, configuration faults/races, external published journeys and
+full usability remain open; see the linked configuration checkpoint.
 
 ## Implemented
 
