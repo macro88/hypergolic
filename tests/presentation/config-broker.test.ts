@@ -6,8 +6,13 @@ import {openConfigStore, type ConfigSecureStore} from '../../src/presentation/co
 import type {NativeRegistration} from '../../src/runtime/capability-protocol.ts';
 import type {RoutingNativeState} from '../../src/routing/routing-port.ts';
 import {tick} from './harness.ts';
+import {bindRoutingOwner} from '../../src/routing/routing-owner.ts';
+import {IdentityTransition} from '../../src/security/identity-transition.ts';
+import {Integrated, pubkey} from '../security/harness.ts';
+import {setup as workspaceStore} from '../storage/harness.ts';
+import {initialTestWorkspace, assertBundledWorkspace} from '../../src/shell/fixtures.ts';
 const schema={type:'object',properties:{theme:{type:'string',enum:['dark','light'],default:'dark'},token:{type:'string','x-napplet-secret':true},nested:{type:'object',properties:{level:{type:'integer',minimum:1,maximum:3,default:2}}}},required:['theme']};
-async function setup(t:{after(fn:()=>void):void}) {
+async function setup(t:{after(fn:()=>void):void}, assertAuthority:()=>void=()=>{}) {
  const source:NativeRegistration={user:'01'.repeat(32),publisher:'02'.repeat(32),appId:'configuration-source',version:'03'.repeat(32),epoch:0,sessionId:'source-view',generation:'source-generation',instanceId:'source-view',fixture:'published',domains:['config']};
  let state:RoutingNativeState={user:source.user,epoch:0,revision:1,available:true,ownerAvailable:true,foreground:true},focus=source.generation,counter=0,listener=()=>{};
  const revoked=new Set<string>(),slots=new Map<string,string>(),live=new Set<string>(),replies=new Map<string,any>(),sent:{generation:string;message:any}[]=[],records=new Map<string,string>();
@@ -17,10 +22,14 @@ async function setup(t:{after(fn:()=>void):void}) {
  const native={state:()=>state,mayDeliver:(generation:string,revision:number,domain:string)=>state.available&&state.revision===revision&&domain==='config'&&!revoked.has(generation),mayReview:(generation:string,revision:number)=>state.available&&state.revision===revision&&focus===generation&&!revoked.has(generation),send(generation:string,revision:number,message:any){if(!this.mayDeliver(generation,revision,'config'))return false;sent.push({generation,message});return true;},subscribe(fn:()=>void){listener=fn;return()=>{};},newChannelId:()=>''};
  const capability={take(token:string){const value=slots.get(token)??null;slots.delete(token);return value;},isActive:(token:string)=>live.has(token),finish(token:string,result:string|null){live.delete(token);replies.set(token,result===null?null:JSON.parse(result).response);}};
  const broker=new ConfigBroker(capability,native,store);t.after(()=>broker.stop());
- function dispatch(message:unknown,registration=source,patch:Partial<NativeRegistration>={},wrapperId?:string){const token='token-'+ ++counter;live.add(token);slots.set(token,JSON.stringify({registration:{...registration,...patch},request:JSON.stringify({type:'routing.call',id:wrapperId??'call-'+counter,message,revision:state.revision})}));return{token,promise:broker.dispatch(token,{registration,assertActive(){if(revoked.has(registration.generation))throw Error('Revoked');}}),reply:()=>replies.get(token)};}
+ function dispatch(message:unknown,registration=source,patch:Partial<NativeRegistration>={},wrapperId?:string){const token='token-'+ ++counter;live.add(token);slots.set(token,JSON.stringify({registration:{...registration,...patch},request:JSON.stringify({type:'routing.call',id:wrapperId??'call-'+counter,message,revision:state.revision})}));return{token,promise:broker.dispatch(token,{registration,assertActive(){assertAuthority();if(revoked.has(registration.generation))throw Error('Revoked');}}),reply:()=>replies.get(token)};}
  async function register(value:unknown=schema,version=1,registration=source){const request=dispatch({type:'config.registerSchema',id:'register-'+ ++counter,schema:value,version},registration);await request.promise;assert.equal(request.reply().ok,true);}
  async function get(registration=source){const request=dispatch({type:'config.get',id:'get-'+ ++counter},registration);await request.promise;return request.reply()?.values;}
- return {broker,source,store,records,sent,dispatch,register,get,gate(){gate=new Promise(resolve=>{unlock=resolve;});},unlock(){gate=null;unlock();},focus(value:string){focus=value;broker.refresh();},lifecycle(patch:Partial<RoutingNativeState>){state={...state,...patch,revision:state.revision+1};listener();},revoke(generation:string){revoked.add(generation);},close(){revoked.add(source.generation);broker.close(source.generation);}};
+ return {broker,source,store,records,sent,dispatch,register,get,state:()=>state,
+ synchronizeRoutingOwner(user:string,epoch:number,available:boolean){
+  if(state.user===user&&state.epoch===epoch&&state.ownerAvailable===available)return;
+  state={...state,user,epoch,ownerAvailable:available,available:available&&state.foreground,revision:state.revision+1};listener();
+ },gate(){gate=new Promise(resolve=>{unlock=resolve;});},unlock(){gate=null;unlock();},focus(value:string){focus=value;broker.refresh();},lifecycle(patch:Partial<RoutingNativeState>){state={...state,...patch,revision:state.revision+1};listener();},revoke(generation:string){revoked.add(generation);},close(){revoked.add(source.generation);broker.close(source.generation);}};
 }
 test('schema ACK and immediate subscription wait for persisted/defaulted registration; source scope is captured',async t=>{
  const h=await setup(t);h.gate();const registered=h.dispatch({type:'config.registerSchema',id:'r',schema}),subscribed=h.dispatch({type:'config.subscribe'}),get=h.dispatch({type:'config.get',id:'g'});await tick();assert.equal(registered.reply(),undefined);assert.equal(h.sent.length,0);h.unlock();await Promise.all([registered.promise,subscribed.promise,get.promise]);assert.deepEqual(registered.reply(),{type:'config.registerSchema.result',id:'r',ok:true});assert.deepEqual(get.reply().values,{theme:'dark',nested:{level:2}});assert.deepEqual(h.sent.map(row=>row.message),[{type:'config.values',values:{theme:'dark',nested:{level:2}}}]);assert.equal(h.sent[0]!.generation,h.source.generation);
@@ -73,4 +82,38 @@ test('rejected registrations deliver one canonical schema error to their capture
  }
  const forged=h.dispatch({type:'config.registerSchema',id:'forged-schema',schema:cases[0]!.schema},h.source,{publisher:'04'.repeat(32)});await forged.promise;assert.equal(forged.reply(),null);assert.deepEqual(h.sent,[]);
  h.revoke(h.source.generation);const revoked=h.dispatch({type:'config.registerSchema',id:'revoked-schema',schema:cases[0]!.schema});await revoked.promise;assert.equal(revoked.reply(),null);assert.deepEqual(h.sent,[]);
+});
+
+test('cancelled saved identity selection retains configuration schema, values and subscription; confirmed selection revokes them',async t=>{
+ const protectedStore=new Integrated();t.after(()=>protectedStore.sqlite.cleanup());
+ const native=await protectedStore.owner();await native.vault.open();await native.vault.importNsec('nsec1fixture-2');await native.vault.select(pubkey(1));
+ const storage=await workspaceStore(t);
+ const identity=await IdentityTransition.open({vault:native.vault,database:storage.database,seed:initialTestWorkspace,assertAvailable:assertBundledWorkspace,publicKeyFromNsec:()=>pubkey(2)});
+ const authority=identity.sessionAuthority(),h=await setup(t,authority.assertActive);t.after(bindRoutingOwner(identity,h));
+ await h.register();await h.dispatch({type:'config.subscribe'}).promise;
+ await h.broker.open(h.source.generation);
+ const saved={theme:'light',nested:{level:3},token:'public-cancel-regression'};
+ await h.broker.commit(h.broker.getSnapshot().review!.id,{theme:'light',nested:{level:3}},{'["token"]':saved.token});
+ assert.deepEqual(await h.get(),saved);assert.equal(h.sent.length,2);
+ const revision=h.state().revision,session=identity.getSnapshot().session;
+ // Native Settings removes review focus independently of live endpoint ownership.
+ h.focus('');await assert.rejects(h.broker.open(h.source.generation));
+ const pending=identity.prepareSelect(pubkey(2));assert(pending);authority.assertActive();
+ identity.cancel(pending);h.focus(h.source.generation);
+ assert.deepEqual(await h.get(),saved);
+ assert.equal(identity.getSnapshot().session,session);assert.equal(h.state().ownerAvailable,true);assert.equal(h.state().revision,revision);
+ assert.equal(h.sent.length,2);
+ // No schema re-registration or subscription retry is allowed to mask cancellation loss.
+ await h.broker.open(h.source.generation);await h.broker.commit(h.broker.getSnapshot().review!.id,{theme:'dark',nested:{level:2}},{});
+ assert.deepEqual(h.sent.map(row=>row.message),[
+  {type:'config.values',values:{theme:'dark',nested:{level:2}}},
+  {type:'config.values',values:saved},
+  {type:'config.values',values:{theme:'dark',nested:{level:2},token:saved.token}},
+ ]);
+ const selected=identity.prepareSelect(pubkey(2));assert(selected);const switching=identity.confirm(selected);
+ assert.equal(identity.getSnapshot().phase,'switching');assert.equal(h.state().ownerAvailable,false);
+ assert.throws(authority.assertActive,{code:'STALE'});
+ const blocked=h.dispatch({type:'config.get',id:'during-switch'});await blocked.promise;assert.equal(blocked.reply(),null);
+ await switching;assert.equal(h.state().user,pubkey(2));assert.equal(h.state().epoch,session.epoch+1);assert.equal(h.state().ownerAvailable,true);
+ assert.equal(await h.get(),undefined);assert.equal(h.sent.length,3);
 });

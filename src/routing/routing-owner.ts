@@ -4,7 +4,8 @@ export interface NativeRoutingOwner { synchronizeRoutingOwner(user: string, epoc
 export function bindRoutingOwner(identity: Pick<IdentityTransition, 'getSnapshot' | 'subscribe'>, native: NativeRoutingOwner): () => void {
   const synchronize = () => {
     const state = identity.getSnapshot();
-    native.synchronizeRoutingOwner(state.session.vault.selectedPubkey, state.session.epoch, state.phase === 'ready');
+    // A pending confirmation retains the current session until the user accepts.
+    native.synchronizeRoutingOwner(state.session.vault.selectedPubkey, state.session.epoch, state.phase === 'ready' || state.phase === 'confirming');
   };
   synchronize(); return identity.subscribe(synchronize);
 }

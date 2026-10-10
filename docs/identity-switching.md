@@ -13,6 +13,13 @@ and explains that every loaded napplet will restart and unsaved work will be los
 Keep current identity cancels the exact pending request. Stale confirmations cannot
 accept a later request. No private key appears in transition snapshots or errors.
 
+Opening the confirmation retains the current native routing owner, revision and
+live registrations. Cancelling therefore preserves configuration schemas, saved
+values and subscriptions without guest re-registration. Settings removes native
+review focus independently, and trusted reviews remain blocked while confirmation
+is open. Accepting the switch withdraws the old routing owner synchronously before
+vault/workspace changes; deletion and recovery also remain unavailable.
+
 ## Commit and failure behavior
 
 The process-owned transition controller serializes selection. Confirmation freezes
@@ -150,3 +157,12 @@ without proving zero native signing/frame effects. Protected at-rest inspection,
 owning stale callback/replay faults, authenticated backup/deletion and complete
 Phase 2 acceptance remain open. Source implementation and installed APKs are
 unchanged; no new build or full quality run is claimed for these documentation edits.
+
+
+The routing-confirmation repair passes real shared import/selection/configuration
+regressions and120 owning registry assertions per native platform. Signed Android
+and iPhone products pass. After a data-preserving Android update, both original SDK
+instances retain exact saved values and subscription histories on cancellation.
+The subsequent confirmed-isolation actor stops on empty fresh-output JSON parsing;
+its cleanup is verified and the corrected full run remains pending. No complete
+physical iPhone or all-capability identity acceptance follows from this subset.

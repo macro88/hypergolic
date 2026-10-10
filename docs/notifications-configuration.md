@@ -67,6 +67,11 @@ same-version restart keeps saved values. A newly accepted artifact hash starts a
 fresh scope; this profile does not silently migrate values. Declining an update
 keeps the currently loaded version and its configuration.
 
+A pending identity confirmation keeps the current configuration endpoint and
+subscription. Cancelling does not require another schema registration or subscribe
+call. Native review focus is withheld by Settings; an actual confirmed switch
+revokes the old endpoint before the selected identity changes.
+
 Secret inputs are masked and never populated with persisted secret text. Explicit
 set and clear changes take effect only on Save. A separate native encrypted
 configuration namespace holds the whole configuration record, avoiding a split
@@ -250,3 +255,35 @@ corrected-physical03. CAP11 remains partial: full identity/publisher/version and
 verified incompatible-update isolation, faults/races, published loading and iOS
 parity remain. UX05 first cold Settings press remains open. Phase2 remains seven
 of61 complete/54 open. Outbox100/100 passes; no source push or Phase3 advance.
+
+
+## Routing cancellation repair: signed builds and physical subset
+
+The same-ID/certificate Android Release update passes packaging and installed-byte
+verification, preserving retained data. Its next original-SDK run passes four cases:
+two same-app instances with defaults, one exact shared Save push per instance,
+distinct-app isolation and cancellation retaining both saved values/subscriptions.
+Original XML independently verifies reads3, exact saved values, unchanged two-event
+arrays and no schema-error callback output. No re-registration follows cancellation.
+
+The run then stops in the external observer after a confirmed A-to-B switch: the
+fresh original Routing Lab has reads0 and empty get/event/error outputs, but the
+observer tries to parse the empty pre-subscription text as JSON. This is a distinct
+observer failure, not another no-schema timeout. Its original trace/UI are retained.
+Cleanup switches back, restores exact defaults, closes all three owned views and
+retains the original identity/empty workspace. All23 capture pairs,1257 source inputs,
+helpers and keeper bytes verify. Three original PNGs were inspected; full SDK JSON
+and reset counters are clipped/offscreen, so exact values rely on original XML.
+
+The signed ordinary ARM64 iPhone product also passes, with63 sealed files, unchanged
+native codec inputs, the same certificate and a byte-identical verified ready copy.
+It is not installed and does not establish physical iPhone parity.
+
+TypeScript, both exports, Android prebuild,584 shared tests, final19 transition tests
+and120 routing-core assertions per native platform pass. Complete React Doctor is
+100/432 files. Aislop remains98 with only the exact two prior approved locked-patch
+advisories, all applicable engines and ten audits complete; the ordinary gate remains
+red. The corrected next driver requires exact reads0 and all three original empty
+outputs before registering a freshly remounted session, and captures each reset.
+The broader eight-case run remains pending. CAP-11/CAP-14 and the full phase stay
+open; publisher/version/update/fault/published/iOS scope remains required.

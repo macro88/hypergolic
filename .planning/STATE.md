@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Final source-built dav1d backport passes signed native packaging and host regressions; Android same-ID/certificate update and scoped configuration masking/isolation/restart/clear evidence captured. Stopped observer and cleanup failures retained, cleanup reconciled. Corrected full configuration run, iOS parity, complete provenance/notices and clean-close decision remain. Seven of61 complete/54 open; usage17%, ceiling about98%; no source push.
+stopped_at: Routing cancellation defect fixed with red/green regressions, both signed native products and a data-preserving Android update. Four original physical Android cases prove cancellation preservation; later fresh-remount JSON observer failure retained and cleanup verified. Corrected full isolation run pending. Seven of61 complete/54 open; last usage19%, ceiling about98%; no source push.
 last_updated: "2026-10-10"
 last_activity: 2026-10-10
-state_head: 22245eff08c82ea9f41548431aae31296b898231
+state_head: 64117ff7d5943462466e797a6ad31b8b6e696a56
 progress:
   total_phases: 14
   completed_phases: 10
@@ -39,7 +39,7 @@ expansion cards are not executable PLAN files.
 ## Current Position
 
 Phase: 2.11 (Complete published MVP acceptance)
-Plan: 02 verified published fixture tracer; Plan01 ordinary signed physical builds/first tracers complete. Development publisher and destinations are selected; trusted protected fixture release tool is built and installed; Feed Lab public release and Android/iPhone published relay-query subsets pass; physical iPhone review/cancel/background/cold-identity subset passes. Full Outbox and remaining native acceptance remain needed.
+Plan: 03 ordinary physical capability and lifecycle acceptance, with Plan02 verified published fixtures and Plan04 native faults still open; Plan01 ordinary signed physical builds/first tracers complete. Development publisher and destinations are selected; trusted protected fixture release tool is built and installed; Feed Lab public release and Android/iPhone published relay-query subsets pass; physical iPhone review/cancel/background/cold-identity subset passes. Full Outbox and remaining native acceptance remain needed.
 Status: Phase2.9 implementation closed by owner decision; CAP-12 final acceptance/CAP-14 open. Physical Android/iPhone journeys and complete faults/admission remain required. Local commit checkpoint; no source push. Progress counts implementation plans, not passed MVP acceptance; Plan04 was transferred, not executed.
 
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
@@ -2026,3 +2026,58 @@ corrected-physical03. CAP11 remains partial: full identity/publisher/version and
 verified incompatible-update isolation, faults/races, published loading and iOS
 parity remain. UX05 first cold Settings press remains open. Phase2 remains seven
 of61 complete/54 open. Outbox100/100 passes; no source push or Phase3 advance.
+
+
+## Identity-confirmation routing defect — 10 October 2026
+
+The ordinary physical Android configuration isolation run passed same-app default
+values, one exact save push to both instances and distinct-app isolation. Cancelling
+a saved identity selection then produced an original SDK timeout and requester-bound
+no-schema push. No confirmed switch was reached. Test cleanup restored exact
+configuration defaults, closed all three owned views and retained the original
+identity; source/helper/capture hashes and keeper-only installed bytes were verified.
+
+The shared routing binding made the current owner unavailable during confirming,
+although the transition session authority explicitly permits that phase. Both native
+registries changed revision, causing ConfigBroker to remove registered schemas and
+subscriptions. The binding now retains ready/confirming ownership, while confirmed
+switching, deletion and recovery still withdraw it. Settings separately withholds
+native review focus. Real import/cancel and saved-selection/configuration composition
+regressions fail before the change and pass afterward. The initial full shared run
+passes 584 tests; both native registry cores pass 120 assertions. Final regression
+checks, signed packaging, physical rerun and current quality remain required.
+
+This remains partial CAP-11/CAP-14 evidence. The complete cross-platform matrix
+still has seven complete rows and 54 open rows. No source push or Phase 3 work.
+
+
+## Routing cancellation repair: signed builds and physical subset
+
+The same-ID/certificate Android Release update passes packaging and installed-byte
+verification, preserving retained data. Its next original-SDK run passes four cases:
+two same-app instances with defaults, one exact shared Save push per instance,
+distinct-app isolation and cancellation retaining both saved values/subscriptions.
+Original XML independently verifies reads3, exact saved values, unchanged two-event
+arrays and no schema-error callback output. No re-registration follows cancellation.
+
+The run then stops in the external observer after a confirmed A-to-B switch: the
+fresh original Routing Lab has reads0 and empty get/event/error outputs, but the
+observer tries to parse the empty pre-subscription text as JSON. This is a distinct
+observer failure, not another no-schema timeout. Its original trace/UI are retained.
+Cleanup switches back, restores exact defaults, closes all three owned views and
+retains the original identity/empty workspace. All23 capture pairs,1257 source inputs,
+helpers and keeper bytes verify. Three original PNGs were inspected; full SDK JSON
+and reset counters are clipped/offscreen, so exact values rely on original XML.
+
+The signed ordinary ARM64 iPhone product also passes, with63 sealed files, unchanged
+native codec inputs, the same certificate and a byte-identical verified ready copy.
+It is not installed and does not establish physical iPhone parity.
+
+TypeScript, both exports, Android prebuild,584 shared tests, final19 transition tests
+and120 routing-core assertions per native platform pass. Complete React Doctor is
+100/432 files. Aislop remains98 with only the exact two prior approved locked-patch
+advisories, all applicable engines and ten audits complete; the ordinary gate remains
+red. The corrected next driver requires exact reads0 and all three original empty
+outputs before registering a freshly remounted session, and captures each reset.
+The broader eight-case run remains pending. CAP-11/CAP-14 and the full phase stay
+open; publisher/version/update/fault/published/iOS scope remains required.

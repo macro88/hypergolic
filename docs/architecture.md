@@ -41,6 +41,13 @@ ordinary physical Android SDK checks verify the repair, preserved values and pee
 isolation after a data-preserving app update. A separate nine-check ordinary
 physical Android run proves masked secret set/cancel/clear, peer isolation, actual
 process-restart persistence, depth-four values and schema-removal orphan purge.
+The next identity-isolation run found schema loss after cancelled identity selection.
+The shared owner binding now retains routing registrations during confirmation;
+actual switches still revoke them. Red/green shared regressions, native registry
+checks and both signed products pass. Four ordinary physical Android cases verify
+exact saved values and subscription preservation after cancellation. The remaining
+confirmed-isolation run stopped on an external fresh-output parsing error; cleanup
+is verified and its corrected continuation remains pending.
 Complete physical iOS, broader owner/version isolation, configuration fault/update
 and published acceptance remain open.
 

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test, type TestContext } from 'node:test';
 import { IdentityTransition, IdentityChangeError } from '../../src/security/identity-transition.ts';
+import { bindRoutingOwner } from '../../src/routing/routing-owner.ts';
 import { VaultError } from '../../src/security/identity-vault.ts';
 import { Integrated, pubkey } from '../security/harness.ts';
 import { initialTestWorkspace, bundledUXDescriptor, assertBundledWorkspace } from '../../src/shell/fixtures.ts';
@@ -191,7 +192,10 @@ test('deletion freezes and flushes workspace before authenticating, and prevents
   const gate = deferred(), entered = deferred();
   sqlite.onStep = async sql => { if (sql.startsWith('UPDATE workspaces')) { entered.resolve(); await gate.promise; } };
   before.workspace.change(openNapplet(before.workspace.getSnapshot().workspace, bundledUXDescriptor(4)));
+  const routing:{available:boolean}={available:true};
+  t.after(bindRoutingOwner(transition,{synchronizeRoutingOwner(_user,_epoch,available){routing.available=available;}}));
   const deletion = transition.deleteInactive(pubkey(1), before); await entered.promise;
+  assert.equal(routing.available,false);
   assert.equal(transition.getSnapshot().phase, 'deleting'); assert.equal(protectedStore.authCalls, 0);
   assert.throws(transition.sessionAuthority().assertActive, { code: 'STALE' });
   assert.throws(() => transition.prepareSelect(pubkey(1)), { code: 'BUSY' });
@@ -203,8 +207,11 @@ test('deletion freezes and flushes workspace before authenticating, and prevents
 test('failed workspace persistence stops deletion before authentication or key removal', async t => {
   const { transition, sqlite, protectedStore, native } = await start(t);
   await transition.confirm(request(transition)); const before = transition.getSnapshot().session;
+  const routing:{available:boolean}={available:true};
+  t.after(bindRoutingOwner(transition,{synchronizeRoutingOwner(_user,_epoch,available){routing.available=available;}}));
   sqlite.faults.push({ prefix: 'UPDATE workspaces', mode: 'before' }); before.workspace.change(emptyWorkspace());
   await assert.rejects(transition.deleteInactive(pubkey(1), before), { code: 'RECOVERY_REQUIRED' });
+  assert.equal(routing.available,false);
   assert.equal(protectedStore.authCalls, 0); assert.equal(native.vault.getSnapshot().identities.length, 2);
   assert.equal(transition.getSnapshot().phase, 'recovery');
 });
@@ -281,4 +288,17 @@ test('cancel while protected keys are verified never reaches a later authenticat
   await assert.rejects(transition.deleteInactive(pubkey(1), before), { code: 'AUTHORIZATION_DENIED' });
   assert.equal(protectedStore.authCalls, 0);
   assert.equal(transition.getSnapshot().session, before);
+});
+
+test('routing owner retains current authority for pending import and cancellation but withdraws it synchronously before confirmed change',async t=>{
+ const {transition,native}=await start(t),before=transition.getSnapshot().session;
+ const calls:{user:string;epoch:number;available:boolean;selected:string}[]=[];
+ t.after(bindRoutingOwner(transition,{synchronizeRoutingOwner(user,epoch,available){calls.push({user,epoch,available,selected:native.vault.getSnapshot().selectedPubkey});}}));
+ const pending=request(transition);transition.cancel(pending);
+ assert.deepEqual(calls.map(c=>c.available),[true,true,true]);
+ assert(calls.every(c=>c.user===pubkey(1)&&c.selected===pubkey(1)&&c.epoch===before.epoch));
+ const chosen=request(transition);const confirmed=transition.confirm(chosen);
+ assert.deepEqual(calls.at(-1),{user:pubkey(1),epoch:before.epoch,available:false,selected:pubkey(1)});
+ await confirmed;
+ assert.deepEqual(calls.at(-1),{user:pubkey(2),epoch:before.epoch+1,available:true,selected:pubkey(2)});
 });
