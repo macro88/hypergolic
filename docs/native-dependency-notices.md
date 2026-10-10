@@ -250,3 +250,51 @@ inputs remain stable through compilation. Only completed owned intermediates are
 removed after artifact preservation. This app is ready locally and remains
 uninstalled on iPhone; Android's matching current-code ordinary package is updated
 in place. No physical AV1 decoding or complete codec safety claim is made.
+
+
+## Packaged source-built iOS image notices — 11 October 2026
+
+The selected iOS image stack now ships ten byte-preserved original notice files
+in `HypergolicNappletHostAssets.bundle`. Its provenance manifest records each
+library's actual source version, immutable upstream commit, original path and
+SHA-256. It includes the original patent notices for dav1d and WebP, and WebP's
+original author list. Required upstream attribution is preserved verbatim.
+
+| Source-built component | Version | Original files supplied |
+| --- | --- | --- |
+| SDWebImage | 5.21.7 | LICENSE |
+| SDWebImageAVIFCoder | 0.11.1 | LICENSE |
+| SDWebImageSVGCoder | 1.7.0 | LICENSE |
+| SDWebImageWebPCoder | 0.14.6 | LICENSE |
+| libavif | 1.0.0 | LICENSE, including its original embedded third-party terms |
+| libwebp | 1.6.0 | COPYING, PATENTS, AUTHORS |
+| dav1d | 1.2.0 with the recorded backport | COPYING, doc/PATENTS |
+
+The owning Git trees match 689 installed files exactly. Three further files have
+verified transformations: the two pinned dav1d patch files and WebP's declared
+CocoaPods `<inttypes.h>` to `<stdint.h>` header preparation. The first source
+comparison stopped on that header difference; its failure is retained. It passes
+only after the exact preparation command and complete transformed bytes match.
+A preceding restricted-network retrieval failure is also retained.
+
+CocoaPods' generated acknowledgements include the other six image components but
+omit dav1d. The previous 63-file ready app has no dedicated notice-like file paths;
+all ten complete selected original texts are also absent from its files. The
+corrected ordinary ARM64 iPhoneOS Release contains all ten originals with matching
+hashes, plus the provenance manifest. All 74 ready-copy files match the signed
+build product. Strict signature verification, the retained bundle identifier and
+the existing signing certificate pass; the previous ready app remains unchanged.
+No device installation or physical decoder acceptance occurred.
+
+The host pod specification verifies the complete expected notice-file set, sizes
+and hashes before pod evaluation, then includes those files in its resource bundle.
+The codec check exercises unchanged originals, rejection of same-length altered
+attribution and rejection of a missing patent notice. The real pod specification,
+iOS prebuild, cached Pod installation, TypeScript checks and signed build pass.
+
+This resolves the selected image-library notice packaging gap. It does not finish
+app-wide attribution, native binary provenance or license/security acceptance.
+React Native, Hermes, their transitive components, compression, SQLite, the shell
+and web-runtime JavaScript distribution, and Android still require their separate
+owning inventories and packaged notice reconciliation. Final quality and physical
+acceptance remain open; no new exception or source push is implied.

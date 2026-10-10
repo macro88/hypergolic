@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Notification lifetime now starts after permission/admission;49 presentation tests, TypeScript, both exports and current signed test/ordinary products pass. Original packaging failure retained; final local Doctor442 source-bound/no score. Physical tests/helper cleanup await reconnect;7/61 complete/54 open, external quality/close answers pending, no source push.
+stopped_at: Verified and packaged10 original iOS image notices across7 owning libraries;689 exact source matches plus3 explained transformations. Signed74-file ordinary app/ready copy passes unchanged identity/certificate; native integrity checks and TypeScript pass. Local Doctor442 complete/zero issues/no score;7/61 complete/54 open, physical reconnect and external quality/close answers pending, no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: d0b18fefef97e6f8e2dce635087df825647e31d2
+state_head: 8a02a743b69d9817bf16b7c2583d14a204297ef5
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2453,3 +2453,27 @@ signed publisher, concurrent/delayed/native effects, published/iOS/minimum-platf
 and complete usability remain open. The owned helper JAR still awaits exact
 hash-checked removal after device reconnect. No source push or Phase3 advance.
 Private evidence: notification-pending-read01.
+
+
+## Original iOS image notices packaged — 11 October 2026
+
+The retained ordinary iPhone product previously omitted the ten complete original
+texts for the seven selected source-built image libraries. CocoaPods' generated
+acknowledgements also omit dav1d. The native host now packages original licenses,
+patent notices and WebP authors with immutable source/hash provenance, and rejects
+changed/missing files during pod evaluation. All ten final app files match upstream
+originals. The ordinary signed product/ready copy has74 sealed files, unchanged app
+identifier/certificate and preserved older products; no device action occurs.
+Source review matches689 files and verifies only the two existing dav1d backports
+and declared WebP header preparation. Network/header-comparison failures remain
+recorded; no unverified change is ignored. Native integrity checks, actual pod
+specification, iOS prebuild, cached Pods and TypeScript pass. App-wide notices,
+static native provenance, full quality and all remaining physical/published/fault
+acceptance stay open. Matrix remains7/61 complete,54 open; Android disconnected,
+weekly usage25%, owner ceiling about98%, no source push.
+
+The complete local React Doctor scan covers442 files with zero diagnostics and no
+skipped checks, bound to unchanged source inputs after terminal native builds.
+External numeric scoring and fresh audit remain unrequested pending the named
+metadata/destination decisions. The prior aislop98 remains dated, not a new full
+source score. Only documentation is updated after this bound local scan.

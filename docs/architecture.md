@@ -79,6 +79,13 @@ centre lifetime. Controlled-clock and pending-read revocation regressions pass;
 physical/native fault acceptance stays open. See the
 [pending-read checkpoint](notifications-configuration.md#notification-admission-time-lifetime-and-pending-read-faults--11-october-2026).
 
+The ordinary iPhone resource bundle now includes ten original notices for the
+seven source-built image libraries. Pod evaluation verifies their expected names,
+sizes and hashes. The signed 74-file product and ready copy retain the existing
+app identity and certificate. This is a distribution subset, with app-wide
+attribution and native/device acceptance still open. See the
+[packaged notice checkpoint](native-dependency-notices.md#packaged-source-built-ios-image-notices--11-october-2026).
+
 ## Implemented
 
 `index.ts` registers `src/App.tsx` with Expo. Both native hosts run verified,

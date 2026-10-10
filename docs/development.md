@@ -219,6 +219,18 @@ It does not decode AV1 bitstreams or prove behavior on a phone. Temporary binari
 and debug symbols are removed. The complete native dependency and physical review
 remain required; see [decoder provenance](native-dependency-notices.md).
 
+The native host's iOS resource bundle includes the original notices in
+`modules/napplet-host/ios/Resources/notices/`. Its manifest pins source versions,
+immutable upstream references and original file hashes. Pod evaluation rejects a
+missing, changed or extra notice file before generating the bundle. Update the
+owning inventory and byte-preserved originals together when changing an image
+library; do not rewrite third-party terms or substitute a version label.
+`pnpm run test:native-codec-patches` also checks attribution integrity and missing
+patent notices. After pod installation and signed packaging, inspect the actual
+app bundle against every manifest hash. This is the image-stack subset; see
+[native dependency notices](native-dependency-notices.md#packaged-source-built-ios-image-notices--11-october-2026)
+for remaining distribution review.
+
 The Simulator build command installs dependencies and starts Metro as needed:
 
 ```sh

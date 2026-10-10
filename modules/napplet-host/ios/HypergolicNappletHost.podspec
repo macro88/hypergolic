@@ -1,4 +1,7 @@
 require 'json'
+require_relative 'NativeDependencyNotices'
+
+HypergolicNativeDependencyNotices.verify(File.join(__dir__, 'Resources', 'notices'))
 
 package = JSON.parse(File.read(File.join(__dir__, '..', 'package.json')))
 
@@ -22,6 +25,6 @@ Pod::Spec.new do |s|
   s.dependency 'ExpoModulesCore'
   s.frameworks = 'WebKit', 'CryptoKit', 'Network', 'Security'
   s.source_files = '**/*.swift'
-  s.resource_bundles = { 'HypergolicNappletHostAssets' => ['Resources/runtime/*'] }
+  s.resource_bundles = { 'HypergolicNappletHostAssets' => ['Resources/runtime/*', 'Resources/notices/*'] }
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
 end

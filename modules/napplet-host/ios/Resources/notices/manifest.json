@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "platform": "ios",
+  "scope": "Seven source-built image libraries; other app and runtime components remain outside this notice subset.",
+  "components": [
+    {
+      "name": "SDWebImage",
+      "version": "5.21.7",
+      "repository": "https://github.com/SDWebImage/SDWebImage",
+      "commit": "2de3a496eaf6df9a1312862adcfd54acd73c39c0",
+      "notices": [
+        {
+          "file": "SDWebImage-LICENSE.txt",
+          "sourcePath": "LICENSE",
+          "sourceUrl": "https://raw.githubusercontent.com/SDWebImage/SDWebImage/2de3a496eaf6df9a1312862adcfd54acd73c39c0/LICENSE",
+          "sha256": "db5ae21958ad3871339a53acfabc7e9c20553a35761878dfd304573de1e88740",
+          "bytes": 1087
+        }
+      ]
+    },
+    {
+      "name": "SDWebImageAVIFCoder",
+      "version": "0.11.1",
+      "repository": "https://github.com/SDWebImage/SDWebImageAVIFCoder",
+      "commit": "1c25e7aaca8b948d823401c34b2ba2595c96280c",
+      "notices": [
+        {
+          "file": "SDWebImageAVIFCoder-LICENSE.txt",
+          "sourcePath": "LICENSE",
+          "sourceUrl": "https://raw.githubusercontent.com/SDWebImage/SDWebImageAVIFCoder/1c25e7aaca8b948d823401c34b2ba2595c96280c/LICENSE",
+          "sha256": "dfe13f75d4b56d438534a6d6330b0ef34d6625e91779726338cbf4dc1e95ca19",
+          "bytes": 1087
+        }
+      ]
+    },
+    {
+      "name": "SDWebImageSVGCoder",
+      "version": "1.7.0",
+      "repository": "https://github.com/SDWebImage/SDWebImageSVGCoder",
+      "commit": "950167445ab703740569869c8b7510efc9d09a26",
+      "notices": [
+        {
+          "file": "SDWebImageSVGCoder-LICENSE.txt",
+          "sourcePath": "LICENSE",
+          "sourceUrl": "https://raw.githubusercontent.com/SDWebImage/SDWebImageSVGCoder/950167445ab703740569869c8b7510efc9d09a26/LICENSE",
+          "sha256": "fab473226c0908e2bdca31fe01dccf2347c638a0c6d206d470a69cd3aa2c40cb",
+          "bytes": 1087
+        }
+      ]
+    },
+    {
+      "name": "SDWebImageWebPCoder",
+      "version": "0.14.6",
+      "repository": "https://github.com/SDWebImage/SDWebImageWebPCoder",
+      "commit": "f534cfe830a7807ecc3d0332127a502426cfa067",
+      "notices": [
+        {
+          "file": "SDWebImageWebPCoder-LICENSE.txt",
+          "sourcePath": "LICENSE",
+          "sourceUrl": "https://raw.githubusercontent.com/SDWebImage/SDWebImageWebPCoder/f534cfe830a7807ecc3d0332127a502426cfa067/LICENSE",
+          "sha256": "2b4e998db6eb1c4f7fe3533dca578b0951274d24bef5f647f42000df43f5af91",
+          "bytes": 1061
+        }
+      ]
+    },
+    {
+      "name": "libavif",
+      "version": "1.0.0",
+      "repository": "https://github.com/AOMediaCodec/libavif",
+      "commit": "bc41fc5b22786976ca23664905875ccd104f55c4",
+      "notices": [
+        {
+          "file": "libavif-LICENSE.txt",
+          "sourcePath": "LICENSE",
+          "sourceUrl": "https://raw.githubusercontent.com/AOMediaCodec/libavif/bc41fc5b22786976ca23664905875ccd104f55c4/LICENSE",
+          "sha256": "10952217a6d404de8bf8a997fbea9b88f682df1fe98cb9b9f467ade641525639",
+          "bytes": 18799
+        }
+      ]
+    },
+    {
+      "name": "libwebp",
+      "version": "1.6.0",
+      "repository": "https://github.com/webmproject/libwebp",
+      "commit": "4fa21912338357f89e4fd51cf2368325b59e9bd9",
+      "notices": [
+        {
+          "file": "libwebp-COPYING.txt",
+          "sourcePath": "COPYING",
+          "sourceUrl": "https://raw.githubusercontent.com/webmproject/libwebp/4fa21912338357f89e4fd51cf2368325b59e9bd9/COPYING",
+          "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf",
+          "bytes": 1496
+        },
+        {
+          "file": "libwebp-PATENTS.txt",
+          "sourcePath": "PATENTS",
+          "sourceUrl": "https://raw.githubusercontent.com/webmproject/libwebp/4fa21912338357f89e4fd51cf2368325b59e9bd9/PATENTS",
+          "sha256": "cc3273e0694ea5896145e0677699b53471b03ea43021ddc50e7923fbb9f5023c",
+          "bytes": 1436
+        },
+        {
+          "file": "libwebp-AUTHORS.txt",
+          "sourcePath": "AUTHORS",
+          "sourceUrl": "https://raw.githubusercontent.com/webmproject/libwebp/4fa21912338357f89e4fd51cf2368325b59e9bd9/AUTHORS",
+          "sha256": "f251be89fd442bd9d701360730aea163cc8e2076ff03528f59267dc2c4f8b60a",
+          "bytes": 3279
+        }
+      ]
+    },
+    {
+      "name": "libdav1d",
+      "version": "1.2.0",
+      "repository": "https://github.com/videolan/dav1d",
+      "commit": "676a864a11af2c0522e1f992e770589543894686",
+      "notices": [
+        {
+          "file": "libdav1d-COPYING.txt",
+          "sourcePath": "COPYING",
+          "sourceUrl": "https://raw.githubusercontent.com/videolan/dav1d/676a864a11af2c0522e1f992e770589543894686/COPYING",
+          "sha256": "b327887de263238deaa80c34cdd2ff3e0ba1d35db585ce14a37ce3e74ee389e9",
+          "bytes": 1317
+        },
+        {
+          "file": "libdav1d-PATENTS.txt",
+          "sourcePath": "doc/PATENTS",
+          "sourceUrl": "https://raw.githubusercontent.com/videolan/dav1d/676a864a11af2c0522e1f992e770589543894686/doc/PATENTS",
+          "sha256": "335eca574598bf4ca181b12f708d6669e5a5e78c8e1513e5b35fa1f03901484b",
+          "bytes": 5730
+        }
+      ]
+    }
+  ]
+}
