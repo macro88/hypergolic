@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Verified and packaged10 original iOS image notices across7 owning libraries;689 exact source matches plus3 explained transformations. Signed74-file ordinary app/ready copy passes unchanged identity/certificate; native integrity checks and TypeScript pass. Local Doctor442 complete/zero issues/no score;7/61 complete/54 open, physical reconnect and external quality/close answers pending, no source push.
+stopped_at: Runtime delivery review verifies9 package identities/15 package modules and all existing notice bytes in both retained native products;3 originals preserved,6 declaration-based gaps stay open. Observed production outputs/source identical, no device/code/dependency change.7/61 complete/54 open; physical reconnect and external quality/close answers pending, no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: 8a02a743b69d9817bf16b7c2583d14a204297ef5
+state_head: 68b90080b3f15791d83497e7be6d8a698d7cdd16
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2477,3 +2477,21 @@ skipped checks, bound to unchanged source inputs after terminal native builds.
 External numeric scoring and fresh audit remain unrequested pending the named
 metadata/destination decisions. The prior aislop98 remains dated, not a new full
 source score. Only documentation is updated after this bound local scan.
+
+
+## Trusted runtime delivered attribution review — 11 October 2026
+
+The owning Vite build observer records 47 modules, 15 package-owned, covering nine
+exact identities. Before/after host, index, manifest and notices plus 1,292 source
+inputs remain identical. The ordinary Android APK and signed 74-file iPhone ready
+copy contain the exact trusted host and full existing notice material. Three
+installed license originals remain byte-preserved; six published package
+license-file gaps stay explicit. Kehto's recorded immutable source independently
+matches all five versions/MIT declarations but has no dedicated notice-like paths.
+Public release-reference/Napplet404 outcomes are retained; no source origin or
+copyright author is invented. No code, artifact bytes, dependency, native build,
+device action or new quality run follows from this evidence-only review. Last
+complete local Doctor442 remains source-bound to the preceding implementation;
+full audit/numeric-score and native/app-wide attribution stay open. Matrix still
+7/61 complete,54 open; Android disconnected, usage26%, owner ceiling about98%.
+No source push, Phase3 advance or new exception.

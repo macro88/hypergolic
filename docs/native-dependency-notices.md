@@ -298,3 +298,57 @@ React Native, Hermes, their transitive components, compression, SQLite, the shel
 and web-runtime JavaScript distribution, and Android still require their separate
 owning inventories and packaged notice reconciliation. Final quality and physical
 acceptance remain open; no new exception or source push is implied.
+
+
+## Packaged trusted web-runtime attribution — 11 October 2026
+
+The trusted host already appends its notices to `host.js`; an additional native
+notice file is unnecessary for this delivered material. An instrumented rerun of
+the owning Vite build observes 47 contributing modules, including 15 package-owned
+modules from nine exact package/version identities. The observer relocates imports
+and records the existing module list without changing build logic. Its host,
+index document, asset manifest and notice file are byte-identical before/after,
+and all 1,292 captured source inputs remain unchanged.
+
+| Contributing package | Version | Observed license material |
+| --- | --- | --- |
+| @kehto/acl | 0.18.0 | Declared MIT; published package has no separate license file |
+| @kehto/firewall | 0.5.0 | Declared MIT; published package has no separate license file |
+| @kehto/runtime | 0.22.0 | Declared MIT; published package has no separate license file |
+| @kehto/services | 0.20.0 | Declared MIT; published package has no separate license file |
+| @kehto/shell | 0.20.0 | Declared MIT; published package has no separate license file |
+| @napplet/core | 0.31.1 | Declared MIT; published package has no separate license file |
+| @noble/curves | 2.0.1 | Exact installed LICENSE, including original copyright |
+| @noble/hashes | 2.0.1 | Exact installed LICENSE, including original copyright |
+| nostr-tools | 2.24.0 | Exact installed Unlicense original |
+
+Every package identity matches `runtime/assets-manifest.json`. Build tools such
+as Vite, TypeScript and Playwright do not contribute a package module to this
+observed host; installation alone is not treated as shipped-code evidence. The
+inventory hashes each contributing package file and owning package metadata.
+A package's prebundled distribution file is the observed unit; this does not
+establish every component embedded upstream inside that file.
+
+The retained ordinary signed Android APK and the 74-file ordinary iPhone ready
+app contain the identical trusted host:
+`2ab511794668109d110d533155aabd87c907333fbd2fd871d291f191d861a8ad`.
+Both contain the complete existing notice-file bytes, all nine metadata headers
+and the three byte-preserved installed license originals. Android's full APK hash
+matches its retained build receipt; the iPhone's complete ready-copy seal matches.
+These are local packaged-product observations, not new device installs or native
+execution. No production code, notice text, dependency, product or permission changes.
+
+The recorded Kehto source commit
+`f031d5d2264d047cd40e2524bf12b7f68c74caa6` independently has the same five versions
+and MIT declarations. Its complete Git tree has no dedicated license/copying/
+notice filename. This does not prove absence of copyright text within every source
+file or compiler input. Public reference discovery finds no matching installed
+package-version tag; the recorded Napplet repository returns 404 for the queried
+public tag endpoint. Those outcomes remain evidence, not substituted provenance.
+
+Six packages therefore still have declaration-based generic MIT material rather
+than a verified original copyright/license file. Do not invent an author, silently
+substitute a current branch or declare full attribution acceptance from metadata.
+Owning artifact/upstream attribution reconciliation stays open, alongside the main
+React Native/Hermes JavaScript bundle, native libraries and complete BUILD-01.
+The existing runtime notices are proven delivered; app-wide review remains open.

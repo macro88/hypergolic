@@ -1,9 +1,11 @@
 # Hypergolic web runtime
 
 This isolated package builds the trusted Kehto outer document for the Android and iOS
-Expo native views. It embeds the reviewed UX Lab bytes as an opaque `srcdoc` iframe.
-It is the first runtime slice; it implements no identity, signing, saved state,
-relay transport or published napplet installation.
+Expo native views. It hosts reviewed bundled fixtures and verified published
+napplets in opaque sandboxed frames. Native adapters mediate the selected capability
+operations; the trusted shell owns identity, permissions and approval workflows.
+The pinned operation profiles and their native acceptance limits are documented
+in the root capability documents.
 
 ## Build and check
 
@@ -26,7 +28,7 @@ verification completes before iframe creation. Injection is outside the original
 artifact bytes. These checks establish bundled-artifact integrity, not publisher
 signature verification: the bundled fixture is unsigned.
 
-## Native adapter contract
+## Initial native adapter contract
 
 Load `https://appassets.androidplatform.net/assets/runtime/index.html?sessionId=GENERATION`
 where GENERATION is a native-issued identifier matching `[A-Za-z0-9_-]{1,80}`.
@@ -78,7 +80,7 @@ is only `allow-scripts`. Hiding the view leaves the same Window and live fixture
 state; close/pagehide/subsequent frame load tears down listener/registry/runtime.
 Native must separately revoke its callback generation on renderer loss and close.
 
-## Validation limits
+## Initial browser validation limits
 
 Browser tests exercise genuine bootstrap/theme, pre-ready denial, duplicate and
 forged readiness, malformed/privileged messages, sibling and synthetic source,
@@ -144,5 +146,19 @@ in-memory adapter has no native bridge, key, signer or network. On 15 September
 and WebKit (64 total). Coverage includes the exact admission order, canonical
 ACL/firewall denials, original unsigned payloads, failure without fallback, absent
 hook compatibility, late replies and precise configured/default deadlines.
-The app's current delivery still exposes shell/theme only; native privileged
-operations are not claimed by this browser proof.
+That browser proof covers shell/theme. The root capability documents record the
+subsequent native privileged interfaces and their separate acceptance limits.
+
+
+## Packaged attribution checkpoint — 11 October 2026
+
+An observer of the owning build records 47 modules, 15 of which belong to nine
+packages. Its outputs remain identical to the ordinary packaged Android/iPhone
+host. Both retained products contain the complete existing notice text, all nine
+package metadata headers and the exact installed originals for noble-curves,
+noble-hashes and nostr-tools. Six other package distributions omit a separate
+license file; their declaration-based generic MIT material is explicit. This is
+verified delivery, not full source/attribution or application license acceptance.
+See [the native dependency checkpoint](../docs/native-dependency-notices.md#packaged-trusted-web-runtime-attribution--11-october-2026)
+for source identities, evidence scope and remaining gaps. No new runtime asset,
+capability or dependency change follows from this review.
