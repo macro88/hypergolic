@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Android main-JS graph reproduces retained APK HBC/map exactly;60 identities/56 originals plus4 shared RN mappings. Signed ordinary APK packages originals with unchanged previous assets/identity/cert; eight guard regressions, typecheck/prebuild/export/native build pass. Complete local Doctor442/zero issues/no score;7/61 complete/54 open, native attribution/physical/external quality/close decisions remain, no source push.
+stopped_at: Selected Android runtime archive originals packaged: six originals/18 bindings cover four missing Commons Apache texts, graph150 Maven/11 projects/144 artifact hashes unchanged. Signed ordinary APK preserves64 assets/four DEX/21 native images and identity/cert;14 notice regressions/typecheck/prebuild/export/build pass. Native/Maven attribution, full quality/physical/close decisions remain;7/61 complete/54 open, no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: 75a54137d5093e660f31d3e5f3c0182cbbda081b
+state_head: be1fbe3ae078cd6d4a40b6062172657766b71725
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2555,3 +2555,31 @@ numeric score; all native/build/export actors are terminal before the final scan
 The preceding aislop98 is dated with only existing approved locked exceptions,
 not a fresh full-source result. External audit/score transfer and Expo patch-age
 compatibility gates remain open; no metadata request, suppression or gate waiver.
+
+
+## Selected Android archive originals supplied — 11 October 2026
+
+Current offline native graph matches150 Maven/11 project components and144 exact
+selected artifact hashes. All21 final ELF hashes match their preceding archive/
+local-section mappings. The18 selected archive notice entries contain six distinct
+originals. Four Commons Codec1.10/IO1.4 LICENSE/NOTICE originals are absent from the
+previous APK;92/76 owning class descriptors match final DEX definitions. All18
+entry owners have matching final classes. Names are not transformed-byte or full
+transitive licensing proof. SDKdump modified-UTF8 observation failure is preserved;
+corrected byte-field parsing inventories20562 class definitions in four DEX files.
+The Android module now packages all six originals/18 entry bindings, and its real
+preBuild resolves all144 selected external runtime artifacts to check coordinates,
+filenames and hashes before packaging. Fourteen combined notice regressions,
+TypeScript, Android prebuild/export and ordinary signed ARM64 build pass. All62
+original files in both notice folders match; exactly seven new assets are added.
+Previous64 assets/four DEX/21 ELF bytes, retained ID/cert/permissions/non-debuggable
+status and prior APK stay unchanged. Generated settings restore; source stable
+through build. No device action, new exception, source push or Phase3 advancement.
+Remaining owning Maven/native/static/generated/transitive terms and patch review,
+six runtime declaration-only gaps, full external quality, physical/published/fault
+and close policy acceptance remain open. Matrix7/61 complete/54 open.
+
+Scoped Git attributes also protect original notice bytes from line-ending
+conversion. All128 current iOS/Android original blobs match committed/working
+bytes and an isolated actual checkout with core.autocrlf=true. Original CRLF
+whitespace findings stay visible; no upstream text is rewritten or suppressed.

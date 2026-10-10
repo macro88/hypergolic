@@ -1,3 +1,6 @@
+import groovy.json.JsonOutput
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
+
 plugins {
   id 'com.android.library'
   id 'expo-module-gradle-plugin'
@@ -27,6 +30,20 @@ tasks.named('preBuild').configure {
       commandLine 'node', file('NativeDependencyNotices.cjs').absolutePath,
         file('src/main/assets/notices').absolutePath,
         file('../../..').absolutePath
+    }.result.get()
+    def configuration = rootProject.findProject(':app').configurations.getByName('releaseRuntimeClasspath')
+    def artifacts = configuration.incoming.artifactView {
+      componentFilter { id -> id instanceof ModuleComponentIdentifier }
+    }.artifacts.artifacts.collect { artifact ->
+      [component: artifact.id.componentIdentifier.displayName, file: artifact.file.absolutePath]
+    }
+    def inventory = layout.buildDirectory.file('notice-review/selected-artifacts.json').get().asFile
+    inventory.parentFile.mkdirs()
+    inventory.text = JsonOutput.toJson(artifacts)
+    providers.exec {
+      workingDir project.projectDir
+      commandLine 'node', file('ArchiveDependencyNotices.cjs').absolutePath,
+        file('src/main/assets/archive-notices').absolutePath, inventory.absolutePath
     }.result.get()
     for (name in ['index.html', 'host.js']) {
       if (!file("src/main/assets/runtime/$name").isFile()) {

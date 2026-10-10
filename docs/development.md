@@ -721,3 +721,34 @@ The current signed build contains 56 originals for 60 package/version identities
 with four shared React Native mappings. Native Android libraries and the separate
 trusted-runtime attribution gaps remain outside this profile; see
 [the exact Android review](native-dependency-notices.md#packaged-main-android-javascript-originals--11-october-2026).
+
+
+## Android selected archive notices — 11 October 2026
+
+The Android native module also packages the exact archive originals under
+`src/main/assets/archive-notices/`. Its `preBuild` resolves the app's external
+`releaseRuntimeClasspath` artifacts, records a temporary build-only inventory,
+and invokes `ArchiveDependencyNotices.cjs`. The committed profile uses Maven
+coordinates, filenames and hashes, not local cache locations. Build tools are
+excluded by using the app runtime configuration; project components remain part
+of the separately recorded full dependency graph.
+
+Run both original-integrity guards' regression cases with:
+
+```sh
+node --test tests/native/codecs/android-notices.cjs tests/native/codecs/archive-notices.cjs
+```
+
+When runtime artifacts change, re-inventory the actual archives, preserve original
+texts with their owning entry bindings and update the entire selected-artifact
+profile together. Retain failure outcomes and binary/class provenance separately.
+Inspect both notice folders in the final signed APK and recheck existing DEX/native
+and asset bytes, identity/certificate and permissions. The guard checks the selected
+archive distribution subset; full Maven/native/transitive review remains required.
+See the [archive-original review](native-dependency-notices.md#selected-android-archive-originals-delivered--11-october-2026).
+
+
+Scoped `.gitattributes` rules disable line-ending conversion for original native
+notice `.txt` files on both platforms. An isolated actual Git checkout with
+`core.autocrlf=true` preserves all 128 original files exactly, including upstream
+CRLF text. This protects portable hash checks without rewriting the originals.

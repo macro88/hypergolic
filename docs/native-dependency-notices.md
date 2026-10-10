@@ -458,3 +458,55 @@ remain pending explicit metadata-transfer authorization; no indirect request is
 made. The earlier aislop 98/100 is a dated report with the exact existing approved
 locked exceptions, not a fresh full-source score. The existing Expo patch-version
 mismatch remains visible. These open final gates are not waived by packaging.
+
+
+## Selected Android archive originals delivered — 11 October 2026
+
+Current offline Gradle resolution reproduces the full earlier graph: 150 Maven
+components, 11 project components and the same 144 selected external artifact
+records/hashes. All 21 native ELF images in the current ordinary signed APK are
+byte-identical to the earlier mapped products; their recorded archive/local-build
+bindings still apply. The source and signed products remain unchanged during
+this review. No version, binary patch or dependency exception is selected.
+
+The selected archives contain 18 original license/notice entries representing
+six distinct full texts. Each is re-extracted from its exact selected archive and
+byte-matched to the earlier captured original. The APK contains the AndroidX
+Apache original and OkHttp public-suffix NOTICE, while the four original
+Commons Codec 1.10 and Commons IO 1.4 LICENSE/NOTICE texts are absent. The installed
+SDK `dexdump` observes 20,562 class definitions in four final DEX files, including
+92 descriptor-name matches to selected Commons Codec classes and 76 to Commons IO.
+Every archive notice owner has matching final class definitions. These intersections
+establish the observed class names; they do not attest transformed method bytes or
+complete transitive licensing. The first observer cannot read the entire dump as
+UTF-8 because DEX strings include modified UTF-8; the corrected observer preserves
+raw dump bytes and parses only class descriptor fields. Both outcomes remain.
+
+The native module packages all six exact archive originals and 18 owning-entry
+bindings in `assets/archive-notices/`. Before packaging, its actual `preBuild`
+resolves the app's selected external runtime artifacts and passes their paths and
+coordinates to `ArchiveDependencyNotices.cjs`. The guard checks original hashes,
+complete file sets and mappings, then compares the full artifact multiset by
+coordinate, filename and SHA-256. A new/removed dependency or changed archive
+requires renewed review; no machine-specific cache path is committed.
+
+Fourteen combined JavaScript/archive notice regressions, TypeScript, Android
+prebuild/export and ordinary signed Gradle packaging pass. The new APK contains
+all six archive originals and all 56 prior JavaScript originals with exact hashes.
+Only seven archive-notice assets are added; all 64 previous assets, four DEX files
+and 21 native libraries remain byte-identical. Hypergolic's retained app ID,
+certificate, permissions and non-debuggable status are unchanged, generated
+packaging settings restore without conflicts, and the previous APK is intact.
+No phone installation, input or physical acceptance occurs while Android is absent.
+
+The delivered archive entries resolve the four observed missing Apache texts.
+Other selected Maven packages' original terms, bundled components inside native
+libraries, generated/static-linked code, patch provenance and the six web-runtime
+attribution gaps remain open. BUILD-01 and complete Phase 2 acceptance require
+those reviews plus the existing full quality and native/device journeys.
+
+
+Scoped `.gitattributes` rules disable line-ending conversion for original native
+notice `.txt` files on both platforms. An isolated actual Git checkout with
+`core.autocrlf=true` preserves all 128 original files exactly, including upstream
+CRLF text. This protects portable hash checks without rewriting the originals.

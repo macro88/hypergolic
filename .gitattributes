@@ -1,0 +1,4 @@
+# Original third-party notices are hashed and packaged byte for byte.
+modules/napplet-host/android/src/main/assets/notices/*.txt -text
+modules/napplet-host/android/src/main/assets/archive-notices/*.txt -text
+modules/napplet-host/ios/Resources/notices/*.txt -text

@@ -103,6 +103,13 @@ This is a distribution subset; Android native/transitive attribution and complet
 BUILD-01 acceptance remain open. See the
 [Android attribution review](native-dependency-notices.md#packaged-main-android-javascript-originals--11-october-2026).
 
+The Android native module also packages six byte-preserved archive originals,
+including four missing Commons Codec/IO Apache LICENSE/NOTICE texts. Its pre-build
+check compares the app's actual selected runtime artifact coordinates and hashes.
+All previous assets, DEX files and native images remain unchanged in the signed
+product. Remaining Maven/native/transitive attribution and physical acceptance
+stay open; see the [archive-original review](native-dependency-notices.md#selected-android-archive-originals-delivered--11-october-2026).
+
 ## Implemented
 
 `index.ts` registers `src/App.tsx` with Expo. Both native hosts run verified,
