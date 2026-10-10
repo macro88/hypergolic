@@ -860,14 +860,19 @@ output directories to retain original failures and receipts:
 ```sh
 python3 tests/native/outbox/publication/run.py --output <fresh-core-directory>
 python3 tests/native/outbox/publication/tls_run.py --output <fresh-tls-directory>
-python3 tests/native/outbox/publication/owning_tls_run.py --output <fresh-owner-directory>
+python3 tests/native/outbox/publication/owning_tls_run.py --output <fresh-swift-owner-directory>
+python3 tests/native/outbox/publication/android_owning_tls_run.py --output <fresh-android-owner-directory>
 ```
 
 The first compiles actual native core sources and checks ACK size/depth/type/EOF
-boundaries alongside approval/plan rules. The latter two use the existing bounded
+boundaries alongside approval/plan rules. The Swift owner and shared sender suites use the existing bounded
 loopback TLS proof paths and an independent exact-frame receiver; disposable TLS
 private keys are deleted. The owning suite exercises the actual Swift publication
-owner's receipt outcomes. These host proofs do not replace actual Android platform
+owner's receipt outcomes. The Android owner suite uses its unchanged compiled
+owner plus explicit host-clock/initialization and isolated route adapters. It
+covers twenty receipt faults, four in-flight publications, capacity/replay denial,
+recovery and final semaphore/deadline cleanup. Its adapter patch and complete
+compiled inputs are sealed, and ordinary source stays unchanged. These host proofs do not replace actual Android platform
 JSON, protected signing, owning Expo/guest or physical-device acceptance. See the
 [native proof README](../tests/native/outbox/publication/README.md) for the detailed
 scope; valid local reports do not close full numeric external quality gates.

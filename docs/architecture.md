@@ -498,3 +498,12 @@ end before a valid ACK can become a receipt; a malformed post-send reply remains
 unknown. Existing event correlation, Boolean/reason bounds and first-ACK retention
 remain. The expanded owning native host proofs and physical limits are recorded
 in the [frame-boundary checkpoint](outbox-routing.md#native-acknowledgement-frame-boundary--11-october-2026).
+
+The compiled Android publication owner also passes twenty controlled host receipt
+faults and a four-publication capacity/replay/recovery case. Independent receivers
+observe exact signed fixture frames and zero frames in the two pre-send
+cancellation cases. Native slots and scheduled deadlines return to their idle
+state. Host clock/initialization and a sealed isolated route adapter remain
+explicit; production source is unchanged. Physical Android, protected signing,
+ordinary guest/Expo and full native fault acceptance stay open. See the
+[Android owner checkpoint](outbox-routing.md#android-host-publication-owner-faults--11-october-2026).

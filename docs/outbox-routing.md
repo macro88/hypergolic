@@ -90,3 +90,40 @@ Source-only aislop has zero findings across435 supported/97 unsupported files wi
 online audit off. Full numeric quality, complete faults, physical/published/native
 signing and final matrix acceptance remain open:7/61 complete and54 open. Original
 Android pre-fix failure and the first new Swift-test compile error are retained.
+
+
+## Android host publication owner faults — 11 October 2026
+
+The unchanged compiled Release owner now passes twenty single-publication fault
+cases against an independent loopback TLS receiver. Accepted/rejected replies
+retain their exact reasons; missing, foreign, malformed, AUTH, trailing, overflow,
+flood and oversized-frame replies remain unknown after send. Approval/job
+cancellation immediately before the final send gate yields zero EVENT frames.
+The corresponding cancellations immediately after emission yield one exact EVENT
+and unknown receipts. Silent timeout takes 3,090 ms; keepalive notices still stop
+at 10,008 ms. These measurements belong to this controlled host run.
+
+Four simultaneous approved plan pairs remain in flight while a fifth is denied
+before transport. That fifth pair is consumed and cannot replay. Releasing the
+first four restores capacity; a sixth fresh pair succeeds. The relay sees five
+exact EVENT frames across this case. Every single case and the final concurrent
+case leave all four semaphore slots free and the native deadline queue empty.
+
+The runner executes the original compiled owner, plan, approval and ACK classes.
+A host monotonic clock replaces Android SystemClock; Handler/Looper permit only
+initialization and fail any fabricated UI queue use. The isolated WSS source copy
+changes only its publish-entry route to the controlled endpoint. The complete
+patch is retained, while the downstream transport code and ordinary production
+source stay unchanged. Source/configuration, compiled classes, dependency JARs,
+route/proof outputs and original logs are hash-bound. The first harness compile
+failure remains recorded; disposable TLS private material is removed.
+
+This does not prove Android platform JSON parity, device sleep, UI delivery,
+protected signing, guest/Expo composition, public DNS policy, slow-write
+backpressure or complete physical/published fault acceptance. No new app build,
+installation, external publication or source push occurs. Both retained native
+products stay byte-identical. Local Doctor checks 442 files without diagnostics
+or skips and leaves its external score off; source-only aislop checks 435 supported
+files with zero issues and online audit off, with 97 unsupported files. These
+local reports do not satisfy the pending full external quality gates. The
+physical matrix remains seven of 61 complete, with 54 open.

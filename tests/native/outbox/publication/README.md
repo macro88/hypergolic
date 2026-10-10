@@ -37,3 +37,22 @@ trailing-text failure is retained before its end-of-message correction. The pars
 rejects raw NUL rather than confusing it with JSONTokener's end sentinel. Valid
 first ACKs still survive later bad/contradictory responses. This is selected fault
 coverage, not exhaustive strict-JSON or complete native fault acceptance.
+
+
+## Android publication owner against a controlled relay
+
+Run `python3 tests/native/outbox/publication/android_owning_tls_run.py --output <fresh-external-directory>` after sourcing the local Android/iOS tool environments. The runner compiles the actual Release module offline, then executes its unchanged compiled Outbox publication owner, plan, approval registry and acknowledgement classes on the host JVM.
+
+Twenty single-publication cases cover accepted/rejected/missing/foreign/malformed/AUTH replies, valid acknowledgement followed by closure, pre-send approval and job cancellation, post-send approval and job cancellation, trailing payload faults, reason overflow, silent timeout, slow keepalive notices, notice flood and an oversized declared frame. An independent TLS receiver checks the exact public signed EVENT. Both pre-send cancellation cases emit zero EVENT frames; every other case emits one. Silent timeout takes about three seconds, and keepalive notices do not extend the ten-second total deadline.
+
+A separate concurrent case holds four publications open. The fifth reviewed pair returns `cancelled-before-send` with a capacity reason before calling transport; replay of that consumed pair is denied. After the four responses complete, a fresh reviewed target succeeds. The receiver observes exactly five EVENT frames: four admitted publications and the later recovery. All cases verify that the four native semaphore permits are restored and the owner's scheduled deadline queue is empty.
+
+The host composition has three explicit adapters:
+
+- `SystemClock` uses `System.nanoTime`; this does not model Android suspend.
+- `Handler`/`Looper` only permit initialization; any attempted UI queue or timer use fails the proof.
+- An isolated copy of `PublishedRelayWssQuery.java` changes only the `publish` entry to the controlled route. The runner requires an exact single wrapper match and retains the full patch. Its downstream DNS/TLS/handshake/frame implementation remains unchanged; ordinary production source is not edited.
+
+Receipts bind all 73 selected source/configuration inputs, 388 compiled native class inputs, two cached dependency JARs, the route patch, generated proof classes and original logs. The host uses org.json 20180813 rather than the Android platform parser. Disposable TLS private keys are removed even after a failed run. The original harness compilation error is retained separately.
+
+This proof adds host owner fault evidence. Protected signing, ordinary guest/Expo composition, public DNS policy, Android UI delivery, physical lifecycle/backpressure and complete cross-platform acceptance remain open. No physical matrix row closes, production app is rebuilt or installed, or numeric external quality gate passes because of it.

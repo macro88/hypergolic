@@ -2810,3 +2810,23 @@ Local Doctor442/zero findings/skips/score off and source-only aislop435/zero
 findings/97 unsupported/audit off retain their limits. Full quality and physical/
 published/fault/security/sign-off remain. Matrix7/61 complete/54 open, no Phase2
 closure, Phase3 advance or source push. See the native ACK checkpoint in Outbox docs.
+
+
+## Android compiled Outbox owner fault proof — 11 October 2026
+
+Twenty actual compiled Android owner receipt cases and one controlled concurrent
+capacity/replay/recovery case pass with independent exact EVENT observations.
+Pre-send approval/job cancellation emits zero; post-send cancellation emits one
+and stays unknown. Silent timeout3,090ms/keepalive deadline10,008ms are host
+measurements. Four active pairs block a fifth before transport; its replay is
+denied, and a fresh target succeeds after release. All native slots/deadline tasks
+return idle.73 source/config inputs,388 compiled classes/two cached JARs and
+isolated route/proof outputs are sealed. Original harness compile failure stays.
+
+Host monotonic clock/initialization and single-wrapper loopback route adapters
+are explicit. Production source, retained Android APK and iPhone132-file seal
+remain unchanged. No new package/install/device input/external publication/source
+push. Local Doctor442/zero diagnostics/skips/score off and source-only aislop435/
+zero issues/97 unsupported/audit off retain their limited scope. Android absent;
+paired iPhone requires recent unlock. No physical row or full quality/fault/sign-off
+closes: matrix7/61 complete/54 open. See the Android owner checkpoint in Outbox docs.
