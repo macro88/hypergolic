@@ -8,6 +8,36 @@ public final class PlanProof {
   private static int assertions;
   private static void check(boolean value) { assertions++; if (!value) throw new AssertionError("Plan assertion " + assertions); }
   private static void denied(Runnable work) { assertions++; try { work.run(); } catch (Exception expected) { return; } throw new AssertionError("Expected denial"); }
+  private static String ackWire(String id, boolean accepted, String reason) {
+    return new org.json.JSONArray().put("OK").put(id).put(accepted).put(reason).toString();
+  }
+  private static void deniedAck(String id, String wire) {
+    OutboxAcknowledgement ack = new OutboxAcknowledgement(id);
+    denied(() -> { try { ack.classify(wire); } catch (Exception error) { throw new IllegalArgumentException(error); } });
+    check(ack.getResult() == null);
+  }
+  private static void acknowledgementBounds(String id) throws Exception {
+    for (String reason : new String[] {"", "x".repeat(4096), "😀".repeat(1024)}) {
+      OutboxAcknowledgement ack = new OutboxAcknowledgement(id);
+      check(ack.classify(ackWire(id, false, reason)) == PublishedRelayWssQuery.TextKind.EOSE);
+      check(!ack.getResult().getAccepted()); check(ack.getResult().getReason().equals(reason));
+    }
+    deniedAck(id, ackWire(id, true, "x".repeat(4097)));
+    deniedAck(id, ackWire(id, true, "😀".repeat(1025)));
+    deniedAck(id, new org.json.JSONArray().put("OK").put(id).put(true).toString());
+    deniedAck(id, new org.json.JSONArray().put("OK").put(id).put(true).put("stored").put("extra").toString());
+    deniedAck(id, new org.json.JSONArray().put("OK").put(id).put(true).put(JSONObject.NULL).toString());
+    deniedAck(id, "[".repeat(13) + "0" + "]".repeat(13));
+    String valid = ackWire(id, true, "stored");
+    String exact = " ".repeat(2 * 1024 * 1024 - valid.getBytes(java.nio.charset.StandardCharsets.UTF_8).length) + valid;
+    OutboxAcknowledgement maximum = new OutboxAcknowledgement(id);
+    check(maximum.classify(exact) == PublishedRelayWssQuery.TextKind.EOSE); check(maximum.getResult().getAccepted());
+    deniedAck(id, " " + exact);
+    deniedAck(id, valid + " trailing data");
+    deniedAck(id, valid + "\u0000");
+    deniedAck(id, valid + "\u0000 trailing data");
+    deniedAck(id, valid + ackWire(id, false, "second response"));
+  }
   public static void main(String[] args) throws Exception {
     JSONObject fixture = new JSONObject(Files.readString(Path.of(args[0])));
     String snapshot = fixture.getString("snapshot"), raw = fixture.getJSONObject("plan").toString();
@@ -61,6 +91,7 @@ public final class PlanProof {
     ack.classify("[\"OK\",\""+id+"\",false,\"later contradictory response\"]"); check(ack.getResult().getAccepted());
     OutboxAcknowledgement rejected = new OutboxAcknowledgement(id);
     rejected.classify("[\"OK\",\""+id+"\",false,\"blocked\"]"); check(!rejected.getResult().getAccepted()); check(rejected.getResult().getReason().equals("blocked"));
+    acknowledgementBounds(id);
     System.out.println("{\"status\":\"passed\",\"assertions\":" + assertions + ",\"scope\":\"native plan only\"}");
   }
 }

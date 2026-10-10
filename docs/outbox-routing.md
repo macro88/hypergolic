@@ -47,3 +47,46 @@ verified. Feed Lab's JSON editors now preserve typed routing keys on that device
 previous saved bytes retain their original pin. See the [current checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md#feed-lab-json-input-and-physical-outbox-routing--10-october-2026).
 Full all-required success, controlled transport/effect counters, lifecycle/cache,
 iPhone and signed published acceptance remain open.
+
+
+## Native acknowledgement frame boundary — 11 October 2026
+
+The selected [NIP-01 revision](https://github.com/nostr-protocol/nips/blob/0046368a747c5c25ae2bec28bae0e537744c8f10/01.md)
+requires a relay acknowledgement to be one JSON array with event ID, Boolean and
+reason. The new host regression reproduces an Android defect: JSONArray(text)
+accepts the first array and ignores trailing text. The Android classifier now
+uses the same JSONTokener through array parsing and checks for end of input before
+capturing a receipt; raw NUL cannot masquerade as the tokenizer's end sentinel.
+No fields, routing policy, permissions or approval rules change.
+
+Actual compiled native core checks pass: 69 Android assertions and 83 Swift
+assertions. New cases cover exact 4,096-byte ASCII/multibyte reasons and overflow,
+empty reason, malformed field counts/types, excessive depth, exact 2 MiB and one
+byte over, trailing data/NUL and concatenated replies. Existing checks retain the
+first exact ACK even after a later contradictory or invalid response. Android
+runs on the host JVM with the documented org.json dependency; Swift runs with
+Foundation on macOS. Platform parser and physical-device parity remain required.
+
+All 24 controlled host TLS writer/classifier cases pass. All 13 actual Swift
+publication-owner cases pass through its existing proof-only route: malformed
+post-send ACKs return unknown, exact valid ACKs retain accepted/rejected, and
+revocation before emission returns cancelled-before-send with zero EVENT frames
+at the independent receiver. Every other receiver observes exactly the public
+signed fixture EVENT. Disposable TLS keys are deleted. These proofs do not cover
+protected signing, guest/Expo admission, public DNS or physical input. This is
+selected fault coverage, not exhaustive JSON grammar or complete OB-05/06.
+
+Shared Outbox102, security353 and bootstrap13 tests, TypeScript, Expo Android
+prebuild and signed ordinary ARM64 assembly pass. Only classes4.dex changes;
+all 20,565 packaged class definition names/order, 21 native libraries, the three
+other DEX files, 96 assets, 85 original notices, JavaScript and trusted host remain
+verified. Stable Hypergolic ID/label/certificate/permissions remain unchanged.
+All 1,448 source inputs stay stable during build and generated packaging restores.
+APK SHA-256 is 7f0227c9b948d5c9b72e3947c2aeb29131f16860c696e926f60f96d1a1127db7.
+The retained iPhone132-file product stays unchanged; no iOS rebuild or installation.
+
+Local Doctor has zero findings across442 files/no skips, with remote scoring off.
+Source-only aislop has zero findings across435 supported/97 unsupported files with
+online audit off. Full numeric quality, complete faults, physical/published/native
+signing and final matrix acceptance remain open:7/61 complete and54 open. Original
+Android pre-fix failure and the first new Swift-test compile error are retained.

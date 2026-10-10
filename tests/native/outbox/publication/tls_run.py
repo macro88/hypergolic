@@ -50,8 +50,14 @@ def serve(listener,key,cert,mode,fixture,trace,errors):
    elif mode=='wrong-id':ack=['OK','0'*64,True,'foreign']
    elif mode=='auth-required':ack=['AUTH','temporary-proof-challenge']
    else:ack=['OK',event_id,mode!='rejected','blocked' if mode=='rejected' else 'stored']
-   peer.sendall(frame(json.dumps(['NOTICE','ordinary'],separators=(',',':')))+frame(json.dumps(ack,separators=(',',':'))))
-   trace.append({'phase':'ack','value':ack})
+   if mode=='oversized-reason':ack=['OK',event_id,True,'x'*4097]
+   elif mode=='multibyte-overflow':ack=['OK',event_id,True,'😀'*1025]
+   ack_wire=json.dumps(ack,separators=(',',':'),ensure_ascii=False)
+   if mode=='trailing-data':ack_wire+=' trailing data'
+   elif mode=='trailing-nul':ack_wire+='\0 trailing data'
+   elif mode=='concatenated':ack_wire+=json.dumps(['OK',event_id,False,'second response'],separators=(',',':'))
+   peer.sendall(frame(json.dumps(['NOTICE','ordinary'],separators=(',',':')))+frame(ack_wire))
+   trace.append({'phase':'ack','value':ack,'wire':ack_wire,'wireBytes':len(ack_wire.encode()),'wireSha256':hashlib.sha256(ack_wire.encode()).hexdigest()})
  except Exception as error:errors.append(str(error))
  finally:listener.close()
 def main():
@@ -68,7 +74,7 @@ def main():
   run(['javac','-Xlint:all','-Werror','-cp',cp,'-d',str(out/'classes'),str(HERE/'TLSProof.java'),str(ROOT/'tests/native/android-published-https/PublishedHttpsTlsProof.java')],out,'android-proof-compile')
   binary=out/'ios-proof';run(['xcrun','swiftc','-swift-version','6','-D','HYPERGOLIC_NETWORK_PROOF','-warnings-as-errors','-parse-as-library',*(str(core.IOS/n) for n in core.I_NAMES),str(HERE/'TLSProof.swift'),'-o',str(binary)],out,'ios-proof-compile')
   for platform in ['android','ios']:
-   for mode in ['accepted','accepted-close','rejected','missing','wrong-id','malformed','revoke-before-send']:
+   for mode in ['accepted','accepted-close','rejected','missing','wrong-id','malformed','revoke-before-send','trailing-data','trailing-nul','concatenated','oversized-reason','multibyte-overflow']:
     listener=socket.socket();listener.bind(('127.0.0.1',0));listener.listen(1);port=listener.getsockname()[1];trace=[];errors=[]
     thread=threading.Thread(target=serve,args=(listener,key,cert,mode,fixture,trace,errors),daemon=True);thread.start()
     command=['java','-cp',cp,'org.nostrocket.hypergolic.host.TLSProof',str(port),str(cert),str(p12),mode,str(HERE/'fixtures.json')] if platform=='android' else [str(binary),str(port),str(der),mode,str(HERE/'fixtures.json')]

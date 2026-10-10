@@ -9,6 +9,32 @@ enum CapabilityTransport { static let leases = CapabilityLeaseRegistry() }
   static func check(_ value: Bool) { assertions += 1; precondition(value, "Plan assertion \(assertions)") }
   static func denied(_ work: () throws -> Void) { assertions += 1; do { try work() } catch { return }; preconditionFailure("Expected denial") }
   static func wire(_ value: Any) throws -> String { String(decoding: try JSONSerialization.data(withJSONObject: value), as: UTF8.self) }
+  static func deniedAck(_ id: String, _ text: String) {
+    let ack = OutboxAcknowledgement(id)
+    denied { _ = try ack.classify(text) }; check(ack.result == nil)
+  }
+  static func acknowledgementBounds(_ id: String) throws {
+    for reason in ["", String(repeating: "x", count: 4096), String(repeating: "😀", count: 1024)] {
+      let ack = OutboxAcknowledgement(id)
+      check(try ack.classify(wire(["OK", id, false, reason])) == .eose)
+      check(ack.result?.accepted == false); check(ack.result?.reason == reason)
+    }
+    deniedAck(id, try wire(["OK", id, true, String(repeating: "x", count: 4097)]))
+    deniedAck(id, try wire(["OK", id, true, String(repeating: "😀", count: 1025)]))
+    deniedAck(id, try wire(["OK", id, true]))
+    deniedAck(id, try wire(["OK", id, true, "stored", "extra"]))
+    deniedAck(id, try wire(["OK", id, true, NSNull()]))
+    deniedAck(id, String(repeating: "[", count: 13) + "0" + String(repeating: "]", count: 13))
+    let valid = try wire(["OK", id, true, "stored"])
+    let exact = String(repeating: " ", count: 2 * 1024 * 1024 - valid.utf8.count) + valid
+    let maximum = OutboxAcknowledgement(id)
+    check(try maximum.classify(exact) == .eose); check(maximum.result?.accepted == true)
+    deniedAck(id, " " + exact)
+    deniedAck(id, valid + " trailing data")
+    deniedAck(id, valid + "\u{0}")
+    deniedAck(id, valid + "\u{0} trailing data")
+    deniedAck(id, valid + (try wire(["OK", id, false, "second response"])))
+  }
   static func main() throws {
     let data = try Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[1]))
     let fixture = try JSONSerialization.jsonObject(with: data) as! [String: Any]
@@ -74,6 +100,7 @@ enum CapabilityTransport { static let leases = CapabilityLeaseRegistry() }
     let rejected = OutboxAcknowledgement(send.eventId)
     _ = try rejected.classify("[\"OK\",\"\(send.eventId)\",false,\"blocked\"]")
     check(rejected.result?.accepted == false); check(rejected.result?.reason == "blocked")
+    try acknowledgementBounds(send.eventId)
     print("{\"status\":\"passed\",\"assertions\":\(assertions),\"scope\":\"native plan and approval core only\"}")
   }
 }

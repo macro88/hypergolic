@@ -850,3 +850,24 @@ separate from the 144 selected release runtime artifacts.
 The native host packages the original R8 BSD text in `assets/compiler-notices/`.
 Its original hash, Git blob identity and exact file set are checked before packaging.
 See [compiler/source and helper evidence](native-dependency-notices.md#android-d8-compiler-and-generated-helper-review--11-october-2026).
+
+
+## Native Outbox acknowledgement regressions
+
+After sourcing the local Android and iOS tool environments, use fresh external
+output directories to retain original failures and receipts:
+
+```sh
+python3 tests/native/outbox/publication/run.py --output <fresh-core-directory>
+python3 tests/native/outbox/publication/tls_run.py --output <fresh-tls-directory>
+python3 tests/native/outbox/publication/owning_tls_run.py --output <fresh-owner-directory>
+```
+
+The first compiles actual native core sources and checks ACK size/depth/type/EOF
+boundaries alongside approval/plan rules. The latter two use the existing bounded
+loopback TLS proof paths and an independent exact-frame receiver; disposable TLS
+private keys are deleted. The owning suite exercises the actual Swift publication
+owner's receipt outcomes. These host proofs do not replace actual Android platform
+JSON, protected signing, owning Expo/guest or physical-device acceptance. See the
+[native proof README](../tests/native/outbox/publication/README.md) for the detailed
+scope; valid local reports do not close full numeric external quality gates.

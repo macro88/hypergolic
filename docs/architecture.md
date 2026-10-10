@@ -490,3 +490,11 @@ app-owned runtime inventory. The compiler is a build input, not another runtime
 Maven component. Exact generated naming/context and RecordTag instruction review
 remain distinct from full generated-code and distribution acceptance; see
 [the compiler review](native-dependency-notices.md#android-d8-compiler-and-generated-helper-review--11-october-2026).
+
+
+Android native Outbox acknowledgement capture rejects trailing payload data and
+raw NUL after checking the bounded response. The same tokenizer must reach the
+end before a valid ACK can become a receipt; a malformed post-send reply remains
+unknown. Existing event correlation, Boolean/reason bounds and first-ACK retention
+remain. The expanded owning native host proofs and physical limits are recorded
+in the [frame-boundary checkpoint](outbox-routing.md#native-acknowledgement-frame-boundary--11-october-2026).

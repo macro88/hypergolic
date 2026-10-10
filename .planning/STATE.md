@@ -2787,3 +2787,26 @@ seal stays unchanged. No installation, iOS rebuild, source push or full row clos
 Complete attribution, full quality and physical/published/fault/security/sign-off
 remain required. Matrix7/61 complete/54 open; no Phase2 completion or Phase3 advance.
 See [the NDK review](../docs/native-dependency-notices.md#android-system-and-clang-header-originals--11-october-2026).
+
+
+## Native Outbox ACK trailing payload repair — 11 October 2026
+
+Expanded actual native regressions reproduce Android accepting a valid-looking
+ACK followed by extra data. Its parser now retains one JSONTokener through array
+parsing and requires end of input; raw NUL cannot act as an EOF sentinel. All69
+Android/83 Swift core assertions, 24 controlled TLS writer/classifier cases and13
+actual Swift publication-owner cases pass. Independent receiver observes exact
+EVENT bytes; malformed post-send replies remain unknown and pre-send revocation
+emits zero frames. Original Android failure and new Swift-test compilation error
+are preserved. Host JVM uses its documented org.json test dependency; actual
+Android platform parser/phone/guest/protected-signing and full grammar remain open.
+
+Shared Outbox102/security353/bootstrap13, TypeScript, Android Expo prebuild and
+ordinary signed ARM64 assembly pass. Only classes4.dex changes; all20,565 class
+names/order,21 ELF/three other DEX/96 assets/85 originals/JS and stableID/cert/
+permissions remain. Generated packaging restores;1,448 build inputs stay exact.
+iPhone132-file ready seal remains unchanged; no iOS rebuild or installation.
+Local Doctor442/zero findings/skips/score off and source-only aislop435/zero
+findings/97 unsupported/audit off retain their limits. Full quality and physical/
+published/fault/security/sign-off remain. Matrix7/61 complete/54 open, no Phase2
+closure, Phase3 advance or source push. See the native ACK checkpoint in Outbox docs.

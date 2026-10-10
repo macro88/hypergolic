@@ -7,7 +7,7 @@ The runner compiles the actual Android module and exercises its immutable Kotlin
 Coverage includes event/identity/hash mutation, reviewed targets, one-use primary/ancillary relay pairs, signature consistency across targets, denied unprepared review, replay, and native background/revocation before frame emission. Receipts seal source and logs. This is native core and compilation evidence, not a device journey, public DNS/TLS publication or protected signing acceptance.
 
 
-The companion `tls_run.py --output <fresh-external-directory>` uses disposable loopback TLS endpoints through the existing host-only policy seams. Both actual native plan/approval gates and WSS EVENT writers are exercised, with exact public signed fixture bytes independently checked by the relay. Seven cases per platform cover accepted/rejected ACKs, accepted followed by closure, no ACK, foreign ID, malformed boolean and revocation at final emission. This does not prove public DNS, guest admission, Android protected signing or physical-iPhone signing. Private TLS keys are deleted after the run.
+The companion `tls_run.py --output <fresh-external-directory>` uses disposable loopback TLS endpoints through the existing host-only policy seams. Both actual native plan/approval gates and WSS EVENT writers are exercised, with exact public signed fixture bytes independently checked by the relay. Twelve cases per platform cover accepted/rejected ACKs, accepted followed by closure, no ACK, foreign ID, malformed boolean, revocation at final emission, trailing data/NUL, concatenated messages and ASCII/multibyte reason overflow. This does not prove public DNS, guest admission, Android protected signing or physical-iPhone signing. Private TLS keys are deleted after the run.
 
 The existing native WSS writers allow an 8192-byte text frame. Shared request capture and both native review captures enforce the complete signed EVENT size before review/signing, including signature overhead, UTF-8 and escaping. An oversized existing relay list blocks review rather than being silently omitted.
 
@@ -15,8 +15,8 @@ The existing native WSS writers allow an 8192-byte text frame. Shared request ca
 
 `owning_tls_run.py --output <fresh-external-directory>` exercises the actual Swift
 publication owner through the same approval registry, final send gate, receipt
-classifier and WSS writer. Eight controlled host cases add an AUTH challenge to
-the seven cases above. The independent receiver checks the exact EVENT and records
+classifier and WSS writer. Thirteen controlled host cases add an AUTH challenge to
+the twelve cases above. The independent receiver checks the exact EVENT and records
 zero EVENT frames for revocation immediately before send.
 
 The `HYPERGOLIC_NETWORK_PROOF` compilation condition enables only the test route,
@@ -25,3 +25,15 @@ condition and retain the public relay policy. This test uses an already signed
 public fixture; it does not exercise protected signing, guest admission, Expo
 composition, physical devices or public DNS. Physical owner evidence is recorded
 separately in the Phase 2.11 checkpoint.
+
+
+The native core proof checks 4,096-byte reasons with ASCII and four-byte Unicode,
+empty rejection reasons, missing/extra/null fields, depth thirteen, the exact
+2 MiB envelope boundary and an over-limit byte, trailing text/NUL and concatenated
+messages. Android uses the compiled module on the host JVM with the documented
+org.json test dependency; Swift uses Foundation on macOS. These are host proofs,
+not actual Android platform-parser or physical-device parity. Android's original
+trailing-text failure is retained before its end-of-message correction. The parser
+rejects raw NUL rather than confusing it with JSONTokener's end sentinel. Valid
+first ACKs still survive later bad/contradictory responses. This is selected fault
+coverage, not exhaustive strict-JSON or complete native fault acceptance.

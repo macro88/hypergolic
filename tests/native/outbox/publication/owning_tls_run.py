@@ -4,7 +4,7 @@ import argparse,hashlib,importlib.util,json,socket,subprocess,threading
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[3]
 spec=importlib.util.spec_from_file_location('tls_core',HERE/'tls_run.py');tls=importlib.util.module_from_spec(spec);spec.loader.exec_module(tls)
-MODES=['accepted','accepted-close','rejected','missing','wrong-id','malformed','auth-required','revoke-before-send']
+MODES=['accepted','accepted-close','rejected','missing','wrong-id','malformed','auth-required','revoke-before-send','trailing-data','trailing-nul','concatenated','oversized-reason','multibyte-overflow']
 def inputs():
  files=[*(tls.core.IOS/n for n in tls.core.I_NAMES),HERE/'fixtures.json',HERE/'OwnerTLSProof.swift',HERE/'tls_run.py',HERE/'run.py',Path(__file__)]
  return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
