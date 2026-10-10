@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
     plugins: [nip5aManifest({
       nappletType: 'approval-lab',
       title: 'Approval Lab',
-      description: 'Explicit note and profile approval test fixture.',
+      description: 'Explicit note, profile and relay-list approval test fixture.',
       artifactMode: 'single-file',
       requires: { infer: false, explicit: ['identity', 'relay'] },
     })],

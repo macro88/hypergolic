@@ -1,5 +1,7 @@
 import Foundation
 import CoreFoundation
+
+#if canImport(UIKit)
 import UIKit
 
 /// Native notifications revoke authority synchronously, before React Native lifecycle delivery.
@@ -15,6 +17,8 @@ final class CapabilityLifecycle: @unchecked Sendable {
   }
   deinit { for observer in observers { NotificationCenter.default.removeObserver(observer) } }
 }
+
+#endif
 
 /// React Native owns this immutable configuration. Requests cannot supply namespace fields.
 struct CapabilityConfiguration {
@@ -51,7 +55,7 @@ struct CapabilityConfiguration {
     switch fixture {
     case "ux-lab": expected = ["theme"]
     case "state-lab", "state-lab-peer": expected = ["identity", "storage", "theme"]
-    case "approval-lab", "approval-lab-v1": expected = ["identity", "relay", "theme"]
+    case "approval-lab", "approval-lab-v1", "approval-lab-v2": expected = ["identity", "relay", "theme"]
     case "upload-lab", "upload-queue-lab": expected = ["upload", "theme"]
     case "resource-lab": expected = ["resource", "link", "theme"]
     case "nap-support": expected = ["link", "theme"]
@@ -102,6 +106,8 @@ struct CapabilityConfiguration {
 @MainActor
 enum CapabilityTransport {
   nonisolated static let leases = CapabilityLeaseRegistry()
+  // UIKit lifecycle and app-owned services are exercised by native app tests.
+  #if canImport(UIKit)
   nonisolated static let lifecycle = CapabilityLifecycle()
   nonisolated static func foreground(_ value: Bool) {
     RoutingTransport.shared.foreground(value)
@@ -147,4 +153,5 @@ enum CapabilityTransport {
       pending.removeValue(forKey: token)?.reply(nil)
     }
   }
+  #endif
 }

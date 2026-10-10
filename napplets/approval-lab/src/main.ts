@@ -9,6 +9,8 @@ const controls = element<HTMLFieldSetElement>('controls');
 const contentInput = element<HTMLTextAreaElement>('content');
 const noteKind = element<HTMLInputElement>('kind-note');
 const profileKind = element<HTMLInputElement>('kind-profile');
+const relayListKind = element<HTMLInputElement>('kind-relay-list');
+const relayTags = element<HTMLTextAreaElement>('relay-list-tags');
 const results = element<HTMLOListElement>('results');
 const send = element<HTMLButtonElement>('send');
 const sendThree = element<HTMLButtonElement>('send-three');
@@ -44,12 +46,17 @@ function activeCount(): number {
   return [...requests.values()].filter(active).length;
 }
 
+function relayListPending(): boolean {
+  return [...requests.values()].some((request) => active(request) && request.event.kind === 10002);
+}
+
 function updateControls(): void {
   const remaining = LIMIT - activeCount();
   controls.disabled = disposed || !publicKey;
-  send.disabled = remaining < 1;
-  sendDelayed.disabled = remaining < 1;
-  sendThree.disabled = remaining < 3;
+  const listPending = relayListKind.checked && relayListPending();
+  send.disabled = remaining < 1 || listPending;
+  sendDelayed.disabled = remaining < 1 || listPending;
+  sendThree.disabled = remaining < 3 || relayListKind.checked;
   clear.disabled = ![...requests.values()].some((request) => !active(request));
   element('pending').textContent = String(activeCount());
   element('requests').textContent = String(createdCount);
@@ -84,10 +91,11 @@ function makeRow(sequence: number, event: EventTemplate): HTMLLIElement {
   head.append(correlation, state);
   const kind = document.createElement('p');
   kind.className = 'request-kind meta';
-  kind.textContent = event.kind === 0 ? 'Profile metadata (kind 0)' : 'Note (kind 1)';
+  kind.textContent = event.kind === 10002 ? 'Relay list (kind 10002)'
+    : event.kind === 0 ? 'Profile metadata (kind 0)' : 'Note (kind 1)';
   const body = document.createElement('code');
   body.className = 'request-content';
-  body.textContent = event.content;
+  body.textContent = event.kind === 10002 ? JSON.stringify(event.tags, null, 2) : event.content;
   const eventId = document.createElement('output');
   eventId.className = 'event-id';
   row.append(head, kind, body, eventId);
@@ -95,19 +103,53 @@ function makeRow(sequence: number, event: EventTemplate): HTMLLIElement {
   return row;
 }
 
+// Format guidance only. Native destination, identity and approval policy remain authoritative.
+type RelayTagsCapture = { ok: true; tags: string[][] } | { ok: false; error: string };
+function captureRelayTags(): RelayTagsCapture {
+  try {
+    const input: unknown = JSON.parse(relayTags.value);
+    if (!Array.isArray(input) || input.length > 16) throw new Error();
+    const tags: string[][] = [];
+    for (const tag of input) {
+      if (!Array.isArray(tag) || (tag.length !== 2 && tag.length !== 3) ||
+          tag[0] !== 'r' || typeof tag[1] !== 'string' ||
+          tag[1].length > 2048 || /[\u0000-\u0020\u007f]/.test(tag[1]) ||
+          (tag.length === 3 && tag[2] !== 'read' && tag[2] !== 'write')) throw new Error();
+      const url = new URL(tag[1]);
+      if (url.protocol !== 'wss:' || url.username || url.password || url.search || url.hash) throw new Error();
+      tags.push([...tag]);
+    }
+    return { ok: true, tags };
+  } catch {
+    return { ok: false, error: 'Enter a JSON array of up to 16 r tags. Each needs a wss relay URL and, optionally, read or write.' };
+  }
+}
+
 function createRequest(state: 'scheduled' | 'sending'): Request | null {
   if (disposed || !publicKey || activeCount() >= LIMIT) return null;
+  const relayList = relayListKind.checked;
+  if (relayList && relayListPending()) return null;
+  const capture: RelayTagsCapture = relayList ? captureRelayTags() : { ok: true, tags: [] };
+  if (!capture.ok) {
+    element('relay-list-error').textContent = capture.error;
+    relayTags.setAttribute('aria-invalid', 'true');
+    relayTags.focus();
+    return null;
+  }
+  element('relay-list-error').textContent = '';
+  relayTags.removeAttribute('aria-invalid');
   const sequence = nextSequence++;
   const tags: string[][] = [
+    ...capture.tags,
     ['t', 'hypergolic-approval-lab'],
     ['test-sequence', String(sequence)],
   ];
   tags.forEach(Object.freeze);
   Object.freeze(tags);
-  const kind = profileKind.checked ? 0 : 1;
+  const kind = relayList ? 10002 : profileKind.checked ? 0 : 1;
   const event = Object.freeze({
     kind,
-    content: kind === 0 ? JSON.stringify({ about: contentInput.value }) : contentInput.value,
+    content: kind === 10002 ? '' : kind === 0 ? JSON.stringify({ about: contentInput.value }) : contentInput.value,
     tags,
     created_at: Math.floor(Date.now() / 1_000),
   }) as EventTemplate;
@@ -169,7 +211,7 @@ function submitOne(): void {
 }
 
 function submitThree(): void {
-  if (LIMIT - activeCount() < 3) return;
+  if (relayListKind.checked || LIMIT - activeCount() < 3) return;
   for (let index = 0; index < 3; index++) {
     const request = createRequest('sending');
     if (request) issue(request);
@@ -240,14 +282,24 @@ function connectIdentity(): void {
 
 function updateEventType(): void {
   const profile = profileKind.checked;
+  const relayList = relayListKind.checked;
+  element('content-editor').hidden = relayList;
+  element('relay-list-editor').hidden = !relayList;
+  element('relay-list-warning').hidden = !relayList;
   element('content-label').textContent = profile ? 'Profile bio' : 'Note content';
   element('profile-warning').hidden = !profile;
-  send.textContent = profile ? 'Send profile metadata' : 'Send note';
-  sendThree.textContent = profile ? 'Send 3 profile updates' : 'Send 3 notes';
+  send.textContent = relayList ? 'Send relay list' : profile ? 'Send profile metadata' : 'Send note';
+  sendThree.textContent = relayList ? 'Send one relay list at a time' : profile ? 'Send 3 profile updates' : 'Send 3 notes';
+  updateControls();
 }
 
 noteKind.addEventListener('change', updateEventType);
 profileKind.addEventListener('change', updateEventType);
+relayListKind.addEventListener('change', updateEventType);
+relayTags.addEventListener('input', () => {
+  element('relay-list-error').textContent = '';
+  relayTags.removeAttribute('aria-invalid');
+});
 send.addEventListener('click', submitOne);
 sendThree.addEventListener('click', submitThree);
 sendDelayed.addEventListener('click', submitDelayed);

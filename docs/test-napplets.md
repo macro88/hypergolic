@@ -270,3 +270,27 @@ Set the caller's peer field to `routing-lab-peer` for a bundled channel pair.
 This registers no verified intent handler and publishes no artifact; the release
 builder still derives its existing signed peer. See [intent/INC](intent-inc.md)
 for the nineteen-check physical iPhone scope and remaining acceptance.
+
+
+## Bundled Approval Lab relay-list preparation — 10 October 2026
+
+The newest Approval Lab adds an explicit kind-10002 editor through the genuine
+SDK publication override. It freezes exact read/write tags, uses empty content,
+disables batching and permits one pending list request. This prepares real
+development-identity metadata for the remaining physical Outbox journeys; it is
+not an automatic list creator, a cache fixture or a routing acceptance result.
+Both older exact artifacts remain available only to saved views. See
+[the approval contract and retained-version rules](signing-approval.md#approval-lab-relay-list-fixture--10-october-2026).
+
+The standalone suite has60 passing Chromium/WebKit tests with an explicit SDK
+mock. The integrated runtime has270 passing browser tests, including the exact
+unsigned kind-10002 template through the installed SDK and native transport double.
+Neither proves native approval, relay acceptance or physical-device behavior.
+
+A same-ID/certificate Android Release update now passes the scoped physical
+relay-list rejection/approval tracer, with exact native/SDK accessibility records
+and an independently verified signed stored event on one public relay. The test
+restores the original identity and empty workspace and leaves no temporary app.
+Complete event-pixel usability, signer counters, Outbox fanout/required inboxes
+and the corresponding iPhone journey remain open. The signed iPhone package is
+ready locally; packaging does not establish physical execution.

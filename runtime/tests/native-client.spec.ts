@@ -126,7 +126,7 @@ test('the peer fixture uses its distinct verified app identity', async ({page}) 
   expect(result.title).toContain('Peer');
 });
 
-for (const fixture of ['approval-lab', 'approval-lab-v1']) test(`Approval Lab ${fixture} admits only the unsigned publish template through the native override`, async ({page}) => {
+for (const fixture of ['approval-lab', 'approval-lab-v1', 'approval-lab-v2']) test(`Approval Lab ${fixture} admits only the unsigned publish template through the native override`, async ({page}) => {
   const frame = await open(page, fixture);
   const ui = page.frameLocator('#napplet');
   await ui.locator('#content').fill('approved note');
@@ -180,4 +180,22 @@ test('new Approval Lab profile metadata crosses the bounded native override with
   expect(requests[0].request.event).toEqual({kind: 0, content: JSON.stringify({about: 'QA bio "quoted" \n <script>text only</script>'}),
     tags: [['t', 'hypergolic-approval-lab'], ['test-sequence', '1']], created_at: expect.any(Number)});
   expect(Object.keys(requests[0].request.event).sort()).toEqual(['content', 'created_at', 'kind', 'tags']);
+});
+
+
+test('Approval Lab relay-list metadata crosses the genuine SDK native override with exact unsigned NIP-65 fields', async ({page}) => {
+  await open(page, 'approval-lab');
+  const ui = page.frameLocator('#napplet');
+  const relays = [['r', 'wss://read.example.test/', 'read'], ['r', 'wss://write.example.test/', 'write'], ['r', 'wss://both.example.test/']];
+  await ui.locator('#kind-relay-list').check();
+  await expect(ui.locator('#relay-list-warning')).toBeVisible();
+  await ui.locator('#relay-list-tags').fill(JSON.stringify(relays));
+  await ui.locator('#send').click();
+  await expect(ui.locator('#status')).toHaveText('Request 1 published.');
+  const requests = await page.evaluate(() => (window as any).nativeTest.requests.filter((entry:any) => entry.request.type === 'relay.publish'));
+  expect(requests).toHaveLength(1);
+  expect(requests[0].request.event).toEqual({kind: 10002, content: '',
+    tags: [...relays, ['t', 'hypergolic-approval-lab'], ['test-sequence', '1']], created_at: expect.any(Number)});
+  expect(Object.keys(requests[0].request.event).sort()).toEqual(['content', 'created_at', 'kind', 'tags']);
+  expect(requests[0].envelope.sessionId).toBe('native-client-test');
 });

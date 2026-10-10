@@ -343,3 +343,105 @@ for (const width of [240, 320, 768]) {
     await expect(frame.locator('.request-content')).toHaveText('narrow screen content');
   });
 }
+
+test('relay list captures exact role tags with empty content and a separate development warning', async ({ page }, testInfo) => {
+  const frame = await mount(page);
+  await frame.getByTestId('content').fill('retained note draft');
+  await frame.getByTestId('kind-relay-list').check();
+  await expect(frame.getByTestId('relay-list-warning')).toContainText('replaces its advertised relay list');
+  await expect(frame.getByTestId('content')).toBeHidden();
+  await expect(frame.getByTestId('send-three')).toBeDisabled();
+  const tags = [['r', 'wss://relay.damus.io', 'write'], ['r', 'wss://nos.lol', 'read'], ['r', 'wss://purplepag.es']];
+  await frame.getByTestId('relay-list-tags').fill(JSON.stringify(tags));
+  await frame.getByTestId('send').click();
+  await expect(frame.locator('.request')).toHaveAttribute('data-state', 'published');
+  const [event] = await fixtureState<any[]>(frame, 'calls');
+  expect(event).toEqual({kind: 10002, content: '', tags: [...tags, ['t', 'hypergolic-approval-lab'], ['test-sequence', '1']], created_at: event.created_at});
+  expect(await fixtureState(frame, 'frozen')).toEqual([{ event: true, tags: true, entries: true }]);
+  await expect(frame.locator('.request-content')).toHaveText(JSON.stringify(event.tags, null, 2));
+  await page.screenshot({path: testInfo.outputPath('approval-lab-relay-list.png'), fullPage: true});
+  await frame.getByTestId('kind-note').check();
+  await expect(frame.getByTestId('content')).toHaveValue('retained note draft');
+  await expect(frame.getByTestId('send-three')).toBeEnabled();
+});
+
+test('delayed relay list retains captured destinations despite later editor and type changes', async ({ page }) => {
+  const frame = await mount(page, 'manualTimers');
+  await frame.getByTestId('kind-relay-list').check();
+  const tags = [['r', 'wss://nos.lol', 'read']];
+  await frame.getByTestId('relay-list-tags').fill(JSON.stringify(tags));
+  await frame.getByTestId('send-delayed').click();
+  await frame.getByTestId('relay-list-tags').fill('[]');
+  await frame.getByTestId('kind-note').check();
+  await frame.getByTestId('content').fill('later note');
+  expect(await fixtureState(frame, 'calls-length')).toBe(0);
+  await fixtureState(frame, 'run-timer');
+  await expect(frame.locator('.request')).toHaveAttribute('data-state', 'published');
+  const [event] = await fixtureState<any[]>(frame, 'calls');
+  expect(event.kind).toBe(10002);
+  expect(event.content).toBe('');
+  expect(event.tags).toEqual([...tags, ['t', 'hypergolic-approval-lab'], ['test-sequence', '1']]);
+});
+
+test('empty relay list is an explicit replaceable publication with no invented destinations', async ({ page }) => {
+  const frame = await mount(page);
+  await frame.getByTestId('kind-relay-list').check();
+  await frame.getByTestId('send').click();
+  await expect(frame.locator('.request')).toHaveAttribute('data-state', 'published');
+  const [event] = await fixtureState<any[]>(frame, 'calls');
+  expect(event.kind).toBe(10002);
+  expect(event.content).toBe('');
+  expect(event.tags.filter((tag: string[]) => tag[0] === 'r')).toEqual([]);
+});
+
+for (const [label, value] of [
+  ['malformed JSON', '{'],
+  ['wrong root', '{}'],
+  ['wrong tag', '[["p", "wss://nos.lol"]]'],
+  ['unknown role', '[["r", "wss://nos.lol", "both"]]'],
+  ['extra field', '[["r", "wss://nos.lol", "read", "extra"]]'],
+  ['insecure URL', '[["r", "ws://nos.lol"]]'],
+  ['credential URL', '[["r", "wss://user:password@nos.lol"]]'],
+  ['excessive tags', JSON.stringify(Array.from({length:17}, () => ['r', 'wss://nos.lol']))],
+]) {
+  test(`relay-list ${label} is corrected before any approval request or delayed timer`, async ({ page }) => {
+    const frame = await mount(page, 'manualTimers');
+    await frame.getByTestId('kind-relay-list').check();
+    await frame.getByTestId('relay-list-tags').fill(value);
+    await frame.getByTestId('send-delayed').click();
+    await expect(frame.getByTestId('relay-list-tags')).toHaveAttribute('aria-invalid', 'true');
+    await expect(frame.getByTestId('relay-list-error')).toContainText('Enter a JSON array');
+    await expect(frame.getByTestId('relay-list-tags')).toBeFocused();
+    expect(await fixtureState(frame, 'calls-length')).toBe(0);
+    expect(await fixtureState(frame, 'timer-summary')).toEqual({delays: [], cleared: []});
+    await expect(frame.getByTestId('requests')).toHaveText('0');
+    await frame.getByTestId('relay-list-tags').fill('[]');
+    await expect(frame.getByTestId('relay-list-tags')).not.toHaveAttribute('aria-invalid');
+    await frame.getByTestId('send').click();
+    await expect(frame.locator('.request')).toHaveAttribute('data-state', 'published');
+    const [event] = await fixtureState<any[]>(frame, 'calls');
+    expect(event.tags).toContainEqual(['test-sequence', '1']);
+  });
+}
+
+
+test('one pending relay list prevents another while ordinary note requests remain available', async ({ page }) => {
+  const frame = await mount(page);
+  await fixtureState(frame, 'set-defer');
+  await frame.getByTestId('kind-relay-list').check();
+  await frame.getByTestId('send').click();
+  await expect(frame.getByTestId('pending')).toHaveText('1');
+  await expect(frame.getByTestId('send')).toBeDisabled();
+  await expect(frame.getByTestId('send-delayed')).toBeDisabled();
+  await frame.getByTestId('kind-note').check();
+  await expect(frame.getByTestId('send')).toBeEnabled();
+  await frame.getByTestId('send').click();
+  await frame.getByTestId('kind-relay-list').check();
+  await expect(frame.getByTestId('send')).toBeDisabled();
+  expect((await fixtureState<any[]>(frame, 'calls')).map(event => event.kind)).toEqual([10002, 1]);
+  await fixtureState(frame, 'resolve-at', 0);
+  await expect(frame.locator('[data-sequence="1"]')).toHaveAttribute('data-state', 'published');
+  await expect(frame.getByTestId('send')).toBeEnabled();
+  await frame.getByTestId('send').click();
+  expect((await fixtureState<any[]>(frame, 'calls')).map(event => event.kind)).toEqual([10002, 1, 10002]);
+});

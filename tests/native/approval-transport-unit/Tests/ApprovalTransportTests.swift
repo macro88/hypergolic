@@ -274,6 +274,10 @@ private func waitForReplies(_ replies: Replies, count: Int) async {
     domains: ["identity", "relay", "theme"]), generation: "generation")
   #expect(archive.fixture == "approval-lab-v1")
   #expect(archive.approvalWireId("{\"type\":\"relay.publish\",\"id\":\"archived\",\"event\":{}}").wireId == "archived")
+  let archive2 = try CapabilityConfiguration(raw(fixture: "approval-lab-v2",
+    domains: ["identity", "relay", "theme"]), generation: "generation")
+  #expect(archive2.fixture == "approval-lab-v2")
+  #expect(archive2.approvalWireId("{\"type\":\"relay.publish\",\"id\":\"archive2\",\"event\":{}}").wireId == "archive2")
   for fixture in ["approval-lab-v1", "approval-lab-v2"] {
     #expect(throws: (any Error).self) {
       _ = try CapabilityConfiguration(raw(fixture: fixture, domains: ["identity", "theme"]), generation: "generation")
@@ -286,7 +290,7 @@ private func waitForReplies(_ replies: Replies, count: Int) async {
     }
   }
   #expect(throws: (any Error).self) {
-    _ = try CapabilityConfiguration(raw(fixture: "approval-lab-v2", domains: ["identity", "relay", "theme"]), generation: "generation")
+    _ = try CapabilityConfiguration(raw(fixture: "approval-lab-v3", domains: ["identity", "relay", "theme"]), generation: "generation")
   }
   let configuration = try CapabilityConfiguration(raw(fixture: "approval-lab",
     domains: ["identity", "relay", "theme"]), generation: "generation")

@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Corrected eight-case physical Android configuration identity isolation passes with independent original XML/hash review and both-scope/default/view cleanup. Signed iPhone repair ready but phone locked. Next Outbox relay-list fixture verified in isolation, not integrated. Seven of61 complete/54 open; usage19%, ceiling about98%; no source push.
+stopped_at: Relay-list fixture integrated and both signed packages pass; Android updated in place and original SDK rejection/approval plus exact signed retrieval on one public relay verified. Original identity/empty workspace restored and keeper-only cleanup verified. Outbox routing/fanout and iPhone remain open; seven of61 complete/54 open, usage20%, ceiling about98%, no source push.
 last_updated: "2026-10-10"
 last_activity: 2026-10-10
-state_head: 11978c84c8fe728d38d7d8ef68e716e0586d6e53
+state_head: d7ef80783663163da0208d2f23b475416de0e393
 progress:
   total_phases: 14
   completed_phases: 10

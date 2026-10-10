@@ -181,7 +181,7 @@ scoped physical evidence. Full SIGN rows remain partial pending all named native
 effect, interruption, other-kind, adversarial and cross-platform cases.
 
 
-## Approval Lab note/profile fixture
+## Approval Lab note/profile fixture — 8 October 2026
 
 The standalone fixture now selects a kind-1 note or kind-0 profile update, following
 the selected NIP-01 revision above. Profile content is JSON with the captured `about`
@@ -312,3 +312,40 @@ packaging/update/cold-entry/signing evidence and remains partial. Six of 61 full
 requirements are complete across both phones; 55 remain open. Next Android
 import/switch and broader native/capability/fault journeys; iPhone backup-panel
 closure/cancellation still needs owner confirmation. Usage 89%, ceiling about 98%.
+
+
+## Approval Lab relay-list fixture — 10 October 2026
+
+New bundled views also offer a kind-10002 relay-list request through the genuine
+SDK `relay.publish` override. The selected contract is
+[NIP-65 at revision 0046368](https://github.com/nostr-protocol/nips/blob/0046368a747c5c25ae2bec28bae0e537744c8f10/65.md):
+empty content, `r` tags with optional read/write markers, and both roles when the
+marker is omitted. The labelled JSON editor checks format and at most 16 entries;
+the shell still owns native destination policy, individual review, signing and
+delivery. Captured tags are immutable and displayed with each result. Only one
+relay-list request may remain pending; notes retain their ordinary four-request
+queue. Clearing all `r` entries is an explicit advertised-list replacement.
+
+This fixture creates no list automatically and modifies no Outbox cache. Use a
+development identity. Signed list publication, lookup freshness, required-inbox
+fanout, ancillary-list receipts and physical lifecycle acceptance require their
+own native evidence. Published Outbox admission remains withheld.
+
+Both retained artifacts, `approval-lab-v1` and `approval-lab-v2`, preserve their
+exact previous HTML, manifest and aggregate hashes for saved views. They retain
+only identity/relay/theme authority, cannot be opened as new views and cannot be
+selected or prepared for fixture release. Unknown versions remain refused.
+
+The macOS approval package links the actual production Outbox plan and bounded
+frame encoder alongside the approval core. UIKit lifecycle and application-service
+binding compile only on iOS; their physical behavior is outside this host suite.
+Original failed host builds are preserved rather than converted to passes.
+
+The ordinary physical Android tracer now rejects an empty relay-list request and
+individually approves a development read/write/both-role list through the original
+SDK. Fresh public reads verify its exact signed stored event on one relay. The
+app reports two of three acknowledgements; stored bytes on every destination are
+not inferred. Native JSON/hash and SDK result are preserved in accessibility
+records, while the inspected screenshots do not show their entire lower contents.
+The original identity and empty workspace are restored with the same keeper APK.
+This scoped proof does not close SIGN/native-effect, Outbox fanout or iPhone rows.

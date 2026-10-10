@@ -49,7 +49,7 @@ function exact(value: Record<string,unknown>, keys: readonly string[]): void {
 }
 function fixtureCatalog(fixture: string) {
   const id = fixture === 'routing-lab-peer' ? 'routing-lab' : fixture;
-  if(!Object.hasOwn(BUNDLED_FIXTURES,id) || id === 'nap-support' || id === 'approval-lab-v1')return deny();
+  if(!Object.hasOwn(BUNDLED_FIXTURES,id) || id === 'nap-support' || id === 'approval-lab-v1' || id === 'approval-lab-v2')return deny();
   return BUNDLED_FIXTURES[id as keyof typeof BUNDLED_FIXTURES];
 }
 /** Trusted shell tool: prepared bytes come only from the native sealed catalog, never a guest or picker. */

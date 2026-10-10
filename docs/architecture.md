@@ -352,3 +352,10 @@ remain exact one-use transfers without redirects. See [upload access](upload-acc
 
 
 Native iOS backup handoff: successful LocalAuthentication must also regain active UIKit presentation before any backup-secret read. The backup adapter waits at most five seconds while rechecking the same native attempt, cancellation, background and protected-data availability. Existing selected-identity/inventory/deadline/capture/panel checks still apply. Core regressions and the signed native build pass; actual physical reveal remains an owner-device acceptance step. See [identity storage](identity-storage.md).
+
+
+The bundled Approval Lab now supplies manual kind-10002 development relay-list
+requests through the same native approval lane as notes and profile metadata.
+Exact saved v1/v2 pins remain separate from new openings and releases. This test
+fixture does not mutate routing caches or change published Outbox admission;
+see [the selected relay-list fixture contract](signing-approval.md#approval-lab-relay-list-fixture--10-october-2026).

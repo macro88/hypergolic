@@ -61,7 +61,8 @@ test('delivery has two assets and the original fixture bytes plus original unsig
 });
 
 for (const [fixture, expectedSha, expectedAggregate] of [
-  ['approval-lab', '8e091402081521f5e2df4f9ebcfa6dfea84366c4035c7ccdd35bf60725471dcc', 'a59c8c811dace66c3285ef98f30b52c5f57d2fa5d92715b0f3a2e93b201630ac'],
+  ['approval-lab', '6e738a11409843d019523bf121ebe24ffe25a175ca0a742cfc22d49c4a887f24', '1ca3093bc473cca8487f87b6d44174d1634159b9a41d9d7ef26a07ce686416e7'],
+  ['approval-lab-v2', '8e091402081521f5e2df4f9ebcfa6dfea84366c4035c7ccdd35bf60725471dcc', 'a59c8c811dace66c3285ef98f30b52c5f57d2fa5d92715b0f3a2e93b201630ac'],
   ['approval-lab-v1', '95c8360ae963c91f5c9a09e9f88eec06db46a810538394d6dc12ca587befaae1', 'a3c2ec6e0cd8068d942866f80f622f21df53cc188f000bc2af6caf34126e6889'],
 ]) test(`Approval Lab ${fixture} is byte-pinned and remains an unsigned catalog artifact`, async () => {
   const bytes = readFileSync(`fixtures/${fixture}.html`);

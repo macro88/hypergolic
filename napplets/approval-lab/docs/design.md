@@ -13,3 +13,11 @@ Every result retains the local test sequence, event kind, captured wire content,
 returned event ID or error. The local sequence is also written to a deterministic
 `test-sequence` event tag for automation; it is diagnostic correlation, not protocol
 authority or a caller-chosen wire request ID.
+
+
+A third visible radio selects relay-list metadata. Its separate, labelled JSON
+editor describes read/write roles and empty-list replacement, retains note/profile
+content when switching modes, and reports invalid input before creating a request.
+Each captured list row displays the exact tags even though its wire content is empty.
+The one-at-a-time list control prevents a three-request replaceable-event batch;
+normal shell approval is still mandatory for each individual request.

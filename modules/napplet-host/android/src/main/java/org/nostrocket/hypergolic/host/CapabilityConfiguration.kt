@@ -33,7 +33,7 @@ internal class CapabilityConfiguration(raw: String, generation: String, allowPub
     val expected = when (fixture) {
       "ux-lab" -> setOf("theme")
       "state-lab", "state-lab-peer" -> setOf("identity", "storage", "theme")
-      "approval-lab", "approval-lab-v1" -> setOf("identity", "relay", "theme")
+      "approval-lab", "approval-lab-v1", "approval-lab-v2" -> setOf("identity", "relay", "theme")
       "upload-lab", "upload-queue-lab" -> setOf("upload", "theme")
       "resource-lab" -> setOf("resource", "link", "theme")
       "nap-support" -> setOf("link", "theme")
