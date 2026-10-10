@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Pending configuration opening and native focus continuity repaired. Original four failures retained;60 presentation/43 routing/353 security/13 bootstrap/57 capability tests and141 actual authority assertions per native core pass;typecheck/prebuild/both exports/signed products pass. Current third-party graphs unchanged. Phone/native fault/full quality acceptance still open;7/61 complete/54 open; no source push.
+stopped_at: Configuration request/subscription expiry and pending unsubscribe repaired. Six original request failures and one broadcast failure retained;69 presentation/43 routing/353 security/13 bootstrap/57 capability tests and141 authority assertions per native core pass. Typecheck/prebuild/both exports/signed products and current graph bindings pass. Physical faults/full quality remain open;7/61 complete/54 open; no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: a0d001317d2d8bfe0408df00ce287059ffff0090
+state_head: 95d66bdf1d5d4a7d1ab52052b1d5739fd97e953f
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2645,3 +2645,14 @@ owning shared/native-core checks and current ordinary signed packaging pass; no
 physical test or full requirement is closed by this host/package subset. Original
 faults and the corrected Android source-map observer remain in private evidence.
 See [configuration lifecycle](../docs/notifications-configuration.md#configuration-opening-and-native-focus-repair--11-october-2026).
+
+
+## Configuration request/subscription expiry repair — 11 October 2026
+
+Original request authority now follows configuration reads and correlated pushes.
+Fresh subscriptions are admitted only after the live read; exact subscription
+identities fence pending broadcasts after unsubscribe or replacement. Seven real
+host failures are preserved with their repairs and positive subscription/Save
+cases. Owning checks, both signed products and unchanged dependency inventories
+pass. No physical row closes and no source push occurs. See the
+[request lifecycle checkpoint](../docs/notifications-configuration.md#configuration-request-expiry-and-unsubscribe-repair--11-october-2026).

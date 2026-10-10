@@ -18,8 +18,8 @@ async function setup(t:{after(fn:()=>void):void}, assertAuthority:()=>void=()=>{
  const reviewCounters=new Map<string,number>([[source.generation,1]]);
  const revoked=new Set<string>(),slots=new Map<string,string>(),live=new Set<string>(),replies=new Map<string,any>(),sent:{generation:string;message:any}[]=[],records=new Map<string,string>();
  let gate:Promise<void>|null=null,unlock=()=>{};
- const readGate:{current:{entered():void;wait:Promise<void>}|null}={current:null};
- const backend:ConfigSecureStore={isAvailableAsync:async()=>true,getItemAsync:async key=>{const paused=readGate.current;if(paused){paused.entered();await paused.wait;}return records.get(key)??null;},setItemAsync:async(key,value)=>{if(gate)await gate;records.set(key,value);}};
+ const readGate:{current:{entered():void;wait:Promise<void>;remaining:number}|null}={current:null};
+ const backend:ConfigSecureStore={isAvailableAsync:async()=>true,getItemAsync:async key=>{const paused=readGate.current;if(paused){if(paused.remaining>0)paused.remaining--;else{paused.entered();await paused.wait;}}return records.get(key)??null;},setItemAsync:async(key,value)=>{if(gate)await gate;records.set(key,value);}};
  const store=await openConfigStore(backend,async text=>createHash('sha256').update(text).digest('hex'),9);
  const native={reviewRevision(generation:string,revision:number){return this.mayReview(generation,revision)?reviewCounters.get(generation)??0:null;},state:()=>state,mayDeliver:(generation:string,revision:number,domain:string)=>state.available&&state.revision===revision&&domain==='config'&&!revoked.has(generation),mayReview:(generation:string,revision:number)=>state.available&&state.revision===revision&&focus===generation&&!revoked.has(generation),send(generation:string,revision:number,message:any){if(!this.mayDeliver(generation,revision,'config'))return false;sent.push({generation,message});return true;},subscribe(fn:()=>void){listener=fn;return()=>{};},newChannelId:()=>''};
  const capability={take(token:string){const value=slots.get(token)??null;slots.delete(token);return value;},isActive:(token:string)=>live.has(token),finish(token:string,result:string|null){live.delete(token);replies.set(token,result===null?null:JSON.parse(result).response);}};
@@ -29,7 +29,7 @@ async function setup(t:{after(fn:()=>void):void}, assertAuthority:()=>void=()=>{
  async function get(registration=source){const request=dispatch({type:'config.get',id:'get-'+ ++counter},registration);await request.promise;return request.reply()?.values;}
  return {broker,source,store,records,sent,dispatch,register,get,state:()=>state,
  expire(token:string){live.delete(token);},
- pauseRead(){const entered=deferred(),released=deferred();readGate.current={entered:entered.resolve,wait:released.promise};return{entered:entered.promise,release(){readGate.current=null;released.resolve();}};},
+ pauseRead(afterReads=0){const entered=deferred(),released=deferred();readGate.current={entered:entered.resolve,wait:released.promise,remaining:afterReads};return{entered:entered.promise,release(){readGate.current=null;released.resolve();}};},
  synchronizeRoutingOwner(user:string,epoch:number,available:boolean){
   if(state.user===user&&state.epoch===epoch&&state.ownerAvailable===available)return;
   state={...state,user,epoch,ownerAvailable:available,available:available&&state.foreground,revision:state.revision+1};listener();
@@ -203,4 +203,82 @@ test('an existing editor cannot save after a native focus round trip with delaye
  assert.equal(h.broker.getSnapshot().review,null);assert.deepEqual(await h.get(),{theme:'dark',nested:{level:2}});
  await h.broker.open(h.source.generation);await h.broker.commit(h.broker.getSnapshot().review!.id,{theme:'light',nested:{level:3}},{});
  assert.deepEqual(h.sent.map(row=>row.message.values),[{theme:'dark',nested:{level:2}},{theme:'light',nested:{level:3}}]);
+});
+
+test('expired subscribe cannot push its pending initial values',async t=>{
+ const h=await setup(t);await h.register();const gate=h.pauseRead();
+ const request=h.dispatch({type:'config.subscribe'});
+ try{await gate.entered;h.expire(request.token);}finally{gate.release();}
+ await request.promise;assert.equal(request.reply(),null);assert.equal(h.sent.length,0);
+ const fresh=h.dispatch({type:'config.subscribe'});await fresh.promise;
+ assert.deepEqual(h.sent.map(row=>row.message.values),[{theme:'dark',nested:{level:2}}]);
+});
+
+test('expired subscribe cannot retain a new subscription for a later secret Save',async t=>{
+ const h=await setup(t);await h.register();const gate=h.pauseRead();
+ const request=h.dispatch({type:'config.subscribe'});
+ try{await gate.entered;h.expire(request.token);}finally{gate.release();}
+ await request.promise;h.sent.length=0;
+ await h.broker.open(h.source.generation);await h.broker.commit(h.broker.getSnapshot().review!.id,{theme:'light',nested:{level:3}},{'["token"]':'public-test-token'});
+ assert.equal(h.sent.length,0);assert.equal((await h.get()).token,'public-test-token');
+});
+
+test('expired get cannot push a schema error after its pending validation read',async t=>{
+ const h=await setup(t);await h.register({type:'object',properties:{name:{type:'string'}},required:['name']});
+ const gate=h.pauseRead(),request=h.dispatch({type:'config.get',id:'expired-get'});
+ try{await gate.entered;h.expire(request.token);}finally{gate.release();}
+ await request.promise;assert.equal(request.reply(),null);assert.equal(h.sent.length,0);
+ const fresh=h.dispatch({type:'config.get',id:'fresh-get'});await fresh.promise;assert.equal(h.sent.length,1);assert.equal(h.sent[0]!.message.code,'invalid-schema');
+});
+
+test('a failed subscribe read does not install a subscription after storage recovers',async t=>{
+ const h=await setup(t);await h.register();const before=new Map(h.records);
+ for(const key of h.records.keys())h.records.set(key,'malformed-config-record');
+ const failed=h.dispatch({type:'config.subscribe'});await failed.promise;assert.equal(failed.reply(),null);
+ for(const [key,value] of before)h.records.set(key,value);
+ await h.broker.open(h.source.generation);await h.broker.commit(h.broker.getSnapshot().review!.id,{theme:'light',nested:{level:3}},{});
+ assert.equal(h.sent.length,0);assert.deepEqual(await h.get(),{theme:'light',nested:{level:3}});
+});
+
+test('an expired repeated subscribe preserves only the previously admitted subscription',async t=>{
+ const h=await setup(t);await h.register();await h.dispatch({type:'config.subscribe'}).promise;h.sent.length=0;
+ const gate=h.pauseRead(),request=h.dispatch({type:'config.subscribe'});
+ try{await gate.entered;h.expire(request.token);}finally{gate.release();}
+ await request.promise;assert.equal(h.sent.length,0);
+ await h.broker.open(h.source.generation);await h.broker.commit(h.broker.getSnapshot().review!.id,{theme:'light',nested:{level:3}},{});
+ assert.deepEqual(h.sent.map(row=>row.message.values),[{theme:'light',nested:{level:3}}]);
+});
+
+test('expired schema registration cannot push values after its completed scoped write',async t=>{
+ const h=await setup(t);await h.register();await h.dispatch({type:'config.subscribe'}).promise;h.sent.length=0;
+ const gate=h.pauseRead(2),request=h.dispatch({type:'config.registerSchema',id:'next-schema',schema:{type:'object',properties:{theme:{type:'string',default:'light'}}},version:2});
+ try{await gate.entered;h.expire(request.token);}finally{gate.release();}
+ await request.promise;assert.equal(request.reply(),null);assert.equal(h.sent.length,0);
+ assert.deepEqual(await h.get(),{theme:'dark'});
+ await h.broker.open(h.source.generation);await h.broker.commit(h.broker.getSnapshot().review!.id,{theme:'light'},{});
+ assert.deepEqual(h.sent.map(row=>row.message.values),[{theme:'light'}]);
+});
+
+test('a live subscription before schema registration receives later admitted schema values',async t=>{
+ const h=await setup(t);const request=h.dispatch({type:'config.subscribe'});await request.promise;
+ assert.equal(h.sent.length,1);assert.equal(h.sent[0]!.message.code,'no-schema');h.sent.length=0;
+ await h.register();assert.deepEqual(h.sent.map(row=>row.message.values),[{theme:'dark',nested:{level:2}}]);
+});
+
+test('a failed repeated subscribe leaves its previously admitted subscription intact',async t=>{
+ const h=await setup(t);await h.register();await h.dispatch({type:'config.subscribe'}).promise;h.sent.length=0;
+ const before=new Map(h.records);for(const key of h.records.keys())h.records.set(key,'malformed-config-record');
+ const failed=h.dispatch({type:'config.subscribe'});await failed.promise;assert.equal(failed.reply(),null);
+ for(const [key,value] of before)h.records.set(key,value);
+ await h.broker.open(h.source.generation);await h.broker.commit(h.broker.getSnapshot().review!.id,{theme:'light',nested:{level:3}},{});
+ assert.deepEqual(h.sent.map(row=>row.message.values),[{theme:'light',nested:{level:3}}]);
+});
+
+test('unsubscribe during a pending broadcast prevents values and schema errors after admission ends',async t=>{
+ const h=await setup(t);await h.register();await h.dispatch({type:'config.subscribe'}).promise;h.sent.length=0;
+ await h.broker.open(h.source.generation);const gate=h.pauseRead(2);
+ const saved=h.broker.commit(h.broker.getSnapshot().review!.id,{theme:'light',nested:{level:3}},{});
+ try{await gate.entered;await h.dispatch({type:'config.unsubscribe'}).promise;}finally{gate.release();}
+ await saved;assert.equal(h.sent.length,0);assert.deepEqual(await h.get(),{theme:'light',nested:{level:3}});
+ await h.dispatch({type:'config.subscribe'}).promise;assert.deepEqual(h.sent.map(row=>row.message.values),[{theme:'light',nested:{level:3}}]);
 });

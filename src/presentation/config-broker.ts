@@ -6,7 +6,7 @@ import {ShellStorageError, type TrustedRegistration} from '../storage/ports.ts';
 import {parseConfigMessage, type ConfigMessage} from './config-contract.ts';
 import {captureConfigSchema, configSecretFields, configValueValid, configValuesConform, resolveConfigValues, ConfigSchemaError, type ConfigSchema, type ConfigValues, type ConfigValue} from './config-schema.ts';
 import type {ConfigRecord, ConfigStore} from './config-store.ts';
-type Endpoint = {origin: NativeRegistration; assertActive(): void; seen: Set<string>; tail: Promise<unknown>; schema: ConfigSchema | null; version?: number; subscribed: boolean; window: number; opens: number};
+type Endpoint = {origin: NativeRegistration; assertActive(): void; seen: Set<string>; tail: Promise<unknown>; schema: ConfigSchema | null; version?: number; subscription: object | null; window: number; opens: number};
 export type ConfigReview = Readonly<{id: string; origin: NativeRegistration; schema: ConfigSchema; reviewRevision: number; ordinary: ConfigValues; secretPresent: Readonly<Record<string, boolean>>; section?: string}>;
 export type ConfigSnapshot = Readonly<{review: ConfigReview | null}>;
 const sameScope = (left: NativeRegistration, right: NativeRegistration) => left.user === right.user && left.publisher === right.publisher && left.appId === right.appId && left.version === right.version;
@@ -77,9 +77,10 @@ export class ConfigBroker {
   private owner(endpoint: Endpoint, check: () => void): TrustedRegistration {return Object.freeze({user: endpoint.origin.user, publisher: endpoint.origin.publisher, appId: endpoint.origin.appId, version: endpoint.origin.version, instanceId: endpoint.origin.instanceId, assertActive: check});}
   private push(endpoint: Endpoint, revision: number, message: Readonly<Record<string, unknown>>) {try {this.active(endpoint, revision); return this.native.send(endpoint.origin.generation, revision, message);} catch {return false;}}
   private error(endpoint: Endpoint, revision: number, code: string) {this.push(endpoint, revision, {type: 'config.schemaError', code, error: code === 'no-schema' ? 'No configuration schema is registered.' : 'Configuration requires valid values before delivery.'});}
-  private async values(endpoint: Endpoint, revision: number): Promise<ConfigValues | null> {
+  private async values(endpoint: Endpoint, revision: number, assertScopeActive?: () => void): Promise<ConfigValues | null> {
+    const check = () => {this.active(endpoint, revision); assertScopeActive?.();}; check();
     const schema = endpoint.schema; if (!schema) {this.error(endpoint, revision, 'no-schema'); return null;}
-    const check = () => this.active(endpoint, revision), record = await this.store.read(this.owner(endpoint, check)); check();
+    const record = await this.store.read(this.owner(endpoint, check)); check();
     const values = resolved(schema, record);
     if (!configValuesConform(schema, values)) {this.error(endpoint, revision, 'invalid-schema'); return null;}
     return values;
@@ -87,8 +88,10 @@ export class ConfigBroker {
   private async broadcast(endpoint: Endpoint, revision: number) {
     const work: Promise<void>[] = [];
     for (const target of this.endpoints.values()) {
-      if (!target.subscribed || !target.schema || !sameScope(target.origin, endpoint.origin)) continue;
-      work.push(this.values(target, revision).then(values => {if (values !== null) this.push(target, revision, {type: 'config.values', values});}).catch(() => {this.error(target, revision, 'invalid-schema');}));
+      const subscription = target.subscription;
+      if (!subscription || !target.schema || !sameScope(target.origin, endpoint.origin)) continue;
+      const check = () => {this.active(target, revision); if (target.subscription !== subscription) throw new ShellStorageError('REVOKED');};
+      work.push(this.values(target, revision, check).then(values => {check(); if (values !== null) this.push(target, revision, {type: 'config.values', values});}).catch(() => {if (target.subscription === subscription) this.error(target, revision, 'invalid-schema');}));
     }
     await Promise.all(work);
   }
@@ -145,7 +148,7 @@ export class ConfigBroker {
         if (request.version !== undefined && schema.$version !== undefined && request.version !== schema.$version || endpoint.version !== undefined && version !== undefined && version < endpoint.version) throw new ConfigSchemaError('version-conflict');
         await this.store.change(this.owner(endpoint, check), current => cleaned(schema, current)); check();
         endpoint.schema = schema; endpoint.version = version;
-        if (endpoint.subscribed) {const values = await this.values(endpoint, revision); if (values !== null) this.push(endpoint, revision, {type: 'config.values', values});}
+        if (endpoint.subscription) {const values = await this.values(endpoint, revision, check); check(); if (values !== null) this.push(endpoint, revision, {type: 'config.values', values});}
         return {type: 'config.registerSchema.result', id: request.id, ok: true};
       } catch (error) {
         check();
@@ -155,9 +158,9 @@ export class ConfigBroker {
         return {type: 'config.registerSchema.result', id: request.id, ok: false, code, error: message};
       }
     }
-    if (request.type === 'config.get') {const values = await this.values(endpoint, revision); return values === null ? null : {type: 'config.values', id: request.id, values};}
-    if (request.type === 'config.unsubscribe') {endpoint.subscribed = false; return null;}
-    if (request.type === 'config.subscribe') {endpoint.subscribed = true; const values = await this.values(endpoint, revision); if (values !== null) this.push(endpoint, revision, {type: 'config.values', values}); return null;}
+    if (request.type === 'config.get') {const values = await this.values(endpoint, revision, check); return values === null ? null : {type: 'config.values', id: request.id, values};}
+    if (request.type === 'config.unsubscribe') {endpoint.subscription = null; return null;}
+    if (request.type === 'config.subscribe') {const values = await this.values(endpoint, revision, check); check(); endpoint.subscription = Object.freeze({}); if (values !== null) this.push(endpoint, revision, {type: 'config.values', values}); return null;}
     if (request.type !== 'config.openSettings') return null;
     const now = Date.now(); if (now - endpoint.window >= 60_000) {endpoint.window = now; endpoint.opens = 0;}
     if (++endpoint.opens <= 4 && this.native.mayReview(endpoint.origin.generation, revision)) await this.open(endpoint.origin.generation, request.section, check);
@@ -173,7 +176,7 @@ export class ConfigBroker {
       const id = routingText(wrapper.id, 128); if (!Number.isSafeInteger(wrapper.revision) || (wrapper.revision as number) < 0) return;
       this.refresh(); const revision = wrapper.revision as number;
       let endpoint = this.endpoints.get(expected.generation);
-      if (!endpoint) {if (this.endpoints.size >= 64) return; endpoint = {origin: expected, assertActive: owner.assertActive, seen: new Set(), tail: Promise.resolve(), schema: null, subscribed: false, window: Date.now(), opens: 0}; this.endpoints.set(expected.generation, endpoint);}
+      if (!endpoint) {if (this.endpoints.size >= 64) return; endpoint = {origin: expected, assertActive: owner.assertActive, seen: new Set(), tail: Promise.resolve(), schema: null, subscription: null, window: Date.now(), opens: 0}; this.endpoints.set(expected.generation, endpoint);}
       else if (JSON.stringify(endpoint.origin) !== JSON.stringify(expected)) return;
       const selected = endpoint, check = () => {if (!this.capability.isActive(token)) throw new ShellStorageError('REVOKED'); owner.assertActive(); this.active(selected, revision);}; check();
       if (selected.seen.has(id) || selected.seen.size >= CAPABILITY_LIMITS.sessionRequests) return; selected.seen.add(id);

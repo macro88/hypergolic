@@ -446,3 +446,11 @@ native bridges carry this internal check without changing NAP wire fields. Actua
 Java/Swift core tests, shared regressions, exports and signed products pass; phone
 fault acceptance remains open. See the
 [configuration opening checkpoint](notifications-configuration.md#configuration-opening-and-native-focus-repair--11-october-2026).
+
+
+Configuration reads bind to their original native request through protected
+storage. Subscription admission follows the read, and pending broadcasts bind to
+the exact admitted subscription so unsubscribe or replacement cancels old work.
+Valid pre-schema and existing subscriptions retain their accepted semantics.
+Current signed products and owning regressions pass; physical faults remain open.
+See the [request and subscription checkpoint](notifications-configuration.md#configuration-request-expiry-and-unsubscribe-repair--11-october-2026).

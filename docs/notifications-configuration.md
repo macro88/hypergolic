@@ -708,3 +708,39 @@ No device installation or physical acceptance follows. CAP-11 and complete
 Phase 2 acceptance remain open; the matrix still has 7 of 61 complete requirements.
 Full external quality/audit and native/physical fault evidence are still required.
 No source push or new dependency exception is authorized by this repair.
+
+
+## Configuration request expiry and unsubscribe repair — 11 October 2026
+
+Six controlled-read cases reproduced values or schema errors sent after request
+expiry, a fresh subscription surviving expiry or a failed protected read, and an
+extra initial push from an expired repeat subscribe. A separate regression proved
+an in-flight saved-value broadcast still delivered after unsubscribe.
+
+Configuration get, subscribe and registration readback now carry the original
+native request check through protected storage and before their pushes. A fresh
+subscription is admitted after its read finishes under that live request. An
+expired or failed repeat request preserves the previously admitted subscription;
+a live subscribe before schema registration still receives the canonical error
+and later valid values. A scoped native write already completed is retained,
+with no expired completion or value push reported.
+
+Each admitted subscription has a distinct internal identity. A pending broadcast
+rechecks that exact identity through storage and before values or error delivery.
+Unsubscribe or replacement invalidates old broadcast work while a successful Save
+still retains its values. A fresh subscribe receives the latest exact saved values.
+No new NAP wire field, permission or migration policy is introduced.
+
+All 69 presentation, 43 routing, 353 security, 13 bootstrap and 57 capability tests
+pass; actual Java and Swift routing authority cores each pass 141 assertions.
+TypeScript, Android prebuild, both production exports and ordinary signed Android
+and iPhone products pass with existing IDs, labels and certificates. The Android
+APK changes only its main JavaScript bundle; all four DEX files, 21 native images
+and other 89 assets remain identical. Both current native-bound source maps retain
+all 60 third-party identities, exact sources, metadata and notice originals; only
+config-broker.ts changes among their first-party sources.
+
+These are controlled broker/storage and native-core/package checks. No physical
+installation or request-expiry/subscription fault acceptance is claimed. CAP-11,
+full quality and complete Phase 2 remain open: 7 of 61 requirements are complete.
+External audit/score transfers are not retried, and no source push follows.
