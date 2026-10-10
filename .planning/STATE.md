@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: SQLite notice helper extraction fixes the new local complexity warning; app-owned artifact inventory resolves the independent Gradle guard failure.34 notice cases, standalone guard and signed ordinary Android assembly pass; APK byte-identical. Local Doctor442/source-only aislop434 pass with zero findings; full online quality and physical acceptance remain open.7/61 complete/54 open; no source push.
+stopped_at: Read-only Android distribution review independently verifies all20565 DEX definitions, with16437 external and2615 local/resource class-name candidates;1513 generated-form names remain unresolved. Products/source/selected archives and local outputs unchanged. Full attribution/online quality/physical acceptance stay open.7/61 complete/54 open; no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: 029e327564a0e9d6ebecf359d5b09be2cd9ab399
+state_head: f4c2e0e47e2dbe2344f073e5339f5ad24f6a9f27
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2717,3 +2717,25 @@ Final local quality is captured separately with external audit/score/history/tel
 disabled; no complete numeric quality acceptance follows. No iOS rebuild, phone
 install/input or source push. Matrix7/61 complete/54 open; physical/published/native
 fault/security and complete quality gates remain required.
+
+
+## Packaged Android class definitions and candidate owners — 11 October 2026
+
+Four actual DEX files define20565 classes; bounded format/header/checksum reader
+and Android dexdump agree on every ordered definition.144 reviewed artifact records/
+140 Maven components remain exact;16437 packaged definitions have external archive
+class-name candidates across136 components, without differing-coordinate ambiguity.
+All17713 archive class this_class headers match their entry paths.42 actual owning
+Release output records yield2615 further local/resource candidates, including346
+resource definitions. All output/metadata hashes remain captured and unchanged.
+
+1513 unmatched names consist of1464 ExternalSynthetic markers,48 -IA suffixes and
+one RecordTag. Their compiler/original attribution remains unresolved; name matching
+does not reconstruct D8 code or close full license coverage. Four components without
+class matches are not excluded from resource/native/metadata distribution review.
+The first observer applied to included Gradle plugin builds and failed; correction
+limits it to the app build. No producer compilation, product rebuild/install, phone
+input, external audit/score transfer or new numeric quality claim.1442 source inputs,
+selected archives/local outputs and the retained APK stay unchanged. Matrix7/61
+complete/54 open; all full distribution/quality/physical/published/fault gates remain.
+Android still absent; the paired physical iPhone still needs a recent unlock.

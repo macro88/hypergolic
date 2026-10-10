@@ -470,3 +470,12 @@ app-owned Gradle task before host preBuild validation. It therefore avoids resol
 another project's configuration inside the host task action. The independent guard
 and ordinary signed assembly pass; the resulting APK is byte-identical to its
 SQLite-notice predecessor. See [the guard checkpoint](native-dependency-notices.md#independent-android-notice-guard--11-october-2026).
+
+
+The Android distribution review now inventories all 20,565 actual DEX class
+definitions, independently cross-checked with dexdump. Exact class-name/header
+correspondence links 16,437 definitions to selected external archives and 2,615 more
+to current local Release/resource outputs. The remaining 1,513 names, generated
+helper origins, resource/native terms and full attribution remain unresolved;
+class-name matches do not reproduce translated bytecode. See the
+[distribution checkpoint](native-dependency-notices.md#packaged-android-class-definition-inventory--11-october-2026).

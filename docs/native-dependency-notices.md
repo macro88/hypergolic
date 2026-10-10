@@ -721,3 +721,46 @@ quality warning remain recorded. The final local checks are captured separately.
 Local source-only aislop deliberately defers its online dependency audit and has
 telemetry/history disabled; its score does not satisfy the complete quality gate.
 Full online audit/numeric Doctor scoring and physical acceptance remain pending.
+
+
+## Packaged Android class-definition inventory — 11 October 2026
+
+The unchanged ordinary signed APK contains 20,565 defined classes in its four
+DEX files: 7,998, one, 8,069 and 4,497 respectively. A bounded reader of the
+[owning DEX class-definition structure](https://source.android.com/docs/core/runtime/dex-format)
+checks file sizes, header/checksum/signature and indexed class descriptors. The
+installed Android dexdump independently returns exactly the same ordered definitions
+for every DEX. References in type tables are not counted as definitions.
+
+All 144 selected artifact records still match their reviewed coordinate, filename
+and complete archive hash. Their 140 distinct Maven components provide exact
+class-name candidates for 16,437 packaged definitions across 136 components, with
+no differing-coordinate ambiguity. All 17,713 archive class entries additionally
+have their actual JVM this_class identities verified against their paths using the
+[ClassFile structure](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.1).
+Four selected components have no packaged class-name match. Kotlin's two JDK
+bridge JARs contain only module-info entries; the Fresco soloader facade and Guava
+empty-conflict JAR have no class entries. This class-only evidence does not exclude
+any whole component from resource/native/metadata attribution review.
+
+Read-only Gradle capture identifies 42 owning Release output records from the app
+and ten local library projects. Actual local class headers and generated resource
+JARs provide 2,615 further definition candidates, including 346 resource-table
+classes. Their output and package metadata hashes are retained; compiler caches or
+current package declarations are not substituted for immutable upstream source.
+The observer's first attempt wrongly applied to included plugin builds without an
+app project and failed. Its corrected application-build scope and original failure
+remain recorded; no producer compilation or packaging is run during capture.
+
+The 1,513 still-unmatched names have 1,464 ExternalSynthetic markers, 48 -IA suffixes
+and one com/android/tools/r8/RecordTag definition. These names do not prove an
+original source, license or complete compiler transformation. Generated helper/
+synthetic provenance and applicable originals remain explicit follow-up work.
+Class identity correspondence is not a D8 bytecode reconstruction or a full notice
+coverage claim; resources, native/static owners and remaining distribution review
+still need their own evidence.
+
+All selected archives, captured local outputs, the APK and 1,442 source inputs
+remain unchanged. No app rebuild/install, phone input, dependency/policy change,
+external audit/score submission or fresh quality claim follows. Phase 2 remains
+7/61 complete with 54 open; BUILD-01 and full physical acceptance remain open.
