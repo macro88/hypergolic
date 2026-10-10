@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Complete immutable Kehto archive and 80 installed source-map entries verified; no original notice recovered. Six declaration-only runtime attribution gaps and physical/published/fault/full-quality acceptance remain open. Android absent; paired iPhone queries fail because it has not been unlocked recently. Matrix7/61 complete/54 open; no source push.
+stopped_at: Original SQLite notices packaged on Android and iOS, with exact official-source prefix reconstruction and source/AAR guards.34 Node/eight Ruby cases, TypeScript/prebuild/exports/locked Pods and signed products pass. Native byte/stub evidence preserves original failures; physical/full quality remain open.7/61 complete/54 open; no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: be6d7d9d23301b0d638c87dc0bad19b4db259652
+state_head: f629c31c126df6f4bea090d344bb38d5cd63b9fa
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2677,3 +2677,27 @@ lock/app queries fail because it has not been unlocked recently. No install or
 input occurs. External audit/score approvals and all complete physical/published/
 fault/sign-off gates remain open. Matrix7/61 complete/54 open; no source push or
 Phase3 advancement. See the expanded trusted-runtime attribution checkpoint.
+
+
+## SQLite originals delivered on both native platforms — 11 October 2026
+
+Selected Android AAR and ordinary APK SQLite bytes/source ID match. Reversing
+recorded API prefixes reproduces the full official3.50.3 C/header sources; their
+two original dedication blocks are unchanged and packaged on both hosts. Existing
+Expo wrapper MIT is reused. Android preBuild and iOS Pod evaluation guard source/
+archive/original/range/metadata bindings;34 Node/eight Ruby regressions, TypeScript,
+Android prebuild, both exports, deployment-mode Pods and signed ARM64 products pass.
+
+Android82/iOS68 original files match. Android's21 ELF/four DEX/89 other assets and
+JavaScript stay exact; only two originals and their manifest change. iPhone132-file
+product retains ID/cert/profile and both JavaScript forms.51/53 native sections
+stay exact; two generated sections only choose duplicate objc_msgSend GOT aliases,
+with all32570 fixups unchanged. Whole executable/object identity is not claimed.
+Original source/observer/stub comparison and sandbox trust failures remain recorded;
+strict deep signature verification succeeds through approved local trust access.
+
+Predecessors preserved, current products not installed, no phone input or source
+push. Final external quality/age gates, other native/static/Maven/NDK and six runtime
+attribution gaps, and all actual physical/published/fault/security acceptance remain
+open. Matrix7/61 complete/54 open; no BUILD01/Phase2 pass or Phase3 advancement.
+See [the original notice checkpoint](../docs/native-dependency-notices.md#original-sqlite-notices-in-both-native-packages--11-october-2026).

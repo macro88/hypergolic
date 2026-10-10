@@ -640,3 +640,56 @@ exact matched source/notice originals and receipts. Full static-library source a
 transitive provenance, other NDK/Bionic and Maven material, six trusted-runtime
 attribution gaps, complete security/quality review and physical/published/fault/
 close acceptance remain required. This does not complete BUILD-01 or Phase 2.
+
+
+## Original SQLite notices in both native packages — 11 October 2026
+
+The selected Expo SQLite 57.0.2 Android AAR contains SQLite 3.50.3. Its ARM64
+`libexpo-sqlite.so` is byte-identical to the retained ordinary APK, with the same
+embedded source ID. This establishes the selected prebuilt owner and bytes; it
+does not reproduce the producer's native compilation.
+
+The [official 3.50.3 amalgamation archive](https://sqlite.org/2025/sqlite-amalgamation-3500300.zip)
+has observed SHA-256 `9ad6d16cbc1df7cd55c8b55127c82a9bca5e9f287818de6dc87e04e73599d754`.
+The installed C/header files differ from that release by API prefixes. Reversing
+12,409 C and 2,894 header `exsqlite3` prefixes reproduces both complete official
+files exactly. The original copyright-dedication comments remain byte-identical:
+427 bytes from the internal-interface comment and 1,485 bytes from the public API
+header. Both native resource bundles now include those two original blocks.
+[SQLite's own copyright documentation](https://sqlite.org/copyright.html) describes
+its public-domain dedication; no attribution author or new license text is invented.
+Expo's wrapper continues to use its already packaged original MIT license.
+
+Android's existing pre-build guard binds the selected complete AAR, vendor-source
+hashes, exact upstream prefix reversal, original comment ranges and wrapper notice.
+iOS Pod evaluation additionally checks the actual C/header copies against their
+vendor originals. The owning iOS dependency and link records identify `sqlite3.c`
+and its linked object; the object and signed executable contain the same source
+ID. Pod installation uses deployment mode and preserves all locked native inputs
+and the existing decoder backports.
+
+All 82 Android and 68 iOS packaged originals match their expected bytes. The signed
+Android package adds two notice assets and changes only the archive notice manifest;
+all 21 native images, four DEX files, 89 other assets and JavaScript bytecode match
+its predecessor. The signed iPhone product seals 132 files with unchanged raw
+JavaScript, Hermes bytecode, app ID and certificate. Of its 53 recorded native
+sections, 51 have identical bytes, sizes, addresses and flags. The two generated
+stub sections differ only in 1,783 ARM64 load immediates choosing between adjacent
+GOT slots that both bind to `libobjc/_objc_msgSend`. All 32,570 parsed fixups match.
+This is precise static relocation evidence; whole executable byte identity and
+pre-build SQLite object byte identity are not claimed.
+
+All 34 Node and eight Ruby notice cases, TypeScript, Android prebuild, both
+production exports, deployment-mode Pod installation and both ordinary signed
+ARM64 packages pass. The initial source comparison, Android unsorted-list observer
+and iPhone exact-section mismatch remain recorded with their corrected evidence.
+Default-sandbox signature verification returned `CSSMERR_TP_NOT_TRUSTED`; the same
+app passes strict deep verification using the approved system trust-service path,
+without changing trust settings. Final local Doctor evidence is captured separately;
+external numeric scoring and the fresh full audit still await specific approval.
+
+No phone install, input, identity change, new dependency/security exception or
+source push occurs. Both predecessors remain available. Remaining native/static/
+Maven/NDK ownership, six declaration-only trusted-runtime attribution gaps, full
+quality and actual physical/published/fault/security acceptance remain open.
+Neither complete BUILD-01 nor Phase 2 acceptance follows from this notice subset.

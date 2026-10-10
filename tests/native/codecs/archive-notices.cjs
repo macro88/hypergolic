@@ -21,6 +21,7 @@ function fixture(run) {
     manifest.selectedArtifacts = [{ component: 'example:licensed:1', filename: 'licensed.jar',
       sha256: createHash('sha256').update(fs.readFileSync(artifact)).digest('hex') }];
     for (const binding of manifest.prefabBindings) binding.owningArtifact = manifest.selectedArtifacts[0];
+    for (const binding of manifest.prebuiltBindings) binding.owningArtifact = manifest.selectedArtifacts[0];
     fs.writeFileSync(manifestFile, JSON.stringify(manifest));
     run(directory, [{ component: 'example:licensed:1', file: artifact }], manifest);
   } finally { fs.rmSync(temporary, { recursive: true, force: true }); }
@@ -77,4 +78,33 @@ test('inline BSD notice cannot move to another header', () => fixture((directory
     data.prefabBindings.find(binding => binding.inlineHeaderNotices.length).inlineHeaderNotices[0].headerSha256 = '0'.repeat(64);
   });
   assert.throws(() => verify(directory, artifacts), /prefab inline notice header binding changed/);
+}));
+
+test('changed prebuilt SQLite artifact binding rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.prebuiltBindings[0].owningArtifact.sha256 = '0'.repeat(64); });
+  assert.throws(() => verify(directory, artifacts), /prebuilt owning artifact binding changed/);
+}));
+test('altered SQLite upstream source reconstruction rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.prebuiltBindings[0].originalSources[0].upstreamSha256 = '0'.repeat(64); });
+  assert.throws(() => verify(directory, artifacts), /prebuilt original source provenance changed/);
+}));
+test('SQLite original notice cannot move to another source range', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.prebuiltBindings[0].originalSources[0].byteStart++; });
+  assert.throws(() => verify(directory, artifacts), /prebuilt original source range changed/);
+}));
+test('unsafe SQLite vendor source path rejects before reading', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.prebuiltBindings[0].originalSources[0].path = '../outside'; });
+  assert.throws(() => verify(directory, artifacts), /prebuilt source set changed/);
+}));
+test('changed Expo SQLite wrapper licence reference rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.prebuiltBindings[0].wrapperOriginal.sha256 = '0'.repeat(64); });
+  assert.throws(() => verify(directory, artifacts), /prebuilt wrapper original changed/);
+}));
+test('omitted reviewed SQLite binding rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.prebuiltBindings.pop(); });
+  assert.throws(() => verify(directory, artifacts), /prebuilt reviewed source set changed/);
+}));
+test('wrong SQLite native architecture entry rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.prebuiltBindings[0].entry = 'jni/x86/libexpo-sqlite.so'; });
+  assert.throws(() => verify(directory, artifacts), /prebuilt native entry binding changed/);
 }));

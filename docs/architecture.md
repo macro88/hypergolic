@@ -89,7 +89,7 @@ attribution and native/device acceptance still open. See the
 The iPhone notice bundle also includes 56 original main-JavaScript licenses and
 four mappings to the shared React Native original, derived from a source map whose
 code body exactly matches the native raw bundle. Pod evaluation detects stale
-dependency metadata. The current signed product has 130 sealed files and 66 exact
+dependency metadata. That checkpoint has 130 sealed files and 66 exact
 originals; JavaScript and identity/certificate remain unchanged. Full native/runtime attribution remains open; the Android JavaScript notice
 assembly is recorded below. See the
 [main JavaScript notice checkpoint](native-dependency-notices.md#packaged-main-ios-javascript-originals--11-october-2026).
@@ -109,6 +109,15 @@ check compares the app's actual selected runtime artifact coordinates and hashes
 All previous assets, DEX files and native images remain unchanged in the signed
 product. Remaining Maven/native/transitive attribution and physical acceptance
 stay open; see the [archive-original review](native-dependency-notices.md#selected-android-archive-originals-delivered--11-october-2026).
+
+Both ordinary native resource bundles also package the original SQLite 3.50.3
+internal/API dedication comments. Android binds the selected prebuilt AAR and
+vendor-source originals; iOS binds its compiled source copies and vendor originals.
+The Expo wrapper license reuses its existing packaged MIT original. Current
+ordinary packages have 82 Android originals and 68 iOS originals; the iPhone bundle
+seals 132 files. Signed packaging and exact static byte/relocation checks do not
+close physical or complete application attribution acceptance. See the
+[SQLite notice checkpoint](native-dependency-notices.md#original-sqlite-notices-in-both-native-packages--11-october-2026).
 
 ## Implemented
 

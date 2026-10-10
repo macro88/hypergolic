@@ -803,3 +803,18 @@ from .hermesv1version and confirm its version against the actual AAR; the legacy
 applicable compiled BSD notice blocks. Check the final APK and byte preservation
 against the previous product, allowing only explicitly reviewed notice changes.
 See the [compiled prefab review](native-dependency-notices.md#android-compiled-prefab-owner-notices--11-october-2026).
+
+
+### SQLite original notice guards
+
+Both native products include the original SQLite 3.50.3 internal/API dedication
+comments. Android's pre-build archive guard checks the selected prebuilt AAR and
+its source/notice bindings. iOS Pod evaluation checks the compiled source copies,
+vendor originals, prefix reversal and notice ranges; run `pod install --deployment`
+from `ios` after changing resource membership. Dependency changes require a fresh
+owning-source review, not regenerated notice hashes alone.
+
+Run `node --test tests/native/codecs/android-notices.cjs tests/native/codecs/archive-notices.cjs tests/native/codecs/cpp-notices.cjs`
+and `ruby tests/native/codecs/notice-packaging.rb` from the repository root.
+Use the [SQLite package checkpoint](native-dependency-notices.md#original-sqlite-notices-in-both-native-packages--11-october-2026)
+for static native-byte/relocation evidence and its physical/runtime limits.

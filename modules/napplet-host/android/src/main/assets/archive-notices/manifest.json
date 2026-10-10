@@ -103,6 +103,16 @@
       "file": "prefab-glog-vlog_is_on.h-NOTICE.txt",
       "sha256": "c6b0be0844a888fae797e53ae5e5f70a6150ffcfb442587cee7f601f458945d9",
       "bytes": 1566
+    },
+    {
+      "file": "sqlite-3.50.3-sqliteInt-NOTICE.txt",
+      "sha256": "49cf7bcb103eb3244150a23bb23d840370a4762914faf1b450072a4b03c14670",
+      "bytes": 427
+    },
+    {
+      "file": "sqlite-3.50.3-api-NOTICE.txt",
+      "sha256": "85806d613cfda5901f848b3b5b4b04396c8c64e89c97c0af3706c42b0c44bb47",
+      "bytes": 1485
     }
   ],
   "noticeBindings": [
@@ -6888,5 +6898,59 @@
         "matchesInstalled": true
       }
     ]
+  },
+  "prebuiltBindings": [
+    {
+      "component": "SQLite",
+      "version": "3.50.3",
+      "sourceId": "2025-07-17 13:25:10 3ce993b8657d6d9deda380a93cdd6404a8c8ba1b185b2bc423703e41ae5f2543",
+      "owningArtifact": {
+        "component": "host.exp.exponent:expo.modules.sqlite:57.0.2",
+        "filename": "expo.modules.sqlite-57.0.2.aar",
+        "sha256": "df1da5f5381b01deb84c69e946436e98f69fb7a3c3f55c03b01e88061fd88e4d"
+      },
+      "entry": "jni/arm64-v8a/libexpo-sqlite.so",
+      "nativeSha256": "4f97bf102fa2863145ac5011c6f614f2caea38b78d4cf19a5650c87ef24eee3b",
+      "nativeBytes": 1830224,
+      "sourceArchive": {
+        "url": "https://sqlite.org/2025/sqlite-amalgamation-3500300.zip",
+        "sha256": "9ad6d16cbc1df7cd55c8b55127c82a9bca5e9f287818de6dc87e04e73599d754"
+      },
+      "originalSources": [
+        {
+          "path": "node_modules/expo-sqlite/vendor/sqlite3/sqlite3.c",
+          "sha256": "df16f4f2845488289d416e1d3b928c82ade5256564605b762daf0113fad394c5",
+          "upstreamSha256": "4946267f79081e3abbca035ec48a6ad95edab6a59c3c300224226e2689b852fe",
+          "prefixReplacementCount": 12409,
+          "original": {
+            "file": "sqlite-3.50.3-sqliteInt-NOTICE.txt",
+            "sha256": "49cf7bcb103eb3244150a23bb23d840370a4762914faf1b450072a4b03c14670"
+          },
+          "byteStart": 1601,
+          "byteEndExclusive": 2028
+        },
+        {
+          "path": "node_modules/expo-sqlite/vendor/sqlite3/sqlite3.h",
+          "sha256": "0d247fd5e5e2fd602f427227bae7bf6349dd3322d6090d9751b21b5b3f51db62",
+          "upstreamSha256": "cca50ac4a1326697f34a4f99835374d326db17b5890cfab7cf5704d46ca6cc87",
+          "prefixReplacementCount": 2894,
+          "original": {
+            "file": "sqlite-3.50.3-api-NOTICE.txt",
+            "sha256": "85806d613cfda5901f848b3b5b4b04396c8c64e89c97c0af3706c42b0c44bb47"
+          },
+          "byteStart": 0,
+          "byteEndExclusive": 1485
+        }
+      ],
+      "wrapperOriginal": {
+        "file": "js-expo-sqlite-57.0.2-LICENSE.txt",
+        "sha256": "fb3ca4a837f5779e83cef89b78253a8949cfb9429c340309f62d0465ec6610b4"
+      },
+      "boundary": "Whole selected AAR and packaged ELF match; recorded installed-source prefix reversal matches official release bytes. This is attribution provenance, not a rebuild of the prebuilt native library."
+    }
+  ],
+  "prebuiltReview": {
+    "componentCount": 1,
+    "originalSourceCount": 2
   }
 }
