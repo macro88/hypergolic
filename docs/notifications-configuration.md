@@ -287,3 +287,23 @@ red. The corrected next driver requires exact reads0 and all three original empt
 outputs before registering a freshly remounted session, and captures each reset.
 The broader eight-case run remains pending. CAP-11/CAP-14 and the full phase stay
 open; publisher/version/update/fault/published/iOS scope remains required.
+
+
+## Physical Android configuration identity isolation — 10 October 2026
+
+The corrected run passes eight original-SDK/native-control checks: shared defaults,
+exact single Save pushes to both instances, peer-app isolation, cancellation
+preserving values/subscriptions, three confirmed remounts, separate shared values
+under the second identity, and both return switches restoring their own saved
+values with fresh subscriptions. Cancellation requires no re-registration.
+
+Independent review verifies 50 original XML/PNG pairs and 1,257 unchanged source
+inputs. Nine remount originals have reads0 and blank outputs before registration.
+Four PNGs are inspected; exact full JSON/counters come from original XML. Cleanup
+restores both modified scopes, the original identity/empty workspace and keeper-only
+unchanged APK bytes. Earlier application and observer failures remain recorded.
+
+Publisher/version isolation, incompatible updates, faults/races, published journeys,
+physical iOS parity and complete usability remain open. CAP-11 stays partial.
+Application/native inputs are unchanged; this documentation checkpoint claims no
+new build or quality run. See [the full checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md).

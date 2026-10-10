@@ -163,6 +163,9 @@ The routing-confirmation repair passes real shared import/selection/configuratio
 regressions and120 owning registry assertions per native platform. Signed Android
 and iPhone products pass. After a data-preserving Android update, both original SDK
 instances retain exact saved values and subscription histories on cancellation.
-The subsequent confirmed-isolation actor stops on empty fresh-output JSON parsing;
-its cleanup is verified and the corrected full run remains pending. No complete
+The corrected eight-case configuration actor also verifies confirmed remounts,
+separate saved values for two development identities and exact restoration on
+both return switches, with fresh subscriptions. Both modified scopes, three owned
+views, original identity/empty workspace and keeper bytes are restored/verified.
+Earlier empty-output observer failure evidence is retained. No complete
 physical iPhone or all-capability identity acceptance follows from this subset.

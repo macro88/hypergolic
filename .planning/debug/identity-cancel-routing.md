@@ -19,7 +19,7 @@ workspace. Only public development markers were used.
 
 hypothesis: bindRoutingOwner withdraws owner availability during confirming even
 though IdentityTransition.sessionAuthority explicitly permits that phase.
-next_action: Run the corrected all-instance identity oracle, then obtain ordinary physical iPhone parity.
+next_action: Obtain ordinary physical iPhone parity; bundled Android cancellation and all-instance identity isolation now pass.
 
 ## Evidence
 
@@ -34,8 +34,9 @@ next_action: Run the corrected all-instance identity oracle, then obtain ordinar
 
 ## Resolution
 
-Pending regression, fix, native packaging and physical rerun. This inline GSD
-workflow does not claim specialized subagent execution or completed MVP acceptance.
+Android repair verified by red/green regressions, native packaging and the
+corrected eight-case physical run. Physical iPhone parity remains pending. This
+inline GSD workflow does not claim specialized subagent execution or completed MVP acceptance.
 
 Both pre-fix regressions fail. The configuration composition returns no values
 after cancellation; the import binding withdraws availability during confirming.
@@ -52,3 +53,15 @@ reads0. All original artifacts are retained; exact defaults, identity, empty sta
 keeper inventory and bytes are restored. The corrected observer reads the declared
 initial empty display directly; it does not re-register after cancellation or relax
 any saved-value, event-order, native identity or fresh-counter expectation.
+
+
+## Physical Android configuration identity isolation — 10 October 2026
+
+The corrected actor passes all eight bundled Android configuration checks. Original
+XML confirms exact values, push order, nine fresh remounts and identity isolation.
+All 50 original capture pairs and 1,257 source inputs hash-verify; four PNGs are
+inspected with full JSON offscreen. Cleanup restores both scopes and the original
+identity/empty workspace; the retained APK is unchanged and no extra app remains.
+
+Android cancellation and this configuration isolation subset are verified. Physical
+iPhone parity is pending. See [the checkpoint](../phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md).

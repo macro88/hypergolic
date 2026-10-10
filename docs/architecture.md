@@ -44,10 +44,12 @@ process-restart persistence, depth-four values and schema-removal orphan purge.
 The next identity-isolation run found schema loss after cancelled identity selection.
 The shared owner binding now retains routing registrations during confirmation;
 actual switches still revoke them. Red/green shared regressions, native registry
-checks and both signed products pass. Four ordinary physical Android cases verify
-exact saved values and subscription preservation after cancellation. The remaining
-confirmed-isolation run stopped on an external fresh-output parsing error; cleanup
-is verified and its corrected continuation remains pending.
+checks and both signed products pass. The corrected eight-case ordinary physical
+Android run verifies
+exact cancellation preservation, confirmed remounts, separate identity-scoped
+values and restoration on both return switches. Both modified scopes restore
+defaults and the original identity/empty workspace; keeper inventory and bytes
+verify. Earlier application and observer failures remain recorded.
 Complete physical iOS, broader owner/version isolation, configuration fault/update
 and published acceptance remain open.
 

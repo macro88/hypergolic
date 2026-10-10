@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Routing cancellation defect fixed with red/green regressions, both signed native products and a data-preserving Android update. Four original physical Android cases prove cancellation preservation; later fresh-remount JSON observer failure retained and cleanup verified. Corrected full isolation run pending. Seven of61 complete/54 open; last usage19%, ceiling about98%; no source push.
+stopped_at: Corrected eight-case physical Android configuration identity isolation passes with independent original XML/hash review and both-scope/default/view cleanup. Signed iPhone repair ready but phone locked. Next Outbox relay-list fixture verified in isolation, not integrated. Seven of61 complete/54 open; usage19%, ceiling about98%; no source push.
 last_updated: "2026-10-10"
 last_activity: 2026-10-10
-state_head: 64117ff7d5943462466e797a6ad31b8b6e696a56
+state_head: 11978c84c8fe728d38d7d8ef68e716e0586d6e53
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2081,3 +2081,20 @@ red. The corrected next driver requires exact reads0 and all three original empt
 outputs before registering a freshly remounted session, and captures each reset.
 The broader eight-case run remains pending. CAP-11/CAP-14 and the full phase stay
 open; publisher/version/update/fault/published/iOS scope remains required.
+
+
+## Physical Android configuration identity isolation — 10 October 2026
+
+The corrected ordinary Android run passes all eight configuration identity checks.
+Independent review verifies 50 original XML/PNG pairs, 1,257 unchanged source inputs,
+nine fresh remounts and exact saved values/subscriptions. Four original PNGs are
+inspected; full JSON and counters rely on original XML. Terminal cleanup restores
+both scopes, the original identity/empty workspace and keeper-only unchanged bytes.
+
+CAP-11 remains partial; publisher/version/update/fault/published/iOS and complete
+usability acceptance remain open. The iPhone is locked; its signed repair is ready.
+The isolated Outbox relay-list candidate passes 58 browser checks but awaits native
+integration, preserved old fixture pins and device delivery proof. Full matrix:
+seven of 61 complete, 54 open. Application/native/build inputs are unchanged;
+this is a documentation-only checkpoint with no new quality/build claim or source
+push. See [the physical checkpoint](phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md).
