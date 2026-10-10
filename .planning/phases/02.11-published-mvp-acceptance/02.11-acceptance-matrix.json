@@ -1193,8 +1193,18 @@
       "requiredEvidence": "Shell-rendered notifications are attributed, bounded and dismissible; focus/action ownership and hostile content tested; no assumed OS push",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-notifications01/physical/run09/physical/result.json",
+            "android-notifications01/physical/run10/physical/result.json",
+            "android-notifications01/physical/run09/callback-review.json",
+            "android-notifications01/physical/run10/channel-review.json",
+            "android-notifications01/checkpoint-review.json",
+            "android-notifications01/visual-review.json",
+            "android-notifications01/observer-build/build02/cleanup.json"
+          ],
+          "verifiedScope": "Two separate ordinary protected-owner/genuine bundled-SDK physical Android runs pass 15 callbacks/lifecycle and 10 channels. Exact native attribution, denial/approval, action/click/user dismissal, remembered general permission, oversized denial, forged-control subset, badge, loaded-switch caller ownership, exact keeper PAUSED/launcher RESUMED clearing, actual process death without replay, revoke/fresh review, exact messages grant, distinct-app isolation, caller-only action while peer focused, channel revoke preserving general, 20 sequential sends with 6 unique successes / 14 rate denials and owned close are observed. All 468 source inputs, exact normal APK and package inventories match; original selected identity, zero notify permissions and empty workspace restored. Six original PNGs inspected; full SDK JSON verified from original XML where clipped/obscured. Temporary observation-only shell-UID jar removed by hash guard; eight predecessor failures and scoped reconciliations retained. Reserved unsigned fixture publisher; no external publication, fake owner, key import, production change, app install or whole-store byte preservation claim.",
+          "remaining": "Real signed publisher and identity/version isolation, hostile/action/priority variants, actual five-minute expiry, stale/replacement/background/in-flight races with native zero-effect counters, published parity, full modal/keyboard/Back integration, accessibility/reduced-motion/minimum-platform and physical iOS/cross-capability parity remain open."
         },
         "ios-physical": {
           "status": "partial",
@@ -1202,7 +1212,7 @@
             "iphone-notifications01/physical/hg-routing-notification-physical-iphone05/receipt.json",
             "iphone-notifications01/physical/hg-routing-notification-physical-iphone-background01/receipt.json"
           ],
-          "remaining": "One green13-check ordinary bundled original-SDK run covers trusted permission, exact callbacks, invalid/forged controls, foreground retention, confirmed OS background, cold restart and revoke. Named-channel and complete identity/publisher/app/version isolation, hostile/flood/expiry/close/replacement races, published parity, modal integration and Android physical remain required."
+          "remaining": "One green13-check ordinary bundled original-SDK run covers trusted permission, exact callbacks, invalid/forged controls, foreground retention, confirmed OS background, cold restart and revoke. Named-channel and complete identity/publisher/app/version isolation, hostile/flood/expiry/close/replacement races, published parity, modal integration remain required."
         }
       }
     },

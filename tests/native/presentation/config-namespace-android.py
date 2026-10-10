@@ -53,7 +53,7 @@ class Journey(base.Journey):
     x1,y1,x2,y2=map(int,re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',node.get('bounds')).groups())
     if x2>x1 and y2-y1>40 and a<(x1+x2)//2<c and b+80<(y1+y2)//2<d-80:return
    target=matches[0] if len(matches)==1 else None
-   if target:
+   if target is not None:
     _,y1,_,y2=map(int,re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',target.get('bounds')).groups());direction='up' if (y1+y2)//2>(b+d)//2 else 'down'
    else:direction='up'
    self.guest_scroll(direction);time.sleep(.2)
