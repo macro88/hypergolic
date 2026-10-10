@@ -202,3 +202,24 @@ Physical iOS callback parity, secret set/clear/purge, full identity/publisher/ve
 isolation, verified updates, faults/races and published parity remain required.
 The first cold Settings press still misses before a separately observed warm
 continuation; UX-05 remains open. No source push or Phase 2 completion claim.
+
+
+### Physical Android secret editor subset — 10 October2026
+
+The current ordinary same-ID/certificate app passes five original-SDK/native checks:
+unset secret absence, masked draft cancellation without writes/pushes, one exact
+save/push, masked and unpopulated persisted editor, and peer-app token absence.
+Only a disposable public marker is entered. Original XML also confirms exact
+saved-value readback after actual process death and one correct initial subscription
+object. The actor stops because its JSON string comparison assumes object field
+order; structural comparison independently matches every field and event count.
+The failed actor remains recorded. This requires an observer correction rather
+than an application change.
+
+Cleanup first stops on its viewport observer. Central scrolling inside the observed
+native editor completes Save, exact original default/no-token SDK readback, and
+both exact owned view closes. The premature second actor is terminal with zero
+inputs/views. Keeper-only inventory, current identity and installed bytes are
+preserved. The complete corrected run, depth-four/removal-restoration purge,
+identity/publisher/version and incompatible-update isolation, faults/published
+execution and iOS parity remain required. CAP11 stays partial.

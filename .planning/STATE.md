@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: iOS ExpoImage source build with pinned WebP1.6.0 passes signed packaging and host sanitizer regression; full native provenance/notices and physical parity remain open. Android disconnected, iPhone locked, clean-close decision pending. Phase2 seven of61 complete/54 open; usage13%, ceiling about98%; no source push.
+stopped_at: Final source-built dav1d backport passes signed native packaging and host regressions; Android same-ID/certificate update and scoped configuration masking/isolation/restart/clear evidence captured. Stopped observer and cleanup failures retained, cleanup reconciled. Corrected full configuration run, iOS parity, complete provenance/notices and clean-close decision remain. Seven of61 complete/54 open; usage17%, ceiling about98%; no source push.
 last_updated: "2026-10-10"
 last_activity: 2026-10-10
-state_head: c420384ae724f186657ccbcbc11f510ff4775d38
+state_head: 22245eff08c82ea9f41548431aae31296b898231
 progress:
   total_phases: 14
   completed_phases: 10
@@ -1958,3 +1958,44 @@ shows measure/capacity/allocation before table writes. The repository ASan/UBSan
 regression passes with its corrected explicit macOS SDK and verifies176 C/header
 inputs unchanged. Full native dependency/notices, physical decoder and final
 source-bound quality acceptance remain open. The matrix stays seven of61 complete.
+
+
+Dav1d checkpoint — 10 October2026: an immutable wrapper/submodule source pin and
+hash-checked post-install hook backport the released tile-offset correction to
+libdav1d1.2.0. The signed ordinary ARM64 iPhoneOS build passes with the retained
+ID/label/certificate and unchanged inputs; no installation occurs. Focused actual
+source-loop host sanitizer checks pass; full-bitstream/physical and complete codec
+security remain open. Config-plugin review finds an incomplete-hook admission gap;
+the new regression fails before the guard and the guard is added for final checks.
+
+CocoaPods must run from ios to enforce extraPod properties; the initial root-cwd
+resolution and missing-submodule failure are preserved. The final direct source
+pin includes submodules and installed lockfiles match. The attempted six Expo57
+patch updates are refused under the existing seven-day release policy; no package
+version, lockfile or release-age exception changes. Expo57.0.27 and SQLite57.0.4
+mature on13 October2026 after12:10:58Z and12:11:23Z respectively. Ordinary Doctor
+compatibility and final quality must still be reported separately from approved
+Forge/braces exceptions. Android is now connected/unlocked, iPhone lock observation
+fails; clean-close decision remains unanswered. Seven of61 complete/54 open.
+
+
+Final decoder/configuration checkpoint — 10 October2026: both native prebuilds,
+ordinary signed ARM64 products, exports, four actual plugin integration regressions,
+Ruby hook checks, owning codec sanitizer regressions and353 security plus13 bootstrap
+cases pass. The incomplete-hook regression is repaired. The finalized63-file signed
+iPhone app/archive has strict signatures and unchanged older products; about2.0GB
+of owned intermediates are removed. Android updates in place with retained data,
+ID/label/certificate and exact installed bytes; no extra package is installed.
+
+The ordinary Android configuration actor passes five masking/cancel/save/peer
+checks and observes exact public-token persistence after real process death. It
+stops on a JSON-string order comparison even though original XML independently
+shows one correct subscription object. Its failed receipt remains. Cleanup's edge
+scroll/visibility observer then stops; central observed scrolling, exact SDK default
+readback and two exact owned view closes reconcile it. The prematurely started
+second actor is terminal with zero inputs/views. Corrected structural JSON and
+central scrolling are prepared for the full next run. Depth-four/removal-restoration
+purge, broader isolation/fault/published and iOS parity remain. Matrix stays seven
+of61 complete/54 open. No source push or Phase3 advance. Full quality preflight
+passes Doctor100/432, aislop98 only prior exceptions; final source-bound capture
+follows this documentation checkpoint. Ordinary check separately stops Expo20/21.
