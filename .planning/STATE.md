@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Android notification subsets pass15 lifecycle/callback,10 channels and4 real-time dismissal/expiry checks in separate runs; scoped cleanup and exact APK/identity/workspace preservation verified. Full signed publisher/iOS/races/quality remain open; seven of61 complete/54 open, no source push.
-last_updated: "2026-10-10"
-last_activity: 2026-10-10
-state_head: 49b54059911eb85258962f5276a24d343591dcc2
+stopped_at: Signed notification publisher-isolation suite prepared and packaged, host checks pass; zero-input pre-install disconnect, no test APK installed, helper cleanup pending reconnection. CAP10 partial; seven of61 complete/54 open, external quality approvals pending, no source push.
+last_updated: "2026-10-11"
+last_activity: 2026-10-11
+state_head: b781e65730a3521ece93ded8881637a8ffd79199
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2319,3 +2319,51 @@ findings across 437 files with no numeric score; the last complete aislop is 98 
 the exact two approved locked findings. Fresh registry audit and external scoring
 remain pending specific authorization; no indirect retry or new exception occurs.
 No source push or Phase 3 advance.
+
+
+## Protected Android notification publisher preparation — 11 October 2026
+
+The test-only signed source now includes two notification samples with identical
+app ID, HTML/hash, manifest tags and timestamp, but distinct publishers and event
+IDs. Ordinary verified loading and the real protected identity owner are retained.
+Exact coordinate/pin selection, cancellation, byte bounds and fresh HTML carriers
+pass four new tests; all 44 presentation tests pass. The default configuration
+packager remains available; `--suite notifications` selects the new signed source
+and entry. Three packaging-driver tests execute both modes with a host fake Gradle
+process: success/failure restore known composition, and concurrent unknown edits
+are preserved and rejected. Three observer tests prevent the same-app permission
+row from borrowing a neighbouring publisher's revoke button.
+
+The actual signed ARM64 notification test APK builds with the retained application
+ID, Hypergolic label and certificate. Production composition is restored and the
+real identity owner hash remains unchanged. The package's input maps are retained;
+two later host-only observer/test files differ from that build, with no packaged
+app-source changes. Packaging proves neither device execution nor publisher
+isolation. A native shell-UID accessibility helper probe passes while Android is
+connected. The subsequent read-only pre-install preflight terminates at its first
+helper read after the device disconnects: zero napplet inputs, zero checks and no
+APK installation attempt. Its original partial running journal is retained with
+an independent terminal-failure receipt; no live actor remains. The owned helper
+JAR has not been verified removed and requires hash-checked cleanup on reconnect.
+
+Six physical checks are prepared, not run: exact signed publisher review/send;
+same-app/HTML publisher grant separation; positive independent approval; exact
+publisher revocation preserving its peer; unfocused callback recipient isolation;
+and actual cold-restored publisher permission without old-event replay. Require
+the designated development identity, initially empty workspace/notify grants,
+exact signed APK and source receipt, unlocked device and helper ownership before
+running. Preserve existing identity/data and permissions. After the terminal batch,
+restore exact normal APK bytes with the same ID/certificate, independently verify
+identity/empty workspace/inventory, then remove only the hash-matching owned helper.
+The observer itself does not perform the outer normal-APK restoration.
+
+Complete local React Doctor scans 440 files with zero diagnostics/skipped checks,
+score null. Main and explicit test-entry TypeScript checks pass. The last complete
+external dependency audit remains aislop98 with the two approved locked advisories;
+fresh registry audit and external scoring requests still await specific payload/
+destination authorization. No indirect retry, gate waiver, source push or Phase3
+advance. CAP-10 remains partial and the full matrix seven of61 complete/54 open.
+Signed physical, identity/version, races/zero effects, hostile/priority variants,
+external published and iOS/minimum-platform/usability acceptance remain open.
+Private evidence identifier: android-notification-publishers01. Usage25% remains
+below the owner's latest about98% ceiling.

@@ -510,3 +510,68 @@ It requires a new output directory and the empty workspace/permission baseline.
 Keep the device foreground for the actual five-minute run; do not change clock or
 power/security settings. Reconcile its terminal cleanup and hash-check/remove the
 owned helper as described above before starting another actor.
+
+
+## Protected Android notification publisher preparation — 11 October 2026
+
+The test-only signed source now includes two notification samples with identical
+app ID, HTML/hash, manifest tags and timestamp, but distinct publishers and event
+IDs. Ordinary verified loading and the real protected identity owner are retained.
+Exact coordinate/pin selection, cancellation, byte bounds and fresh HTML carriers
+pass four new tests; all 44 presentation tests pass. The default configuration
+packager remains available; `--suite notifications` selects the new signed source
+and entry. Three packaging-driver tests execute both modes with a host fake Gradle
+process: success/failure restore known composition, and concurrent unknown edits
+are preserved and rejected. Three observer tests prevent the same-app permission
+row from borrowing a neighbouring publisher's revoke button.
+
+The actual signed ARM64 notification test APK builds with the retained application
+ID, Hypergolic label and certificate. Production composition is restored and the
+real identity owner hash remains unchanged. The package's input maps are retained;
+two later host-only observer/test files differ from that build, with no packaged
+app-source changes. Packaging proves neither device execution nor publisher
+isolation. A native shell-UID accessibility helper probe passes while Android is
+connected. The subsequent read-only pre-install preflight terminates at its first
+helper read after the device disconnects: zero napplet inputs, zero checks and no
+APK installation attempt. Its original partial running journal is retained with
+an independent terminal-failure receipt; no live actor remains. The owned helper
+JAR has not been verified removed and requires hash-checked cleanup on reconnect.
+
+Six physical checks are prepared, not run: exact signed publisher review/send;
+same-app/HTML publisher grant separation; positive independent approval; exact
+publisher revocation preserving its peer; unfocused callback recipient isolation;
+and actual cold-restored publisher permission without old-event replay. Require
+the designated development identity, initially empty workspace/notify grants,
+exact signed APK and source receipt, unlocked device and helper ownership before
+running. Preserve existing identity/data and permissions. After the terminal batch,
+restore exact normal APK bytes with the same ID/certificate, independently verify
+identity/empty workspace/inventory, then remove only the hash-matching owned helper.
+The observer itself does not perform the outer normal-APK restoration.
+
+Complete local React Doctor scans 440 files with zero diagnostics/skipped checks,
+score null. Main and explicit test-entry TypeScript checks pass. The last complete
+external dependency audit remains aislop98 with the two approved locked advisories;
+fresh registry audit and external scoring requests still await specific payload/
+destination authorization. No indirect retry, gate waiver, source push or Phase3
+advance. CAP-10 remains partial and the full matrix seven of61 complete/54 open.
+Signed physical, identity/version, races/zero effects, hostile/priority variants,
+external published and iOS/minimum-platform/usability acceptance remain open.
+Private evidence identifier: android-notification-publishers01. Usage25% remains
+below the owner's latest about98% ceiling.
+
+
+Preparation and eventual physical execution use new output directories:
+
+```sh
+source .tools/use-local-tools.sh
+pnpm run test:presentation
+python3 -B tests/native/presentation/test-notify-publisher-selection.py
+python3 -B tests/native/presentation/test-protected-builder-restoration.py
+python3 -B tests/native/presentation/build-protected.py --suite notifications --output /tmp/hypergolic-protected-notifications
+# After independently verified, data-preserving installation and device preflight:
+python3 -B tests/native/presentation/notify-publisher-physical-android.py --serial "$ANDROID_SERIAL" --npub "$SELECTED_DEVELOPMENT_NPUB" --build /tmp/hypergolic-protected-notifications/build.json --apk /tmp/hypergolic-protected-notifications/hypergolic-protected-notify.apk --ui-jar /tmp/hypergolic-notify-observer/ui-dump.jar --output /tmp/hypergolic-notification-publishers
+```
+
+The fixture scalars are deliberately public test values and must never publish.
+The local source delegates unrelated coordinates/HTML to ordinary transport;
+these controlled samples do not establish external relay or HTTPS acceptance.

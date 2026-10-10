@@ -15,6 +15,9 @@ const original = rows.find(row => row.role === 'config-caller'), updatedHtml = h
 const updatedEvent = finalizeEvent({kind:35129,created_at:1791165600,content:'',tags:[['d',original.appId],['path','/index.html',updatedHash],['x',updatedAggregate,'aggregate'],['requires','config']]},secret);
 rows.push({...original,role:'config-update',event:updatedEvent,htmlHash:updatedHash,html:updatedHtml});
 const collisionSecret = new Uint8Array(32); collisionSecret[31] = 3;
+const notifyOriginal = rows.find(row => row.role === 'caller');
+const notifyCollisionEvent = finalizeEvent({kind:35129,created_at:1791079200,content:'',tags:[['d',notifyOriginal.appId],['path','/index.html',htmlHash],['x',aggregate,'aggregate'],['requires','notify']]},collisionSecret);
+rows.push({...notifyOriginal,role:'notify-collision',event:notifyCollisionEvent,address:naddrEncode({kind:35129,pubkey:notifyCollisionEvent.pubkey,identifier:notifyOriginal.appId})});
 const collisionEvent = finalizeEvent({kind:35129,created_at:1791079200,content:'',tags:[['d',original.appId],['path','/index.html',htmlHash],['x',aggregate,'aggregate'],['requires','config']]},collisionSecret);
 rows.push({...original,role:'config-collision',event:collisionEvent,address:naddrEncode({kind:35129,pubkey:collisionEvent.pubkey,identifier:original.appId})});
 const integerField = 'count:{type:"integer",title:"Item count",minimum:1,maximum:12,default:3';

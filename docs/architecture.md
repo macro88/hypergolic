@@ -58,6 +58,14 @@ sample scopes and views are cleaned; normal app bytes and inventory are restored
 Complete physical iOS, configuration faults/races, external published journeys and
 full usability remain open; see the linked configuration checkpoint.
 
+The notification test packager now selects a locally supplied signed publisher
+collision source while retaining ordinary verified loading and the protected
+identity owner. Identical app/HTML samples from distinct publishers make grant
+isolation testable. Host checks and signed Android packaging pass; device execution
+is pending after a zero-input pre-install disconnect. This test-only composition
+is restored after packaging and grants no new production authority. See the
+[notification preparation checkpoint](notifications-configuration.md#protected-android-notification-publisher-preparation--11-october-2026).
+
 ## Implemented
 
 `index.ts` registers `src/App.tsx` with Expo. Both native hosts run verified,
