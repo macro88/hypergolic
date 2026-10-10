@@ -693,3 +693,31 @@ compatible update was refused and the existing lockfile remains in use. Record
 this fresh compatibility failure separately from the two owner-approved patched
 Forge/braces advisory exceptions. Recheck the precise versions after maturation;
 do not suppress the check or broaden the release-age exclusions.
+
+
+## Android JavaScript notice packaging — 11 October 2026
+
+The Android native host packages original JavaScript dependency licenses from
+`modules/napplet-host/android/src/main/assets/notices/`. Its `preBuild` invokes
+`NativeDependencyNotices.cjs`, which requires the reviewed complete file set,
+original hashes, shared mappings and current dependency-metadata hashes.
+Run the actual guard regressions with:
+
+```sh
+node --test tests/native/codecs/android-notices.cjs
+```
+
+Refresh the reviewed graph/originals together after changed imports or dependencies.
+Use the installed Expo embed command for ordinary `index.ts`, Android production
+output, `--minify false` and `--sourcemap-output`; compile with the installed Hermes
+command and the Gradle task's flags. Verify the resulting bytecode against the
+ordinary native product before treating its map as delivered attribution. Preserve
+binary asset bindings separately from map text. After prebuild and signed native
+packaging, inspect all `assets/notices/` files against the manifest and verify the
+existing app identity/certificate, permissions and assets. No package metadata or
+runtime behavior changes are required for this notice-only correction.
+
+The current signed build contains 56 originals for 60 package/version identities,
+with four shared React Native mappings. Native Android libraries and the separate
+trusted-runtime attribution gaps remain outside this profile; see
+[the exact Android review](native-dependency-notices.md#packaged-main-android-javascript-originals--11-october-2026).

@@ -400,7 +400,61 @@ The declaration inventory has 53 MIT, two ISC, two Unlicense and one each
 BSD-3-Clause, Apache-2.0 and 0BSD package identities. Distinct versions of the same
 library stay distinct; a package's root declaration is not substituted for all
 transitive code inside its prebundled distribution. Generated helper attribution,
-complete native libraries/transitives, Android notice assembly and source/license
-reconciliation remain required. The six trusted-runtime declaration-only gaps
+complete native libraries/transitives and source/license reconciliation remain
+required. The subsequent Android checkpoint covers its JavaScript notice assembly. The six trusted-runtime declaration-only gaps
 recorded above stay open. This checkpoint verifies original material delivery;
 it does not certify full license compliance, vulnerability clearance or BUILD-01.
+
+
+## Packaged main Android JavaScript originals — 11 October 2026
+
+An isolated run of the installed Expo `export:embed` command for ordinary
+`index.ts`, Android, production/non-minified output, followed by the installed
+Hermes compiler with the native Gradle flags, reproduces the retained ordinary
+APK's bytecode exactly. Its source map also matches the cached native packager map
+byte-for-byte. This binds the contributor inventory to delivered Android code;
+it does not borrow the iOS inventory as platform evidence.
+
+The map contains 1,857 sources: 1,673 package files from 60 exact package/version
+identities, 180 first-party files and four generated prelude/polyfill entries.
+All text sources match installed/source bytes. Metro represents the binary logo
+PNG with empty map text; independent exported PNG-byte equality reconciles that
+entry. The original incomplete inventory is retained alongside the reconciliation.
+The Android and iOS package identity sets happen to match, including distinct
+Noble and nostr-tools versions. The 56 supplied original license files match the
+installed packages. Four React Native packages use the already independently
+verified shared original at the immutable matching release; see the preceding
+iOS review for its provenance. No license text or version label is substituted.
+
+The Android module now includes all 56 originals and their manifest in
+`src/main/assets/notices/`. Ten complete texts already occur in the previous APK's
+assets; 46 are absent. The new signed ordinary ARM64 APK contains every expected
+file with exact bytes/hashes. Its seven previous assets, including main Hermes
+bytecode and the trusted web host, remain unchanged. The existing Hypergolic app
+ID, signing certificate, permissions and non-debuggable status are preserved;
+the preceding signed APK is unchanged. No installation or physical acceptance
+occurred while Android was disconnected.
+
+`NativeDependencyNotices.cjs` runs from the actual Android module `preBuild` task.
+It rejects missing/extra originals, same-length text alterations, unsafe file or
+dependency paths, missing shared mappings and inconsistent profile counts.
+It checks 63 root package/lock and installed package-metadata inputs before native
+packaging. Eight regression cases, TypeScript, Android prebuild/export and the
+signed Gradle build pass. This remains a dated graph: changed imports need a new
+actual bundle/map inventory even if dependency metadata hashes are unchanged.
+Original upstream whitespace is preserved; full whitespace diagnostics remain
+visible separately from the authored-file check.
+
+The Android assets cover the main JavaScript contributors. They do not assert
+that iOS image-library notices apply to Android. Native Maven/AAR/shared-library
+and generated/transitive attribution, the six declaration-only trusted-runtime
+gaps, final external quality checks and complete physical/published acceptance
+remain open. BUILD-01 and the full Phase 2 completion claim remain unaccepted.
+
+
+The complete local React Doctor scan covers 442 files with zero diagnostics or
+skipped checks and no numeric score. Its external scoring and the fresh npm audit
+remain pending explicit metadata-transfer authorization; no indirect request is
+made. The earlier aislop 98/100 is a dated report with the exact existing approved
+locked exceptions, not a fresh full-source score. The existing Expo patch-version
+mismatch remains visible. These open final gates are not waived by packaging.

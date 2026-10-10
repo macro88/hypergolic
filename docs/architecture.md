@@ -90,9 +90,18 @@ The iPhone notice bundle also includes 56 original main-JavaScript licenses and
 four mappings to the shared React Native original, derived from a source map whose
 code body exactly matches the native raw bundle. Pod evaluation detects stale
 dependency metadata. The current signed product has 130 sealed files and 66 exact
-originals; JavaScript and identity/certificate remain unchanged. Android notice
-assembly and full native/runtime attribution remain open. See the
+originals; JavaScript and identity/certificate remain unchanged. Full native/runtime attribution remains open; the Android JavaScript notice
+assembly is recorded below. See the
 [main JavaScript notice checkpoint](native-dependency-notices.md#packaged-main-ios-javascript-originals--11-october-2026).
+
+The ordinary Android module now packages 56 original JavaScript license files for
+60 package/version identities, with four shared React Native mappings. An isolated
+Expo/Hermes build reproduces the retained APK bytecode and packager map exactly;
+the new signed APK preserves all previous assets, app identity and certificate.
+Its native pre-build guard verifies originals, mappings and dependency metadata.
+This is a distribution subset; Android native/transitive attribution and complete
+BUILD-01 acceptance remain open. See the
+[Android attribution review](native-dependency-notices.md#packaged-main-android-javascript-originals--11-october-2026).
 
 ## Implemented
 

@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Main iOS graph matches native code body;60 package identities/56 supplied original files plus4 shared RN mappings. Signed130-file ordinary app/ready copy contains66 originals with unchanged JS/identity/cert; metadata freshness checks pass. Final local Doctor442 complete/zero issues/no score;7/61 complete/54 open, Android notice assembly/native attribution/physical and external quality/close decisions remain, no source push.
+stopped_at: Android main-JS graph reproduces retained APK HBC/map exactly;60 identities/56 originals plus4 shared RN mappings. Signed ordinary APK packages originals with unchanged previous assets/identity/cert; eight guard regressions, typecheck/prebuild/export/native build pass. Complete local Doctor442/zero issues/no score;7/61 complete/54 open, native attribution/physical/external quality/close decisions remain, no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: 7cd36fcfab6f48a7bae69827afe24c7cd780de1f
+state_head: 75a54137d5093e660f31d3e5f3c0182cbbda081b
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2525,3 +2525,33 @@ bound to unchanged source after all native actors are terminal. Numeric scoring
 and fresh audit remain unrequested pending specific metadata/destination answers;
 prior aislop98 is dated, not a new full-source score. Only documentation changes
 after the scan; no new quality exception or source push.
+
+
+## Main Android JavaScript original notices — 11 October 2026
+
+The actual installed isolated Android Expo/Hermes commands reproduce the retained
+ordinary APK HBC and cached native packager map byte-for-byte. All 1,857 sources
+reconcile:1,673 package files/60 identities,180 first-party and four generated
+entries, with the empty-text PNG independently verified against emitted bytes.
+The original incomplete inventory is retained. Android independently resolves the
+same identity set as iOS;56 installed originals and four previously verified
+shared RN license mappings apply. Ten full texts already occur in old assets;
+46 are absent. The Android module packages all56 exact originals/manifest and
+checks63 dependency metadata inputs plus file set/hashes/shared references.
+Eight actual guard regression cases, TypeScript, prebuild/export and ordinary
+signed ARM64 Gradle packaging pass. The new APK's seven old assets, main HBC,
+trusted host, retained ID/certificate, permissions and non-debuggable status remain
+unchanged; prior APK intact, generated packaging restored with no conflicts,
+all1,407 captured source inputs stable through compilation. No device action.
+The reviewed graph remains dated; changed imports require renewed native map
+review even when metadata is unchanged. Android native/transitive/generated and
+six declaration-only runtime attribution gaps remain open. No iOS image notices
+are represented as Android dependencies, no legal/security/BUILD-01/Phase2 pass.
+Matrix7/61 complete/54 open; Android disconnected, external metadata-transfer and
+clean-close decisions pending; no source push or Phase3 advancement.
+
+Complete local Doctor scans442 files with no diagnostics/skipped checks and no
+numeric score; all native/build/export actors are terminal before the final scan.
+The preceding aislop98 is dated with only existing approved locked exceptions,
+not a fresh full-source result. External audit/score transfer and Expo patch-age
+compatibility gates remain open; no metadata request, suppression or gate waiver.
