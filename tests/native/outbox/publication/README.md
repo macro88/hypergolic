@@ -56,3 +56,14 @@ The host composition has three explicit adapters:
 Receipts bind all 73 selected source/configuration inputs, 388 compiled native class inputs, two cached dependency JARs, the route patch, generated proof classes and original logs. The host uses org.json 20180813 rather than the Android platform parser. Disposable TLS private keys are removed even after a failed run. The original harness compilation error is retained separately.
 
 This proof adds host owner fault evidence. Protected signing, ordinary guest/Expo composition, public DNS policy, Android UI delivery, physical lifecycle/backpressure and complete cross-platform acceptance remain open. No physical matrix row closes, production app is rebuilt or installed, or numeric external quality gate passes because of it.
+
+
+## Physical Android framework parser and plan proof
+
+Run `python3 -B tests/native/outbox/publication/device_plan_run.py --serial <connected-api36-device> --output <fresh-external-directory>` after sourcing the local tool environments. The runner compiles the actual Release module, packages its class outputs and Kotlin standard library with the existing `PlanProof.java`, then starts a disposable `app_process` under shell UID 2000. It performs no app installation, UI input, protected identity operation or publication.
+
+On the physical API36 phone, all 69 existing plan/ACK assertions pass. This includes the raw-NUL/trailing/concatenated-message faults, exact/over-limit UTF-8 reasons, JSON depth/size limits, exact event/identity/hash/destination capture, one-use pairs and approval revocation. JSONObject, JSONArray and JSONTokener must use the same boot loader as String. The final DEX inventory contains no packaged org.json definitions, so these checks use the Android framework parser rather than the host test JAR.
+
+The source/configuration and 388 compiled module class inputs, Android API JAR, Kotlin dependency, DEX/test JAR and exact public fixture are sealed. Both staged remote files must match their hashes before execution and removal; cleanup verifies their absence plus unchanged third-party package inventory and retained APK path/hash. The first proof's inventory regex had excess escaping. The corrected regex is checked against actual DEX output and an injected org.json class-definition line before the final device run is accepted; both original results remain retained.
+
+This is physical execution of standalone native primitives under shell UID. It does not prove the ordinary installed app includes the latest code, app-UID/Expo/guest composition, protected signing, system authentication, view lifecycle, public TLS sending or complete native fault acceptance. The existing approval proof supplies its own monotonic clock; Android suspend behavior remains open. OB-05 gains this explicit partial subset; no complete requirement closes.

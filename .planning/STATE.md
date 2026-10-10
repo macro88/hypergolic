@@ -2830,3 +2830,22 @@ push. Local Doctor442/zero diagnostics/skips/score off and source-only aislop435
 zero issues/97 unsupported/audit off retain their limited scope. Android absent;
 paired iPhone requires recent unlock. No physical row or full quality/fault/sign-off
 closes: matrix7/61 complete/54 open. See the Android owner checkpoint in Outbox docs.
+
+
+## Physical Android framework JSON and plan subset — 11 October 2026
+
+Current compiled native plan/approval/ACK primitives pass all69 existing assertions
+on physical API36 under shell UID2000, using boot-framework JSON with no packaged
+org.json definitions.65 selected source/API/Kotlin/configuration and388 compiled
+class inputs stay sealed. Original first passed proof/inventory regex error and
+corrected DEX positive/negative control/full device rerun remain distinct. All
+owned test files and the hash-matching earlier notification observer are verified
+absent; retained app path/bytes and package inventory stay exact.
+
+Android OB05 gains explicit partial physical primitive evidence. No ordinary
+app-UID/Expo/guest/protected-signer/system-auth/view-lifecycle/native-send or Android
+suspend claim follows; existing approval proof supplies its clock. No app install/
+rebuild/UI input/external publication/source push or fresh numeric quality claim.
+Both phones still require a recent unlock for interactive journeys. Matrix7/61
+complete/54 open; full cross-platform fault/security/quality/sign-off remain open.
+See the physical parser checkpoint in Outbox docs.

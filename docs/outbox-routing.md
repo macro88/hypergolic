@@ -127,3 +127,33 @@ or skips and leaves its external score off; source-only aislop checks 435 suppor
 files with zero issues and online audit off, with 97 unsupported files. These
 local reports do not satisfy the pending full external quality gates. The
 physical matrix remains seven of 61 complete, with 54 open.
+
+
+## Physical Android framework parser and plan — 11 October 2026
+
+The physical API36 phone executes the current compiled module's plan, approval
+and ACK primitives under a disposable shell-UID process. All69 existing assertions
+pass, including trailing/raw-NUL/concatenated ACK faults, empty/4,096-byte/over-limit
+ASCII and Unicode reasons, depth/2MiB boundaries, immutable event/identity/hash/
+destination checks, one-use pair replay and approval revocation. The process proves
+actual boot-framework JSONObject/JSONArray/JSONTokener use; its DEX inventory has
+no packaged org.json class definitions.
+
+The first successful run exposed an over-escaped inventory regex during review.
+After correction, the guard matches actual owning DEX definitions and rejects an
+injected org.json class-definition line. The second full device run also passes;
+both original source/results remain retained.65 selected source/configuration/
+Android API/Kotlin inputs and388 compiled module class inputs stay exact. Both
+staged remote files match their product/fixture hashes and are absent after cleanup.
+The installed app's path/hash and package inventory remain unchanged. The old
+notification observer is separately removed only after its recorded hash matches;
+its absence and the unchanged retained app/inventory are verified.
+
+This updates Android OB-05 to partial. Shell-UID standalone execution does not
+establish current ordinary installed app code, app-UID/Expo/guest routing, protected
+signing/authentication, view lifecycle or controlled/public TLS publication. The
+approval clock is supplied by the existing proof, so device suspend semantics
+remain open. No native publication-owner receipt or zero protected-sign count is
+claimed. OB-06 and complete cross-platform fault/quality/sign-off remain open;
+the full matrix stays seven of61 complete,54 open. No app install/rebuild, external
+publication, source push or fresh numeric quality claim follows.

@@ -876,3 +876,15 @@ compiled inputs are sealed, and ordinary source stays unchanged. These host proo
 JSON, protected signing, owning Expo/guest or physical-device acceptance. See the
 [native proof README](../tests/native/outbox/publication/README.md) for the detailed
 scope; valid local reports do not close full numeric external quality gates.
+
+For the Android platform-parser subset on a connected physical API36 device:
+
+```sh
+python3 -B tests/native/outbox/publication/device_plan_run.py --serial <device-serial> --output <fresh-device-core-directory>
+```
+
+This standalone shell-UID process runs the same 69 native plan/ACK assertions with
+boot-framework JSON. It requires no app install or screen unlock. Source/class/
+DEX/fixture hashes, actual UID/API/boot loader and unchanged retained APK/inventory
+are recorded. Exact owned temporary files are hash-checked and removed. This
+proves neither ordinary app/guest/protected-signer composition nor phone lifecycle.

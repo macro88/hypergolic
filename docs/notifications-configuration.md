@@ -544,6 +544,10 @@ helper read after the device disconnects: zero napplet inputs, zero checks and n
 APK installation attempt. Its original partial running journal is retained with
 an independent terminal-failure receipt; no live actor remains. The owned helper
 JAR has not been verified removed and requires hash-checked cleanup on reconnect.
+The later physical platform-parser checkpoint removes that exact helper after
+matching its recorded SHA-256, then verifies absence and unchanged retained app/
+package inventory. This resolves this cleanup item; the six protected publisher
+journeys still need an unlocked device and a current sealed test product.
 
 Six physical checks are prepared, not run: exact signed publisher review/send;
 same-app/HTML publisher grant separation; positive independent approval; exact

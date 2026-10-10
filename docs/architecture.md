@@ -507,3 +507,11 @@ state. Host clock/initialization and a sealed isolated route adapter remain
 explicit; production source is unchanged. Physical Android, protected signing,
 ordinary guest/Expo and full native fault acceptance stay open. See the
 [Android owner checkpoint](outbox-routing.md#android-host-publication-owner-faults--11-october-2026).
+
+The current native plan/ACK primitives also pass all69 existing assertions on the
+physical API36 Android boot-framework JSON implementation. The sealed disposable
+shell-UID process is distinct from the retained ordinary app, which stays unchanged.
+Exact test files and the previously-owned notification observer are removed with
+hash/absence checks. This adds physical OB-05 supporting evidence; ordinary app,
+guest, protected signer, lifecycle and complete native fault requirements stay
+open. See the [platform parser checkpoint](outbox-routing.md#physical-android-framework-parser-and-plan--11-october-2026).
