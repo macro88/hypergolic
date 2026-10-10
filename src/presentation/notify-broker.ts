@@ -135,7 +135,8 @@ export class NotifyBroker {
     const id = this.native.newChannelId(); routingText(id, 128);
     if (this.cards.some(card => card.id === id)) return error('notification unavailable');
     const priority = request.priority ?? endpoint.channels.get(channel)?.defaultPriority ?? 'normal';
-    this.cards.push(Object.freeze({id, origin: endpoint.registration, title: request.title, body: request.body ?? '', channel, priority, actions: Object.freeze([...(request.actions ?? [])]), created: now, toastUntil: priority === 'low' ? 0 : now + 8000})); this.publish();
+    const created = this.now();
+    this.cards.push(Object.freeze({id, origin: endpoint.registration, title: request.title, body: request.body ?? '', channel, priority, actions: Object.freeze([...(request.actions ?? [])]), created, toastUntil: priority === 'low' ? 0 : created + 8000})); this.publish();
     return {type: 'notify.send.result', id: request.id, notificationId: id};
   }
   async dispatch(token: string, owner: CapabilityOwner): Promise<void> {

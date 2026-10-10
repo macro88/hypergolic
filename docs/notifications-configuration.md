@@ -616,3 +616,48 @@ owned shell-UID helper still requires reconnection and an exact hash check. CAP-
 stays partial; the full matrix remains seven of61 complete/54 open. Clean-close
 policy and external quality authorization remain unanswered. No source push,
 quality waiver or Phase3 advance. Private evidence: notification-concurrency01.
+
+
+## Notification admission-time lifetime and pending-read faults — 11 October 2026
+
+The delayed-permission regression reproduces a notification creation timestamp
+of1000 when permission completes at simulated time11000. The broker previously
+started toast/card lifetime before the asynchronous permission lookup. It now
+captures creation time after permission, active-authority and capacity validation,
+immediately before insertion. The existing eight-second toast and five-minute
+card durations and rate windows are unchanged. This prevents lookup latency from
+consuming the alert's presentation lifetime.
+
+Three new parent tests cover delayed-read lifetime, a four-request burst with six
+existing cards, and five in-flight authority-loss variants: native close, lease
+expiry, background, identity change and exact permission revocation. The latter
+variants verify no shared card, allocated ID, reply or callback, followed by a
+positive independent recipient. The burst corresponds to the owning native
+four-per-session pending bound; the simulated ten-second read is within the
+native25-second lease. Actual disk SQLite and the shared broker are used, with
+native/clock test doubles. These are neither native zero-effect counters nor
+physical elapsed-time/device acceptance. All49 presentation tests and TypeScript
+pass, including exact controlled-clock lifetime and positive capacity recovery.
+
+Both ordinary Expo exports, the updated protected notification test APK and both
+ordinary ARM64 signed products pass. IDs/labels/certificates and the real owner
+remain fixed;1279 ordinary source hashes and474 protected hashes are sealed.
+The iPhone ready copy matches63 files and verifies its strict signature using the
+existing keychain; its cached profile requires no provisioning update. Previous
+ready bytes are checked unchanged. Android's first ordinary packaging attempt
+fails at packageRelease IncrementalSplitterRunnable with configuration/input
+restoration verified. The separate stacktrace retry passes without code changes;
+the original failure remains and its root cause is unconfirmed. No external
+Build Scan or device installation occurs.
+
+A final complete local React Doctor scan is bound to unchanged source after all
+build actors terminate:442 files, zero diagnostics/skipped checks, score null.
+The earlier parallel scan is retained separately. Full current-source external
+audit/scoring still need specific payload/destination authorization; no retry or
+gate waiver occurs. Last full aislop98 belongs to earlier source and retains only
+the two approved locked findings. The clean-close answer remains pending.
+CAP-10 stays partial and the matrix remains seven of61 complete/54 open. Physical
+signed publisher, concurrent/delayed/native effects, published/iOS/minimum-platform
+and complete usability remain open. The owned helper JAR still awaits exact
+hash-checked removal after device reconnect. No source push or Phase3 advance.
+Private evidence: notification-pending-read01.

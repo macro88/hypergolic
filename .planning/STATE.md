@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Reproduced/fixed notification concurrent-capacity race;46 presentation tests, TypeScript, both exports and both ordinary signed products pass. Current signed notification APK rebuilt; physical publisher/concurrency tests and helper cleanup await device reconnect. CAP10 partial;7/61 complete/54 open, full external quality approvals pending, no source push.
+stopped_at: Notification lifetime now starts after permission/admission;49 presentation tests, TypeScript, both exports and current signed test/ordinary products pass. Original packaging failure retained; final local Doctor442 source-bound/no score. Physical tests/helper cleanup await reconnect;7/61 complete/54 open, external quality/close answers pending, no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: 1d48262718b8a641c9b01e36e5886d50c56c2df8
+state_head: d0b18fefef97e6f8e2dce635087df825647e31d2
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2408,3 +2408,48 @@ owned shell-UID helper still requires reconnection and an exact hash check. CAP-
 stays partial; the full matrix remains seven of61 complete/54 open. Clean-close
 policy and external quality authorization remain unanswered. No source push,
 quality waiver or Phase3 advance. Private evidence: notification-concurrency01.
+
+
+## Notification admission-time lifetime and pending-read faults — 11 October 2026
+
+The delayed-permission regression reproduces a notification creation timestamp
+of1000 when permission completes at simulated time11000. The broker previously
+started toast/card lifetime before the asynchronous permission lookup. It now
+captures creation time after permission, active-authority and capacity validation,
+immediately before insertion. The existing eight-second toast and five-minute
+card durations and rate windows are unchanged. This prevents lookup latency from
+consuming the alert's presentation lifetime.
+
+Three new parent tests cover delayed-read lifetime, a four-request burst with six
+existing cards, and five in-flight authority-loss variants: native close, lease
+expiry, background, identity change and exact permission revocation. The latter
+variants verify no shared card, allocated ID, reply or callback, followed by a
+positive independent recipient. The burst corresponds to the owning native
+four-per-session pending bound; the simulated ten-second read is within the
+native25-second lease. Actual disk SQLite and the shared broker are used, with
+native/clock test doubles. These are neither native zero-effect counters nor
+physical elapsed-time/device acceptance. All49 presentation tests and TypeScript
+pass, including exact controlled-clock lifetime and positive capacity recovery.
+
+Both ordinary Expo exports, the updated protected notification test APK and both
+ordinary ARM64 signed products pass. IDs/labels/certificates and the real owner
+remain fixed;1279 ordinary source hashes and474 protected hashes are sealed.
+The iPhone ready copy matches63 files and verifies its strict signature using the
+existing keychain; its cached profile requires no provisioning update. Previous
+ready bytes are checked unchanged. Android's first ordinary packaging attempt
+fails at packageRelease IncrementalSplitterRunnable with configuration/input
+restoration verified. The separate stacktrace retry passes without code changes;
+the original failure remains and its root cause is unconfirmed. No external
+Build Scan or device installation occurs.
+
+A final complete local React Doctor scan is bound to unchanged source after all
+build actors terminate:442 files, zero diagnostics/skipped checks, score null.
+The earlier parallel scan is retained separately. Full current-source external
+audit/scoring still need specific payload/destination authorization; no retry or
+gate waiver occurs. Last full aislop98 belongs to earlier source and retains only
+the two approved locked findings. The clean-close answer remains pending.
+CAP-10 stays partial and the matrix remains seven of61 complete/54 open. Physical
+signed publisher, concurrent/delayed/native effects, published/iOS/minimum-platform
+and complete usability remain open. The owned helper JAR still awaits exact
+hash-checked removal after device reconnect. No source push or Phase3 advance.
+Private evidence: notification-pending-read01.

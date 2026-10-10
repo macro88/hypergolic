@@ -73,6 +73,12 @@ release. Both current ordinary signed products and exports pass; physical concur
 and native zero-effect evidence remain open. See the
 [capacity repair checkpoint](notifications-configuration.md#notification-concurrent-capacity-repair--11-october-2026).
 
+Notification presentation lifetime starts after asynchronous permission validation
+and final card admission. Delayed disk-SQLite reads no longer consume the toast or
+centre lifetime. Controlled-clock and pending-read revocation regressions pass;
+physical/native fault acceptance stays open. See the
+[pending-read checkpoint](notifications-configuration.md#notification-admission-time-lifetime-and-pending-read-faults--11-october-2026).
+
 ## Implemented
 
 `index.ts` registers `src/App.tsx` with Expo. Both native hosts run verified,
