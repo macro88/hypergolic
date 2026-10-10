@@ -9,27 +9,31 @@ import {tick} from './harness.ts';
 import {bindRoutingOwner} from '../../src/routing/routing-owner.ts';
 import {IdentityTransition} from '../../src/security/identity-transition.ts';
 import {Integrated, pubkey} from '../security/harness.ts';
-import {setup as workspaceStore} from '../storage/harness.ts';
+import {setup as workspaceStore, deferred} from '../storage/harness.ts';
 import {initialTestWorkspace, assertBundledWorkspace} from '../../src/shell/fixtures.ts';
 const schema={type:'object',properties:{theme:{type:'string',enum:['dark','light'],default:'dark'},token:{type:'string','x-napplet-secret':true},nested:{type:'object',properties:{level:{type:'integer',minimum:1,maximum:3,default:2}}}},required:['theme']};
 async function setup(t:{after(fn:()=>void):void}, assertAuthority:()=>void=()=>{}) {
  const source:NativeRegistration={user:'01'.repeat(32),publisher:'02'.repeat(32),appId:'configuration-source',version:'03'.repeat(32),epoch:0,sessionId:'source-view',generation:'source-generation',instanceId:'source-view',fixture:'published',domains:['config']};
  let state:RoutingNativeState={user:source.user,epoch:0,revision:1,available:true,ownerAvailable:true,foreground:true},focus=source.generation,counter=0,listener=()=>{};
+ const reviewCounters=new Map<string,number>([[source.generation,1]]);
  const revoked=new Set<string>(),slots=new Map<string,string>(),live=new Set<string>(),replies=new Map<string,any>(),sent:{generation:string;message:any}[]=[],records=new Map<string,string>();
  let gate:Promise<void>|null=null,unlock=()=>{};
- const backend:ConfigSecureStore={isAvailableAsync:async()=>true,getItemAsync:async key=>records.get(key)??null,setItemAsync:async(key,value)=>{if(gate)await gate;records.set(key,value);}};
+ const readGate:{current:{entered():void;wait:Promise<void>}|null}={current:null};
+ const backend:ConfigSecureStore={isAvailableAsync:async()=>true,getItemAsync:async key=>{const paused=readGate.current;if(paused){paused.entered();await paused.wait;}return records.get(key)??null;},setItemAsync:async(key,value)=>{if(gate)await gate;records.set(key,value);}};
  const store=await openConfigStore(backend,async text=>createHash('sha256').update(text).digest('hex'),9);
- const native={state:()=>state,mayDeliver:(generation:string,revision:number,domain:string)=>state.available&&state.revision===revision&&domain==='config'&&!revoked.has(generation),mayReview:(generation:string,revision:number)=>state.available&&state.revision===revision&&focus===generation&&!revoked.has(generation),send(generation:string,revision:number,message:any){if(!this.mayDeliver(generation,revision,'config'))return false;sent.push({generation,message});return true;},subscribe(fn:()=>void){listener=fn;return()=>{};},newChannelId:()=>''};
+ const native={reviewRevision(generation:string,revision:number){return this.mayReview(generation,revision)?reviewCounters.get(generation)??0:null;},state:()=>state,mayDeliver:(generation:string,revision:number,domain:string)=>state.available&&state.revision===revision&&domain==='config'&&!revoked.has(generation),mayReview:(generation:string,revision:number)=>state.available&&state.revision===revision&&focus===generation&&!revoked.has(generation),send(generation:string,revision:number,message:any){if(!this.mayDeliver(generation,revision,'config'))return false;sent.push({generation,message});return true;},subscribe(fn:()=>void){listener=fn;return()=>{};},newChannelId:()=>''};
  const capability={take(token:string){const value=slots.get(token)??null;slots.delete(token);return value;},isActive:(token:string)=>live.has(token),finish(token:string,result:string|null){live.delete(token);replies.set(token,result===null?null:JSON.parse(result).response);}};
  const broker=new ConfigBroker(capability,native,store);t.after(()=>broker.stop());
  function dispatch(message:unknown,registration=source,patch:Partial<NativeRegistration>={},wrapperId?:string){const token='token-'+ ++counter;live.add(token);slots.set(token,JSON.stringify({registration:{...registration,...patch},request:JSON.stringify({type:'routing.call',id:wrapperId??'call-'+counter,message,revision:state.revision})}));return{token,promise:broker.dispatch(token,{registration,assertActive(){assertAuthority();if(revoked.has(registration.generation))throw Error('Revoked');}}),reply:()=>replies.get(token)};}
  async function register(value:unknown=schema,version=1,registration=source){const request=dispatch({type:'config.registerSchema',id:'register-'+ ++counter,schema:value,version},registration);await request.promise;assert.equal(request.reply().ok,true);}
  async function get(registration=source){const request=dispatch({type:'config.get',id:'get-'+ ++counter},registration);await request.promise;return request.reply()?.values;}
  return {broker,source,store,records,sent,dispatch,register,get,state:()=>state,
+ expire(token:string){live.delete(token);},
+ pauseRead(){const entered=deferred(),released=deferred();readGate.current={entered:entered.resolve,wait:released.promise};return{entered:entered.promise,release(){readGate.current=null;released.resolve();}};},
  synchronizeRoutingOwner(user:string,epoch:number,available:boolean){
   if(state.user===user&&state.epoch===epoch&&state.ownerAvailable===available)return;
   state={...state,user,epoch,ownerAvailable:available,available:available&&state.foreground,revision:state.revision+1};listener();
- },gate(){gate=new Promise(resolve=>{unlock=resolve;});},unlock(){gate=null;unlock();},focus(value:string){focus=value;broker.refresh();},lifecycle(patch:Partial<RoutingNativeState>){state={...state,...patch,revision:state.revision+1};listener();},revoke(generation:string){revoked.add(generation);},close(){revoked.add(source.generation);broker.close(source.generation);}};
+ },gate(){gate=new Promise(resolve=>{unlock=resolve;});},unlock(){gate=null;unlock();},focus(value:string,refresh=true){if(focus!==value){reviewCounters.set(focus,(reviewCounters.get(focus)??0)+1);reviewCounters.set(value,(reviewCounters.get(value)??0)+1);focus=value;}if(refresh)broker.refresh();},lifecycle(patch:Partial<RoutingNativeState>){state={...state,...patch,revision:state.revision+1};listener();},revoke(generation:string){revoked.add(generation);},close(){revoked.add(source.generation);broker.close(source.generation);}};
 }
 test('schema ACK and immediate subscription wait for persisted/defaulted registration; source scope is captured',async t=>{
  const h=await setup(t);h.gate();const registered=h.dispatch({type:'config.registerSchema',id:'r',schema}),subscribed=h.dispatch({type:'config.subscribe'}),get=h.dispatch({type:'config.get',id:'g'});await tick();assert.equal(registered.reply(),undefined);assert.equal(h.sent.length,0);h.unlock();await Promise.all([registered.promise,subscribed.promise,get.promise]);assert.deepEqual(registered.reply(),{type:'config.registerSchema.result',id:'r',ok:true});assert.deepEqual(get.reply().values,{theme:'dark',nested:{level:2}});assert.deepEqual(h.sent.map(row=>row.message),[{type:'config.values',values:{theme:'dark',nested:{level:2}}}]);assert.equal(h.sent[0]!.generation,h.source.generation);
@@ -116,4 +120,87 @@ test('cancelled saved identity selection retains configuration schema, values an
  const blocked=h.dispatch({type:'config.get',id:'during-switch'});await blocked.promise;assert.equal(blocked.reply(),null);
  await switching;assert.equal(h.state().user,pubkey(2));assert.equal(h.state().epoch,session.epoch+1);assert.equal(h.state().ownerAvailable,true);
  assert.equal(await h.get(),undefined);assert.equal(h.sent.length,3);
+});
+
+test('expired native openSettings cannot present an editor after its pending storage read',async t=>{
+ const h=await setup(t);await h.register();const gate=h.pauseRead();
+ const request=h.dispatch({type:'config.openSettings'});
+ try {await gate.entered;assert.equal(h.broker.getSnapshot().review,null);h.expire(request.token);}
+ finally {gate.release();}
+ await request.promise;assert.equal(request.reply(),null);assert.equal(h.broker.getSnapshot().review,null);
+ const fresh=h.dispatch({type:'config.openSettings'});await fresh.promise;assert.ok(h.broker.getSnapshot().review);
+});
+
+test('two concurrent trusted editor opens preserve one review and its Save identity',async t=>{
+ const h=await setup(t);await h.register();const gate=h.pauseRead(),reviews:string[]=[];
+ const unsubscribe=h.broker.subscribe(()=>{const review=h.broker.getSnapshot().review;if(review)reviews.push(review.id);});t.after(unsubscribe);
+ const first=h.broker.open(h.source.generation),second=h.broker.open(h.source.generation);
+ try {await gate.entered;assert.equal(h.broker.getSnapshot().review,null);}finally{gate.release();}
+ await Promise.all([first,second]);assert.equal(reviews.length,1);
+ const review=h.broker.getSnapshot().review!;assert.equal(review.id,reviews[0]);
+ await h.broker.commit(review.id,{theme:'light',nested:{level:3}},{});
+ assert.deepEqual(await h.get(),{theme:'light',nested:{level:3}});
+});
+
+test('losing and regaining focus while opening cannot revive the earlier editor request',async t=>{
+ const h=await setup(t);await h.register();const gate=h.pauseRead();
+ const pending=h.broker.open(h.source.generation);const cancelled=assert.rejects(pending,{code:'REVOKED'});
+ try {await gate.entered;h.focus('other-generation');h.focus(h.source.generation);}finally{gate.release();}
+ await cancelled;assert.equal(h.broker.getSnapshot().review,null);
+ await h.broker.open(h.source.generation);assert.ok(h.broker.getSnapshot().review);
+});
+
+test('a cancelled opening cannot release or overwrite a fresh opening after focus returns',async t=>{
+ const h=await setup(t);await h.register();const gate=h.pauseRead();
+ const first=h.broker.open(h.source.generation);const cancelled=assert.rejects(first,{code:'REVOKED'});
+ await gate.entered;h.focus('other-generation');h.focus(h.source.generation);
+ const fresh=h.broker.open(h.source.generation);gate.release();
+ await Promise.all([cancelled,fresh]);assert.ok(h.broker.getSnapshot().review);
+ const id=h.broker.getSnapshot().review!.id;await h.broker.commit(id,{theme:'light',nested:{level:3}},{});
+ assert.deepEqual(await h.get(),{theme:'light',nested:{level:3}});
+});
+
+for (const fault of ['background', 'identity', 'close', 'stop'] as const) {
+ test('pending editor cannot survive ' + fault + ' even when its storage read completes',async t=>{
+  const h=await setup(t);await h.register();const gate=h.pauseRead();
+  const pending=h.broker.open(h.source.generation),cancelled=assert.rejects(pending,{code:'REVOKED'});
+  try {
+   await gate.entered;
+   if(fault==='background'){h.lifecycle({available:false,foreground:false});h.lifecycle({available:true,foreground:true});}
+   else if(fault==='identity')h.synchronizeRoutingOwner('05'.repeat(32),1,true);
+   else if(fault==='close')h.close();
+   else h.broker.stop();
+  }finally{gate.release();}
+  await cancelled;assert.equal(h.broker.getSnapshot().review,null);assert.equal(h.sent.length,0);
+ });
+}
+
+test('failed protected storage read releases editor ownership and preserves a later valid open',async t=>{
+ const h=await setup(t);await h.register();const before=new Map(h.records);
+ for(const key of h.records.keys())h.records.set(key,'malformed-config-record');
+ await assert.rejects(h.broker.open(h.source.generation),{code:'CORRUPT_STORAGE'});
+ assert.equal(h.broker.getSnapshot().review,null);
+ for(const [key,value] of before)h.records.set(key,value);
+ await h.broker.open(h.source.generation);const review=h.broker.getSnapshot().review!;
+ assert.deepEqual(review.ordinary,{theme:'dark',nested:{level:2}});
+ await h.broker.commit(review.id,{theme:'light',nested:{level:3}},{});
+ assert.deepEqual(await h.get(),{theme:'light',nested:{level:3}});
+});
+
+test('native focus loss and return cancel a pending editor even before lifecycle events arrive',async t=>{
+ const h=await setup(t);await h.register();const gate=h.pauseRead();
+ const pending=h.broker.open(h.source.generation),cancelled=assert.rejects(pending,{code:'REVOKED'});
+ try{await gate.entered;h.focus('other-generation',false);h.focus(h.source.generation,false);}finally{gate.release();}
+ await cancelled;assert.equal(h.broker.getSnapshot().review,null);
+ await h.broker.open(h.source.generation);assert.ok(h.broker.getSnapshot().review);
+});
+
+test('an existing editor cannot save after a native focus round trip with delayed events',async t=>{
+ const h=await setup(t);await h.register();await h.dispatch({type:'config.subscribe'}).promise;
+ await h.broker.open(h.source.generation);const id=h.broker.getSnapshot().review!.id;
+ h.focus('other-generation',false);h.focus(h.source.generation,false);
+ await assert.rejects(h.broker.commit(id,{theme:'light',nested:{level:3}},{}),{code:'REVOKED'});
+ assert.equal(h.broker.getSnapshot().review,null);assert.deepEqual(await h.get(),{theme:'dark',nested:{level:2}});
+ await h.broker.open(h.source.generation);await h.broker.commit(h.broker.getSnapshot().review!.id,{theme:'light',nested:{level:3}},{});
+ assert.deepEqual(h.sent.map(row=>row.message.values),[{theme:'dark',nested:{level:2}},{theme:'light',nested:{level:3}}]);
 });

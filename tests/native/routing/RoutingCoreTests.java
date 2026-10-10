@@ -30,6 +30,17 @@ public final class RoutingCoreTests {
     long captured = presentation.revision(); presentation.foreground(false); expect(!presentation.mayDeliver("config-only", "config")); expect(!presentation.mayDeliver("notify-only", "notify")); expect(!presentation.matchesRevision(captured));
     presentation.foreground(true); expect(presentation.mayDeliver("config-only", "config")); expect(presentation.mayDeliver("notify-only", "notify"));
     presentation.revoke("config-only"); expect(!presentation.mayDeliver("config-only", "config")); expect(presentation.synchronizeOwner(b, 1, true)); expect(!presentation.mayDeliver("notify-only", "notify"));
+    RoutingEndpointRegistry reviews = new RoutingEndpointRegistry(); expect(reviews.synchronizeOwner(a, 0, true));
+    expect(reviews.register("settings", a, 0, false, false, false, true)); reviews.ready("settings");
+    long deliveryRevision = reviews.revision(); expect(reviews.reviewRevision("settings") == -1); expect(reviews.reviewRevision("missing") == -1);
+    expect(reviews.focus("settings", true)); long firstReview = reviews.reviewRevision("settings"); expect(firstReview >= 0);
+    expect(!reviews.focus("settings", true)); expect(reviews.reviewRevision("settings") == firstReview);
+    expect(reviews.focus("settings", false)); expect(reviews.reviewRevision("settings") == -1); expect(reviews.mayDeliver("settings", "config"));
+    expect(reviews.focus("settings", true)); expect(reviews.reviewRevision("settings") > firstReview); expect(reviews.revision() == deliveryRevision);
+    expect(reviews.register("peer", a, 0, false, true)); reviews.ready("peer"); long currentReview = reviews.reviewRevision("settings");
+    expect(reviews.focus("peer", true)); expect(reviews.reviewRevision("settings") == currentReview); expect(reviews.matchesRevision(deliveryRevision));
+    reviews.foreground(false); expect(reviews.reviewRevision("settings") == -1); reviews.foreground(true); expect(!reviews.matchesRevision(deliveryRevision));
+    reviews.revoke("settings"); expect(reviews.reviewRevision("settings") == -1);
     System.out.println("Android routing core " + count + " assertions passed");
   }
 }

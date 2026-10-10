@@ -38,9 +38,10 @@ final class RoutingTransportRegistry: @unchecked Sendable {
     rows[generation] = Row(config: config); return true
   } }
   func ready(_ generation: String) { lock.withLock { endpoints.ready(generation) } }
-  func focus(_ generation: String, _ value: Bool) { lock.withLock { endpoints.focus(generation, value) } }
+  func focus(_ generation: String, _ value: Bool) { lock.withLock { if endpoints.focus(generation, value) { sink?(state()) } } }
   func revoke(_ generation: String) { lock.withLock { endpoints.revoke(generation); _ = rows.removeValue(forKey: generation) } }
   func mayReview(_ generation: String, revision: UInt64) -> Bool { lock.withLock { endpoints.matchesRevision(revision) && endpoints.mayReview(generation) } }
+  func reviewRevision(_ generation: String, revision: UInt64) -> Int64 { lock.withLock { endpoints.matchesRevision(revision) ? endpoints.reviewRevision(generation) : -1 } }
   func mayDeliver(_ generation: String, revision: UInt64, domain: String) -> Bool { lock.withLock {
     endpoints.matchesRevision(revision) && endpoints.mayDeliver(generation, domain: domain) && CapabilityTransport.leases.sessionActive(generation)
   } }

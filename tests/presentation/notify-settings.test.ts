@@ -18,7 +18,7 @@ test('background, identity, native revision and cancellation fence delayed Setti
   const gate=new Promise<void>(resolve=>{release=resolve;}),signal=new AbortController(),row={publisher:'02'.repeat(32),appId:'saved-source',channel:'messages'};
   const identity={sessionAuthority:()=>({user:'01'.repeat(32),epoch:0,assertActive(){}})};
   const broker={async listPermissions(owner:TrustedUser){await gate;owner.assertActive();return [row];},async revoke(owner:TrustedApp){owner.assertActive();revokes++;}};
-  const native={state:()=>state,mayDeliver:()=>false,mayReview:()=>false,send:()=>false,subscribe:()=>()=>{},newChannelId:()=>''};
+  const native={state:()=>state,mayDeliver:()=>false,reviewRevision: () => 1, mayReview:()=>false,send:()=>false,subscribe:()=>()=>{},newChannelId:()=>''};
   const service=createNotificationSettings(identity,native,broker),pending=service.revoke(row,{signal:signal.signal});
   if(mode==='background')state={...state,foreground:false,available:false};else if(mode==='identity')state={...state,user:'03'.repeat(32),epoch:1};else if(mode==='revision')state={...state,revision:2};else signal.abort();
   release();await assert.rejects(pending,(error:any)=>error.code==='REVOKED');assert.equal(revokes,0);

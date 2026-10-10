@@ -22,7 +22,7 @@ export async function setup(t: {after(action: () => void | Promise<void>): void}
   const native = {
     state: () => state,
     mayDeliver: (generation: string, revision: number, domain: string) => state.available && revision === state.revision && !revoked.has(generation) && (generation !== target.generation || targetReady) && (generation === source.generation || domain === 'inc'),
-    mayReview: (generation: string, revision: number) => state.available && revision === state.revision && focus === generation && !revoked.has(generation),
+    reviewRevision: () => 1, mayReview: (generation: string, revision: number) => state.available && revision === state.revision && focus === generation && !revoked.has(generation),
     send(generation: string, revision: number, message: Readonly<Record<string, unknown>>) {if (deniedPush || !this.mayDeliver(generation, revision, message.type === 'intent.changed' ? 'intent' : 'inc')) return false; sent.push({generation, message}); return true;},
     subscribe(listener: () => void) {lifecycle = listener; return () => {};}, newChannelId: () => 'channel-' + ++counter,
   };

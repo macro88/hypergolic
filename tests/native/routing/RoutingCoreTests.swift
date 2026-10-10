@@ -29,6 +29,17 @@ import Foundation
     let captured = presentation.state().revision; presentation.setForeground(false); expect(!presentation.mayDeliver("config-only", domain:"config")); expect(!presentation.mayDeliver("notify-only", domain:"notify")); expect(!presentation.matchesRevision(captured))
     presentation.setForeground(true); expect(presentation.mayDeliver("config-only", domain:"config")); expect(presentation.mayDeliver("notify-only", domain:"notify"))
     presentation.revoke("config-only"); expect(!presentation.mayDeliver("config-only", domain:"config")); expect(presentation.synchronizeOwner(b, epoch:1, available:true)); expect(!presentation.mayDeliver("notify-only", domain:"notify"))
+    let reviews = RoutingEndpointRegistry(); expect(reviews.synchronizeOwner(a, epoch:0, available:true))
+    expect(reviews.register("settings", user:a, epoch:0, intent:false, inc:false, config:true)); reviews.ready("settings")
+    let deliveryRevision = reviews.state().revision; expect(reviews.reviewRevision("settings") == -1); expect(reviews.reviewRevision("missing") == -1)
+    expect(reviews.focus("settings", true)); let firstReview = reviews.reviewRevision("settings"); expect(firstReview >= 0)
+    expect(!reviews.focus("settings", true)); expect(reviews.reviewRevision("settings") == firstReview)
+    expect(reviews.focus("settings", false)); expect(reviews.reviewRevision("settings") == -1); expect(reviews.mayDeliver("settings", domain:"config"))
+    expect(reviews.focus("settings", true)); expect(reviews.reviewRevision("settings") > firstReview); expect(reviews.state().revision == deliveryRevision)
+    expect(reviews.register("peer", user:a, epoch:0, intent:false, inc:true)); reviews.ready("peer"); let currentReview = reviews.reviewRevision("settings")
+    expect(reviews.focus("peer", true)); expect(reviews.reviewRevision("settings") == currentReview); expect(reviews.matchesRevision(deliveryRevision))
+    reviews.setForeground(false); expect(reviews.reviewRevision("settings") == -1); reviews.setForeground(true); expect(!reviews.matchesRevision(deliveryRevision))
+    reviews.revoke("settings"); expect(reviews.reviewRevision("settings") == -1)
     print("iOS routing core \(count) assertions passed")
   }
 }

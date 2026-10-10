@@ -134,6 +134,7 @@ public final class NappletHostModule: Module {
     }
     Function("routingState") { RoutingTransport.shared.state() }
     Function("mayReviewRouting") { (generation: String, revision: UInt64) -> Bool in RoutingTransport.shared.mayReview(generation, revision: revision) }
+    Function("routingReviewRevision") { (generation: String, revision: UInt64) -> Int64 in RoutingTransport.shared.reviewRevision(generation, revision: revision) }
     Function("mayDeliverRouting") { (generation: String, revision: UInt64, domain: String) -> Bool in RoutingTransport.shared.mayDeliver(generation, revision: revision, domain: domain) }
     Function("sendRouting") { (generation: String, revision: UInt64, response: String) -> Bool in RoutingTransport.shared.send(generation, revision: revision, raw: response) }
     Function("takeCapability") { (token: String) -> String? in CapabilityTransport.leases.take(token) }

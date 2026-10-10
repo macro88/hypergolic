@@ -51,6 +51,14 @@ primitive arrays or otherwise supported values. Cancel does not save. Save repor
 validation errors and preserves the draft; duplicate Save cannot create a second
 concurrent write.
 
+Only one editor may be opening while its protected storage read is pending.
+A native request must remain live until that editor is presented. Background,
+close, identity changes and focus interruption cancel the pending opening. Returning
+to the original napplet requires a fresh request; a cancelled read cannot replace
+or release a newer editor. Native focus counters also prevent an existing editor
+from saving after an interruption, even before lifecycle events reach JavaScript.
+Foreground subscriptions retain their separate delivery revision.
+
 Supported schema objects are bounded to depth four. Primitive arrays are
 homogeneous. Defaults, required fields, numeric/string/array limits and enum
 choices are checked before delivery. References, patterns, unsupported drafts and
@@ -661,3 +669,42 @@ signed publisher, concurrent/delayed/native effects, published/iOS/minimum-platf
 and complete usability remain open. The owned helper JAR still awaits exact
 hash-checked removal after device reconnect. No source push or Phase3 advance.
 Private evidence: notification-pending-read01.
+
+## Configuration opening and native focus repair — 11 October 2026
+
+Four controlled-read regressions reproduced an expired `config.openSettings`
+request presenting an editor, concurrent trusted opens replacing a review, and
+old openings reviving after focus returned. The broker now reserves one pending
+opening, carries the original request check through storage, and releases only
+its own reservation. Read failures release that slot for a later valid request.
+
+Android and iOS native endpoint authorities now count actual focus transitions
+separately from routing delivery revisions. Repeated identical focus properties
+leave the counter unchanged. The internal Expo bridge exposes the current native
+review counter; unavailable or exhausted scopes fail closed. Pending and displayed
+configuration editors capture it and recheck it before presentation and throughout
+Save. Native focus changes also emit lifecycle updates. The counter remains native
+and is not a new NAP field or guest-selected authority.
+
+All 60 presentation, 43 routing, 353 security, 13 bootstrap and 57 capability tests
+pass. Actual Java and Swift authority cores each pass 141 assertions. Added cases
+cover expired requests, concurrent opens, delayed focus events, protected-read
+failure recovery, background/return, identity changes, close and stop. A fresh
+editor still saves exact values and delivers one update to its existing subscriber.
+These controlled storage and host-compiled tests are not physical encrypted-storage
+or phone journeys.
+
+TypeScript, Android prebuild, both production exports and both ordinary signed
+ARM64 products pass with the retained app IDs, labels and certificates. Android
+changes only the main JavaScript bundle and one DEX file; all 21 native libraries,
+other DEX files and notice assets remain unchanged. iPhone retains its 130-file
+product and 66 original notices. Current native-bound source maps independently
+retain all 60 third-party identities and exact source/metadata/original hashes on
+both platforms; only the two owning first-party JavaScript sources change. Existing
+notice manifests retain their dated provenance rather than claiming the old bundle
+hashes describe these products.
+
+No device installation or physical acceptance follows. CAP-11 and complete
+Phase 2 acceptance remain open; the matrix still has 7 of 61 complete requirements.
+Full external quality/audit and native/physical fault evidence are still required.
+No source push or new dependency exception is authorized by this repair.

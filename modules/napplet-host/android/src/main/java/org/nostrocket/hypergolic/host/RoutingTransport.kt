@@ -31,9 +31,10 @@ internal object RoutingTransport {
     rows[generation] = Row(config); return true
   }
   @Synchronized fun ready(generation: String) { endpoints.ready(generation) }
-  @Synchronized fun focus(generation: String, value: Boolean) { endpoints.focus(generation, value) }
+  @Synchronized fun focus(generation: String, value: Boolean) { if (endpoints.focus(generation, value)) sink?.invoke(state()) }
   @Synchronized fun revoke(generation: String) { endpoints.revoke(generation); rows.remove(generation) }
   @Synchronized fun mayReview(generation: String, revision: Long): Boolean = endpoints.matchesRevision(revision) && endpoints.mayReview(generation)
+  @Synchronized fun reviewRevision(generation: String, revision: Long): Long = if (endpoints.matchesRevision(revision)) endpoints.reviewRevision(generation) else -1
   @Synchronized fun mayDeliver(generation: String, revision: Long, domain: String): Boolean =
     endpoints.matchesRevision(revision) && endpoints.mayDeliver(generation, domain) && CapabilityTransport.leases.sessionActive(generation)
   @Synchronized fun receive(generation: String, sequence: Long, raw: String, push: (String) -> Unit, reply: (String?) -> Unit): String? {

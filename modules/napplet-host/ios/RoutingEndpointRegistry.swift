@@ -5,7 +5,7 @@ final class RoutingEndpointRegistry: @unchecked Sendable {
   private static let max: UInt64 = 9_007_199_254_740_991
   private struct Endpoint {
     let user: String; let epoch: UInt64; let intent: Bool; let inc: Bool; let notify: Bool; let config: Bool
-    var ready = false; var focused = false
+    var ready = false; var focused = false; var reviewRevision: UInt64 = 0
   }
   private let lock = NSLock()
   private var endpoints: [String: Endpoint] = [:]
@@ -36,7 +36,11 @@ final class RoutingEndpointRegistry: @unchecked Sendable {
     endpoints[generation] = Endpoint(user: user, epoch: epoch, intent: intent, inc: inc, notify: notify, config: config); return true
   }
   func ready(_ generation: String) { lock.lock(); defer { lock.unlock() }; endpoints[generation]?.ready = true }
-  func focus(_ generation: String, _ value: Bool) { lock.lock(); defer { lock.unlock() }; endpoints[generation]?.focused = value }
+  @discardableResult func focus(_ generation: String, _ value: Bool) -> Bool {
+    lock.lock(); defer { lock.unlock() }
+    guard var endpoint = endpoints[generation], endpoint.focused != value else { return false }
+    if endpoint.reviewRevision < Self.max { endpoint.reviewRevision += 1 }; endpoint.focused = value; endpoints[generation] = endpoint; return true
+  }
   func revoke(_ generation: String) { lock.lock(); defer { lock.unlock() }; endpoints.removeValue(forKey: generation) }
   private func active(_ generation: String) -> Bool {
     guard let endpoint = endpoints[generation] else { return false }
@@ -47,7 +51,12 @@ final class RoutingEndpointRegistry: @unchecked Sendable {
     guard active(generation), let endpoint = endpoints[generation] else { return false }
     return (domain == "intent" && endpoint.intent) || (domain == "inc" && endpoint.inc) || (domain == "notify" && endpoint.notify) || (domain == "config" && endpoint.config)
   }
-  func mayReview(_ generation: String) -> Bool { lock.lock(); defer { lock.unlock() }; return active(generation) && endpoints[generation]!.focused }
+  func mayReview(_ generation: String) -> Bool { lock.lock(); defer { lock.unlock() }; return active(generation) && endpoints[generation]!.focused && endpoints[generation]!.reviewRevision < Self.max }
+  func reviewRevision(_ generation: String) -> Int64 {
+    lock.lock(); defer { lock.unlock() }
+    guard active(generation), let endpoint = endpoints[generation], endpoint.focused, endpoint.reviewRevision < Self.max else { return -1 }
+    return Int64(endpoint.reviewRevision)
+  }
   func matchesRevision(_ value: UInt64) -> Bool { lock.lock(); defer { lock.unlock() }; return value == counter && counter < Self.max && foreground && ownerAvailable }
   func state() -> (user: String, epoch: UInt64?, revision: UInt64, available: Bool, ownerAvailable: Bool, foreground: Bool) {
     lock.lock(); defer { lock.unlock() }; return (ownerUser, ownerEpoch, counter, foreground && ownerAvailable && counter < Self.max, ownerAvailable, foreground)

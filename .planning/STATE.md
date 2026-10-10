@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Compiled Android prefab-owner notice subset verified: all690 headers match selected AAR entries and687 immutable source/3 exact generated originals;14 missing root/BSD texts added.27 regressions/typecheck/prebuild/export/signed build pass;75 previous assets/four DEX/21 ELF and ID/cert unchanged.2524 compiler inputs unchanged. Remaining static/native/Maven attribution, full quality and physical/close acceptance open;7/61 complete/54 open; no source push.
+stopped_at: Pending configuration opening and native focus continuity repaired. Original four failures retained;60 presentation/43 routing/353 security/13 bootstrap/57 capability tests and141 actual authority assertions per native core pass;typecheck/prebuild/both exports/signed products pass. Current third-party graphs unchanged. Phone/native fault/full quality acceptance still open;7/61 complete/54 open; no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: 7625ed7e691931e3e1720bfa7784e2590c2150ff
+state_head: a0d001317d2d8bfe0408df00ce287059ffff0090
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2634,3 +2634,14 @@ No device install/runtime acceptance; Android currently absent. Remaining static
 native/NDK/Bionic/Maven and six trusted-runtime attribution gaps, full quality,
 physical/published/fault and close policy acceptance stay open.7/61 complete/54
 open; no new exception, source push or Phase3 advancement.
+
+
+## Configuration opening lifecycle repair — 11 October 2026
+
+One pending protected read owns the editor slot and remains bound to its original
+native request. Actual Android/iOS focus counters invalidate old editor authority
+across quick focus round trips without expiring foreground subscriptions. All
+owning shared/native-core checks and current ordinary signed packaging pass; no
+physical test or full requirement is closed by this host/package subset. Original
+faults and the corrected Android source-map observer remain in private evidence.
+See [configuration lifecycle](../docs/notifications-configuration.md#configuration-opening-and-native-focus-repair--11-october-2026).

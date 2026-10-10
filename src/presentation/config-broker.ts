@@ -7,7 +7,7 @@ import {parseConfigMessage, type ConfigMessage} from './config-contract.ts';
 import {captureConfigSchema, configSecretFields, configValueValid, configValuesConform, resolveConfigValues, ConfigSchemaError, type ConfigSchema, type ConfigValues, type ConfigValue} from './config-schema.ts';
 import type {ConfigRecord, ConfigStore} from './config-store.ts';
 type Endpoint = {origin: NativeRegistration; assertActive(): void; seen: Set<string>; tail: Promise<unknown>; schema: ConfigSchema | null; version?: number; subscribed: boolean; window: number; opens: number};
-export type ConfigReview = Readonly<{id: string; origin: NativeRegistration; schema: ConfigSchema; ordinary: ConfigValues; secretPresent: Readonly<Record<string, boolean>>; section?: string}>;
+export type ConfigReview = Readonly<{id: string; origin: NativeRegistration; schema: ConfigSchema; reviewRevision: number; ordinary: ConfigValues; secretPresent: Readonly<Record<string, boolean>>; section?: string}>;
 export type ConfigSnapshot = Readonly<{review: ConfigReview | null}>;
 const sameScope = (left: NativeRegistration, right: NativeRegistration) => left.user === right.user && left.publisher === right.publisher && left.appId === right.appId && left.version === right.version;
 function valueAt(root: unknown, path: readonly string[]): unknown {
@@ -48,6 +48,7 @@ export class ConfigBroker {
   private counter = 0;
   private stopped = false;
   private saving: string | null = null;
+  private opening: {generation: string; assertActive(): void} | null = null;
   private readonly release: () => void;
   private readonly capability: NativeCapabilityPort;
   private readonly native: RoutingNativePort;
@@ -60,12 +61,13 @@ export class ConfigBroker {
   private publish(review: ConfigReview | null) {this.snapshot = Object.freeze({review}); for (const listener of this.listeners) try {listener();} catch { /* UI is not authority. */ }}
   refresh() {
     const state = this.native.state();
-    if (state.revision !== this.revision) {this.revision = state.revision; this.publish(null);}
+    if (state.revision !== this.revision) {this.revision = state.revision; this.opening = null; this.publish(null);}
     for (const [generation, endpoint] of this.endpoints) {
       if (!state.ownerAvailable || state.user !== endpoint.origin.user || state.epoch !== endpoint.origin.epoch) this.close(generation);
     }
+    if (this.opening) {try {this.opening.assertActive();} catch {this.opening = null;}}
     const review = this.snapshot.review;
-    if (review) {try {const endpoint = this.endpoints.get(review.origin.generation); if (!endpoint) throw new Error(); this.active(endpoint, this.revision); if (!this.native.mayReview(review.origin.generation, this.revision)) throw new Error();} catch {this.publish(null);}}
+    if (review) {try {const endpoint = this.endpoints.get(review.origin.generation); if (!endpoint) throw new Error(); this.active(endpoint, this.revision); if (this.native.reviewRevision(review.origin.generation, this.revision) !== review.reviewRevision) throw new Error();} catch {this.publish(null);}}
   }
   private active(endpoint: Endpoint, revision: number) {
     const state = this.native.state(), origin = endpoint.origin;
@@ -90,14 +92,24 @@ export class ConfigBroker {
     }
     await Promise.all(work);
   }
-  async open(generation: string, section?: string): Promise<void> {
+  async open(generation: string, section?: string, assertRequestActive?: () => void): Promise<void> {
     this.refresh(); const endpoint = this.endpoints.get(generation), revision = this.revision;
-    if (!endpoint?.schema || this.snapshot.review || this.counter >= Number.MAX_SAFE_INTEGER) return;
-    const schema = endpoint.schema, check = () => {this.active(endpoint, revision); if (endpoint.schema !== schema || !this.native.mayReview(generation, revision)) throw new ShellStorageError('REVOKED');}; check();
-    const record = await this.store.read(this.owner(endpoint, check)); check();
-    const values = resolved(schema, record), present: Record<string, boolean> = {};
-    for (const field of configSecretFields(schema)) present[JSON.stringify(field.path)] = valueAt(values, field.path) !== undefined;
-    this.publish(Object.freeze({id: 'config-review-' + ++this.counter, origin: endpoint.origin, schema, ordinary: ordinary(schema, values), secretPresent: Object.freeze(present), ...(section && sections(schema).includes(section) ? {section} : {})}));
+    if (!endpoint?.schema || this.opening || this.snapshot.review || this.counter >= Number.MAX_SAFE_INTEGER) return;
+    const schema = endpoint.schema, reviewRevision = this.native.reviewRevision(generation, revision);
+    if (reviewRevision === null) throw new ShellStorageError('REVOKED');
+    const opening = {generation, assertActive: () => {
+      if (this.opening !== opening) throw new ShellStorageError('REVOKED');
+      this.active(endpoint, revision); assertRequestActive?.();
+      if (endpoint.schema !== schema || this.native.reviewRevision(generation, revision) !== reviewRevision) throw new ShellStorageError('REVOKED');
+    }};
+    this.opening = opening;
+    try {
+      opening.assertActive();
+      const record = await this.store.read(this.owner(endpoint, opening.assertActive)); opening.assertActive();
+      const values = resolved(schema, record), present: Record<string, boolean> = {};
+      for (const field of configSecretFields(schema)) present[JSON.stringify(field.path)] = valueAt(values, field.path) !== undefined;
+      this.publish(Object.freeze({id: 'config-review-' + ++this.counter, origin: endpoint.origin, schema, reviewRevision, ordinary: ordinary(schema, values), secretPresent: Object.freeze(present), ...(section && sections(schema).includes(section) ? {section} : {})}));
+    } finally {if (this.opening === opening) this.opening = null;}
   }
   closeReview(id: string) {if (this.snapshot.review?.id === id) this.publish(null);}
   async commit(id: string, input: unknown, secretChanges: Readonly<Record<string, ConfigValue | null>>): Promise<void> {
@@ -110,7 +122,7 @@ export class ConfigBroker {
     if (!review || review.id !== id) throw new ShellStorageError('REVOKED');
     const endpoint = this.endpoints.get(review.origin.generation), revision = this.revision;
     if (!endpoint || endpoint.schema !== review.schema) throw new ShellStorageError('REVOKED');
-    const check = () => {this.active(endpoint, revision); if (this.snapshot.review !== review || !this.native.mayReview(endpoint.origin.generation, revision)) throw new ShellStorageError('REVOKED');}; check();
+    const check = () => {this.active(endpoint, revision); if (this.snapshot.review !== review || this.native.reviewRevision(endpoint.origin.generation, revision) !== review.reviewRevision) throw new ShellStorageError('REVOKED');}; check();
     const values = routingRecord(routingPayload(input), [], Object.keys(input as object)), changes = routingRecord(routingPayload(secretChanges), [], Object.keys(secretChanges));
     const fields = configSecretFields(review.schema), allowed = new Map(fields.map(field => [JSON.stringify(field.path), field]));
     if (fields.some(field => valueAt(values, field.path) !== undefined) || Object.entries(changes).some(([key, value]) => !allowed.has(key) || value !== null && !configValueValid(allowed.get(key)!.schema, value))) throw new ConfigSchemaError('invalid-schema');
@@ -148,7 +160,7 @@ export class ConfigBroker {
     if (request.type === 'config.subscribe') {endpoint.subscribed = true; const values = await this.values(endpoint, revision); if (values !== null) this.push(endpoint, revision, {type: 'config.values', values}); return null;}
     if (request.type !== 'config.openSettings') return null;
     const now = Date.now(); if (now - endpoint.window >= 60_000) {endpoint.window = now; endpoint.opens = 0;}
-    if (++endpoint.opens <= 4 && this.native.mayReview(endpoint.origin.generation, revision)) await this.open(endpoint.origin.generation, request.section);
+    if (++endpoint.opens <= 4 && this.native.mayReview(endpoint.origin.generation, revision)) await this.open(endpoint.origin.generation, request.section, check);
     return null;
   }
   async dispatch(token: string, owner: CapabilityOwner): Promise<void> {
@@ -171,6 +183,6 @@ export class ConfigBroker {
     } catch { /* No native-correlated success or secret escapes a revoked owner. */ }
     finally {if (claimed) this.capability.finish(token, response);}
   }
-  close(generation: string) {this.endpoints.delete(generation); if (this.snapshot.review?.origin.generation === generation) this.publish(null);}
-  stop() {this.stopped = true; this.release(); this.endpoints.clear(); this.publish(null);}
+  close(generation: string) {if (this.opening?.generation === generation) this.opening = null; this.endpoints.delete(generation); if (this.snapshot.review?.origin.generation === generation) this.publish(null);}
+  stop() {this.stopped = true; this.opening = null; this.release(); this.endpoints.clear(); this.publish(null);}
 }

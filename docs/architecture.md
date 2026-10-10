@@ -436,3 +436,13 @@ generation; fourteen missing root/BSD texts are added, reusing existing shared
 owner originals. The signed product preserves every executable byte and all
 other existing assets. Complete native/static/transitive attribution and device
 acceptance stay open; see the [prefab review](native-dependency-notices.md#android-compiled-prefab-owner-notices--11-october-2026).
+
+
+The configuration broker reserves one pending protected-storage opening and checks
+its original native request until presentation. A per-endpoint native focus counter
+survives event delays and cancels old editor authority after focus loss and return;
+its separate routing delivery revision preserves foreground subscriptions. Both
+native bridges carry this internal check without changing NAP wire fields. Actual
+Java/Swift core tests, shared regressions, exports and signed products pass; phone
+fault acceptance remains open. See the
+[configuration opening checkpoint](notifications-configuration.md#configuration-opening-and-native-focus-repair--11-october-2026).

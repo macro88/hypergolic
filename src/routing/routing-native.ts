@@ -5,6 +5,7 @@ interface RoutingModule {
   routingState(): string;
   mayDeliverRouting(generation: string, revision: number, domain: string): boolean;
   mayReviewRouting(generation: string, revision: number): boolean;
+  routingReviewRevision(generation: string, revision: number): number;
   sendRouting(generation: string, revision: number, response: string): boolean;
   newInstanceId(): string;
   addListener(name: 'onRoutingLifecycle', listener: (event: unknown) => void): { remove(): void };
@@ -19,6 +20,10 @@ export function loadRoutingNativePort(): RoutingNativePort {
     },
     mayDeliver: (generation: string, revision: number, domain: 'intent' | 'inc' | 'notify' | 'config') => module.mayDeliverRouting(generation, revision, domain),
     mayReview: (generation: string, revision: number) => module.mayReviewRouting(generation, revision),
+    reviewRevision: (generation: string, revision: number) => {
+      const value = module.routingReviewRevision(generation, revision);
+      return Number.isSafeInteger(value) && value >= 0 ? value : null;
+    },
     send: (generation: string, revision: number, message: Readonly<Record<string, unknown>>) => module.sendRouting(generation, revision, JSON.stringify(message)),
     subscribe: (listener: () => void) => { const subscription = module.addListener('onRoutingLifecycle', listener); return () => subscription.remove(); },
     newChannelId: () => module.newInstanceId(),

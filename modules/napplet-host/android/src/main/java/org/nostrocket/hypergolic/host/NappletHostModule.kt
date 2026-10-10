@@ -238,6 +238,7 @@ class NappletHostModule : Module() {
     }
     Function("routingState") { RoutingTransport.state() }
     Function("mayReviewRouting") { generation: String, revision: Long -> RoutingTransport.mayReview(generation, revision) }
+    Function("routingReviewRevision") { generation: String, revision: Long -> RoutingTransport.reviewRevision(generation, revision) }
     Function("mayDeliverRouting") { generation: String, revision: Long, domain: String -> RoutingTransport.mayDeliver(generation, revision, domain) }
     Function("sendRouting") { generation: String, revision: Long, response: String -> RoutingTransport.send(generation, revision, response) }
     Function("takeCapability") { token: String -> CapabilityTransport.leases.take(token) }

@@ -8,7 +8,7 @@ public final class RoutingEndpointRegistry {
   private static final long MAX = 9_007_199_254_740_991L;
   private static final class Endpoint {
     final String user; final long epoch; final boolean intent; final boolean inc; final boolean notify; final boolean config;
-    boolean ready; boolean focused;
+    boolean ready; boolean focused; long reviewRevision;
     Endpoint(String user, long epoch, boolean intent, boolean inc, boolean notify, boolean config) { this.user = user; this.epoch = epoch; this.intent = intent; this.inc = inc; this.notify = notify; this.config = config; }
   }
   private final Map<String, Endpoint> endpoints = new HashMap<>();
@@ -33,7 +33,10 @@ public final class RoutingEndpointRegistry {
     endpoints.put(generation, new Endpoint(ownerUser, ownerEpoch, intent, inc, notify, config)); return true;
   }
   public synchronized void ready(String generation) { Endpoint endpoint = endpoints.get(generation); if (endpoint != null) endpoint.ready = true; }
-  public synchronized void focus(String generation, boolean value) { Endpoint endpoint = endpoints.get(generation); if (endpoint != null) endpoint.focused = value; }
+  public synchronized boolean focus(String generation, boolean value) {
+    Endpoint endpoint = endpoints.get(generation); if (endpoint == null || endpoint.focused == value) return false;
+    if (endpoint.reviewRevision < MAX) endpoint.reviewRevision++; endpoint.focused = value; return true;
+  }
   public synchronized void revoke(String generation) { endpoints.remove(generation); }
   private boolean active(String generation) {
     Endpoint endpoint = endpoints.get(generation);
@@ -43,7 +46,8 @@ public final class RoutingEndpointRegistry {
     Endpoint endpoint = endpoints.get(generation);
     return active(generation) && (("intent".equals(domain) && endpoint.intent) || ("inc".equals(domain) && endpoint.inc) || ("notify".equals(domain) && endpoint.notify) || ("config".equals(domain) && endpoint.config));
   }
-  public synchronized boolean mayReview(String generation) { return active(generation) && endpoints.get(generation).focused; }
+  public synchronized boolean mayReview(String generation) { return active(generation) && endpoints.get(generation).focused && endpoints.get(generation).reviewRevision < MAX; }
+  public synchronized long reviewRevision(String generation) { return mayReview(generation) ? endpoints.get(generation).reviewRevision : -1; }
   public synchronized boolean matchesRevision(long candidate) { return candidate == revision && foreground && available && revision < MAX; }
   public synchronized long revision() { return revision; }
   public synchronized String user() { return user; }
