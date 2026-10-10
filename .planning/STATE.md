@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Configuration request/subscription expiry and pending unsubscribe repaired. Six original request failures and one broadcast failure retained;69 presentation/43 routing/353 security/13 bootstrap/57 capability tests and141 authority assertions per native core pass. Typecheck/prebuild/both exports/signed products and current graph bindings pass. Physical faults/full quality remain open;7/61 complete/54 open; no source push.
+stopped_at: Complete immutable Kehto archive and 80 installed source-map entries verified; no original notice recovered. Six declaration-only runtime attribution gaps and physical/published/fault/full-quality acceptance remain open. Android absent; paired iPhone queries fail because it has not been unlocked recently. Matrix7/61 complete/54 open; no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: 95d66bdf1d5d4a7d1ab52052b1d5739fd97e953f
+state_head: be6d7d9d23301b0d638c87dc0bad19b4db259652
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2656,3 +2656,24 @@ host failures are preserved with their repairs and positive subscription/Save
 cases. Owning checks, both signed products and unchanged dependency inventories
 pass. No physical row closes and no source push occurs. See the
 [request lifecycle checkpoint](../docs/notifications-configuration.md#configuration-request-expiry-and-unsubscribe-repair--11-october-2026).
+
+
+## Immutable trusted-runtime source review — 11 October 2026
+
+All1813 original Git blobs match the recorded Kehto source commit, including
+one symlink whose omission caused the preserved first observer failure. All80
+installed source-map entries from five version-matching packages match owning
+upstream TypeScript bytes. Complete1809-file UTF-8 rights-text search finds only
+an unrelated planning instruction; three binary files remain outside that search.
+No original notice or attribution author is recovered. Patched compiled-output
+reproduction is a separate boundary; six declaration-only notice gaps remain.
+Installed Napplet core's five files/four map sources contain no matching rights
+text; its recorded repository404 and immutable-source gap stay explicit.
+
+No runtime asset, executable input, dependency, packaged product or phone data
+changes. Documentation/diff/privacy checks cover only this evidence update; no
+fresh numeric quality or build claim. Android is absent; paired physical iPhone
+lock/app queries fail because it has not been unlocked recently. No install or
+input occurs. External audit/score approvals and all complete physical/published/
+fault/sign-off gates remain open. Matrix7/61 complete/54 open; no source push or
+Phase3 advancement. See the expanded trusted-runtime attribution checkpoint.

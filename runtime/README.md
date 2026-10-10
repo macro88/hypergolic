@@ -159,6 +159,11 @@ package metadata headers and the exact installed originals for noble-curves,
 noble-hashes and nostr-tools. Six other package distributions omit a separate
 license file; their declaration-based generic MIT material is explicit. This is
 verified delivery, not full source/attribution or application license acceptance.
+The five installed Kehto source maps now match all 80 embedded source entries
+against the recorded immutable source commit. The complete Git-blob/UTF-8 text
+review recovers no original notice; declaration-only attribution remains open.
+Source-map matches do not reproduce patched compiled distributions. Napplet core's
+immutable source is still unresolved.
 See [the native dependency checkpoint](../docs/native-dependency-notices.md#packaged-trusted-web-runtime-attribution--11-october-2026)
 for source identities, evidence scope and remaining gaps. No new runtime asset,
 capability or dependency change follows from this review.

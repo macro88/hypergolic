@@ -340,11 +340,29 @@ execution. No production code, notice text, dependency, product or permission ch
 
 The recorded Kehto source commit
 `f031d5d2264d047cd40e2524bf12b7f68c74caa6` independently has the same five versions
-and MIT declarations. Its complete Git tree has no dedicated license/copying/
-notice filename. This does not prove absence of copyright text within every source
-file or compiler input. Public reference discovery finds no matching installed
-package-version tag; the recorded Napplet repository returns 404 for the queried
-public tag endpoint. Those outcomes remain evidence, not substituted provenance.
+and MIT declarations. A complete immutable archive review verifies all 1,813 Git
+blobs against that commit's full Git tree, including the `CLAUDE.md` symlink as
+its original link-target bytes. The initial verifier incorrectly treated that
+symlink as missing; its failure and the corrected result remain recorded.
+
+All 80 `sourcesContent` entries in the five installed Kehto packages' source maps
+match the owning upstream TypeScript bytes: acl 6, firewall 3, runtime 18,
+services 36 and shell 17. This binds those source-map contents, not a reproduction
+of every compiled distribution file. In particular, the separately locked runtime
+and shell patches are not established by comparing their original source maps.
+
+The immutable tree has no dedicated license/copying/notice filename. Searching
+all 1,809 UTF-8 regular files for copyright, SPDX, permission-grant and reserved-
+rights text finds only an unrelated planning instruction mentioning a README
+copyright line. Three non-UTF-8 regular files are outside this text search; the
+remaining blob is the verified symlink. No original notice is recovered from this
+bounded review, and no author or license text is invented from it.
+
+The installed `@napplet/core` distribution has five files and four embedded source-
+map entries with no matching rights text. Its recorded public repository and
+queried tag endpoint return 404. Its immutable owning source remains unresolved;
+public package metadata or a search result is not substituted provenance. Earlier
+public reference discovery also found no matching Kehto package-version tag.
 
 Six packages therefore still have declaration-based generic MIT material rather
 than a verified original copyright/license file. Do not invent an author, silently
