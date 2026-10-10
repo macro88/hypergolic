@@ -432,11 +432,13 @@ fixture does not mutate routing caches or change published Outbox admission;
 see [the selected relay-list fixture contract](signing-approval.md#approval-lab-relay-list-fixture--10-october-2026).
 
 
-The Android native module also carries the reviewed NDK libc++/libc++abi original
-licences and credits. Its preBuild pins the actual NDK runtime and 895 recorded
-C++ header inputs. The signed ARM64 product preserves all previous executable
-bytes and adds only these notice assets. Other native/prefab and transitive
-attribution remains open; see the [C++ review](native-dependency-notices.md#android-local-c-and-ndk-original-notices--11-october-2026).
+The Android native module carries the reviewed NDK libc++/libc++abi originals
+and credits plus unchanged complete toolchain and sysroot notice aggregates. Its
+preBuild pins the actual NDK runtime and 1,009 recorded libc++/system/Clang header
+inputs, and verifies the prebuilt toolchain original's exact embedded byte range.
+The signed ARM64 product preserves all previous executable bytes and adds only
+notice assets. Complete native/static/transitive attribution remains open; see
+the [NDK review](native-dependency-notices.md#android-system-and-clang-header-originals--11-october-2026).
 
 
 The Android archive notice profile now includes compiled prefab-owner originals.

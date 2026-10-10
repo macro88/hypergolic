@@ -831,3 +831,57 @@ audit/scoring and all physical/published/fault/security acceptance remain open.
 Android is absent; the paired physical iPhone lock query still requires a recent
 unlock. No device install/input or source push occurs. Phase 2 remains 7/61
 complete with 54 open; this does not close BUILD-01 or advance Phase 3.
+
+
+## Android system and Clang header originals — 11 October 2026
+
+The current six owning Ninja target/dependency logs reproduce the previous graph:
+241 translation records, 233 unique sources and 2,524 dependency inputs. All six
+linked libraries still match the retained product's allocated ELF sections. The
+NDK contribution consists of 895 libc++ headers, 92 system/Bionic/Linux headers
+and 22 Clang 18 headers. The additional 114 headers remain byte-identical to their
+current compiler inputs and to entries in Google's official
+[NDK r27b macOS ZIP](https://dl.google.com/android/repository/android-ndk-r27b-darwin.zip).
+
+The bounded release capture checks ZIP directory/local-header structure, entry
+names, compression, uncompressed size and CRC32, exact HTTP 206 ranges and the
+same archive ETag, then compares complete extracted bytes and SHA-256 with the
+installed inputs. All 118 selected entries match: 114 headers, source.properties
+and three original notice files. The initial individual-entry capture retained
+54 TLS EOF failures and 64 successful entries. One bounded 4,213,521-byte range
+recovers exactly those 54 headers without replacing the original failed receipt.
+The whole 836,151,734-byte archive is not downloaded or cryptographically verified;
+this is selected-entry provenance, not whole-release attestation.
+
+Two complete original aggregates are packaged unchanged: NOTICE.toolchain
+(806,124 bytes) and sysroot/NOTICE (501,406 bytes). The owning prebuilt toolchain
+NOTICE (130,424 bytes) occurs exactly once inside NOTICE.toolchain at byte range
+[95,918, 226,342), so its original is delivered without another duplicate file.
+The full toolchain aggregate contains two original trailing-whitespace lines;
+both remain untouched. The earlier libc++/libc++abi original blocks and credits
+remain separate and exact.
+
+The native preBuild guard now checks six original files, both complete aggregates,
+the embedded prebuilt original's exact bounded range, all 1,009 current NDK
+headers and their family counts. Altered/missing/misbound originals, source drift,
+omitted system headers, unknown families and invalid byte ranges reject packaging.
+Metadata key order has no semantic effect. All 63 combined notice regressions,
+Android Expo prebuild and the real guard during offline ARM64 Release assembly
+pass. Earlier TypeScript validation passes; no TypeScript source is changed.
+
+The signed APK has 85 matching originals. Its only new assets are the two full
+NDK notices; the C++ manifest changes, while all 21 native images, four DEX files,
+93 other prior assets, JavaScript and trusted-host bytes stay exact. Stable app
+ID, Hypergolic label, certificate, permissions and non-debuggable state remain.
+Generated packaging restores without conflicts and all 1,448 source inputs remain
+unchanged during the build. APK SHA-256 is
+137f7835f9249e9f9d73f029be4102aab79483271aa4a6c3623527832372cd37.
+
+Local React Doctor reports zero findings across 442 files with no skipped checks
+and remote scoring disabled. The source-only aislop scan reports zero findings
+across 435 supported files, with 97 unsupported files and the online audit disabled.
+These do not establish the complete required numeric quality gates. The retained
+132-file iPhone product is unchanged; there is no iOS rebuild, device installation
+or new physical acceptance. Complete static/native/generated/resource/runtime
+attribution, current external quality, published/device/fault/security journeys
+and sign-off remain open. The acceptance matrix stays 7 of 61 complete / 54 open.

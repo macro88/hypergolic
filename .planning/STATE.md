@@ -2766,3 +2766,24 @@ complete native/resource/generated/runtime attribution remain required. Android
 absent; paired iPhone lock query requires recent unlock. Physical/published/native
 fault/security/sign-off gates stay open. Matrix7/61 complete/54 open; no BUILD01 or
 Phase2 pass or Phase3 advance. See the compiler review in native-dependency-notices.
+
+
+## NDK system/Clang originals and compiled-header guard — 11 October 2026
+
+Current owning Ninja inputs still match the prior 2,524-input graph and six local
+allocated-section bindings. All 114 additional system/Clang headers and complete
+original aggregates match selected official r27b ZIP entries; first TLS failures
+and successful bounded recovery remain recorded. Whole archive digest is unverified.
+The host ships both unchanged full aggregates and guards the exact embedded
+prebuilt notice, all 1,009 NDK headers and family counts. Upstream whitespace stays.
+
+All 63 notice cases, Expo Android prebuild and real offline signed ARM64 assembly
+pass. APK85 originals, 21 native images/four DEX/93 prior assets/JS and stable app
+ID/certificate/permissions remain verified; only two notices and their manifest
+change. All1,448 source inputs stay stable during build; generated packaging restores.
+Local Doctor442/zero findings/no skips/remote score off and source-only aislop435/
+zero findings/97 unsupported/audit off are limited local checks. iPhone132-file
+seal stays unchanged. No installation, iOS rebuild, source push or full row closure.
+Complete attribution, full quality and physical/published/fault/security/sign-off
+remain required. Matrix7/61 complete/54 open; no Phase2 completion or Phase3 advance.
+See [the NDK review](../docs/native-dependency-notices.md#android-system-and-clang-header-originals--11-october-2026).

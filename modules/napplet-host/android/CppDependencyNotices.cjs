@@ -40,6 +40,7 @@ function verify(directory, ndkDirectory, rootNoticeDirectory) {
       throw new Error(`Android C++ reviewed NDK input changed: ${name}`);
     }
   }
+  verifyAggregateOriginals(manifest, directory, ndkDirectory, names);
   const aggregate = fs.readFileSync(path.join(ndkDirectory, 'NOTICE.toolchain'));
   if (sha256(aggregate) !== profile.aggregateSha256) throw new Error('Android C++ aggregate notice changed');
   for (const binding of manifest.noticeBindings) {
@@ -59,6 +60,47 @@ function verify(directory, ndkDirectory, rootNoticeDirectory) {
         throw new Error('Android local C++ package original changed');
       }
     }
+  }
+}
+function verifyAggregateOriginals(manifest, directory, ndkDirectory, names) {
+  const profile = manifest.ndkProfile;
+  const base = `toolchains/llvm/prebuilt/${profile.host}`;
+  const required = ['NOTICE.toolchain', `${base}/sysroot/NOTICE`].sort();
+  if (!Array.isArray(manifest.aggregateOriginals) ||
+      JSON.stringify(manifest.aggregateOriginals.map(binding => binding.source).sort()) !== JSON.stringify(required)) {
+    throw new Error('Android NDK aggregate original set changed');
+  }
+  for (const binding of manifest.aggregateOriginals) {
+    safeRelative(binding.source);
+    if (!names.includes(binding.file) || profile.inputs[binding.source] !== binding.sourceSha256 ||
+        !fs.readFileSync(path.join(ndkDirectory, binding.source))
+          .equals(fs.readFileSync(path.join(directory, binding.file)))) {
+      throw new Error('Android NDK complete aggregate original binding changed');
+    }
+  }
+  const embedded = manifest.embeddedToolchainOriginal;
+  const aggregateBytes = embedded && names.includes(embedded.file)
+    ? fs.readFileSync(path.join(directory, embedded.file)) : null;
+  if (!embedded || embedded.source !== `${base}/NOTICE` || !names.includes(embedded.file) ||
+      profile.inputs[embedded.source] !== embedded.sourceSha256 ||
+      !Number.isSafeInteger(embedded.aggregateByteStart) || !Number.isSafeInteger(embedded.aggregateByteEndExclusive) ||
+      embedded.aggregateByteStart < 0 || embedded.aggregateByteStart >= embedded.aggregateByteEndExclusive ||
+      embedded.aggregateByteEndExclusive > aggregateBytes.length ||
+      !aggregateBytes.subarray(embedded.aggregateByteStart, embedded.aggregateByteEndExclusive)
+        .equals(fs.readFileSync(path.join(ndkDirectory, embedded.source)))) {
+    throw new Error('Android NDK embedded toolchain original binding changed');
+  }
+  const headers = Object.keys(profile.compilerHeaders);
+  const counts = { libcxx: 0, system: 0, clang: 0, total: headers.length };
+  for (const name of headers) {
+    if (name.startsWith(`${base}/sysroot/usr/include/c++/`)) counts.libcxx++;
+    else if (name.startsWith(`${base}/sysroot/usr/include/`)) counts.system++;
+    else if (name.startsWith(`${base}/lib/clang/18/include/`)) counts.clang++;
+    else throw new Error('Unexpected Android NDK compiled header family');
+  }
+  if (Object.keys(profile.headerReview ?? {}).length !== 4 ||
+      Object.entries(counts).some(([family, count]) => profile.headerReview?.[family] !== count)) {
+    throw new Error('Android NDK reviewed header counts changed');
   }
 }
 module.exports = { verify };

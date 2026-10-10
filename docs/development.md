@@ -756,16 +756,17 @@ CRLF text. This protects portable hash checks without rewriting the originals.
 
 ## Android reviewed C++ notices — 11 October 2026
 
-The native module additionally packages four originals and a separate manifest in
-src/main/assets/cpp-notices/. CppDependencyNotices.cjs checks the selected NDK's
-original licence slices, runtime, compiler metadata and 895 reviewed C++ headers,
-plus the existing owning-package original mappings. Gradle supplies the app's
+The native module packages six originals and a separate manifest in
+`src/main/assets/cpp-notices/`. `CppDependencyNotices.cjs` checks the selected NDK's
+original licence slices, complete toolchain/sysroot aggregates, embedded prebuilt
+notice range, runtime, compiler metadata and 1,009 reviewed headers: 895 libc++,
+92 system and 22 Clang. It also checks existing owning-package original mappings. Gradle supplies the app's
 actual resolved NDK directory; the guard makes no network requests.
 
 Run the combined integrity regressions with:
 
 ```sh
-node --test tests/native/codecs/android-notices.cjs tests/native/codecs/archive-notices.cjs tests/native/codecs/cpp-notices.cjs
+node --test tests/native/codecs/*notices.cjs
 ```
 
 The test uses the locally installed reviewed NDK by default. Set
@@ -774,9 +775,10 @@ manifest records NDK 27.1.12297006, darwin-x86_64 toolchain paths and ARM64 runt
 inputs; another host, revision or ABI requires renewed review rather than a hash
 bypass. Preserve exact original blocks and upstream credits with their provenance,
 and retain separate evidence for compiler inputs and final native-image binding.
-After packaging, check all three Android notice folders and compare prior assets,
-DEX/native bytes and app identity/certificate. See the
-[C++ original review](native-dependency-notices.md#android-local-c-and-ndk-original-notices--11-october-2026).
+After packaging, check all four Android notice folders and compare prior assets,
+DEX/native bytes and app identity/certificate. Preserve upstream original bytes,
+including trailing whitespace; do not normalize them to satisfy an authored-text
+check. See the [NDK original review](native-dependency-notices.md#android-system-and-clang-header-originals--11-october-2026).
 
 
 ## Android prefab owner notice review — 11 October 2026

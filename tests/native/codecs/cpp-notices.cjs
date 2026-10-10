@@ -60,3 +60,66 @@ test('unsafe NDK input fails before outside file access', () => fixture(director
   editManifest(directory, data => { data.ndkProfile.compilerHeaders = { '../outside': 'irrelevant' }; });
   assert.throws(() => verify(directory, ndk, rootNotices), /Unsafe Android C\+\+ notice input/);
 }));
+
+test('complete official aggregate originals cannot be changed', () => fixture(directory => {
+  const file = path.join(directory, manifest.aggregateOriginals[0].file); const bytes = fs.readFileSync(file);
+  bytes[0] ^= 1; fs.writeFileSync(file, bytes);
+  assert.throws(() => verify(directory, ndk, rootNotices), /original bytes changed/);
+}));
+test('missing complete aggregate original rejects', () => fixture(directory => {
+  fs.unlinkSync(path.join(directory, manifest.aggregateOriginals[1].file));
+  assert.throws(() => verify(directory, ndk, rootNotices), /file set changed/);
+}));
+test('aggregate originals cannot be assigned to the wrong source', () => fixture(directory => {
+  editManifest(directory, data => { data.aggregateOriginals[0].file = data.aggregateOriginals[1].file; });
+  assert.throws(() => verify(directory, ndk, rootNotices), /complete aggregate original binding changed/);
+}));
+test('omitted aggregate source binding rejects', () => fixture(directory => {
+  editManifest(directory, data => { data.aggregateOriginals.pop(); });
+  assert.throws(() => verify(directory, ndk, rootNotices), /aggregate original set changed/);
+}));
+test('edited actual system compiler header rejects', () => fixture((directory, temporary) => {
+  const copy = fixtureNdk(temporary);
+  const first = Object.keys(manifest.ndkProfile.compilerHeaders).find(name => name.endsWith('/sysroot/usr/include/features.h'));
+  const file = path.join(copy, first); const bytes = fs.readFileSync(file); bytes[0] ^= 1; fs.writeFileSync(file, bytes);
+  assert.throws(() => verify(directory, copy, rootNotices), /reviewed NDK input changed/);
+}));
+test('edited actual Clang compiler header rejects', () => fixture((directory, temporary) => {
+  const copy = fixtureNdk(temporary);
+  const first = Object.keys(manifest.ndkProfile.compilerHeaders).find(name => name.includes('/lib/clang/18/include/'));
+  const file = path.join(copy, first); const bytes = fs.readFileSync(file); bytes[0] ^= 1; fs.writeFileSync(file, bytes);
+  assert.throws(() => verify(directory, copy, rootNotices), /reviewed NDK input changed/);
+}));
+test('omitted compiled system header rejects', () => fixture(directory => {
+  editManifest(directory, data => {
+    const first = Object.keys(data.ndkProfile.compilerHeaders).find(name => name.endsWith('/sysroot/usr/include/features.h'));
+    delete data.ndkProfile.compilerHeaders[first];
+  });
+  assert.throws(() => verify(directory, ndk, rootNotices), /reviewed header counts changed/);
+}));
+test('unreviewed header family rejects', () => fixture(directory => {
+  editManifest(directory, data => { data.ndkProfile.compilerHeaders['NOTICE.toolchain'] = data.ndkProfile.inputs['NOTICE.toolchain']; });
+  assert.throws(() => verify(directory, ndk, rootNotices), /Unexpected Android NDK compiled header family/);
+}));
+test('header count metadata order does not change semantics', () => fixture(directory => {
+  editManifest(directory, data => {
+    const counts = data.ndkProfile.headerReview;
+    data.ndkProfile.headerReview = { total: counts.total, clang: counts.clang, system: counts.system, libcxx: counts.libcxx };
+  });
+  verify(directory, ndk, rootNotices);
+}));
+
+test('wrong embedded toolchain original range rejects', () => fixture(directory => {
+  editManifest(directory, data => { data.embeddedToolchainOriginal.aggregateByteStart++; });
+  assert.throws(() => verify(directory, ndk, rootNotices), /embedded toolchain original binding changed/);
+}));
+test('missing embedded toolchain original binding rejects', () => fixture(directory => {
+  editManifest(directory, data => { delete data.embeddedToolchainOriginal; });
+  assert.throws(() => verify(directory, ndk, rootNotices), /embedded toolchain original binding changed/);
+}));
+
+test('embedded range cannot extend beyond the aggregate', () => fixture(directory => {
+  const original = manifest.originals.find(item => item.file === manifest.embeddedToolchainOriginal.file);
+  editManifest(directory, data => { data.embeddedToolchainOriginal.aggregateByteEndExclusive = original.bytes + 1; });
+  assert.throws(() => verify(directory, ndk, rootNotices), /embedded toolchain original binding changed/);
+}));
