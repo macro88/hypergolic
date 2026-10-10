@@ -1,7 +1,7 @@
 require 'json'
 require_relative 'NativeDependencyNotices'
 
-HypergolicNativeDependencyNotices.verify(File.join(__dir__, 'Resources', 'notices'))
+HypergolicNativeDependencyNotices.verify(File.join(__dir__, 'Resources', 'notices'), File.expand_path('../../..', __dir__))
 
 package = JSON.parse(File.read(File.join(__dir__, '..', 'package.json')))
 

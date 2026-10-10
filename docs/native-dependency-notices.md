@@ -352,3 +352,55 @@ substitute a current branch or declare full attribution acceptance from metadata
 Owning artifact/upstream attribution reconciliation stays open, alongside the main
 React Native/Hermes JavaScript bundle, native libraries and complete BUILD-01.
 The existing runtime notices are proven delivered; app-wide review remains open.
+
+
+## Packaged main iOS JavaScript originals — 11 October 2026
+
+The ordinary iPhone notice bundle now includes 56 original license files for the
+60 packages contributing to its main JavaScript bundle, in addition to the ten
+image-library originals. Four React Native packages omit separate published
+license files; the supplied React Native original is their shared notice. Its
+bytes match immutable upstream release v0.86.3, and that release independently
+matches all four package versions and MIT declarations. This supplies original
+material without inventing attribution or a license exception.
+
+The actual Expo native-bundle command is rerun in an isolated temporary directory
+with network/telemetry disabled and a source map enabled. Its JavaScript is the
+retained native raw bundle byte-for-byte, followed only by two source-map metadata
+comments. The comments are separately identified; no code normalization is used.
+The map records 1,858 sources: 1,674 package files across 60 identities, 180
+first-party sources and four generated prelude/polyfill sources. Every text input
+matches its installed source. The map omits the separately copied PNG's content;
+its actual emitted bytes match the original logo independently. The initial
+inventory's unresolved binary/text comparison is retained and corrected by that
+asset check, rather than dropping a source.
+
+Of the 56 complete original texts, ten were already present in existing runtime
+material and 46 were absent from the previous ready app. The corrected signed
+ARM64 iPhoneOS product and ready copy contain 66 exact original files in total,
+plus their provenance manifest. All 130 ready-copy files match the signed product.
+The retained bundle identifier/certificate, strict signatures, original older
+74-file product and raw/compiled JavaScript and trusted-host hashes are preserved.
+No device installation or physical acceptance occurred. The first final observer
+miscounted old filenames because its heuristic omitted AUTHORS; exact manifest
+entries and hashes correct it without rebuilding or modifying the products.
+
+Pod evaluation now verifies shared-notice references and 63 dependency inputs:
+the root package/lock files and 61 installed package metadata files, including
+separate peer contexts for the same package identity. Changed metadata rejects
+this dated notice profile. Its tests also reject altered original attribution and
+a missing patent notice. Actual pod evaluation, native patch/notice checks,
+TypeScript, iOS prebuild, cached Pod installation and signed packaging pass.
+The profile is a reviewed graph snapshot, not an automatic dependency resolver.
+Changed app imports can alter contribution even when metadata is unchanged;
+repeat the actual graph review after code/dependency changes and before final
+release, then update original files and the profile together.
+
+The declaration inventory has 53 MIT, two ISC, two Unlicense and one each
+BSD-3-Clause, Apache-2.0 and 0BSD package identities. Distinct versions of the same
+library stay distinct; a package's root declaration is not substituted for all
+transitive code inside its prebundled distribution. Generated helper attribution,
+complete native libraries/transitives, Android notice assembly and source/license
+reconciliation remain required. The six trusted-runtime declaration-only gaps
+recorded above stay open. This checkpoint verifies original material delivery;
+it does not certify full license compliance, vulnerability clearance or BUILD-01.

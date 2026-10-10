@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Runtime delivery review verifies9 package identities/15 package modules and all existing notice bytes in both retained native products;3 originals preserved,6 declaration-based gaps stay open. Observed production outputs/source identical, no device/code/dependency change.7/61 complete/54 open; physical reconnect and external quality/close answers pending, no source push.
+stopped_at: Main iOS graph matches native code body;60 package identities/56 supplied original files plus4 shared RN mappings. Signed130-file ordinary app/ready copy contains66 originals with unchanged JS/identity/cert; metadata freshness checks pass. Final local Doctor442 complete/zero issues/no score;7/61 complete/54 open, Android notice assembly/native attribution/physical and external quality/close decisions remain, no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: 68b90080b3f15791d83497e7be6d8a698d7cdd16
+state_head: 7cd36fcfab6f48a7bae69827afe24c7cd780de1f
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2495,3 +2495,33 @@ complete local Doctor442 remains source-bound to the preceding implementation;
 full audit/numeric-score and native/app-wide attribution stay open. Matrix still
 7/61 complete,54 open; Android disconnected, usage26%, owner ceiling about98%.
 No source push, Phase3 advance or new exception.
+
+
+## Main iOS JavaScript original notices packaged — 11 October 2026
+
+The isolated actual Expo embed command produces the exact native raw code body,
+with only two identified source-map metadata comments added. All 1,858 mapped
+sources reconcile:1,674 package files/60 identities,180 first-party sources and
+four generated sources. The PNG's empty map content is separately verified against
+its copied original bytes; the initial incomplete inventory remains. The new
+resource payload supplies56 original license files and four shared React Native
+mappings verified against the immutable matching release.46 complete texts were
+absent from the preceding app;10 already occur in its runtime material.
+
+The signed ordinary iPhone product/ready copy has130 sealed files/66 exact
+originals, unchanged app ID/certificate, JavaScript/Hermes/trusted-host hashes and
+preserved preceding74-file product. Initial filename observer9-versus10 error is
+recorded; corrected manifest/hash observer passes without another build. Pod
+checks63 dependency inputs and shared references; four notice integrity/freshness
+cases, native patch checks, TypeScript, iOS prebuild, cached Pods and signed build
+pass. No device action or source push. Android cached HBC equals the retained APK
+and its companion map exists, but Android notice assembly remains next; no iOS
+graph is substituted for Android proof. Native/transitive/generated helper and
+six runtime attribution gaps remain; full quality/physical/published/fault gates
+stay open. Matrix7/61 complete,54 open; Android disconnected, owner about98% ceiling.
+
+Final local React Doctor scans442 files with no diagnostics or skipped checks,
+bound to unchanged source after all native actors are terminal. Numeric scoring
+and fresh audit remain unrequested pending specific metadata/destination answers;
+prior aislop98 is dated, not a new full-source score. Only documentation changes
+after the scan; no new quality exception or source push.

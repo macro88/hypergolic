@@ -231,6 +231,21 @@ app bundle against every manifest hash. This is the image-stack subset; see
 [native dependency notices](native-dependency-notices.md#packaged-source-built-ios-image-notices--11-october-2026)
 for remaining distribution review.
 
+The same notice manifest now includes the reviewed main iOS JavaScript dependency
+profile and shared React Native notice mappings. Pod evaluation checks the root
+package/lock and installed package metadata hashes; changed dependency inputs stop
+installation until the profile is refreshed. To review the graph, use the installed
+`expo export:embed` command for ordinary `index.ts`, iOS, production/non-minified
+output, with `--sourcemap-output` in a private temporary directory. Compare its code
+body with the native build's raw bundle, separating only explicit source-map
+metadata comments. Inventory the actual map contributors and preserve their
+original license bytes; verify binary assets independently. Repeat this review
+after changed imports as well as dependencies, because metadata freshness alone
+does not prove an unchanged contribution graph. Keep source maps outside shipped
+products. See the
+[main iOS JavaScript provenance](native-dependency-notices.md#packaged-main-ios-javascript-originals--11-october-2026)
+for actual checked counts and remaining distribution gates.
+
 The Simulator build command installs dependencies and starts Metro as needed:
 
 ```sh

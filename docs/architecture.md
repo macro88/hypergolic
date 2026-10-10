@@ -86,6 +86,14 @@ app identity and certificate. This is a distribution subset, with app-wide
 attribution and native/device acceptance still open. See the
 [packaged notice checkpoint](native-dependency-notices.md#packaged-source-built-ios-image-notices--11-october-2026).
 
+The iPhone notice bundle also includes 56 original main-JavaScript licenses and
+four mappings to the shared React Native original, derived from a source map whose
+code body exactly matches the native raw bundle. Pod evaluation detects stale
+dependency metadata. The current signed product has 130 sealed files and 66 exact
+originals; JavaScript and identity/certificate remain unchanged. Android notice
+assembly and full native/runtime attribution remain open. See the
+[main JavaScript notice checkpoint](native-dependency-notices.md#packaged-main-ios-javascript-originals--11-october-2026).
+
 ## Implemented
 
 `index.ts` registers `src/App.tsx` with Expo. Both native hosts run verified,
