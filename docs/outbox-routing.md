@@ -184,3 +184,33 @@ material is removed. No app build/install, protected signing, ordinary guest/Exp
 public DNS, physical iPhone or OS-lifecycle acceptance follows. Both retained native
 products stay unchanged. No new numeric quality claim, source push, complete
 physical row or phase closure; matrix seven of61 complete,54 open.
+
+
+## Signed ordinary iPhone build verification — 11 October 2026
+
+The current ordinary ARM64 iPhoneOS Release build succeeds under the retained app
+ID, display name, team and certificate. All 1,459 source inputs and locked native
+inputs stay unchanged during the build. The actual `HypergolicNappletHost` target
+lists 52 owning Swift inputs, which match the preceding verified iPhone product;
+the acknowledgement repair changed Android only. Its target configurations omit
+the host proof flag. This is an incremental build and source binding, not a claim
+that every owning Swift file was freshly compiled.
+
+Strict signature, provisioning, architecture and packaged-original checks pass.
+The ready copy seals 132 files and 68 byte-preserved notices. The JavaScript,
+trusted host and 131 prior product files stay exact; only the signed executable
+changes. No whole-executable byte-identity claim follows. The preceding retained
+ready product remains unchanged.
+
+The first observer used `NappletHost` instead of the actual target name and stopped
+after a successful build and signature check. A subsequent sandboxed signature
+observer reported a certificate-trust error; the same check with the authorized
+build trust-store access passes. Both failures remain in private evidence. The
+completed build was not restarted, and no certificate trust setting was changed.
+
+This is local packaging evidence. Neither phone receives an install, input,
+identity operation or publication. Android remains locked and the paired iPhone
+reports that it has not been unlocked recently. Physical ordinary-app, guest,
+protected-signer, lifecycle, published and complete fault/security checks remain
+open, as do full external quality, dependency-age and clean-close decisions.
+The physical matrix remains seven of 61 complete, with 54 open.

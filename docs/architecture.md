@@ -523,3 +523,10 @@ are withheld. Unknown receipts and peer closure stay distinct from zero-frame
 pre-send cancellation. Source, binaries and outputs remain bound; physical iPhone,
 ordinary app/guest/protected signer and full lifecycle/fault sign-off stay open.
 See the [Swift owner checkpoint](outbox-routing.md#swift-host-owner-cancellation-and-capacity--11-october-2026).
+
+
+The current ordinary signed iPhone build also passes static source, signature,
+profile and original-notice checks. Its owning Swift inputs match the preceding
+verified iPhone build; the parser repair was Android-only. The new ready copy
+preserves the stable identity and previous product. This packaging evidence
+closes no physical requirement. See the [iPhone build checkpoint](outbox-routing.md#signed-ordinary-iphone-build-verification--11-october-2026).
