@@ -428,3 +428,11 @@ licences and credits. Its preBuild pins the actual NDK runtime and 895 recorded
 C++ header inputs. The signed ARM64 product preserves all previous executable
 bytes and adds only these notice assets. Other native/prefab and transitive
 attribution remains open; see the [C++ review](native-dependency-notices.md#android-local-c-and-ndk-original-notices--11-october-2026).
+
+
+The Android archive notice profile now includes compiled prefab-owner originals.
+All690 recorded headers match selected AAR entries and immutable source or exact
+generation; fourteen missing root/BSD texts are added, reusing existing shared
+owner originals. The signed product preserves every executable byte and all
+other existing assets. Complete native/static/transitive attribution and device
+acceptance stay open; see the [prefab review](native-dependency-notices.md#android-compiled-prefab-owner-notices--11-october-2026).

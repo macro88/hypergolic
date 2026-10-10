@@ -561,3 +561,64 @@ Other NDK/Bionic/prefab and prebuilt/static native terms, remaining Maven materi
 six declaration-only trusted-runtime attribution gaps, complete security/quality
 review and physical/published/fault/close journeys remain open. This is a verified
 build distribution subset, not complete BUILD-01 or Phase 2 acceptance.
+
+
+## Android compiled prefab owner notices — 11 October 2026
+
+All 690 current prefab headers from the six local native targets match their
+selected React Native, fbjni and Hermes AAR entries. Immutable upstream comparison
+resolves 687 exact source files. Two glog headers reproduce through the 15 token
+substitutions in the immutable React Native preparation task; FBReactNativeSpec.h
+reproduces through the installed SDK schema/code generator. The installed native
+version declarations and glog task match React Native commit
+[95cffbff2e071e278987c7d7cd51fbc970dd5622](https://github.com/facebook/react-native/tree/95cffbff2e071e278987c7d7cd51fbc970dd5622).
+
+| Owning source family | Compiled headers | Binding |
+| --- | ---: | --- |
+| React Native, Yoga and JSI | 229 | 228 immutable originals; one exact code-generated header |
+| Boost 1.83.0 | 310 | Exact source archive with official checksum |
+| Folly 2024.11.18.00 | 100 | Immutable release originals |
+| fbjni 0.7.0 | 27 | Immutable release originals |
+| fast_float 8.0.0 | 9 | Immutable release originals |
+| Hermes V1 250829098.0.17 | 8 | Immutable release originals |
+| glog 0.3.5 | 3 | One immutable original; two exact token-generated headers |
+| fmt 12.1.0 | 2 | Immutable release originals |
+| double-conversion 1.1.6 | 2 | Immutable release originals |
+
+The initial Hermes comparison used the SDK's legacy .hermesversion tag and found
+three differences. The actual selected AAR version and separate .hermesv1version
+identify [hermes-v250829098.0.17](https://github.com/facebook/hermes/tree/hermes-v250829098.0.17);
+all eight headers match that immutable source. The earlier mismatch is retained,
+as is an observer's initial glog token-count assertion failure. No source or
+runtime patch was made to resolve either observation.
+
+The three selected AARs have no dedicated licence originals. The existing shared
+React Native original also matches the owner text for Hermes and the RN/Yoga/JSI
+sources. The archive notice folder now adds 14 missing exact originals: nine
+unique owner root texts and five complete BSD copyright/disclaimer blocks from
+the compiled glog and double-conversion headers. All fast_float root alternative
+licences are preserved. Duplicate root texts reuse existing assets; no upstream
+copyright, licence wording or whitespace is rewritten.
+
+The manifest records nine source-owner bindings, immutable commits, selected AAR
+hashes, all 690 header entries/hashes/provenance and exact inline-notice ranges.
+ArchiveDependencyNotices.cjs additionally checks owner-artifact membership, shared
+original hashes, header-set consistency, safe entry paths and inline mappings.
+It continues to check the complete selected external runtime artifact multiset.
+This is an integrity guard over the reviewed artifact/profile; compiler cache
+bytes are verified separately by the captured input review.
+
+Five new regressions bring the combined Android notice suite to 27 passes.
+TypeScript, Android prebuild/export and ordinary signed ARM64 native packaging
+pass. The APK adds the 14 originals and changes only the archive notice manifest;
+75 previous assets, four DEX files and 21 native images remain byte-identical.
+All 80 Android originals match their manifests. Stable app identity/certificate,
+permissions and non-debuggable state remain unchanged; generated packaging restores
+without conflict. All 2,524 reviewed compiler inputs remain unchanged after the
+build. No device installation or new physical acceptance follows.
+
+The complete source archives are removed after checksum verification, retaining
+exact matched source/notice originals and receipts. Full static-library source and
+transitive provenance, other NDK/Bionic and Maven material, six trusted-runtime
+attribution gaps, complete security/quality review and physical/published/fault/
+close acceptance remain required. This does not complete BUILD-01 or Phase 2.

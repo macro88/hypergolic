@@ -777,3 +777,29 @@ and retain separate evidence for compiler inputs and final native-image binding.
 After packaging, check all three Android notice folders and compare prior assets,
 DEX/native bytes and app identity/certificate. See the
 [C++ original review](native-dependency-notices.md#android-local-c-and-ndk-original-notices--11-october-2026).
+
+
+## Android prefab owner notice review — 11 October 2026
+
+The archive manifest also binds original prefab-owner terms to the actual selected
+AARs and compiled headers. The real preBuild archive guard checks all selected
+artifact hashes, owner mappings, original references, header count/path consistency
+and inline notice mappings. It reuses the existing shared React Native original
+for byte-identical owner texts. The JavaScript and NDK notice profiles retain their
+separate scopes.
+
+Run the complete Android notice regressions with:
+
+```sh
+node --test tests/native/codecs/android-notices.cjs tests/native/codecs/archive-notices.cjs tests/native/codecs/cpp-notices.cjs
+```
+
+After an owning dependency changes, renew both the AAR-entry and compiler-input
+comparison against immutable upstream sources. Preserve generation parameters
+separately: glog uses the recorded React Native token preparation, while the RN
+spec header comes from Android schema/code generation. Select Hermes V1's tag
+from .hermesv1version and confirm its version against the actual AAR; the legacy
+.hermesversion is a different source selection. Retain exact full root terms and
+applicable compiled BSD notice blocks. Check the final APK and byte preservation
+against the previous product, allowing only explicitly reviewed notice changes.
+See the [compiled prefab review](native-dependency-notices.md#android-compiled-prefab-owner-notices--11-october-2026).

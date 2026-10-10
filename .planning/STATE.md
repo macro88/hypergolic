@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Android local C++/NDK notice subset verified: six local ELF outputs and 2524 unchanged compiler inputs; exact stripped NDK runtime matches APK. Four originals added with NDK/header guard;22 regressions/typecheck/prebuild/export/signed build pass. Prior71 assets/four DEX/21 ELF and identity/cert unchanged. Remaining native/Maven attribution, full quality, physical and close acceptance open;7/61 complete/54 open; no source push.
+stopped_at: Compiled Android prefab-owner notice subset verified: all690 headers match selected AAR entries and687 immutable source/3 exact generated originals;14 missing root/BSD texts added.27 regressions/typecheck/prebuild/export/signed build pass;75 previous assets/four DEX/21 ELF and ID/cert unchanged.2524 compiler inputs unchanged. Remaining static/native/Maven attribution, full quality and physical/close acceptance open;7/61 complete/54 open; no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: 7be1b14cd0596a14e9fbbc91e384a96435768834
+state_head: 7625ed7e691931e3e1720bfa7784e2590c2150ff
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2609,3 +2609,28 @@ Remaining NDK/Bionic/prefab/prebuilt/static, Maven and six trusted-runtime
 attribution gaps, full external quality, physical/published/fault and close-policy
 acceptance remain open. Matrix7/61 complete/54 open. Numeric score/audit submissions
 await specific approval; no new quality exception, source push or Phase3 work.
+
+## Compiled Android prefab-owner originals — 11 October 2026
+
+All690 recorded prefab headers match actual selected RN/fbjni/Hermes AAR entries.
+687 match immutable upstream blobs; two glog headers reproduce with all15 recorded
+SDK token substitutions and the RN spec header reproduces with installed schema/
+codegen. Native version metadata and glog task match immutable RN source. Boost's
+full archive passes the official checksum. The initial legacy Hermes tag leaves
+three differences; actual V1 version/tag resolves all eight headers exactly.
+Initial observer token-count failure and legacy mismatch remain captured, with no
+runtime/source patch. Owned full archives are verified then removed.
+
+Nine owner groups bind exact root terms and five BSD inline notices. Fourteen
+missing originals are packaged, with duplicate RN/Hermes owner text sharing the
+existing main-JS original. Archive guard adds artifact/shared-original/header/
+inline mapping integrity checks while retaining full144-artifact verification.
+Five new/27 combined regressions, TypeScript, prebuild/export and ordinary signed
+ARM64 Gradle packaging pass. 80 Android originals match. Only new14 originals and
+the reviewed archive manifest change; previous75 assets/four DEX/21 ELF and
+retained ID/cert/permissions remain identical. Generated packaging restores,
+1438 source inputs stable during build and2524 compiler inputs unchanged afterward.
+No device install/runtime acceptance; Android currently absent. Remaining static/
+native/NDK/Bionic/Maven and six trusted-runtime attribution gaps, full quality,
+physical/published/fault and close policy acceptance stay open.7/61 complete/54
+open; no new exception, source push or Phase3 advancement.

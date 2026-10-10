@@ -3,7 +3,7 @@ const { createHash } = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
-function verify(directory, selectedArtifacts) {
+function verify(directory, selectedArtifacts, packageNoticeDirectory = path.join(__dirname, 'src/main/assets/notices')) {
   const manifest = JSON.parse(fs.readFileSync(path.join(directory, 'manifest.json'), 'utf8'));
   if (manifest.schemaVersion !== 1 || manifest.platform !== 'android' ||
       manifest.scope !== 'selected-runtime-archive-originals') {
@@ -33,6 +33,46 @@ function verify(directory, selectedArtifacts) {
     `${artifact.component}\0${path.basename(artifact.file)}\0${sha256(fs.readFileSync(artifact.file))}`).sort();
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
     throw new Error('Android selected archive inputs changed; refresh the notice review');
+  }
+  const headerEntries = [];
+  for (const binding of manifest.prefabBindings) {
+    const artifact = binding.owningArtifact;
+    if (!expected.includes(`${artifact.component}\0${artifact.filename}\0${artifact.sha256}`)) {
+      throw new Error('Android prefab owning artifact binding changed');
+    }
+    for (const original of [...binding.rootOriginals, ...binding.inlineHeaderNotices]) {
+      const reference = original.original;
+      if (typeof reference.file !== 'string' || path.basename(reference.file) !== reference.file ||
+          !reference.file.endsWith('.txt') || !['archive', 'main-javascript'].includes(reference.location) ||
+          (reference.location === 'archive' && !names.includes(reference.file))) {
+        throw new Error('Android prefab original reference missing or unsafe');
+      }
+      const owner = reference.location === 'archive' ? directory : packageNoticeDirectory;
+      if (sha256(fs.readFileSync(path.join(owner, reference.file))) !== reference.sha256) {
+        throw new Error('Android prefab shared original changed');
+      }
+    }
+    for (const header of binding.compiledHeaders) {
+      if (typeof header.entry !== 'string' || !header.entry.startsWith('prefab/modules/') ||
+          header.entry.includes('\\') || header.entry.split('/').some(part => !part || part === '..') ||
+          !/^[a-f0-9]{64}$/.test(header.sha256) ||
+          !['immutable-upstream-blob', 'exact-recorded-glog-token-generation',
+            'exact-installed-sdk-schema-generation'].includes(header.provenance)) {
+        throw new Error('Unsafe or incomplete Android prefab header binding');
+      }
+      headerEntries.push(header.entry);
+    }
+    for (const inline of binding.inlineHeaderNotices) {
+      if (!binding.compiledHeaders.some(header => header.entry === inline.entry && header.sha256 === inline.headerSha256) ||
+          !Number.isSafeInteger(inline.byteStart) || !Number.isSafeInteger(inline.byteEndExclusive) ||
+          inline.byteStart < 0 || inline.byteStart >= inline.byteEndExclusive) {
+        throw new Error('Android prefab inline notice header binding changed');
+      }
+    }
+  }
+  if (new Set(headerEntries).size !== headerEntries.length ||
+      headerEntries.length !== manifest.prefabReview.compiledHeaderCount) {
+    throw new Error('Android prefab reviewed header set changed');
   }
 }
 

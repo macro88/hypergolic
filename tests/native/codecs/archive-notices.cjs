@@ -20,6 +20,7 @@ function fixture(run) {
     fs.writeFileSync(artifact, 'reviewed archive fixture');
     manifest.selectedArtifacts = [{ component: 'example:licensed:1', filename: 'licensed.jar',
       sha256: createHash('sha256').update(fs.readFileSync(artifact)).digest('hex') }];
+    for (const binding of manifest.prefabBindings) binding.owningArtifact = manifest.selectedArtifacts[0];
     fs.writeFileSync(manifestFile, JSON.stringify(manifest));
     run(directory, [{ component: 'example:licensed:1', file: artifact }], manifest);
   } finally { fs.rmSync(temporary, { recursive: true, force: true }); }
@@ -46,4 +47,34 @@ test('new unreviewed runtime dependency rejects', () => fixture((directory, arti
 }));
 test('removed runtime dependency rejects', () => fixture(directory => {
   assert.throws(() => verify(directory, []), /selected archive inputs changed/);
+}));
+
+function changeManifest(directory, edit) {
+  const file = path.join(directory, 'manifest.json');
+  const data = JSON.parse(fs.readFileSync(file, 'utf8')); edit(data); fs.writeFileSync(file, JSON.stringify(data));
+}
+test('changed prefab owning artifact binding rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.prefabBindings[0].owningArtifact.sha256 = '0'.repeat(64); });
+  assert.throws(() => verify(directory, artifacts), /prefab owning artifact binding changed/);
+}));
+test('changed shared React Native licence reference rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => {
+    data.prefabBindings.flatMap(binding => binding.rootOriginals)
+      .find(original => original.original.location === 'main-javascript').original.sha256 = '0'.repeat(64);
+  });
+  assert.throws(() => verify(directory, artifacts), /prefab shared original changed/);
+}));
+test('unsafe prefab header entry rejects before reuse', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.prefabBindings[0].compiledHeaders[0].entry = 'prefab/modules/../outside'; });
+  assert.throws(() => verify(directory, artifacts), /Unsafe or incomplete Android prefab header binding/);
+}));
+test('omitted reviewed prefab header rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.prefabBindings[0].compiledHeaders.pop(); });
+  assert.throws(() => verify(directory, artifacts), /prefab reviewed header set changed/);
+}));
+test('inline BSD notice cannot move to another header', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => {
+    data.prefabBindings.find(binding => binding.inlineHeaderNotices.length).inlineHeaderNotices[0].headerSha256 = '0'.repeat(64);
+  });
+  assert.throws(() => verify(directory, artifacts), /prefab inline notice header binding changed/);
 }));
