@@ -223,3 +223,30 @@ inputs/views. Keeper-only inventory, current identity and installed bytes are
 preserved. The complete corrected run, depth-four/removal-restoration purge,
 identity/publisher/version and incompatible-update isolation, faults/published
 execution and iOS parity remain required. CAP11 stays partial.
+
+
+## Corrected physical Android configuration run — 10 October 2026
+
+The corrected ordinary original-SDK/native-editor run passes all nine checks:
+unset-secret absence, masked draft Cancel without write/push, exact Save with one
+push, empty masked persisted editor, peer-app isolation, saved public-token
+persistence and one initial subscription after real process death, explicit clear,
+depth-four arrays/enums, and schema-removal/restoration orphan purge. Only a public
+disposable marker is entered. Structural JSON comparison preserves exact fields,
+values, array order and event counts. Earlier failed actors remain unchanged.
+
+Independent review verifies all27 original XML/PNG pair hashes, exact SDK reads,
+subscription arrays, unchanged source inputs and installed APK bytes. Eight original
+PNGs are inspected: native fields are masked/unpopulated and the final workspace
+is empty. Complete JSON is clipped/offscreen; its exact values derive from XML.
+Some editor captures clip Save; later observed scrolling precedes native input.
+This is not complete modal/accessibility acceptance.
+
+The terminal actor restores exact defaults without token/deep fields, closes only
+its two owned views and retains the current identity. Post-terminal inventory is
+keeper-only, with unchanged APK bytes. No new package, app build, identity import,
+signing or publication occurs. Private evidence: android-configuration-secret01/
+corrected-physical03. CAP11 remains partial: full identity/publisher/version and
+verified incompatible-update isolation, faults/races, published loading and iOS
+parity remain. UX05 first cold Settings press remains open. Phase2 remains seven
+of61 complete/54 open. Outbox100/100 passes; no source push or Phase3 advance.
