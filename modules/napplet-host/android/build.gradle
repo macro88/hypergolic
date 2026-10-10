@@ -22,6 +22,27 @@ dependencies {
   implementation 'com.facebook.react:react-android'
 }
 
+def archiveNoticeInventory = layout.buildDirectory.file('notice-review/selected-artifacts.json')
+gradle.projectsEvaluated {
+  def appProject = rootProject.project(':app')
+  def artifacts = appProject.configurations.getByName('releaseRuntimeClasspath').incoming.artifactView {
+    componentFilter { id -> id instanceof ModuleComponentIdentifier }
+  }.artifacts
+  def capture = appProject.tasks.register('writeHypergolicNoticeInventory') {
+    inputs.files(artifacts.artifactFiles)
+    outputs.file(archiveNoticeInventory)
+    outputs.upToDateWhen { false }
+    doLast {
+      def output = archiveNoticeInventory.get().asFile
+      output.parentFile.mkdirs()
+      output.text = JsonOutput.toJson(artifacts.artifacts.collect { artifact ->
+        [component: artifact.id.componentIdentifier.displayName, file: artifact.file.absolutePath]
+      })
+    }
+  }
+  tasks.named('preBuild').configure { dependsOn(capture) }
+}
+
 // Packaged trusted-host assets must come from the separately locked web build.
 tasks.named('preBuild').configure {
   doFirst {
@@ -31,19 +52,11 @@ tasks.named('preBuild').configure {
         file('src/main/assets/notices').absolutePath,
         file('../../..').absolutePath
     }.result.get()
-    def configuration = rootProject.findProject(':app').configurations.getByName('releaseRuntimeClasspath')
-    def artifacts = configuration.incoming.artifactView {
-      componentFilter { id -> id instanceof ModuleComponentIdentifier }
-    }.artifacts.artifacts.collect { artifact ->
-      [component: artifact.id.componentIdentifier.displayName, file: artifact.file.absolutePath]
-    }
-    def inventory = layout.buildDirectory.file('notice-review/selected-artifacts.json').get().asFile
-    inventory.parentFile.mkdirs()
-    inventory.text = JsonOutput.toJson(artifacts)
+    def inventoryFile = archiveNoticeInventory.get().asFile
     providers.exec {
       workingDir project.projectDir
       commandLine 'node', file('ArchiveDependencyNotices.cjs').absolutePath,
-        file('src/main/assets/archive-notices').absolutePath, inventory.absolutePath
+        file('src/main/assets/archive-notices').absolutePath, inventoryFile.absolutePath
     }.result.get()
     providers.exec {
       workingDir project.projectDir

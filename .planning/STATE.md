@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Original SQLite notices packaged on Android and iOS, with exact official-source prefix reconstruction and source/AAR guards.34 Node/eight Ruby cases, TypeScript/prebuild/exports/locked Pods and signed products pass. Native byte/stub evidence preserves original failures; physical/full quality remain open.7/61 complete/54 open; no source push.
+stopped_at: SQLite notice helper extraction fixes the new local complexity warning; app-owned artifact inventory resolves the independent Gradle guard failure.34 notice cases, standalone guard and signed ordinary Android assembly pass; APK byte-identical. Local Doctor442/source-only aislop434 pass with zero findings; full online quality and physical acceptance remain open.7/61 complete/54 open; no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: f629c31c126df6f4bea090d344bb38d5cd63b9fa
+state_head: 029e327564a0e9d6ebecf359d5b09be2cd9ab399
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2701,3 +2701,19 @@ push. Final external quality/age gates, other native/static/Maven/NDK and six ru
 attribution gaps, and all actual physical/published/fault/security acceptance remain
 open. Matrix7/61 complete/54 open; no BUILD01/Phase2 pass or Phase3 advancement.
 See [the original notice checkpoint](../docs/native-dependency-notices.md#original-sqlite-notices-in-both-native-packages--11-october-2026).
+
+
+## Independent notice guard and maintainability repair — 11 October 2026
+
+The current local source-only scan finds one new complexity warning in the enlarged
+archive verifier. SQLite checks move unchanged into a named helper.34 owning notice
+regressions pass. Standalone preBuild exposes cross-project configuration resolution
+without the app lock; the corrected app-owned inventory task and host guard pass.
+Inventory refresh remains mandatory; no metadata/hash/source/original gate is removed.
+Ordinary signed ARM64 assembly reproduces the previous complete APK SHA256, with
+all21 ELF/four DEX/92 assets and IDs/certificate/permissions unchanged. Generated
+packaging restores,1442 source inputs unchanged during build. Prior failures remain.
+Final local quality is captured separately with external audit/score/history/telemetry
+disabled; no complete numeric quality acceptance follows. No iOS rebuild, phone
+install/input or source push. Matrix7/61 complete/54 open; physical/published/native
+fault/security and complete quality gates remain required.

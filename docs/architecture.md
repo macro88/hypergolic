@@ -463,3 +463,10 @@ the exact admitted subscription so unsubscribe or replacement cancels old work.
 Valid pre-schema and existing subscriptions retain their accepted semantics.
 Current signed products and owning regressions pass; physical faults remain open.
 See the [request and subscription checkpoint](notifications-configuration.md#configuration-request-expiry-and-unsubscribe-repair--11-october-2026).
+
+
+The Android notice guard obtains the selected release archive inventory from an
+app-owned Gradle task before host preBuild validation. It therefore avoids resolving
+another project's configuration inside the host task action. The independent guard
+and ordinary signed assembly pass; the resulting APK is byte-identical to its
+SQLite-notice predecessor. See [the guard checkpoint](native-dependency-notices.md#independent-android-notice-guard--11-october-2026).

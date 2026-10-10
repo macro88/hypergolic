@@ -693,3 +693,31 @@ source push occurs. Both predecessors remain available. Remaining native/static/
 Maven/NDK ownership, six declaration-only trusted-runtime attribution gaps, full
 quality and actual physical/published/fault/security acceptance remain open.
 Neither complete BUILD-01 nor Phase 2 acceptance follows from this notice subset.
+
+
+## Independent Android notice guard — 11 October 2026
+
+Running the host module's preBuild alone exposed a real Gradle ownership failure:
+its task action resolved the application's releaseRuntimeClasspath without that
+project's exclusive lock. Ordinary assembly had previously resolved this graph
+before the host guard ran. The guard now depends on an app-owned
+writeHypergolicNoticeInventory task, which resolves the selected external artifacts
+in the owning project. Its output is regenerated for each guard invocation; existing
+complete artifact/hash/original checks still run. This follows Gradle's
+[configuration ownership guidance](https://docs.gradle.org/current/userguide/viewing_debugging_dependencies.html#sub:resolving-unsafe-configuration-resolution-errors).
+
+The new SQLite checks are extracted unchanged into a named helper after the local
+source scan reported verify as too long. No threshold, exclusion, rule or shipped
+original text changes. All 34 Android notice cases and the real standalone guard
+pass. The ordinary signed ARM64 assembly also passes and reproduces the previous
+APK SHA-256 exactly: cd40fdc6b88efb17f62a2d11acdf2be95a0a2241899c39feb5da0d57034fd4f4.
+Its 21 ELF images, four DEX files, all 92 assets, ID, label, permissions and certificate
+remain unchanged. Generated signing/ID configuration is restored after the build.
+The preceding iPhone product is unchanged; no iOS rebuild or phone installation
+is part of this repair.
+
+The initial wrong task-name attempt, actual ownership error and preliminary local
+quality warning remain recorded. The final local checks are captured separately.
+Local source-only aislop deliberately defers its online dependency audit and has
+telemetry/history disabled; its score does not satisfy the complete quality gate.
+Full online audit/numeric Doctor scoring and physical acceptance remain pending.

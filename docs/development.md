@@ -818,3 +818,18 @@ Run `node --test tests/native/codecs/android-notices.cjs tests/native/codecs/arc
 and `ruby tests/native/codecs/notice-packaging.rb` from the repository root.
 Use the [SQLite package checkpoint](native-dependency-notices.md#original-sqlite-notices-in-both-native-packages--11-october-2026)
 for static native-byte/relocation evidence and its physical/runtime limits.
+
+
+### Running Android notice verification independently
+
+The host pre-build guard depends on the app-owned selected-artifact inventory task,
+so it can verify the actual release graph independently of app assembly:
+
+```sh
+source .tools/use-local-tools.sh
+./android/gradlew -p android :hypergolic-napplet-host:preBuild --offline --console=plain --no-daemon
+```
+
+The inventory is regenerated in the owning app project for every invocation.
+The host still checks the complete reviewed external archive set and original
+notice/source bindings. This command does not build or install a phone app.
