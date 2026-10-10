@@ -62,6 +62,11 @@ a process-owned identity authority and SQLite; the original UX Lab retains only
 theme access. State Lab and its peer are unsigned, embedded test artifacts with
 reserved fixture namespaces. Their presence does not establish publisher trust.
 
+Feed Lab's JSON filter and routing fields disable text correction and use a URL
+keyboard hint for mobile input. Exact prior saved Feed Lab views reopen their
+retained `feed-lab-v1` bytes and authority. New openings and fixture releases use
+the current artifact; archived artifacts cannot prepare a new publication.
+
 The [relay query adapter](relay-query.md) mediates bounded historical reads through
 the native lease and app-only WSS transport. Feed Lab has isolated native Android
 and iOS Simulator query/lifecycle evidence. The selected [live subscription

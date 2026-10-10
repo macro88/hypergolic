@@ -1253,8 +1253,16 @@
       "requiredEvidence": "Outbox resolves and routes using selected NIP-65 cache/fallback rules; independent relay destinations and fixed-before-approval writes verified",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "outbox-android-routing01/attempts/hg-outbox-android-routing-publication-20261010-06/receipt.json",
+            "outbox-android-routing01/attempts/hg-outbox-android-routing-publication-20261010-09/receipt.json",
+            "outbox-android-routing01/attempts/hg-outbox-android-routing-publication-20261010-09/public-relay-oracle.json",
+            "outbox-android-routing01/feed-json-fix01/physical/hg-outbox-android-required-inbox-20261010-02/receipt.json",
+            "outbox-android-routing01/feed-json-fix01/physical/hg-outbox-android-required-inbox-20261010-02/public-relay-oracle.json"
+          ],
+          "verifiedScope": "Ordinary original SDK resolves disjoint write/read roles after complete signed-list discovery through temporarily isolated Lookup; exact defaults restored and verified development cache retained. Individually approved own-list fanout has separate receipts, with exact signed note/list independently retrieved from nos.lol. After a data-preserving fixture update, typed required-inbox options survive keyboard dismissal; duplicate recipients/explicit relays yield the exact union and no ancillary list. Required-target nonacceptance returns SDK ok:false despite unrelated ACKs. Both actors restore original identity/empty state and keeper-only installed bytes.",
+          "remaining": "Complete all routing/cache refresh, stale/corrupt/cross-identity/cold, stream/lifecycle/fault, iPhone and published acceptance. Default phone Lookup incomplete discovery remains unexplained; host reads do not identify its failing relay."
         },
         "ios-physical": {
           "status": "partial",
@@ -1287,8 +1295,13 @@
       "requiredEvidence": "Standalone physical Android and iPhone: ordinary entry, persisted disposable identity after cold launch, exact native review, protected primary signature, public WSS ACK and independently verified exact event/template/ID",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "outbox-android-routing01/attempts/hg-outbox-android-routing-publication-20261010-09/public-relay-oracle.json",
+            "outbox-android-routing01/feed-json-fix01/physical/hg-outbox-android-required-inbox-20261010-02/public-relay-oracle.json"
+          ],
+          "verifiedScope": "Two separate ordinary bundled physical development publications have exact native template/hash/identity and independently verified signed stored events. First has successful own-list fanout; second correctly fails required delivery despite a stored primary note.",
+          "remaining": "Persisted selected development identity after cold launch, complete protected publication and final signed published-product evidence remain required. No native signer-count assertion."
         },
         "ios-physical": {
           "status": "partial",
@@ -1306,8 +1319,14 @@
       "requiredEvidence": "Both hosts review the full immutable union and exact existing signed kind10002; one new primary signature, approved targets only, distinct primary/list receipts, ancillary failure preserves primary success",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "outbox-android-routing01/attempts/hg-outbox-android-routing-publication-20261010-09/receipt.json",
+            "outbox-android-routing01/attempts/hg-outbox-android-routing-publication-20261010-09/public-relay-oracle.json",
+            "outbox-android-routing01/visual-review.json"
+          ],
+          "verifiedScope": "Native immutable own-list review matches the exact existing signed kind10002 and selected identity. Primary/list groups separately report nos.lol and bucket.coracle.social accepted; independent reads verify the exact primary and unchanged signed list on nos.lol.",
+          "remaining": "One-primary-signature counters, approved-only frame observations, ancillary failure preserving primary success, full event-pixel usability, iPhone and published parity remain open. ACKs do not establish subsequent storage reads at every relay."
         },
         "ios-physical": {
           "status": "not-run",
@@ -1321,8 +1340,14 @@
       "requiredEvidence": "All-required success; rejected/unknown/cancelled required target makes primary fail despite unrelated ACK; dedup, missing required inbox and union/frame overflow deny before review/sign/send; toOutbox:false omits own discovery/list only",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "outbox-android-routing01/feed-json-fix01/physical/hg-outbox-android-required-inbox-20261010-02/receipt.json",
+            "outbox-android-routing01/feed-json-fix01/physical/hg-outbox-android-required-inbox-20261010-02/public-relay-oracle.json",
+            "outbox-android-routing01/feed-json-fix01/visual-review.json"
+          ],
+          "verifiedScope": "Genuine SDK receives duplicated required inbox and explicit relay options without IME rewriting. Native union deduplicates three targets; toOutbox:false has no ancillary list. Required damus nonacceptance returns primary ok:false despite two unrelated ACKs; the exact signed primary is independently stored on nos.lol.",
+          "remaining": "All-required success, controlled rejected/unknown/cancelled distinctions with exact frame/effect observations, missing-required/union/frame-overflow denial before review/sign/send, iPhone and published acceptance remain required. Native cancelled-before-send receipt is not independent zero-frame proof or transport-cause attribution."
         },
         "ios-physical": {
           "status": "not-run",
@@ -1445,8 +1470,14 @@
       "requiredEvidence": "Physical keyboard/Back/focus/screen-reader and reduced-motion checks; exact destinations and signed list remain readable; complete SDK JSON never hides the next action; receipt groups and uncertainty stay distinguishable",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "outbox-android-routing01/visual-review.json",
+            "outbox-android-routing01/feed-json-fix01/visual-review.json",
+            "outbox-android-routing01/feed-json-fix01/physical/hg-outbox-android-required-inbox-20261010-02/receipt.json"
+          ],
+          "verifiedScope": "Inspected original screenshots show separate primary/list receipt groups, required destination labels and full unsigned event JSON/hash in the required-inbox review. Typed JSON is exact after native keyboard dismissal; the first cold Settings press miss is preserved, followed by successful warm navigation.",
+          "remaining": "Complete keyboard/Back/focus/screen-reader/reduced-motion and full signed-list/event/result usability on both physical hosts. Editor screenshot shows its scrolled tail; full input relies on original XML. First Settings miss remains unexplained."
         },
         "ios-physical": {
           "status": "not-run",
@@ -1460,8 +1491,15 @@
       "requiredEvidence": "Current Android/iOS exports, prebuilds, native standalone packages, provisioned physical installation/cold launch without Metro; permissions/signing/config inspection and affected regressions; full React Doctor/aislop 100/100 or only the exact explicitly approved exception while applicable",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "outbox-android-routing01/feed-json-fix01/manifest.json",
+            "outbox-android-routing01/feed-json-fix01/packaging-and-native/hg-feed-json-android-build-20261010-01/receipt.json",
+            "outbox-android-routing01/feed-json-fix01/packaging-and-native/hg-feed-json-android-install-20261010-01/receipt.json",
+            "outbox-android-routing01/feed-json-fix01/react-score-review-block.json"
+          ],
+          "verifiedScope": "Both exports, Android prebuild, same-ID/certificate signed ordinary Android/iPhone ARM64 packaging and exact runtime equality pass. Android installs in place with unchanged package inventory and no reset. Local complete React Doctor has no issues across434 files; ten audits retain only the two exact prior approved advisories.",
+          "remaining": "Complete all named final packaging/physical parity gates. React Doctor numeric score request is blocked by automatic approval review pending specific external-payload authorization; no100 score claimed. Aislop98 and six Expo patch mismatches remain visible. Signed iPhone ready product is not installed."
         },
         "ios-physical": {
           "status": "not-run",

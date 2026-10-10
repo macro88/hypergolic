@@ -292,6 +292,19 @@ private func waitForReplies(_ replies: Replies, count: Int) async {
   #expect(throws: (any Error).self) {
     _ = try CapabilityConfiguration(raw(fixture: "approval-lab-v3", domains: ["identity", "relay", "theme"]), generation: "generation")
   }
+  let archivedFeed = try CapabilityConfiguration(raw(fixture: "feed-lab-v1",
+    domains: ["identity", "outbox", "relay", "theme"]), generation: "feed-generation")
+  #expect(archivedFeed.fixture == "feed-lab-v1")
+  for domains in [["identity", "relay", "theme"],
+    ["identity", "outbox", "relay", "theme", "storage"],
+    ["identity", "outbox", "relay", "theme", "relay"]] {
+    #expect(throws: (any Error).self) {
+      _ = try CapabilityConfiguration(raw(fixture: "feed-lab-v1", domains: domains), generation: "generation")
+    }
+  }
+  #expect(throws: (any Error).self) {
+    _ = try CapabilityConfiguration(raw(fixture: "feed-lab-v2", domains: ["identity", "outbox", "relay", "theme"]), generation: "generation")
+  }
   let configuration = try CapabilityConfiguration(raw(fixture: "approval-lab",
     domains: ["identity", "relay", "theme"]), generation: "generation")
   #expect(configuration.approvalWireId("{\"type\":\"relay.publish\",\"id\":\"exact\",\"event\":{}}")

@@ -12,7 +12,7 @@ export const BUNDLED_FIXTURES = Object.freeze({
     sha256: '6ff9d52c117d030b28a66b3c2a6bc28674aef83a4148412cca3048cb49d8db1e', aggregateHash: '27a16dadfdd3768ac305bc05aa4d693fa3fdde429470e83057e3d675105a576f',
     domains: Object.freeze(['resource', 'link', 'theme']) }),
   'feed-lab': Object.freeze({ title: 'Feed Lab', appId: 'feed-lab',
-    sha256: '2cb048da03eb3f9d9759a04961960ca2bc469386e8edddc58df4f54cdc8b92d0', aggregateHash: 'eec5f146e50415c9c07db0298682a75d4e4c94e7e3ef7e18a3f37a87e1825642',
+    sha256: 'f32d7e76ca80e5e210a81ffe8e03c799dcb35d6acc66765af728a87ca1a4da60', aggregateHash: '60ac82311fc04a93b3218d9bfaf23256c4a1f6902c59147a5542c9d2e27f0606',
     domains: Object.freeze(['identity', 'outbox', 'relay', 'theme']) }),
   'ux-lab': Object.freeze({ title: 'UX Lab', appId: 'ux-lab',
     sha256: '01ab63dbcdadab0b44fd6f3b9a6bcfbd98d8c1de1510f96c821d3efe1876909c',
@@ -27,6 +27,9 @@ export const BUNDLED_FIXTURES = Object.freeze({
     aggregateHash: 'a2005ccdd7d0018fae17802bcfc6bb5fab48b9050933e5e7683a0e4f06030355',
     domains: Object.freeze(['identity', 'storage', 'theme']) }),
   // Exact previous artifacts for saved views; excluded from new openings and publication.
+  'feed-lab-v1': Object.freeze({ title: 'Feed Lab', appId: 'feed-lab',
+    sha256: '2cb048da03eb3f9d9759a04961960ca2bc469386e8edddc58df4f54cdc8b92d0', aggregateHash: 'eec5f146e50415c9c07db0298682a75d4e4c94e7e3ef7e18a3f37a87e1825642',
+    domains: Object.freeze(['identity', 'outbox', 'relay', 'theme']) }),
   'approval-lab-v1': Object.freeze({ title: 'Approval Lab', appId: 'approval-lab',
     sha256: '95c8360ae963c91f5c9a09e9f88eec06db46a810538394d6dc12ca587befaae1',
     aggregateHash: 'a3c2ec6e0cd8068d942866f80f622f21df53cc188f000bc2af6caf34126e6889',

@@ -96,3 +96,25 @@ for (const archive of ['approval-lab-v1', 'approval-lab-v2'] as const) test(`sav
     {eventId: '0'.repeat(64)}, {title: 'Other Lab 8'}, {id: 'approval-lab-v1-8'},
   ]) assert.throws(() => resolveBundledSession({...saved, ...mutation}));
 });
+
+for (const archive of ['feed-lab-v1'] as const) test(`saved Feed Lab ${archive} restores its exact artifact without changing new openings`, async () => {
+  const {bundledDescriptor, resolveBundledSession, assertWorkspaceAvailability} = await import('./fixtures.ts');
+  const {BUNDLED_FIXTURES} = await import('../runtime/bundled-catalog.ts');
+  const latest = bundledDescriptor('feed-lab', 8, '12345678-1234-4123-8123-123456789abc');
+  const saved = {...latest, version: BUNDLED_FIXTURES[archive].aggregateHash};
+  const restored = resolveBundledSession(saved);
+  assert.equal(restored.fixture, archive);
+  assert.equal(restored.appId, latest.appId);
+  assert.equal(restored.instanceId, saved.id);
+  assert.equal(restored.version, saved.version);
+  assert.deepEqual(restored.domains, ['identity', 'outbox', 'relay', 'theme']);
+  assert.equal(resolveBundledSession(latest).fixture, 'feed-lab');
+  assert.equal(resolveBundledSession(latest).version, latest.version);
+  assert.notEqual(restored.version, latest.version);
+  assertWorkspaceAvailability(openNapplet(openNapplet(emptyWorkspace(), saved), {...latest, id: 'feed-lab-9', title: 'Feed Lab 9'}));
+  for (const mutation of [
+    {version: '0'.repeat(64)}, {version: BUNDLED_FIXTURES[archive].sha256},
+    {publisher: 'bundled-unsigned-peer'}, {appId: 'feed-lab-v1'}, {source: 'published' as const},
+    {eventId: '0'.repeat(64)}, {title: 'Other Lab 8'}, {id: 'feed-lab-v1-8'},
+  ]) assert.throws(() => resolveBundledSession({...saved, ...mutation}));
+});

@@ -38,3 +38,12 @@ Only HYPERGOLIC_NETWORK_PROOF builds can redirect that proof to a controlled
 address/certificate anchor. Ordinary public relay policy remains compiled by
 default. These already signed fixtures do not prove protected signing, owning
 Expo composition or complete lifecycle/fault acceptance.
+
+
+The current physical Android bundled subset verifies disjoint role discovery,
+separate primary/existing-list receipts and a required-target failure despite
+unrelated acknowledgements. Exact stored event signatures are independently
+verified. Feed Lab's JSON editors now preserve typed routing keys on that device;
+previous saved bytes retain their original pin. See the [current checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md#feed-lab-json-input-and-physical-outbox-routing--10-october-2026).
+Full all-required success, controlled transport/effect counters, lifecycle/cache,
+iPhone and signed published acceptance remain open.

@@ -3,13 +3,13 @@
   "productionSources": {
     "modules/napplet-host/ios/NativeApprovalAuthority.swift": "fb7d946e3d7c1b27326084df090fbb4a64e120b34bbe73a2af46301cf3a6c7b0",
     "modules/napplet-host/ios/CapabilityLeaseRegistry.swift": "d9776b85a2c1719f2d5164cedd81d97ef1a683d53a45ba33f1dc9f4925a86ba6",
-    "modules/napplet-host/ios/CapabilityTransport.swift": "2cd1cdab85e8dec482b895dfdbf11a1963b967036fe9b76687ac84f1117bcf00",
+    "modules/napplet-host/ios/CapabilityTransport.swift": "be21394557811333249d426ffa2054cf75bdd2d5dd8bc99a4215f5c5e532223c",
     "modules/napplet-host/ios/ApprovalTransport.swift": "8f9f52bdbffb71d67bb74ba0d2b468be02574a427a7a10f8aa4008fd89e9e8a5",
     "modules/napplet-host/ios/NativeOutboxPlan.swift": "c9a90f5ecfdc610b5f8c240ecec768771bf60c2de52dce0684c267927278bf7c",
     "modules/napplet-host/ios/PublishedRelayWebSocketClientFrames.swift": "8bc1af1653d83f2756f582f059d782fae16e1b2f69d4de36fbdebb755bedbed7"
   },
   "testSources": {
-    "Tests/ApprovalTransportTests.swift": "5f47ab560db98dab65cd02fdb0142c592b74cd8e732b44051e32b997ba3cfd89"
+    "Tests/ApprovalTransportTests.swift": "76f30af73b1a68df5007822742a484f7e1cf49f45b74ca6b80c33c3d8e83f672"
   },
   "harnessFiles": {
     "README.md": "ddf01fe64bad9241d8726918f8d93d4357e40c2660029ce0d8888172adcdc31c",

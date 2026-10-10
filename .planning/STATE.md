@@ -2098,3 +2098,45 @@ integration, preserved old fixture pins and device delivery proof. Full matrix:
 seven of 61 complete, 54 open. Application/native/build inputs are unchanged;
 this is a documentation-only checkpoint with no new quality/build claim or source
 push. See [the physical checkpoint](phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md).
+
+
+## Feed Lab JSON input and physical Outbox routing — 10 October 2026
+
+Android IME changed `toInboxes` to `to inboxes` before a second publication request.
+Only the structured JSON filter/routing fields now disable text correction and use
+a URL keyboard hint. The exact prior Feed Lab artifact remains byte-pinned for saved
+views with its original authority; new openings/releases exclude the archive.
+
+Standalone18, full runtime276, shell31, Outbox102, Android parser41 and iOS transport11
+pass. TypeScript, both exports and Android prebuild pass. Both ordinary signed ARM64
+products preserve identifiers/certificates and verify1,261 unchanged build inputs.
+Android updates in place without reset; the63-file signed iPhone ready copy verifies
+locally and is uninstalled. The prior signed app and native codec inputs remain exact.
+
+The first physical attempt stops at a cold Settings press before any request; its
+original screen/terminal restoration is retained. The warm rerun proves exact typed
+JSON after keyboard dismissal, duplicated required-inbox/explicit-relay union, no
+ancillary list when toOutbox:false, and readable full native event JSON/hash. One
+individual approval returns required-target failure despite two unrelated ACKs.
+Independent bounded reads verify the exact signed stored note on nos.lol. This is
+a negative all-required result case, not all-required success or zero-frame/cause proof.
+
+The preceding own-list note is not repeated: separate primary/list native receipt
+groups report both targets accepted, with exact signed note/list retrieved on nos.lol.
+All terminal actors restore original identity/empty workspace, exact modified Lookup
+defaults where applicable, keeper-only inventories and unchanged installed/source
+bytes during device work. No temporary test app remains. Original failed observers
+and a333,450,942-byte owned intermediate cleanup receipt are preserved privately.
+
+All ten audit owners complete; only the exact prior approved node-forge/braces
+advisories remain. Aislop98 and ExpoDoctor20/21 with six patch mismatches stay visible.
+Local complete React Doctor scans434 files without issues. Automatic approval review
+rejects its external numeric --score request before execution; specific payload/
+destination authorization is pending and no100 score is fabricated. No exclusion,
+quality-gate relaxation or security-setting change.
+
+Private artifacts: outbox-android-routing01 and its feed-json-fix01 child. CAP12 and
+OB01/02/03/10/11 gain scoped Android partial evidence; every complete requirement
+stays open until all named cases and platforms pass. Seven of61 complete/54 open.
+Required success/fault/lifecycle/cache, iPhone/published parity and the unanswered
+clean-close product decision remain. No source push or Phase3 advancement.

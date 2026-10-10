@@ -11,3 +11,12 @@ accepted badges and explicit unsupported/deferred results. Feed Lab offers an
 explicit follows read without changing query routing. See the selected
 [public identity contract](../../docs/public-identity-data.md) and
 [native acceptance drivers](../../tests/native/identity-data/README.md).
+
+JSON filter and routing editors disable autocorrection, capitalization, autofill
+and spelling assistance, with a URL keyboard hint for older mobile WebViews.
+They preserve the entered options; the draft keeps its existing text editor.
+A physical Android run observed `toInboxes` becoming `to inboxes` before this
+change. Browser typing/blur tests cover exact SDK delivery; a desktop browser
+cannot prove mobile keyboard behavior. The previous bundled artifact remains
+byte-pinned as `feed-lab-v1` for saved sessions, with its original authority.
+It is excluded from fresh openings and fixture publication.

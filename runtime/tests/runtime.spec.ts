@@ -79,6 +79,16 @@ for (const [fixture, expectedSha, expectedAggregate] of [
   expect(manifest).not.toHaveProperty('sig');
 });
 
+test('saved Feed Lab artifact keeps its exact bytes and authority', async () => {
+  const bytes = readFileSync('fixtures/feed-lab-v1.html');
+  const manifest = JSON.parse(readFileSync('fixtures/feed-lab-v1-manifest.json', 'utf8'));
+  expect(createHash('sha256').update(bytes).digest('hex')).toBe('2cb048da03eb3f9d9759a04961960ca2bc469386e8edddc58df4f54cdc8b92d0');
+  expect(manifest.aggregateHash).toBe('eec5f146e50415c9c07db0298682a75d4e4c94e7e3ef7e18a3f37a87e1825642');
+  expect(manifest.tags.filter((tag: string[]) => tag[0] === 'requires')).toEqual([
+    ['requires', 'identity'], ['requires', 'outbox'], ['requires', 'relay'],
+  ]);
+});
+
 test('top host derives v4 UUIDs from secure bytes when WebView lacks crypto.randomUUID', async ({ page }) => {
   await page.addInitScript(() => {
     if (window !== window.top) return;

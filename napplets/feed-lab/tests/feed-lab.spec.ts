@@ -72,6 +72,26 @@ async function publicationMount(page:Page) {
  await page.locator('#fixture').evaluate((node,content)=>(node as HTMLIFrameElement).srcdoc=content,html.replace('<head>','<head>'+mock));
  const frame=page.frameLocator('#fixture');await expect(frame.getByTestId('lab')).toHaveAttribute('data-ready','true');return frame;
 }
+test('typed JSON options survive blur and reach the original SDK without rewriting keys', async ({page}) => {
+ const frame=await publicationMount(page);
+ for (const id of ['filters','outbox-options','outbox-publish-options']) {
+  const field=frame.locator('#'+id);
+  await expect(field).toHaveAttribute('spellcheck','false');
+  await expect(field).toHaveAttribute('autocorrect','off');
+  await expect(field).toHaveAttribute('autocapitalize','off');
+  await expect(field).toHaveAttribute('autocomplete','off');
+  await expect(field).toHaveAttribute('inputmode','url');
+ }
+ const options={toOutbox:false,toInboxes:['b'.repeat(64),'b'.repeat(64)],relays:['wss://nos.lol/','wss://relay.damus.io/']};
+ const text=JSON.stringify(options), field=frame.locator('#outbox-publish-options');
+ await frame.locator('#draft').fill('typed routing options');
+ await field.fill('');await field.pressSequentially(text);await field.press('Tab');
+ await expect(field).toHaveValue(text);await frame.locator('#outbox-publish').click();
+ expect(await frame.locator('body').evaluate(()=>(window as any).proof.calls)).toEqual([
+  {event:{kind:1,content:'typed routing options',tags:[],created_at:expect.any(Number)},options},
+ ]);
+ await expect(frame.locator('#draft')).not.toHaveAttribute('inputmode','url');
+});
 test('draft publication uses the original SDK once with exact options and preserves an editable draft',async({page})=> {
  const frame=await publicationMount(page);await frame.locator('#draft').fill('exact reviewed draft');await frame.locator('#outbox-publish-options').fill('{"toOutbox":false,"relays":["wss://nos.lol"]}');await frame.locator('#outbox-publish').click();
  await expect(frame.locator('#outbox-publish')).toBeDisabled();await expect(frame.locator('#outbox-publish-status')).toHaveText('Waiting for shell review…');

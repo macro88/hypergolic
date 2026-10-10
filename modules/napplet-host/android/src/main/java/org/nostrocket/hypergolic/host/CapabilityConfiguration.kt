@@ -38,6 +38,7 @@ internal class CapabilityConfiguration(raw: String, generation: String, allowPub
       "resource-lab" -> setOf("resource", "link", "theme")
       "nap-support" -> setOf("link", "theme")
       "routing-lab", "routing-lab-peer" -> setOf("intent", "inc", "notify", "config", "theme")
+      "feed-lab-v1" -> setOf("identity", "outbox", "relay", "theme")
       "feed-lab" -> if ("outbox" in granted) setOf("identity", "outbox", "relay", "theme") else setOf("identity", "relay", "theme")
       "published" -> {
         require(allowPublished)

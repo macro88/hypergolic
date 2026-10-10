@@ -142,7 +142,7 @@ test('accepted receipts for an unapproved host, path or event do not start store
   assert.equal(service.getSnapshot().phase,'failed');assert.equal(state.queries,0);
 });
 
-for (const archive of ['approval-lab-v1', 'approval-lab-v2']) test(`archived Approval Lab ${archive} cannot prepare a fresh release or produce signing/network effects`, async () => {
+for (const archive of ['approval-lab-v1', 'approval-lab-v2', 'feed-lab-v1']) test(`archived fixture ${archive} cannot prepare a fresh release or produce signing/network effects`, async () => {
   const {service, state} = setup();
   await service.prepare(archive, server, relays);
   assert.equal(service.getSnapshot().phase, 'failed');
