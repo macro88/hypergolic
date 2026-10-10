@@ -833,3 +833,18 @@ source .tools/use-local-tools.sh
 The inventory is regenerated in the owning app project for every invocation.
 The host still checks the complete reviewed external archive set and original
 notice/source bindings. This command does not build or install a phone app.
+
+
+### Android compiler original notices
+
+`node --test tests/native/codecs/compiler-notices.cjs` checks notice and compiler identity drift
+using disposable resolver results. The real offline
+`:hypergolic-napplet-host:preBuild` task captures D8's class-loader origin through
+the app plugin, resolves its unique artifact inside a root-owned task and verifies
+the complete archive hash, embedded version and immutable commit. Both compiler
+and runtime inventories refresh on every guard invocation. Compiler records stay
+separate from the 144 selected release runtime artifacts.
+
+The native host packages the original R8 BSD text in `assets/compiler-notices/`.
+Its original hash, Git blob identity and exact file set are checked before packaging.
+See [compiler/source and helper evidence](native-dependency-notices.md#android-d8-compiler-and-generated-helper-review--11-october-2026).

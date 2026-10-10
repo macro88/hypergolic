@@ -479,3 +479,12 @@ to current local Release/resource outputs. The remaining 1,513 names, generated
 helper origins, resource/native terms and full attribution remain unresolved;
 class-name matches do not reproduce translated bytecode. See the
 [distribution checkpoint](native-dependency-notices.md#packaged-android-class-definition-inventory--11-october-2026).
+
+
+Android's notice guard also binds the original R8 BSD text to the actual D8
+class-loader origin, selected buildscript archive and embedded version/source
+revision. A root-owned task captures compiler metadata independently of the
+app-owned runtime inventory. The compiler is a build input, not another runtime
+Maven component. Exact generated naming/context and RecordTag instruction review
+remain distinct from full generated-code and distribution acceptance; see
+[the compiler review](native-dependency-notices.md#android-d8-compiler-and-generated-helper-review--11-october-2026).

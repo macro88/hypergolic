@@ -2739,3 +2739,30 @@ input, external audit/score transfer or new numeric quality claim.1442 source in
 selected archives/local outputs and the retained APK stay unchanged. Matrix7/61
 complete/54 open; all full distribution/quality/physical/published/fault gates remain.
 Android still absent; the paired physical iPhone still needs a recent unlock.
+
+
+## Android compiler/helper attribution and original delivery — 11 October 2026
+
+Actual app-plugin D8 origin binds to the selected builder8.12.0 archive and embedded
+D8 8.12.14/R8 commit4aa08788a4dd8698c9a5ab142f6367ee769069b1; upstream tag/commit
+and nine source/license Git blobs match. All1512 context-based helper names have
+packaged input candidates; exact RecordTag structure and constructor instructions
+match the inspected owning emitter. This is not all-helper bytecode reproduction.
+
+The native host packages the exact original R8 BSD text for compiler-defined
+helper attribution. Root-owned compiler capture and the guard verify actual origin,
+coordinate/full archive identity/version/commit plus original hash/Git blob/file set.
+All51 notice cases, TypeScript, Expo Android prebuild, standalone guard, real stale
+compiler-inventory refresh and ordinary signed ARM64 packaging pass. First combined
+notice tests reject the unnecessary package script edit; it is removed rather than
+loosening the existing package provenance guard. Original failures are retained.
+
+Signed APK83 originals add only two compiler-notice assets; all21 ELF/four DEX/92
+prior assets/JS stay exact with unchanged appID/cert/permissions. Generated packaging
+restores. iPhone132-file seal unchanged, no iOS rebuild/install/input/source push.
+Local Doctor442/zero findings/skips/no score and source-only aislop435/zero findings
+retain disabled online audit and97 unsupported files. Full external quality and
+complete native/resource/generated/runtime attribution remain required. Android
+absent; paired iPhone lock query requires recent unlock. Physical/published/native
+fault/security/sign-off gates stay open. Matrix7/61 complete/54 open; no BUILD01 or
+Phase2 pass or Phase3 advance. See the compiler review in native-dependency-notices.
