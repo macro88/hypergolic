@@ -151,6 +151,12 @@ Independent native workspace and boundary checks are recorded in
 Physical-device execution and full native security acceptance remain open. There
 is no EAS project, hosted build configuration, user key or relay connection.
 
+The iOS image dependency builds from source with WebP1.6.0 and an immutable
+libdav1d wrapper/submodule pin. A hash-checked CocoaPods hook applies the released
+tile-offset backport while retaining the1.2.0 version. Host regression and signed
+packaging evidence remain distinct from full codec/physical security acceptance.
+See [native dependency provenance](native-dependency-notices.md).
+
 Expo generates the ignored `android/` and `ios/` trees. Source configuration and the lockfile
 are authoritative. `plugins/withUnsignedRelease.cjs` replaces the generated release
 debug-key configuration with unsigned output and fails if the template is no longer

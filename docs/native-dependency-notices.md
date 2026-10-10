@@ -200,3 +200,53 @@ inventory and shipped original notices remain required. The host regression and
 signed local build do not close physical decoder behavior, BUILD-01, final numeric
 quality or any other complete cross-platform acceptance row. No new security
 exception or source push is authorized by this repair.
+
+
+## Source-built dav1d backport — 10 October 2026
+
+The source-built AVIF chain resolves libavif 1.0.0 and libdav1d 1.2.0. The wrapper
+is pinned to SDWebImage/libdav1d-Xcode commit
+`0143c7ca8cf62ddc844031e1f3a661c99d086432`, including its dav1d submodule at
+`676a864a11af2c0522e1f992e770589543894686`. Before patching, all 294 captured owning
+source files match the immutable upstream Git blobs. Wrapper-generated headers
+are checked separately. This establishes source provenance, not complete security.
+
+The patch manifest backports the released upstream
+[tile-offset correction](https://github.com/videolan/dav1d/commit/2b475307dc11be9a1c3cc4358102c76a7f386a51)
+to the exact installed `decode.c` and `internal.h`. It changes tile-offset storage
+and arithmetic to unsigned values. Both full-file before/after hashes are pinned;
+unknown source changes stop installation before either file is written. Upstream
+copyright and license text remain intact. The Pod version stays truthfully 1.2.0.
+The captured CNA record for CVE-2024-1580 covers versions before 1.4.0 and does not
+exclude ARM64; this one backport is not proof that the entire CVE or decoder is clear.
+
+The focused host regression uses the actual owning loop and structures. Twelve
+exact offsets across three tiny synthetic grids pass ASan/UBSan. Its original
+pre-fix failure is retained; it is not rerun as part of ordinary builds. The Ruby
+hook also passes staged validation, idempotence and file-mode checks. WebP's
+existing full-source host regression still passes after direct Pod pin enforcement.
+These are host tests rather than full AV1 bitstream or physical-device acceptance.
+
+The first root-working-directory Pod install omitted `apple.extraPods`. Running
+from `ios` enforced the WebP pin but the extra-Pod Git route omitted the dav1d
+submodule and failed. The config plugin now emits a direct immutable libdav1d
+source pin with `:submodules => true`; native-directory Pod installation succeeds
+and both installed lockfiles match. Original failures remain in the evidence.
+
+The ordinary header avatar reader currently admits bounded PNG, JPEG, WebP and
+GIF bytes and rejects AVIF. That source restriction does not establish that all
+native decoder entry paths are unreachable. Complete codec/transitive provenance,
+final packaged attribution, native runtime and BUILD-01 acceptance remain open.
+No additional dependency exception, source push or complete Phase 2 pass follows.
+
+
+The finalized signed ARM64 iPhoneOS product also passes after the hook guard,
+with63 sealed files, strict ready/archive signatures, the same certificate and
+unchanged older signed apps. Its main executable SHA-256 is
+`5427a7b79e42b7fde708bd07c50c658c33fda990e5a5edb3eb1d497f992d5f63`.
+The initial build log compiles the patched owning `decode.c`; the retained owning
+object and packaged decoder symbols bind that subset. The final source/native
+inputs remain stable through compilation. Only completed owned intermediates are
+removed after artifact preservation. This app is ready locally and remains
+uninstalled on iPhone; Android's matching current-code ordinary package is updated
+in place. No physical AV1 decoding or complete codec safety claim is made.

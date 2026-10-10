@@ -55,7 +55,8 @@
         {
           "configureAndroidBackup": true
         }
-      ]
+      ],
+      "./plugins/withNativeCodecPatches.cjs"
     ]
   }
 }

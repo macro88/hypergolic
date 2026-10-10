@@ -181,8 +181,12 @@ project and install pods after changing this configuration:
 
 ```sh
 pnpm run prebuild:ios
-pod install --project-directory=ios
+cd ios
+pod install
+cd ..
+pnpm run test:native-codec-patches
 pnpm run test:native-webp
+pnpm run test:native-dav1d
 ```
 
 The regression compiles the installed codec's 119 C files with the macOS SDK and
@@ -193,6 +197,27 @@ plus the test source and Pod lock. Output stays in a fresh temporary directory;
 the compiled test binary and its debug-symbol bundle are removed even on failure. This is host-source evidence.
 Build and install the signed ordinary iPhone app separately, then test actual
 native image decoding. See [native dependency provenance](native-dependency-notices.md#source-built-ios-webp-repair--10-october-2026).
+
+Run CocoaPods from the `ios` directory: the installed Expo autolinker resolves
+`Podfile.properties.json` relative to its working directory. Invoking it from the
+repository root can omit `apple.extraPods`, even with `--project-directory=ios`.
+
+`plugins/withNativeCodecPatches.cjs` pins the libdav1d wrapper to an immutable Git
+commit with its dav1d submodule included. Its CocoaPods post-install hook applies
+the released upstream tile-offset fix to the known 1.2.0 source. The manifest
+checks both complete file hashes before writing, accepts already-patched sources,
+and rejects unexpected source or hook changes. It preserves source file modes.
+The version remains 1.2.0; this is a backport rather than a new released wrapper.
+
+`test:native-codec-patches` exercises the real Expo plugin and Ruby hook, including
+repeated generation, conflicting pins, incomplete hooks, source drift before any
+write, and read-only file modes. It needs the installed iOS Pod sources.
+`test:native-dav1d` extracts the actual installed tile-offset loop and uses the
+owning native structures in a host ASan/UBSan arithmetic regression. Three small
+synthetic grids check twelve exact offsets, including the signed-integer boundary.
+It does not decode AV1 bitstreams or prove behavior on a phone. Temporary binaries
+and debug symbols are removed. The complete native dependency and physical review
+remain required; see [decoder provenance](native-dependency-notices.md).
 
 The Simulator build command installs dependencies and starts Metro as needed:
 

@@ -47,7 +47,9 @@
     "test:routing:native": "python3 tests/native/routing/unit.py",
     "test:presentation": "node --experimental-strip-types --test tests/presentation/*.test.ts",
     "test:outbox": "node --experimental-strip-types --test tests/outbox/*.test.ts",
-    "test:native-webp": "node scripts/test-native-webp.mjs"
+    "test:native-webp": "node scripts/test-native-webp.mjs",
+    "test:native-dav1d": "node scripts/test-native-dav1d.mjs",
+    "test:native-codec-patches": "node --test tests/native/codecs/patch-integration.cjs && ruby tests/native/codecs/patch-hook.rb"
   },
   "dependencies": {
     "applesauce-core": "6.2.0",
