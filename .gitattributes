@@ -2,3 +2,4 @@
 modules/napplet-host/android/src/main/assets/notices/*.txt -text
 modules/napplet-host/android/src/main/assets/archive-notices/*.txt -text
 modules/napplet-host/ios/Resources/notices/*.txt -text
+modules/napplet-host/android/src/main/assets/cpp-notices/*.txt -text

@@ -421,3 +421,10 @@ requests through the same native approval lane as notes and profile metadata.
 Exact saved v1/v2 pins remain separate from new openings and releases. This test
 fixture does not mutate routing caches or change published Outbox admission;
 see [the selected relay-list fixture contract](signing-approval.md#approval-lab-relay-list-fixture--10-october-2026).
+
+
+The Android native module also carries the reviewed NDK libc++/libc++abi original
+licences and credits. Its preBuild pins the actual NDK runtime and 895 recorded
+C++ header inputs. The signed ARM64 product preserves all previous executable
+bytes and adds only these notice assets. Other native/prefab and transitive
+attribution remains open; see the [C++ review](native-dependency-notices.md#android-local-c-and-ndk-original-notices--11-october-2026).

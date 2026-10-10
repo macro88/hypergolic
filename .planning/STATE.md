@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Selected Android runtime archive originals packaged: six originals/18 bindings cover four missing Commons Apache texts, graph150 Maven/11 projects/144 artifact hashes unchanged. Signed ordinary APK preserves64 assets/four DEX/21 native images and identity/cert;14 notice regressions/typecheck/prebuild/export/build pass. Native/Maven attribution, full quality/physical/close decisions remain;7/61 complete/54 open, no source push.
+stopped_at: Android local C++/NDK notice subset verified: six local ELF outputs and 2524 unchanged compiler inputs; exact stripped NDK runtime matches APK. Four originals added with NDK/header guard;22 regressions/typecheck/prebuild/export/signed build pass. Prior71 assets/four DEX/21 ELF and identity/cert unchanged. Remaining native/Maven attribution, full quality, physical and close acceptance open;7/61 complete/54 open; no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: be1fbe3ae078cd6d4a40b6062172657766b71725
+state_head: 7be1b14cd0596a14e9fbbc91e384a96435768834
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2583,3 +2583,29 @@ Scoped Git attributes also protect original notice bytes from line-ending
 conversion. All128 current iOS/Android original blobs match committed/working
 bytes and an isolated actual checkout with core.autocrlf=true. Original CRLF
 whitespace findings stay visible; no upstream text is rewritten or suppressed.
+
+## Android local C++ and NDK originals — 11 October 2026
+
+Six local native outputs bind to final APK allocated bytes. Actual owning Ninja
+commands/dependency logs resolve241 translation-unit records,233 source files and
+2524 compiler inputs. Six package root originals already match packaged notices.
+895 libc++ headers and ABI definitions establish the NDK C++ subset; isolated
+llvm-strip --strip-unneeded reproduces the entire packaged libc++_shared.so.
+All2524 inputs remain unchanged after the signed native build. SQLite remains an
+independently mapped prebuilt Expo AAR, not an attested local source build.
+
+Two exact installed NDK licence blocks match immutable compiler-base originals
+apart from preserved separator newlines; their upstream credit files are copied
+exactly as supplementary attribution. Four originals/new manifest are packaged
+under assets/cpp-notices, with original/hash/range/NDK/runtime/header/root-mapping
+checks from real preBuild. Eight new cases/22 combined regressions, TypeScript,
+Android prebuild/export and ordinary signed ARM64 Gradle packaging pass. Prior71
+assets/four DEX/21 native images and retained ID/certificate/permissions remain
+unchanged; generated packaging restores,1424 source inputs stable through build.
+No device installation or runtime acceptance follows. Original observer failure
+is retained; original text is neither normalized nor findings suppressed.
+
+Remaining NDK/Bionic/prefab/prebuilt/static, Maven and six trusted-runtime
+attribution gaps, full external quality, physical/published/fault and close-policy
+acceptance remain open. Matrix7/61 complete/54 open. Numeric score/audit submissions
+await specific approval; no new quality exception, source push or Phase3 work.

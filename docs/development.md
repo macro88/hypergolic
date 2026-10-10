@@ -752,3 +752,28 @@ Scoped `.gitattributes` rules disable line-ending conversion for original native
 notice `.txt` files on both platforms. An isolated actual Git checkout with
 `core.autocrlf=true` preserves all 128 original files exactly, including upstream
 CRLF text. This protects portable hash checks without rewriting the originals.
+
+
+## Android reviewed C++ notices — 11 October 2026
+
+The native module additionally packages four originals and a separate manifest in
+src/main/assets/cpp-notices/. CppDependencyNotices.cjs checks the selected NDK's
+original licence slices, runtime, compiler metadata and 895 reviewed C++ headers,
+plus the existing owning-package original mappings. Gradle supplies the app's
+actual resolved NDK directory; the guard makes no network requests.
+
+Run the combined integrity regressions with:
+
+```sh
+node --test tests/native/codecs/android-notices.cjs tests/native/codecs/archive-notices.cjs tests/native/codecs/cpp-notices.cjs
+```
+
+The test uses the locally installed reviewed NDK by default. Set
+HYPERGOLIC_NOTICE_NDK to an explicit reviewed NDK directory when needed. The
+manifest records NDK 27.1.12297006, darwin-x86_64 toolchain paths and ARM64 runtime
+inputs; another host, revision or ABI requires renewed review rather than a hash
+bypass. Preserve exact original blocks and upstream credits with their provenance,
+and retain separate evidence for compiler inputs and final native-image binding.
+After packaging, check all three Android notice folders and compare prior assets,
+DEX/native bytes and app identity/certificate. See the
+[C++ original review](native-dependency-notices.md#android-local-c-and-ndk-original-notices--11-october-2026).

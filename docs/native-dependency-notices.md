@@ -510,3 +510,54 @@ Scoped `.gitattributes` rules disable line-ending conversion for original native
 notice `.txt` files on both platforms. An isolated actual Git checkout with
 `core.autocrlf=true` preserves all 128 original files exactly, including upstream
 CRLF text. This protects portable hash checks without rewriting the originals.
+
+
+## Android local C++ and NDK original notices — 11 October 2026
+
+The six packaged locally built ARM64 libraries reconcile with the actual owning
+Ninja target commands and dependency logs: 241 translation-unit records, 233
+unique source files and 2,524 compiler dependency inputs. All six local outputs
+match their packaged images in every allocated file-backed ELF section. Their
+six owning package root LICENSE originals are already included in the main
+JavaScript notice folder and match exactly. This does not establish complete
+third-party header or generated-source attribution.
+
+The recorded dependency inputs include 895 NDK libc++ headers, including cxxabi.h
+and its ABI configuration. NDK 27.1.12297006's libc++_shared.so contains the reviewed
+C++ ABI definitions. Its whole-file hash initially differs from the packaged
+library, while all allocated sections match. Running the installed llvm-strip
+with --strip-unneeded on an isolated copy reproduces the entire packaged library
+exactly. All 2,524 reviewed compiler inputs remain unchanged after the new build.
+Expo SQLite is separately delivered from its selected prebuilt AAR; installed
+SQLite source is not represented as a current compiler input.
+
+The two original libc++/libc++abi blocks in the NDK NOTICE.toolchain match the
+upstream LICENSE.TXT files at its compiler-recorded base revision
+[3c92011b600bdf70424e2547594dd461fe411a41](https://github.com/llvm/llvm-project/tree/3c92011b600bdf70424e2547594dd461fe411a41),
+with only the aggregate's extra separator newline. Both exact blocks, including
+modern Apache/LLVM exceptions and legacy terms, are packaged byte-for-byte under
+assets/cpp-notices/. Their referenced upstream CREDITS.TXT files from the same
+revision are also preserved as supplementary attribution. This does not assert
+complete downstream contributor or native transitive review.
+
+The dedicated manifest records source URLs, byte/line boundaries, hashes, package
+root mappings, the reviewed ARM64 runtime and the current NDK host profile.
+CppDependencyNotices.cjs runs from the native module's real preBuild. It verifies
+the original file set and hashes, exact aggregate slices, NDK revision and runtime,
+compiler metadata, all 895 reviewed libc++ header hashes and existing package-root
+originals. Changes require renewed review; no external request occurs in the guard.
+The JavaScript and selected-archive profile scopes remain unchanged.
+
+Eight new guard regressions pass, bringing the combined Android notice suite to
+22 passing cases. TypeScript, Android prebuild/export and ordinary signed ARM64
+Gradle packaging pass. The APK adds only the four originals and their manifest;
+all 71 prior assets, four DEX files and 21 native images remain byte-identical.
+All 66 Android originals match their manifests. App identity, certificate,
+permissions and non-debuggable state remain unchanged. Generated packaging is
+restored without conflicts and source inputs stay stable during compilation.
+The product is not installed and has no new physical acceptance result.
+
+Other NDK/Bionic/prefab and prebuilt/static native terms, remaining Maven material,
+six declaration-only trusted-runtime attribution gaps, complete security/quality
+review and physical/published/fault/close journeys remain open. This is a verified
+build distribution subset, not complete BUILD-01 or Phase 2 acceptance.
