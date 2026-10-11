@@ -765,8 +765,14 @@
       "requiredEvidence": "Exact default arrays, distinct roles, first-run seed only, edit/remove/add/restart, invalid URLs, restore defaults only via explicit action; explicit defaults form the baseline; automatic NIP-65 routing is separately required by CAP-12",
       "platforms": {
         "android-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "android-relay-settings01/run02/result.json",
+            "android-relay-settings01/run02/independent-review.json",
+            "android-relay-settings01/README.md"
+          ],
+          "verifiedScope": "Seven complete ordinary physical protected-owner Settings workflow groups: exact ordered role defaults; ten invalid URL/two duplicate rejections; remove/add role isolation; modified and explicit-empty lists each survive stopped-process/new-PID cold launch; explicit selected-role restoration preserves the other role; restored defaults persist after third cold launch. Native selected-role/URL/Remove inventories and original screenshots independently checked. Exact APK/path/source inputs/inventory and development identity/empty workspace retained; owned hash-matching helper removed. Initial placeholder and cleanup observer failures, separate recovery and first Settings press miss retained. Seven shared service/disk-SQLite tests pass. No event publication, app installation/reset or key mutation.",
+          "remaining": "Fresh-profile physical first-run seeding remains required. iPhone workflow, relay availability/AUTH/routing, accessibility and other full Phase2 requirements remain open. Existing ordinary UI/SQLite persistence proof does not establish complete database byte rollback."
         },
         "ios-physical": {
           "status": "not-run",
