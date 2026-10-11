@@ -1022,3 +1022,33 @@ staged-APK absence and retained Android APK/path/inventory/identity/empty worksp
 verify. Original iPhone focus/identity and selected installed metadata remain;
 installed executable/data-byte identity is not claimed. The next iPhone tests can
 proceed without treating the previous XCTest passcode question as still pending.
+
+
+## Physical relay persistence checkpoint — 11 October 2026
+
+Attended Android first-run run08 passes the three previously blocked checks:
+exact ordered network/lookup defaults before any settings write, reuse of the
+same protected public identity and defaults after process death, and retention
+of an explicitly empty network list after a second cold launch while lookup
+stays unchanged. It uses the prepared disposable ordinary-entry Release and
+preserves its normal first view. Seven original native XML role inventories and
+two distinct new PIDs independently verify. Exact temporary package/helper/XML/
+staged APK removal and retained app APK/path/inventory/identity restore verify.
+Together with the earlier seven ordinary Settings groups, Android RELAY-01 passes.
+
+The retained ordinary iPhone passes six scoped groups: ordered role defaults,
+cold reuse, both empty lists across process death, selected-role default restore,
+restored-default persistence, and original relay/public-identity/focus cleanup.
+Fifteen original native Remove inventories and four distinct app PIDs verify;
+the temporary XCTest runner is removed and retained metadata inventory matches.
+The first observer counted nested selectable-text accessibility twins before
+any relay writes. Original AX and screenshot show three rows; the corrected
+observer reads each unique attributed Remove control. Preserve both attempts.
+This does not establish VoiceOver behavior or installed executable byte identity.
+
+Three original PNGs per successful host were inspected; all648 actual product
+inputs stayed unchanged. Only the iPhone test runner was newly compiled. The app
+and dependencies are unchanged, so no new app build or full quality result is
+claimed. Physical iPhone fresh-profile seed, invalid/duplicate URLs and add/edit
+remain open, alongside separate routing/AUTH/usability requirements. The shared
+acceptance matrix retains all61 original scopes, with7 rows fully complete.

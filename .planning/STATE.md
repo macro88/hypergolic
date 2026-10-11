@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: iPhone startup08 now runs/passes native Settings/public identity/Done; ordinary notification09 passes8 scoped SDK/native/cleanup checks. Exact original callbacks/focus and temporary cleanup independently verified. Android fresh APK installs and opens UX Lab1; wrong empty-workspace observer fails before relay checks, corrected observer reinstall then expires. App unchanged; further attended Android Install required. Full61 scopes/statuses preserved,7 complete; no source push.
+stopped_at: Android fresh-profile relay run08 passes all3 seed/cold/empty groups; combined ordinary settings proof completes Android RELAY-01. iPhone retained relay run02 passes6 scoped groups; fresh-profile, invalid/duplicate and add/edit parity remain. Exact owned cleanup and original identities/focus independently verify. Full61 requirements preserved,7 complete; no product change or source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
 state_head: 374f253eb1c55e1f8724d4da67786931ba25d30e
@@ -2993,3 +2993,20 @@ inventory/identity/empty workspace are preserved. Further attended Install is
 needed; iPhone startup permission is no longer an active gate. All61 original
 requirements/statuses remain,7 fully complete; usage2%, ceiling about98%. No
 source push, product/lockfile/suppression change or new quality/build claim.
+
+
+Physical relay checkpoint — 11 October2026: attended Android first-run08 passes
+all3 exact-role seed/cold-reuse/empty-no-reseed groups. Seven original XML arrays,
+two stopped-process/new-PID launches, public identity continuity and exact
+keeper/temporary cleanup independently verify. Combined with the earlier seven
+ordinary Settings groups, Android RELAY-01 now passes.
+
+Physical iPhone relay02 passes6 scoped retained-settings/three-cold-launch/role
+restore/cleanup groups. Fifteen native row inventories and four distinct app PIDs
+verify; original public identity/runtime focus and selected app metadata inventory
+return, runner absent. Earlier nested selectable-text observer failure remains
+separate; count unique attributed Remove controls, with no app mutation. iPhone
+fresh-profile seed, invalid/duplicate and add/edit remain open. All61 original
+requirements/evidence contracts preserved,7 fully complete. Six original PNGs
+inspected across both successful runs;648 product inputs unchanged. Documentation
+only, no new quality/build claim or source push. Usage3%, ceiling about98%.

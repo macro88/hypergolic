@@ -769,7 +769,7 @@
       "requiredEvidence": "Exact default arrays, distinct roles, first-run seed only, edit/remove/add/restart, invalid URLs, restore defaults only via explicit action; explicit defaults form the baseline; automatic NIP-65 routing is separately required by CAP-12",
       "platforms": {
         "android-physical": {
-          "status": "partial",
+          "status": "passed",
           "evidence": [
             "android-relay-settings01/run02/result.json",
             "android-relay-settings01/run02/independent-review.json",
@@ -784,14 +784,24 @@
             "attended-devices01/android-run04/result.json",
             "attended-devices01/android-run05/result.json",
             "attended-devices01/review/hg-attended-android-cleanup-20261011.json",
-            "attended-devices01/README.md"
+            "attended-devices01/README.md",
+            "android-relay-first-run08/result.json",
+            "android-relay-first-run08/independent-review.json",
+            "android-relay-first-run08/README.md"
           ],
-          "verifiedScope": "Seven complete ordinary physical protected-owner Settings workflow groups: exact ordered role defaults; ten invalid URL/two duplicate rejections; remove/add role isolation; modified and explicit-empty lists each survive stopped-process/new-PID cold launch; explicit selected-role restoration preserves the other role; restored defaults persist after third cold launch. Native selected-role/URL/Remove inventories and original screenshots independently checked. Exact APK/path/source inputs/inventory and development identity/empty workspace retained; owned hash-matching helper removed. Initial placeholder and cleanup observer failures, separate recovery and first Settings press miss retained. Seven shared service/disk-SQLite tests pass. No event publication, app installation/reset or key mutation.",
-          "remaining": "Fresh-profile physical first-run seeding remains required. iPhone workflow, relay availability/AUTH/routing, accessibility and other full Phase2 requirements remain open. Existing ordinary UI/SQLite persistence proof does not establish complete database byte rollback. A unique disposable ordinary-entry Release is prepared with all103 assets/21 native libraries equal to the retained build, but Android refuses installation with INSTALL_FAILED_USER_RESTRICTED before fresh app input. Exact test/observer/staged-APK cleanup and retained app/identity/inventory verify; owner-attended install retry is needed. This failure does not close first-run seeding. Retried twice after owner authorization; native system screenshots show Install via USB and automatic Deny10 to1 countdown before refusal. No fresh first-run app check executed. Prompt expiry is observed; deliberate owner rejection is not inferred. Owner present to press Install during the prompt is needed before retry. Attended run04 installs the exact fresh APK and opens UX Lab1, but an incorrect empty-workspace observer assumption fails before relay checks. Corrected run05 preserves the initial bundled view and waits for Settings; its reinstall prompt expires, so corrected cases remain unexecuted. Original app unchanged, exact temporary cleanup/keeper verified. Another attended Install is required; no seeding pass from install alone."
+          "verifiedScope": "Seven complete ordinary physical protected-owner Settings workflow groups: exact ordered role defaults; ten invalid URL/two duplicate rejections; remove/add role isolation; modified and explicit-empty lists each survive stopped-process/new-PID cold launch; explicit selected-role restoration preserves the other role; restored defaults persist after third cold launch. Native selected-role/URL/Remove inventories and original screenshots independently checked. Exact APK/path/source inputs/inventory and development identity/empty workspace retained; owned hash-matching helper removed. Initial placeholder and cleanup observer failures, separate recovery and first Settings press miss retained. Seven shared service/disk-SQLite tests pass. Those seven retained-app groups publish no event, install/reset no app and mutate no key. Attended fresh-profile run08 installs the exact prepared ordinary-entry APK and opens its normal bundled view with a new protected identity. Three checks verify exact first-launch ordered role arrays before settings writes, the same public identity/defaults after real process death, and explicit empty network retention with unchanged lookup after a second cold launch. Seven original XML snapshots and both distinct new PIDs independently checked; three native PNGs inspected. Exact temporary package/helper/XML/staged APK absence, retained APK/path/inventory/public identity/empty workspace and648 product input hashes independently verify. Earlier failed install/observer runs remain separate. Combined with the earlier seven ordinary settings groups, this completes the Android RELAY-01 requirement.",
+          "remaining": "No remaining Android RELAY-01 settings case in the stated requirement. iPhone parity remains incomplete. Relay availability/AUTH, automatic routing, accessibility and other Phase2 rows remain separate open gates; no complete database byte rollback claim."
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-relay-settings01/failed-run01/receipt.json",
+            "iphone-relay-settings01/passed-run02/receipt.json",
+            "iphone-relay-settings01/passed-run02/independent-review.json",
+            "iphone-relay-settings01/README.md"
+          ],
+          "verifiedScope": "Six retained ordinary protected-owner native checks: exact ordered role defaults; same defaults/public identity/focus after cold launch; both explicitly empty lists persist after process death; restoring network alone leaves lookup empty; explicitly restored defaults persist after third cold launch; exact relay-default/identity/focus cleanup. Fifteen original native Remove inventories and selected-role snapshots, four distinct app PIDs and exact original runtime focus independently verified. Three original PNGs inspected. Temporary XCTest runner absent and retained bundle/version/container metadata inventory matches;648 source product inputs unchanged. Initial observer failure counts nested selectable-text accessibility twins before any relay writes; original AX and PNG show three rows, then the corrected observer counts unique attributed Remove controls. Both attempts retained; no product change.",
+          "remaining": "Fresh-profile first-run seed-only behavior, invalid/duplicate URL rejection, successful add/edit and modified-list persistence remain unproved on physical iPhone. Separate relay availability/AUTH/routing/accessibility and other Phase2 requirements stay open. Installed iOS executable bytes and complete database byte rollback were not retrieved or claimed."
         }
       }
     },
