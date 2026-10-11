@@ -239,6 +239,10 @@ libdav1d wrapper/submodule pin. A hash-checked CocoaPods hook applies the releas
 tile-offset backport while retaining the1.2.0 version. Host regression and signed
 packaging evidence remain distinct from full codec/physical security acceptance.
 See [native dependency provenance](native-dependency-notices.md).
+The Android attribution profile also binds selected Fresco native entries to
+byte-preserved WebP, JPEG and GIFLIB originals. Its reviewed release-archive
+profile is distinct from Git provenance; native/version and complete quality
+acceptance retain their recorded limits.
 
 Expo generates the ignored `android/` and `ios/` trees. Source configuration and the lockfile
 are authoritative. `plugins/withUnsignedRelease.cjs` replaces the generated release

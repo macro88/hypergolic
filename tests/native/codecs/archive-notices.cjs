@@ -141,3 +141,24 @@ test('missing linked WebP patent original rejects', () => fixture((directory, ar
   changeManifest(directory, data => { data.nativeOwnerBindings[1].originals.splice(1, 1); });
   assert.throws(() => verify(directory, artifacts), /native original or image reference set changed/);
 }));
+
+
+test('changed owning GIFLIB release archive rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => {
+    data.nativeOwnerBindings.find(binding => binding.name === 'GIFLIB').sourceArchive.sha256 = '0'.repeat(64);
+  });
+  assert.throws(() => verify(directory, artifacts), /native owner provenance incomplete/);
+}));
+test('ambiguous Git and release archive provenance rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => {
+    const binding = data.nativeOwnerBindings.find(binding => binding.name === 'GIFLIB');
+    binding.resolvedCommit = 'a'.repeat(40); binding.tree = 'b'.repeat(40);
+  });
+  assert.throws(() => verify(directory, artifacts), /native owner provenance incomplete/);
+}));
+test('missing JPEG attribution original rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => {
+    data.nativeOwnerBindings.find(binding => binding.name === 'libjpeg-turbo').originals.pop();
+  });
+  assert.throws(() => verify(directory, artifacts), /native original or image reference set changed/);
+}));

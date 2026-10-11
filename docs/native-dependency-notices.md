@@ -942,3 +942,41 @@ The full commit whitespace check reports the original WebP COPYING file's blank
 line at EOF. Its immutable Git-blob and packaged-byte checks pass, so the original
 text is preserved. The separate authored-file whitespace check passes; no source
 rule, threshold, exclusion configuration or upstream text is changed.
+
+
+## Selected Android JPEG and GIFLIB originals — 11 October 2026
+
+The immutable Fresco 3.6.0 native-imagetranscoder makefile imports
+libjpeg-turbo 2.1.5.1 and selects the ARM64 SIMD sources. Its release resolves to
+[8ecba3647edb6dd940463fedf38ca33a8e2a73d1](https://github.com/libjpeg-turbo/libjpeg-turbo/tree/8ecba3647edb6dd940463fedf38ca33a8e2a73d1).
+The original LICENSE.md and README.ijg are now packaged unchanged, including the
+IJG and modified BSD terms. This software is based in part on the work of the
+Independent JPEG Group. The packaged manifest also carries that attribution.
+
+The animated-gif makefile selects dgif_lib.c, gifalloc.c and
+openbsd-reallocarray.c from GIFLIB 5.2.1. Its [official release archive](https://downloads.sourceforge.net/project/giflib/giflib-5.x/giflib-5.2.1.tar.gz)
+has SHA-256 31da5562f44c5f15d63340a09a4fd62b48c45620cd302f77a6d9acf0077879bd.
+The root COPYING and complete original openbsd-reallocarray.c are packaged
+unchanged; the latter preserves its separate copyright and MIT SPDX statement.
+This archive contains no recovered Git commit/tree provenance, so the profile
+records the exact release URL/root/hash instead. Its original blob hashes are
+content identities, not a claim that the source was retrieved from a Git revision.
+The guard accepts only that reviewed archive profile and rejects ambiguous
+Git/archive metadata. It makes no external request.
+
+Both owners are bound to the actual selected Fresco AAR native entries. The build
+declarations establish selected release versions; this does not independently
+prove the compiled JPEG/GIFLIB version or reproduce their complete build. Libpng
+1.6.37 has verified immutable originals available for review, but declaration
+and a third-party makefile alone have not established its contribution to this
+selected product. No linked libpng version or completed libpng review is claimed.
+
+All 72 notice cases, TypeScript, Android prebuild and ordinary signed ARM64
+assembly pass. The product packages 92 original files. Only four new attribution
+assets and the archive manifest change: 21 native images, four DEX files and
+98 prior assets stay byte-identical. The app ID, Hypergolic label, certificate and
+permissions remain unchanged; 1,469 source inputs remain stable during the build
+and generated packaging restores without conflict. No phone installation occurs.
+Local Doctor/source checks have zero findings; numeric scoring, full online
+audit/quality and complete native/physical/published acceptance remain open.
+BUILD-01 remains partial and the full Phase 2 matrix remains seven of 61 complete.

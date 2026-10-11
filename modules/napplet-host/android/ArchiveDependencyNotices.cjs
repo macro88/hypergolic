@@ -141,7 +141,13 @@ function verifyNativeOwnerBindings(manifest, directory, names, selectedArtifacts
   let originals = 0; let images = 0;
   const uniqueImages = new Set();
   for (const binding of bindings) {
-    if (!/^[a-f0-9]{40}$/.test(binding.resolvedCommit) || !/^[a-f0-9]{40}$/.test(binding.tree) ||
+    const gitSource = /^[a-f0-9]{40}$/.test(binding.resolvedCommit) && /^[a-f0-9]{40}$/.test(binding.tree);
+    const archive = binding.sourceArchive;
+    const releaseSource = archive && archive.url ===
+      'https://downloads.sourceforge.net/project/giflib/giflib-5.x/giflib-5.2.1.tar.gz' &&
+      archive.sha256 === '31da5562f44c5f15d63340a09a4fd62b48c45620cd302f77a6d9acf0077879bd' &&
+      archive.root === 'giflib-5.2.1' && binding.name === 'GIFLIB' && binding.version === '5.2.1';
+    if ((archive ? !releaseSource || binding.resolvedCommit !== undefined || binding.tree !== undefined : !gitSource) ||
         !Array.isArray(binding.originals) || !binding.originals.length ||
         !Array.isArray(binding.nativeImages) || !binding.nativeImages.length) {
       throw new Error('Android native owner provenance incomplete');

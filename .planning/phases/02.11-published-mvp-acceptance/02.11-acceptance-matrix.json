@@ -943,9 +943,11 @@
             "android-fresco-webp-notices01/signed-build/receipt.json",
             "android-fresco-webp-notices01/source-review/binary-owner-review.json",
             "android-fresco-webp-notices01/source-review/webp-original-review.json",
-            "android-fresco-webp-notices01/current-selected-artifacts.json"
+            "android-fresco-webp-notices01/current-selected-artifacts.json",
+            "android-fresco-jpeg-gif-notices01/signed-build/receipt.json",
+            "android-fresco-jpeg-gif-notices01/signed-build/current-selected-artifacts.json"
           ],
-          "verifiedScope": "Current ordinary signed ARM64 Android build packages88 exact originals, including newly verified linked WebP1.3.2 COPYING/PATENTS/AUTHORS and reused exact Fresco3.6.0 root license. Five native entries independently match selected AARs; app-owned capture binds144 selected archives.69 notice cases, TypeScript, Android prebuild and signed packaging pass.21 ELF/four DEX/95 prior assets and stable app identity/certificate/permissions remain byte-identical. Generated packaging restores;1465 source inputs unchanged. Limited local Doctor/source checks have zero findings. No installation or ordinary physical-runtime/complete quality claim.",
+          "verifiedScope": "Current ordinary signed ARM64 Android build packages88 exact originals, including newly verified linked WebP1.3.2 COPYING/PATENTS/AUTHORS and reused exact Fresco3.6.0 root license. Five native entries independently match selected AARs; app-owned capture binds144 selected archives.69 notice cases, TypeScript, Android prebuild and signed packaging pass.21 ELF/four DEX/95 prior assets and stable app identity/certificate/permissions remain byte-identical. Generated packaging restores;1465 source inputs unchanged. Limited local Doctor/source checks have zero findings. No installation or ordinary physical-runtime/complete quality claim. The subsequent JPEG/GIFLIB attribution build supplies four additional exact originals (92 total);72 notice cases and signed assembly pass. 21 ELF/four DEX/98 previous assets, app identity/certificate/permissions stay identical;1469 source inputs remain stable. Release declarations and exact original provenance are recorded; compiled JPEG/GIFLIB version is not claimed.",
           "remaining": "Complete all named row gates: compatible release-age dependencies, owning full native/static/resource/runtime attribution and selected conformance, external numeric Doctor/full aislop/audit, fixture verification, current full Android/iOS products and physical/published acceptance with no suppression. This selected packaging subset does not close BUILD-01."
         },
         "ios-physical": {

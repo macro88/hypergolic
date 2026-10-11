@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Selected Fresco native owner and linked WebP1.3.2 originals are verified and packaged;69 notice cases and signed Android assembly pass.88 originals delivered;21 ELF/four DEX/95 prior assets unchanged. Complete native attribution, external quality and unlocked-device journeys remain open.7/61 complete; no source push.
+stopped_at: JPEG/GIFLIB original distribution is now verified: four new assets, 92 originals total; 72 notice cases and signed Android packaging pass. 21 ELF/four DEX/98 previous assets unchanged. Physical phones and external quality approvals remain pending;7/61 complete, no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
 state_head: 374f253eb1c55e1f8724d4da67786931ba25d30e
@@ -2947,3 +2947,11 @@ exact;1465 build source inputs stay unchanged and generated packaging restores.
 Limited local quality has zero findings; full external numeric/audit gates remain
 pending. Retained iPhone132-file seal unchanged; no iOS rebuild/device install or
 source push. BUILD01 Android is partial; seven of61 complete/54 open.
+
+## Android JPEG/GIFLIB attribution — 11 October 2026
+
+JPEG/GIFLIB original distribution is now verified: four new assets, 92 originals total; 72 notice cases and signed Android packaging pass. 21 ELF/four DEX/98 previous assets unchanged. Physical phones and external quality approvals remain pending;7/61 complete, no source push.
+The immutable JPEG release originals and official GIFLIB archive originals
+are tied to current selected AAR native bytes. Compiled JPEG/GIFLIB version
+is not independently established. Android is connected/locked; physical
+iPhone is unavailable. No device input/install or data changes occur.

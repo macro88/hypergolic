@@ -128,6 +128,26 @@
       "file": "native-libwebp-1.3.2-AUTHORS.txt",
       "sha256": "9f43aafb76998315d1eac1e441fbd8e1edc28107a7d28ae26223d258f577e84a",
       "bytes": 2734
+    },
+    {
+      "file": "native-libjpeg-turbo-2.1.5.1-LICENSE.md.txt",
+      "bytes": 5213,
+      "sha256": "60c756742db3ad1913304e8b13f0e86e22e51adb50cc0b3333c163f7e45ceec1"
+    },
+    {
+      "file": "native-libjpeg-turbo-2.1.5.1-README.ijg.txt",
+      "bytes": 12732,
+      "sha256": "4b7b9f8c03bb8d60270dfd12684e70ab21e4abfd27e73905cd1a7c4cae6f5cdb"
+    },
+    {
+      "file": "native-giflib-5.2.1-COPYING.txt",
+      "bytes": 1088,
+      "sha256": "0c9b7990ecdca88b676db232c226548ac408b279f550d424d996f0d83591dd8e"
+    },
+    {
+      "file": "native-giflib-5.2.1-openbsd-reallocarray.c.txt",
+      "bytes": 2221,
+      "sha256": "3fbbe494d25aeac1e3464a7f8a6d57c159fe6b889ac587fb72d34510eb4f7f91"
     }
   ],
   "noticeBindings": [
@@ -7090,12 +7110,92 @@
         "method": "Static ARM64 return-immediate comparison, not phone decoding or complete compiler-source provenance"
       },
       "limits": "Selected linked decoder version constant and original release texts; complete codec/compiler/static/transitive and security acceptance remain open."
+    },
+    {
+      "name": "libjpeg-turbo",
+      "version": "2.1.5.1",
+      "repository": "https://github.com/libjpeg-turbo/libjpeg-turbo",
+      "resolvedCommit": "8ecba3647edb6dd940463fedf38ca33a8e2a73d1",
+      "tree": "935529be5e36f356ff176700465cc10555be466e",
+      "originals": [
+        {
+          "location": "archive",
+          "file": "native-libjpeg-turbo-2.1.5.1-LICENSE.md.txt",
+          "sourcePath": "LICENSE.md",
+          "bytes": 5213,
+          "sha256": "60c756742db3ad1913304e8b13f0e86e22e51adb50cc0b3333c163f7e45ceec1",
+          "gitBlob": "bf8a7fda7f57699207fafde0c19c9801fb143e28"
+        },
+        {
+          "location": "archive",
+          "file": "native-libjpeg-turbo-2.1.5.1-README.ijg.txt",
+          "sourcePath": "README.ijg",
+          "bytes": 12732,
+          "sha256": "4b7b9f8c03bb8d60270dfd12684e70ab21e4abfd27e73905cd1a7c4cae6f5cdb",
+          "gitBlob": "9453c195010fb0ace756f8e46d74c7688bb1c857"
+        }
+      ],
+      "nativeImages": [
+        {
+          "owningArtifact": {
+            "component": "com.facebook.fresco:nativeimagetranscoder:3.6.0",
+            "filename": "nativeimagetranscoder-3.6.0.aar",
+            "sha256": "0d8f8559617c88763dc75e6005fc60e37bfd6bb20fe5b97a187cabefc2b11a7c"
+          },
+          "entry": "jni/arm64-v8a/libnative-imagetranscoder.so",
+          "bytes": 585376,
+          "sha256": "2aed28298a25afd52ac670cf9682398c6c7ba42a57195c01efd565e7ddfe17ca"
+        }
+      ],
+      "attribution": "This software is based in part on the work of the Independent JPEG Group.",
+      "limits": "Fresco 3.6.0 immutable native-imagetranscoder makefile selects this release. Original notices and selected native bytes are verified; compiled JPEG version and complete source reproduction are not claimed."
+    },
+    {
+      "name": "GIFLIB",
+      "version": "5.2.1",
+      "repository": "https://sourceforge.net/projects/giflib/",
+      "sourceArchive": {
+        "url": "https://downloads.sourceforge.net/project/giflib/giflib-5.x/giflib-5.2.1.tar.gz",
+        "sha256": "31da5562f44c5f15d63340a09a4fd62b48c45620cd302f77a6d9acf0077879bd",
+        "root": "giflib-5.2.1"
+      },
+      "originals": [
+        {
+          "location": "archive",
+          "file": "native-giflib-5.2.1-COPYING.txt",
+          "sourcePath": "COPYING",
+          "bytes": 1088,
+          "sha256": "0c9b7990ecdca88b676db232c226548ac408b279f550d424d996f0d83591dd8e",
+          "gitBlob": "b9c0b50126076f30f0f9db7e940eac64e60febd6"
+        },
+        {
+          "location": "archive",
+          "file": "native-giflib-5.2.1-openbsd-reallocarray.c.txt",
+          "sourcePath": "openbsd-reallocarray.c",
+          "bytes": 2221,
+          "sha256": "3fbbe494d25aeac1e3464a7f8a6d57c159fe6b889ac587fb72d34510eb4f7f91",
+          "gitBlob": "7004f3ec473bbc83d5b80d66b87ed473387b0834"
+        }
+      ],
+      "nativeImages": [
+        {
+          "owningArtifact": {
+            "component": "com.facebook.fresco:animated-gif:3.6.0",
+            "filename": "animated-gif-3.6.0.aar",
+            "sha256": "c709bd7f0fce7802986d61026f66cbb13a2044efa0cee99ab0500f30f18a20d7"
+          },
+          "entry": "jni/arm64-v8a/libgifimage.so",
+          "bytes": 318992,
+          "sha256": "9f605249728da7091569772a38a4dde298ed48e1e73fed3da0e4b662ef38715c"
+        }
+      ],
+      "limits": "Original release archive supplied by the owning project; original Git-blob hashes here are content identities, not a recovered Git revision. Fresco selects dgif_lib.c, gifalloc.c and openbsd-reallocarray.c. Compiled GIFLIB version and complete source reproduction are not claimed."
     }
   ],
   "nativeOwnerReview": {
-    "ownerCount": 2,
-    "originalReferenceCount": 4,
-    "nativeImageReferenceCount": 6,
+    "ownerCount": 4,
+    "originalReferenceCount": 8,
+    "nativeImageReferenceCount": 8,
     "uniqueNativeImageCount": 5
   }
 }
