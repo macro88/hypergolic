@@ -29,7 +29,7 @@ SOURCES = [
     ROOT / "tests/native/android-published-wss/PublishedRelayWssTlsProof.java",
 ]
 CASES = [
-    ("https", "napplets.example.org", "PublishedHttpsTlsProof", 25),
+    ("https", "napplets.example.org", "PublishedHttpsTlsProof", 55),
     ("wss", "relay.example.org", "PublishedRelayWssTlsProof", 37),
 ]
 

@@ -102,3 +102,23 @@ clean scan. Exact overrides now select `fast-uri` 3.1.8, `ip-address` 10.7.1 and
 `brace-expansion` 5.0.12 where affected, retaining the existing `xcode>uuid` pin.
 Application/Expo versions are unchanged. Both required quality scores and all
 seven complete audits must pass again before the targeted commit.
+
+
+## Selected physical Android transport faults — 11 October 2026
+
+The current compiled Release module passes 115 selected transport assertions in
+a disposable API 36 shell process: 55 HTTPS (including resource redirects), 37 WSS
+and 23 structural NIP-01 request/response assertions. The receipt binds 67
+source/API/runtime inputs and 389 compiled classes, unchanged after execution.
+Five exact temporary files are removed and verified absent; installed app bytes
+and package inventory remain unchanged. The first observer's historical HTTPS
+count fails after all suites pass; its receipt remains alongside the corrected
+final run. No production parser or transport changes occur.
+
+The [runner and scope](../tests/native/android-published-transport-device/README.md#physical-android-selected-transport-cases--11-october-2026)
+record the controlled loopback resolver, policy, certificates and hostname
+verifier. WSS TLS stop labels are synthetic; JSON envelope classification runs as
+a separate owning proof. These results add selected native transport evidence to
+CAP-02 and CAP-04. Ordinary Expo/SDK dispatch, complete signed-event validation,
+owner revocation, public-host/system trust and published Android/iOS parity remain
+open. No full acceptance row passes; the matrix remains seven of 61 complete.

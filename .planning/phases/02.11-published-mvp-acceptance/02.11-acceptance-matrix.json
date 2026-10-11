@@ -1025,9 +1025,11 @@
             "android-feed-lifecycle01/originals/receipt.json",
             "android-feed-lifecycle01/originals/independent-review.json",
             "android-feed-lifecycle01/originals/visual-review.json",
-            "android-feed-lifecycle01/originals/signed-build-source-comparison.json"
+            "android-feed-lifecycle01/originals/signed-build-source-comparison.json",
+            "android-native-transport01/physical02/receipt.json",
+            "android-native-transport01/physical02/physical-proof.log"
           ],
-          "verifiedScope": "Ordinary unchanged protected QA Android Release opens original bundled Feed Lab, distinguishes zero-limit empty completion from a bounded selected-author signed result, and loads live history/EOSE. Two unique individually approved notes arrive in the exact original SDK event list after loaded-view switching and real OS background/same-process return; original draft persists. Both exact reviewed payloads/hashes/signatures independently arrive after EOSE at nos.lol. Navigation-paused pending reviews are reconciled and resumed without replay. Explicit original SDK Close and only-owned-view cleanup restore empty workspace/identity; installed QA/primary APK hashes unchanged. Thirteen checks span retained runs/continuations. Nineteen original captures inspected with clipped event-row/expanded-JSON and toast limits; exact IDs/JSON are accessibility/hash proof.",
+          "verifiedScope": "Ordinary unchanged protected QA Android Release opens original bundled Feed Lab, distinguishes zero-limit empty completion from a bounded selected-author signed result, and loads live history/EOSE. Two unique individually approved notes arrive in the exact original SDK event list after loaded-view switching and real OS background/same-process return; original draft persists. Both exact reviewed payloads/hashes/signatures independently arrive after EOSE at nos.lol. Navigation-paused pending reviews are reconciled and resumed without replay. Explicit original SDK Close and only-owned-view cleanup restore empty workspace/identity; installed QA/primary APK hashes unchanged. Thirteen checks span retained runs/continuations. Nineteen original captures inspected with clipped event-row/expanded-JSON and toast limits; exact IDs/JSON are accessibility/hash proof. The separate 11 October API36 shell-UID compiled-module transport subset passes115 assertions (55 HTTPS including resource redirects,37 WSS,23 structural NIP-01), binding67 source/API/runtime inputs and389 unchanged classes. Five exact test files are removed; keeper and inventory are unchanged. Controlled loopback policy/resolver/trust/hostname seams and synthetic WSS stop labels are explicit. This is selected native transport evidence, not complete owning Expo/SDK, signed-event, lifecycle, system/public-host trust or published parity acceptance.",
           "remaining": "Complete all named bounds/destination/denial/timeout/owner-revocation or subscription buffering/caller IDs/identity-change/no-stale-delivery requirements with owning native counters where needed; full verified-published Android/iOS parity and complete readable event pixels remain open. Real foreground return and public live delivery alone do not prove socket close/reconnect or zero effects."
         },
         "ios-physical": {
@@ -1070,9 +1072,12 @@
         "android-physical": {
           "status": "partial",
           "evidence": [
-            "android-workspace01/receipt.json"
+            "android-workspace01/receipt.json",
+            "android-native-transport01/physical02/receipt.json",
+            "android-native-transport01/physical02/physical-proof.log"
           ],
-          "remaining": "Selected ordinary Android overview/media and installed-byte subset only. Complete all remaining named requirements; no full capability/build/Phase2 acceptance."
+          "remaining": "Selected ordinary Android overview/media and installed-byte subset only. Complete all remaining named requirements; no full capability/build/Phase2 acceptance.",
+          "verifiedScope": "The separate 11 October API36 shell-UID compiled-module transport subset passes115 assertions (55 HTTPS including resource redirects,37 WSS,23 structural NIP-01), binding67 source/API/runtime inputs and389 unchanged classes. Five exact test files are removed; keeper and inventory are unchanged. Controlled loopback policy/resolver/trust/hostname seams and synthetic WSS stop labels are explicit. This is selected native transport evidence, not complete owning Expo/SDK, signed-event, lifecycle, system/public-host trust or published parity acceptance."
         },
         "ios-physical": {
           "status": "partial",

@@ -123,3 +123,9 @@ The background observation records 1.984 seconds of advance between the last
 foreground read and pause; instant suspension is not claimed. Keep open retains
 the exact resource receipt, then only the disposable test resource is closed.
 Full CAP-04, all codec/fault cases, published parity and Phase2 remain open.
+
+
+The [11 October physical Android transport subset](relay-query.md#selected-physical-android-transport-faults--11-october-2026)
+adds the owning HTTPS redirect/TLS cases under controlled loopback inputs. It
+does not close ordinary resource delivery, MIME/rendering, cache, private handles,
+lifecycle or published parity acceptance.

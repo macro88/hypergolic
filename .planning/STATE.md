@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Read-only Android distribution review independently verifies all20565 DEX definitions, with16437 external and2615 local/resource class-name candidates;1513 generated-form names remain unresolved. Products/source/selected archives and local outputs unchanged. Full attribution/online quality/physical acceptance stay open.7/61 complete/54 open; no source push.
+stopped_at: Physical Android compiled HTTPS/WSS and structural envelope subset passes115 assertions;67 input hashes and389 compiled classes remain unchanged. Five temporary files removed; installed app/inventory unchanged. Ordinary unlocked-device journeys, complete attribution and external quality approvals remain open.7/61 complete; no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: f4c2e0e47e2dbe2344f073e5339f5ad24f6a9f27
+state_head: 325596bbdaa54ff62ce795ea5a5e3463ee3b914b
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2919,3 +2919,17 @@ approvals pending. OB05 remains partial; full matrix7/61 complete/54 open, both
 phones locked. Complete ordinary app/guest/protected-signer/published/lifecycle/
 fault/security/quality/age/clean-close sign-off remains; no Phase3/source push.
 See the Android ACK JSON syntax checkpoint in Outbox docs.
+
+
+Physical Android selected native transport checkpoint — 11 October2026: the
+actual compiled Release module passes55 HTTPS,37 WSS and23 structural NIP-01
+assertions under API36/UID2000/AndroidOpenSSL.67 source/API/runtime inputs and389
+compiled classes remain unchanged. Five hash-bound remote files and local private
+TLS identities are removed; installed keeper bytes and inventory are unchanged.
+Initial observer fails its outdated25-check HTTPS count after all tests pass;
+current suite inspection and corrected observer yield a passing final receipt.
+Production code and owning test cases remain unchanged. Existing loopback policy,
+resolver, trust and hostname seams plus synthetic WSS stop labels are explicit.
+CAP02/CAP04 gain scoped evidence and remain partial. Seven of61 complete/54 open.
+Both ordinary device journeys require unlocking; external audit/scoring approvals
+and full BUILD/attribution remain open. Source push remains owner-only.

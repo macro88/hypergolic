@@ -904,3 +904,10 @@ logs are captured only for the exact reported disposable PID. Both modes verify
 remote-file removal and unchanged keeper/inventory. Host core, 38 TLS writer and
 27-per-platform owner cases remain distinct from ordinary app/protected-signer
 and full physical acceptance. See the [parser repair](outbox-routing.md#android-ack-json-syntax--11-october-2026).
+
+
+The [physical Android transport runner](../tests/native/android-published-transport-device/README.md#physical-android-selected-transport-cases--11-october-2026)
+runs the existing compiled HTTPS/WSS and envelope proofs without installing a
+test app. Its source/compiled-input, retained-package and exact cleanup records
+are required parts of the result. It supplies selected native transport evidence;
+ordinary app and complete physical fault acceptance remain open.
