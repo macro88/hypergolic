@@ -538,3 +538,11 @@ receipt; exact correlation and first-ACK retention remain. Physical framework
 core tests and controlled native owner transports verify the selected faults,
 while ordinary app/protected signing and full acceptance remain open. See the
 [JSON syntax checkpoint](outbox-routing.md#android-ack-json-syntax--11-october-2026).
+
+
+Android native notice ownership is separate from main-JavaScript identity. The
+Fresco root original reuses the exact packaged Meta license; linked libwebp 1.3.2
+keeps its own original license, patent grant and authors. The app-owned Gradle
+inventory captures current native AAR entries for the guard. This protects the
+reviewed distribution inputs without changing decoder behavior; complete native
+transitive/security acceptance remains open. See the [owner review](native-dependency-notices.md#selected-android-fresco-and-linked-webp-originals--11-october-2026).

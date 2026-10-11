@@ -22,8 +22,15 @@ function fixture(run) {
       sha256: createHash('sha256').update(fs.readFileSync(artifact)).digest('hex') }];
     for (const binding of manifest.prefabBindings) binding.owningArtifact = manifest.selectedArtifacts[0];
     for (const binding of manifest.prebuiltBindings) binding.owningArtifact = manifest.selectedArtifacts[0];
+    const nativeEntries = [];
+    for (const binding of manifest.nativeOwnerBindings) for (const image of binding.nativeImages) {
+      image.owningArtifact = manifest.selectedArtifacts[0];
+      if (!nativeEntries.some(entry => entry.entry === image.entry)) {
+        nativeEntries.push({ entry: image.entry, bytes: image.bytes, sha256: image.sha256 });
+      }
+    }
     fs.writeFileSync(manifestFile, JSON.stringify(manifest));
-    run(directory, [{ component: 'example:licensed:1', file: artifact }], manifest);
+    run(directory, [{ component: 'example:licensed:1', file: artifact, nativeEntries }], manifest);
   } finally { fs.rmSync(temporary, { recursive: true, force: true }); }
 }
 
@@ -107,4 +114,30 @@ test('omitted reviewed SQLite binding rejects', () => fixture((directory, artifa
 test('wrong SQLite native architecture entry rejects', () => fixture((directory, artifacts) => {
   changeManifest(directory, data => { data.prebuiltBindings[0].entry = 'jni/x86/libexpo-sqlite.so'; });
   assert.throws(() => verify(directory, artifacts), /prebuilt native entry binding changed/);
+}));
+
+
+test('missing current native archive capture rejects', () => fixture((directory, artifacts) => {
+  delete artifacts[0].nativeEntries;
+  assert.throws(() => verify(directory, artifacts), /native owning archive capture missing/);
+}));
+test('changed captured linked native bytes rejects', () => fixture((directory, artifacts) => {
+  artifacts[0].nativeEntries[0].sha256 = '0'.repeat(64);
+  assert.throws(() => verify(directory, artifacts), /native image archive bytes changed/);
+}));
+test('wrong native architecture entry rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.nativeOwnerBindings[0].nativeImages[0].entry = 'jni/x86/libgifimage.so'; });
+  assert.throws(() => verify(directory, artifacts), /native image entry unsafe or incomplete/);
+}));
+test('native original cannot use an unsafe shared path', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.nativeOwnerBindings[0].originals[0].file = '../outside.txt'; });
+  assert.throws(() => verify(directory, artifacts), /native original reference unsafe or incomplete/);
+}));
+test('native immutable original Git blob drift rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.nativeOwnerBindings[1].originals[0].gitBlob = '0'.repeat(40); });
+  assert.throws(() => verify(directory, artifacts), /native original bytes or Git blob changed/);
+}));
+test('missing linked WebP patent original rejects', () => fixture((directory, artifacts) => {
+  changeManifest(directory, data => { data.nativeOwnerBindings[1].originals.splice(1, 1); });
+  assert.throws(() => verify(directory, artifacts), /native original or image reference set changed/);
 }));

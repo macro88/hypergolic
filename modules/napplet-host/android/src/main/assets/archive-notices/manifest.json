@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "platform": "android",
   "scope": "selected-runtime-archive-originals",
-  "description": "Original selected runtime archive entries and verified compiled prefab-owner notices; not complete Maven/native/static/transitive attribution.",
+  "description": "Original selected runtime archive entries and verified compiled prefab-owner notices; not complete Maven/native/static/transitive attribution. Selected Fresco native owner and linked libwebp 1.3.2 originals are bound separately; complete static/transitive review remains open.",
   "originals": [
     {
       "file": "androidx-archive-LICENSE.txt",
@@ -113,6 +113,21 @@
       "file": "sqlite-3.50.3-api-NOTICE.txt",
       "sha256": "85806d613cfda5901f848b3b5b4b04396c8c64e89c97c0af3706c42b0c44bb47",
       "bytes": 1485
+    },
+    {
+      "file": "native-libwebp-1.3.2-COPYING.txt",
+      "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf",
+      "bytes": 1496
+    },
+    {
+      "file": "native-libwebp-1.3.2-PATENTS.txt",
+      "sha256": "cc3273e0694ea5896145e0677699b53471b03ea43021ddc50e7923fbb9f5023c",
+      "bytes": 1436
+    },
+    {
+      "file": "native-libwebp-1.3.2-AUTHORS.txt",
+      "sha256": "9f43aafb76998315d1eac1e441fbd8e1edc28107a7d28ae26223d258f577e84a",
+      "bytes": 2734
     }
   ],
   "noticeBindings": [
@@ -6952,5 +6967,135 @@
   "prebuiltReview": {
     "componentCount": 1,
     "originalSourceCount": 2
+  },
+  "nativeOwnerBindings": [
+    {
+      "name": "Fresco",
+      "version": "3.6.0",
+      "repository": "https://github.com/facebook/fresco",
+      "resolvedCommit": "ba4654541385c844f95ec6471efbc0b241213de0",
+      "tree": "21853661232de42e1fbc38bc3d9455321eef7595",
+      "originals": [
+        {
+          "location": "main-javascript",
+          "file": "js-react-native-0.86.3-LICENSE.txt",
+          "sourcePath": "LICENSE",
+          "bytes": 1088,
+          "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+          "gitBlob": "b93be90515ccd0b9daedaa589e42bf5929693f1f"
+        }
+      ],
+      "nativeImages": [
+        {
+          "owningArtifact": {
+            "component": "com.facebook.fresco:animated-gif:3.6.0",
+            "filename": "animated-gif-3.6.0.aar",
+            "sha256": "c709bd7f0fce7802986d61026f66cbb13a2044efa0cee99ab0500f30f18a20d7"
+          },
+          "entry": "jni/arm64-v8a/libgifimage.so",
+          "bytes": 318992,
+          "sha256": "9f605249728da7091569772a38a4dde298ed48e1e73fed3da0e4b662ef38715c"
+        },
+        {
+          "owningArtifact": {
+            "component": "com.facebook.fresco:imagepipeline-native:3.6.0",
+            "filename": "imagepipeline-native-3.6.0.aar",
+            "sha256": "5cbeafb0f7d91c078e256bb1af2981493f37b2a386df43593109d6abef7792d9"
+          },
+          "entry": "jni/arm64-v8a/libimagepipeline.so",
+          "bytes": 8760,
+          "sha256": "1b377992e4256fa9398ec057722f84a359c7d588e570c8a41f51d930c19ece7d"
+        },
+        {
+          "owningArtifact": {
+            "component": "com.facebook.fresco:nativeimagefilters:3.6.0",
+            "filename": "nativeimagefilters-3.6.0.aar",
+            "sha256": "5044745e85fb35177e8e2b80df82c02a968a6db88affe711e4fb0038924d32bd"
+          },
+          "entry": "jni/arm64-v8a/libnative-filters.so",
+          "bytes": 23712,
+          "sha256": "4294b57460e70a6351ce7ae2733a79c088c907dfa54673a657227ec5bb669594"
+        },
+        {
+          "owningArtifact": {
+            "component": "com.facebook.fresco:nativeimagetranscoder:3.6.0",
+            "filename": "nativeimagetranscoder-3.6.0.aar",
+            "sha256": "0d8f8559617c88763dc75e6005fc60e37bfd6bb20fe5b97a187cabefc2b11a7c"
+          },
+          "entry": "jni/arm64-v8a/libnative-imagetranscoder.so",
+          "bytes": 585376,
+          "sha256": "2aed28298a25afd52ac670cf9682398c6c7ba42a57195c01efd565e7ddfe17ca"
+        },
+        {
+          "owningArtifact": {
+            "component": "com.facebook.fresco:webpsupport:3.6.0",
+            "filename": "webpsupport-3.6.0.aar",
+            "sha256": "3407ac484ef55bb3a279ed9bddc85f24a60bb777338007967193c40404fa8fcf"
+          },
+          "entry": "jni/arm64-v8a/libstatic-webp.so",
+          "bytes": 501856,
+          "sha256": "f3e5f9ab4f93f2a0a057285a2de9c93ba0ab59c76c22874d0356493ce283c4c7"
+        }
+      ],
+      "limits": "Exact selected AAR/packaged native bytes and immutable matching release root license; not a source reproduction of every native or bundled instruction."
+    },
+    {
+      "name": "libwebp",
+      "version": "1.3.2",
+      "repository": "https://chromium.googlesource.com/webm/libwebp",
+      "resolvedCommit": "ca332209cb5567c9b249c86788cb2dbf8847e760",
+      "tree": "93dc1be8fb89ebf29437fada999ff489333a6cd9",
+      "originals": [
+        {
+          "location": "archive",
+          "file": "native-libwebp-1.3.2-COPYING.txt",
+          "sourcePath": "COPYING",
+          "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf",
+          "bytes": 1496,
+          "gitBlob": "7a6f99547d4d6b4c5e6d5321acfaeba313e08de3"
+        },
+        {
+          "location": "archive",
+          "file": "native-libwebp-1.3.2-PATENTS.txt",
+          "sourcePath": "PATENTS",
+          "sha256": "cc3273e0694ea5896145e0677699b53471b03ea43021ddc50e7923fbb9f5023c",
+          "bytes": 1436,
+          "gitBlob": "caedf607e95ae4c3dc84d057fddcc301cd0e4863"
+        },
+        {
+          "location": "archive",
+          "file": "native-libwebp-1.3.2-AUTHORS.txt",
+          "sourcePath": "AUTHORS",
+          "sha256": "9f43aafb76998315d1eac1e441fbd8e1edc28107a7d28ae26223d258f577e84a",
+          "bytes": 2734,
+          "gitBlob": "8359b20da9d527278766f6599aabe6dc34d767e2"
+        }
+      ],
+      "nativeImages": [
+        {
+          "owningArtifact": {
+            "component": "com.facebook.fresco:webpsupport:3.6.0",
+            "filename": "webpsupport-3.6.0.aar",
+            "sha256": "3407ac484ef55bb3a279ed9bddc85f24a60bb777338007967193c40404fa8fcf"
+          },
+          "entry": "jni/arm64-v8a/libstatic-webp.so",
+          "bytes": 501856,
+          "sha256": "f3e5f9ab4f93f2a0a057285a2de9c93ba0ab59c76c22874d0356493ce283c4c7"
+        }
+      ],
+      "compiledVersionReporter": {
+        "encodedValue": 66306,
+        "version": "1.3.2",
+        "apiGitBlob": "0177b12089759c8a2cd6767d399615b8bf0e4def",
+        "method": "Static ARM64 return-immediate comparison, not phone decoding or complete compiler-source provenance"
+      },
+      "limits": "Selected linked decoder version constant and original release texts; complete codec/compiler/static/transitive and security acceptance remain open."
+    }
+  ],
+  "nativeOwnerReview": {
+    "ownerCount": 2,
+    "originalReferenceCount": 4,
+    "nativeImageReferenceCount": 6,
+    "uniqueNativeImageCount": 5
   }
 }

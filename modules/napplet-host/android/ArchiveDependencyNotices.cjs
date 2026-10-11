@@ -36,6 +36,7 @@ function verify(directory, selectedArtifacts, packageNoticeDirectory = path.join
     throw new Error('Android selected archive inputs changed; refresh the notice review');
   }
   verifyPrebuiltBindings(manifest, directory, names, expected, packageNoticeDirectory, sourceRoot);
+  verifyNativeOwnerBindings(manifest, directory, names, selectedArtifacts, packageNoticeDirectory);
   const headerEntries = [];
   for (const binding of manifest.prefabBindings) {
     const artifact = binding.owningArtifact;
@@ -127,6 +128,65 @@ function verifyPrebuiltBindings(manifest, directory, names, expected, packageNot
   if (manifest.prebuiltBindings.length !== manifest.prebuiltReview.componentCount ||
       sourceCount !== manifest.prebuiltReview.originalSourceCount) {
     throw new Error('Android prebuilt reviewed source set changed');
+  }
+}
+
+
+function verifyNativeOwnerBindings(manifest, directory, names, selectedArtifacts, packageNoticeDirectory) {
+  const bindings = manifest.nativeOwnerBindings;
+  const review = manifest.nativeOwnerReview;
+  if (!Array.isArray(bindings) || !review || bindings.length !== review.ownerCount) {
+    throw new Error('Android native owner review set changed');
+  }
+  let originals = 0; let images = 0;
+  const uniqueImages = new Set();
+  for (const binding of bindings) {
+    if (!/^[a-f0-9]{40}$/.test(binding.resolvedCommit) || !/^[a-f0-9]{40}$/.test(binding.tree) ||
+        !Array.isArray(binding.originals) || !binding.originals.length ||
+        !Array.isArray(binding.nativeImages) || !binding.nativeImages.length) {
+      throw new Error('Android native owner provenance incomplete');
+    }
+    for (const original of binding.originals) {
+      verifyNativeOriginal(original, directory, names, packageNoticeDirectory);
+      originals++;
+    }
+    for (const image of binding.nativeImages) {
+      const owner = image.owningArtifact;
+      const artifact = selectedArtifacts.find(row => row.component === owner.component &&
+        path.basename(row.file) === owner.filename && sha256(fs.readFileSync(row.file)) === owner.sha256);
+      if (!artifact || !Array.isArray(artifact.nativeEntries)) {
+        throw new Error('Android native owning archive capture missing');
+      }
+      if (!/^jni\/arm64-v8a\/lib[A-Za-z0-9_+-]+\.so$/.test(image.entry) ||
+          !Number.isSafeInteger(image.bytes) || image.bytes < 1 || !/^[a-f0-9]{64}$/.test(image.sha256)) {
+        throw new Error('Android native image entry unsafe or incomplete');
+      }
+      const matching = artifact.nativeEntries.filter(entry => entry.entry === image.entry &&
+        entry.bytes === image.bytes && entry.sha256 === image.sha256);
+      if (matching.length !== 1) throw new Error('Android native image archive bytes changed');
+      uniqueImages.add(`${owner.component}\0${owner.filename}\0${image.entry}`);
+      images++;
+    }
+  }
+  if (originals !== review.originalReferenceCount || images !== review.nativeImageReferenceCount ||
+      uniqueImages.size !== review.uniqueNativeImageCount) {
+    throw new Error('Android native original or image reference set changed');
+  }
+}
+
+function verifyNativeOriginal(original, directory, names, packageNoticeDirectory) {
+  if (typeof original.file !== 'string' || path.basename(original.file) !== original.file ||
+      !original.file.endsWith('.txt') || !['archive', 'main-javascript'].includes(original.location) ||
+      (original.location === 'archive' && !names.includes(original.file)) ||
+      !Number.isSafeInteger(original.bytes) || original.bytes < 1 ||
+      !/^[a-f0-9]{64}$/.test(original.sha256) || !/^[a-f0-9]{40}$/.test(original.gitBlob)) {
+    throw new Error('Android native original reference unsafe or incomplete');
+  }
+  const base = original.location === 'archive' ? directory : packageNoticeDirectory;
+  const bytes = fs.readFileSync(path.join(base, original.file));
+  const gitBlob = createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
+  if (bytes.length !== original.bytes || sha256(bytes) !== original.sha256 || gitBlob !== original.gitBlob) {
+    throw new Error('Android native original bytes or Git blob changed');
   }
 }
 

@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical Android compiled HTTPS/WSS and structural envelope subset passes115 assertions;67 input hashes and389 compiled classes remain unchanged. Five temporary files removed; installed app/inventory unchanged. Ordinary unlocked-device journeys, complete attribution and external quality approvals remain open.7/61 complete; no source push.
+stopped_at: Selected Fresco native owner and linked WebP1.3.2 originals are verified and packaged;69 notice cases and signed Android assembly pass.88 originals delivered;21 ELF/four DEX/95 prior assets unchanged. Complete native attribution, external quality and unlocked-device journeys remain open.7/61 complete; no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
-state_head: 325596bbdaa54ff62ce795ea5a5e3463ee3b914b
+state_head: 374f253eb1c55e1f8724d4da67786931ba25d30e
 progress:
   total_phases: 14
   completed_phases: 10
@@ -2933,3 +2933,17 @@ resolver, trust and hostname seams plus synthetic WSS stop labels are explicit.
 CAP02/CAP04 gain scoped evidence and remain partial. Seven of61 complete/54 open.
 Both ordinary device journeys require unlocking; external audit/scoring approvals
 and full BUILD/attribution remain open. Source push remains owner-only.
+
+
+Selected Fresco/WebP attribution checkpoint — 11 October2026: five native images
+match their selected AARs. Immutable Fresco3.6.0 root license is already delivered
+in the exact main-JS Meta original. Packaged WebP decoder constant identifies1.3.2;
+its immutable COPYING/PATENTS/AUTHORS were absent and are now delivered unchanged.
+Current app-owned native AAR capture and original/hash/Git-blob/reference guards
+pass69 notice regressions, TypeScript, Android prebuild and signed ordinary ARM64
+assembly.88 originals match; only three notice assets and archive manifest change.
+21 native images/four DEX/95 prior assets, app ID/label/certificate/permissions stay
+exact;1465 build source inputs stay unchanged and generated packaging restores.
+Limited local quality has zero findings; full external numeric/audit gates remain
+pending. Retained iPhone132-file seal unchanged; no iOS rebuild/device install or
+source push. BUILD01 Android is partial; seven of61 complete/54 open.

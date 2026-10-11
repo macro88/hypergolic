@@ -37,7 +37,18 @@ gradle.projectsEvaluated {
       def output = archiveNoticeInventory.get().asFile
       output.parentFile.mkdirs()
       output.text = JsonOutput.toJson(artifacts.artifacts.collect { artifact ->
-        [component: artifact.id.componentIdentifier.displayName, file: artifact.file.absolutePath]
+        def component = artifact.id.componentIdentifier.displayName
+        def natives = []
+        if (component.startsWith('com.facebook.fresco:') && artifact.file.name.endsWith('.aar')) {
+          new java.util.zip.ZipFile(artifact.file).withCloseable { archive ->
+            archive.entries().findAll { entry -> entry.name.startsWith('jni/arm64-v8a/') && entry.name.endsWith('.so') }.each { entry ->
+              def bytes = archive.getInputStream(entry).withCloseable { stream -> stream.bytes }
+              def hash = java.security.MessageDigest.getInstance('SHA-256').digest(bytes).encodeHex().toString()
+              natives.add([entry: entry.name, bytes: bytes.length, sha256: hash])
+            }
+          }
+        }
+        [component: component, file: artifact.file.absolutePath, nativeEntries: natives]
       })
     }
   }

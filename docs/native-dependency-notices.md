@@ -885,3 +885,60 @@ These do not establish the complete required numeric quality gates. The retained
 or new physical acceptance. Complete static/native/generated/resource/runtime
 attribution, current external quality, published/device/fault/security journeys
 and sign-off remain open. The acceptance matrix stays 7 of 61 complete / 54 open.
+
+
+## Selected Android Fresco and linked WebP originals — 11 October 2026
+
+The five selected Fresco 3.6.0 ARM64 native libraries are byte-identical between
+the current ordinary APK and their exact selected AAR entries. The immutable
+[Fresco release](https://github.com/facebook/fresco/tree/ba4654541385c844f95ec6471efbc0b241213de0)
+declares version 3.6.0. Its original root MIT license matches Git tree/blob bytes
+and is already delivered in three main-JavaScript notice files. The native owner
+binding reuses the existing React Native original; no duplicate text is added.
+
+Fresco's build declarations separately identify GIFLIB 5.2.1, libjpeg-turbo
+2.1.5.1, libpng 1.6.37 and libwebp 1.3.2. Those declarations are source evidence,
+not compiled-version proof for every component. The packaged libstatic-webp.so
+exports WebPGetDecoderVersion. Its ARM64 return instructions encode 0x010302,
+which the immutable owning API defines as version 1.3.2. This is static inspection;
+no phone decoding or complete producer-source reconstruction is claimed.
+
+The matching [libwebp release](https://chromium.googlesource.com/webm/libwebp/+/ca332209cb5567c9b249c86788cb2dbf8847e760/)
+supplies original COPYING, PATENTS and AUTHORS files. All three complete texts
+match their immutable Git blobs; none occurs in the preceding APK assets. They
+are now packaged unchanged in archive-notices. Their source provenance and the
+selected native owner mappings are distinct from iOS's decoder profile.
+
+The app-owned Gradle inventory now captures the current ARM64 Fresco entry sizes
+and SHA-256 directly from the five selected AARs using ZipFile. The native notice
+guard verifies those records, complete owning archive hashes, safe architecture
+entries, shared original hashes/Git blobs and the complete reviewed reference
+counts. It regenerates the actual archive inventory on each invocation. Missing
+capture, changed native bytes, wrong architecture, unsafe original paths, changed
+Git blobs and an omitted patent reference reject packaging.
+
+All 69 notice regressions, TypeScript, ordinary Expo Android prebuild and signed
+ARM64 assembly pass. The current real Gradle output contains 144 selected archive
+records and five native entries; each entry independently matches its AAR bytes.
+The APK has 88 matching original files. It adds only the three WebP originals and
+changes the archive notice manifest; all 21 native libraries, four DEX files and
+95 previous assets remain byte-identical. The existing app ID, Hypergolic label,
+certificate, permissions and non-debuggable status are preserved. Generated
+packaging restores cleanly and all 1,465 build source inputs are unchanged.
+
+Local React Doctor and all configured local source engines report zero findings.
+Numeric Doctor scoring and online dependency audit remain explicitly deferred;
+these are limited local diagnostics, not full quality acceptance. The retained
+132-file iPhone ready app is unchanged. No iOS rebuild, phone installation/input,
+new dependency/security exception or source push occurs.
+
+The separate GIFLIB/jpeg/png and other native/static owners, resources, generated
+transformations and six trusted-runtime declaration gaps remain under review.
+Complete security/quality and actual physical/published/lifecycle/fault journeys
+remain open. BUILD-01 gains selected Android packaging evidence and stays partial;
+Phase 2 remains seven of 61 requirements complete.
+
+The full commit whitespace check reports the original WebP COPYING file's blank
+line at EOF. Its immutable Git-blob and packaged-byte checks pass, so the original
+text is preserved. The separate authored-file whitespace check passes; no source
+rule, threshold, exclusion configuration or upstream text is changed.

@@ -911,3 +911,10 @@ runs the existing compiled HTTPS/WSS and envelope proofs without installing a
 test app. Its source/compiled-input, retained-package and exact cleanup records
 are required parts of the result. It supplies selected native transport evidence;
 ordinary app and complete physical fault acceptance remain open.
+
+
+The Android archive notice guard additionally binds five selected Fresco ARM64
+entries and the original linked WebP 1.3.2 COPYING/PATENTS/AUTHORS texts. The
+app-owned inventory reads the current AAR entries on each invocation. Run the
+combined Node notice suites after changing this profile, then inspect actual
+signed packaging. See [native owner provenance](native-dependency-notices.md#selected-android-fresco-and-linked-webp-originals--11-october-2026).
