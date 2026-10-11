@@ -769,10 +769,13 @@
           "evidence": [
             "android-relay-settings01/run02/result.json",
             "android-relay-settings01/run02/independent-review.json",
-            "android-relay-settings01/README.md"
+            "android-relay-settings01/README.md",
+            "android-relay-first-run01/README.md",
+            "android-relay-first-run01/failed-physical/result.json",
+            "android-relay-first-run01/independent-cleanup.json"
           ],
           "verifiedScope": "Seven complete ordinary physical protected-owner Settings workflow groups: exact ordered role defaults; ten invalid URL/two duplicate rejections; remove/add role isolation; modified and explicit-empty lists each survive stopped-process/new-PID cold launch; explicit selected-role restoration preserves the other role; restored defaults persist after third cold launch. Native selected-role/URL/Remove inventories and original screenshots independently checked. Exact APK/path/source inputs/inventory and development identity/empty workspace retained; owned hash-matching helper removed. Initial placeholder and cleanup observer failures, separate recovery and first Settings press miss retained. Seven shared service/disk-SQLite tests pass. No event publication, app installation/reset or key mutation.",
-          "remaining": "Fresh-profile physical first-run seeding remains required. iPhone workflow, relay availability/AUTH/routing, accessibility and other full Phase2 requirements remain open. Existing ordinary UI/SQLite persistence proof does not establish complete database byte rollback."
+          "remaining": "Fresh-profile physical first-run seeding remains required. iPhone workflow, relay availability/AUTH/routing, accessibility and other full Phase2 requirements remain open. Existing ordinary UI/SQLite persistence proof does not establish complete database byte rollback. A unique disposable ordinary-entry Release is prepared with all103 assets/21 native libraries equal to the retained build, but Android refuses installation with INSTALL_FAILED_USER_RESTRICTED before fresh app input. Exact test/observer/staged-APK cleanup and retained app/identity/inventory verify; owner-attended install retry is needed. This failure does not close first-run seeding."
         },
         "ios-physical": {
           "status": "not-run",

@@ -86,3 +86,23 @@ seeding, invalid persisted data rejection and no automatic reseeding. Fresh-prof
 physical first-run seeding and the complete iPhone settings workflow remain open;
 RELAY-01 stays partial. Availability/AUTH, Outbox delivery, screen-reader usability
 and full Phase 2 acceptance require their own evidence.
+
+
+### Fresh-profile preparation and installation gate
+
+A separate unique-package ordinary-entry QA Release now builds offline in 35
+seconds. All 103 app/runtime assets, including the Hermes bundle, and all 21 native
+libraries match the retained ordinary APK byte for byte. The app label, signing
+certificate and permission profile are preserved; only the temporary test package
+has its own installation/storage identity. Generated packaging and all 1,473
+source inputs are restored unchanged.
+
+The physical installation returns `INSTALL_FAILED_USER_RESTRICTED: Install
+canceled by user`. The fresh package never launches, so no first-run result is
+claimed. Independent cleanup verifies the exact test package absent, owned UI
+observer/staged APK absent, original package inventory and retained APK/path
+unchanged. Trusted Settings also confirms the original public development identity
+and empty workspace. The prepared signed APK is retained for an owner-attended
+installation retry. No device security setting or retained app data is changed.
+RELAY-01 stays partial; this failed admission is separate from the passing ordinary
+Settings workflow above.
