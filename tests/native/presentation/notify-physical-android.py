@@ -22,8 +22,17 @@ class Journey(base.Journey):
   super().check(name);self.persist()
  def guest_viewport(self,nodes):
   for attempt in range(8):
-   frames={n.get('bounds') for n in nodes if n.get('class')=='android.webkit.WebView' and self.visible(n)}
-   if len(frames)==1:return tuple(map(int,re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',next(iter(frames))).groups()))
+   views=[n for n in nodes if n.get('class')=='android.webkit.WebView' and self.visible(n)]
+   frames={n.get('bounds') for n in views}
+   parse=lambda n:tuple(map(int,re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',n.get('bounds')).groups()))
+   if len(frames)==1:return parse(views[0])
+   if views:
+    bounds=[parse(n) for n in views]
+    nested=all(any(child is second for child in first.iter('node')) or any(child is first for child in second.iter('node')) for i,first in enumerate(views) for second in views[i+1:])
+    if nested and all(max(b[i] for b in bounds)-min(b[i] for b in bounds)<=1 for i in range(4)):
+     intersection=(max(b[0] for b in bounds),max(b[1] for b in bounds),min(b[2] for b in bounds),min(b[3] for b in bounds))
+     self.report.setdefault('nestedGuestFrameRounding',[]).append({'frames':sorted(frames),'intersection':intersection,'snapshotSha256':sha(self.xml)})
+     return intersection
    self.report.setdefault('unsettledGuestFrames',[]).append({'attempt':attempt,'frames':sorted(frames),'snapshotSha256':sha(self.xml)})
    if hasattr(self,'args'):(self.args.output/('unsettled-guest-viewport-'+str(len(self.report['unsettledGuestFrames']))+'.xml')).write_bytes(self.xml)
    self.persist();time.sleep(.2);nodes=self.nodes()
@@ -42,7 +51,7 @@ class Journey(base.Journey):
    self.report['currentSDKNavigation']={'control':label,'attempt':attempt,'direction':direction,'unchangedSnapshots':stalled};self.persist()
    if stalled>=4 or time.monotonic()>=deadline:self.capture('bounded-guest-navigation-stall');raise AssertionError('Bounded actual guest navigation did not expose '+label)
    x=a+(c-a)//4;high=b+(d-b)//5;low=b+(d-b)*4//5;args=['swipe',str(x),str(low if direction=='up' else high),str(x),str(high if direction=='up' else low),'220'];self.report['inputs'].append({'control':'observed physical guest viewport short drag','bounds':[a,b,c,d],'input':args});self.adb('shell','input',*args);time.sleep(.2)
-  raise AssertionError('Actual SDK control not exposed within bounded drags: '+label)
+  self.capture('bounded-guest-navigation-exhausted');raise AssertionError('Actual SDK control not exposed within bounded drags: '+label)
  def nodes(self):
   if self.args.ui_jar:
    self.adb('shell','rm','-f','/data/local/tmp/hg-notify.xml');remote='/data/local/tmp/hg-notify-uia.jar';result=self.adb('shell','CLASSPATH=/system/framework/android.test.base.jar:/system/framework/android.test.runner.jar:/system/framework/uiautomator.jar:'+remote,'app_process','/system/bin','com.android.commands.uiautomator.Launcher','runtest','-c','org.nostrocket.hypergolic.proof.NotifyUiDump','-e','jars',remote);assert 'aborted' not in result and 'INSTRUMENTATION_STATUS_CODE: 0' in result and 'OK (1 test)' in result,'Fresh native observer failed'

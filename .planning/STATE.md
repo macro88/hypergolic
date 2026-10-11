@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: JPEG/GIFLIB original distribution is now verified: four new assets, 92 originals total; 72 notice cases and signed Android packaging pass. 21 ELF/four DEX/98 previous assets unchanged. Physical phones and external quality approvals remain pending;7/61 complete, no source push.
+stopped_at: Current ordinary apps installed on both phones. Two signed-publisher notification checks pass on Android; four remain after observer/navigation failures. Android grant/view/helper cleanup and ordinary cold identity verified. iPhone XCTest automation times out before test input; runner removed. 7/61 full rows remain, no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
 state_head: 374f253eb1c55e1f8724d4da67786931ba25d30e

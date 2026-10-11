@@ -748,3 +748,41 @@ These are controlled broker/storage and native-core/package checks. No physical
 installation or request-expiry/subscription fault acceptance is claimed. CAP-11,
 full quality and complete Phase 2 remain open: 7 of 61 requirements are complete.
 External audit/score transfers are not retried, and no source push follows.
+
+
+## Physical signed-publisher notification checks — 11 October 2026
+
+The current signed Android fixture produced two passing checks on the physical
+phone with the real protected development identity and original SDK:
+
+- The exact caller's native notification review and attributed delivery pass.
+- A different signed publisher with the same app identifier and HTML cannot
+  inherit that caller's grant; its SDK send is denied and the caller's card remains.
+
+The run is incomplete. An earlier attempt rejected two nested accessibility
+WebView frames differing by one pixel. The observer now accepts that rounding
+only when the views share an ancestor chain, using their visible intersection;
+sibling views and materially different frames still fail. Ten navigation/attribution
+regressions and three publisher-selection regressions pass. This changes only the
+observer; the packaged app is unchanged. A later snapshot exposed no guest controls
+although the rendered napplet was visible. A data-preserving cold launch restored
+observation. The resumed run then failed bounded navigation to the original caller's
+Dismiss control after the collision check. These failures remain evidence, not passes.
+The remaining separate-publisher approval, exact revocation, unfocused callback and
+cold-restored grant checks have not passed in this batch. External publication,
+identity/version isolation, native zero-effect counters and complete CAP-10 remain open.
+
+Cleanup verifies removal of the batch's grant and both owned views, unchanged
+selected identity and package inventory, and restoration of the current ordinary
+Android APK under the same identifier and certificate. Its installed SHA-256 is
+`2ef0dec2b8efa76a726a5d14d130c30836cf98d993503b2faef39c48f644d2e2`.
+The exact observation helper was removed after hash verification. The ordinary app's
+empty workspace and full selected public identity were observed after cold entry.
+
+The prepared ordinary iPhone build installed successfully with the existing identifier.
+Two attempts using the same temporary UI runner timed out enabling XCTest automation
+before a test method or app input began. The second attempt used an explicit arm64
+destination; the device was independently confirmed unlocked with Developer Mode enabled.
+Neither attempt proves notification behavior or changes the existing physical acceptance.
+The exact temporary runner was uninstalled; the original installed-app inventory remains.
+No new app build, native repair, source push or quality-gate waiver is implied.

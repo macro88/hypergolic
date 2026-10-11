@@ -61,8 +61,9 @@ full usability remain open; see the linked configuration checkpoint.
 The notification test packager now selects a locally supplied signed publisher
 collision source while retaining ordinary verified loading and the protected
 identity owner. Identical app/HTML samples from distinct publishers make grant
-isolation testable. Host checks and signed Android packaging pass; device execution
-is pending after a zero-input pre-install disconnect. This test-only composition
+isolation testable. Host checks and signed Android packaging pass. Physical exact-caller approval and
+same-app/HTML different-publisher denial now pass as two scoped checks; four further
+publisher checks remain incomplete after observation/navigation failures. This test-only composition
 is restored after packaging and grants no new production authority. See the
 [notification preparation checkpoint](notifications-configuration.md#protected-android-notification-publisher-preparation--11-october-2026).
 

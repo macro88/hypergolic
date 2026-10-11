@@ -57,6 +57,15 @@ class ViewportReadiness(unittest.TestCase):
   journey=object.__new__(MODULES[1].Journey);journey.report={};journey.xml=b'initial-native-layout';journey.persist=lambda:None;return journey
  def test_transient_empty_viewport_waits_for_exact_native_frame(self):
   journey=self.observer();views=[ET.Element('node',{'class':'android.webkit.WebView','bounds':'[100,100][900,1100]'})];journey.nodes=lambda:views;self.assertEqual(journey.guest_viewport([]),(100,100,900,1100));self.assertEqual(len(journey.report['unsettledGuestFrames']),1)
+ def test_nested_one_pixel_rounding_uses_shared_visible_intersection(self):
+  journey=self.observer();outer=ET.Element('node',{'class':'android.webkit.WebView','bounds':'[78,753][1202,2617]'});inner=ET.SubElement(outer,'node',{'class':'android.webkit.WebView','bounds':'[78,753][1202,2618]'})
+  self.assertEqual(journey.guest_viewport([outer,inner]),(78,753,1202,2617));self.assertEqual(len(journey.report['nestedGuestFrameRounding']),1)
+ def test_one_pixel_siblings_are_still_ambiguous(self):
+  journey=self.observer();views=[ET.Element('node',{'class':'android.webkit.WebView','bounds':bounds}) for bounds in ['[78,753][1202,2617]','[78,753][1202,2618]']];journey.nodes=lambda:views
+  with self.assertRaises(AssertionError):journey.guest_viewport(views)
+ def test_nested_materially_different_frames_remain_ambiguous(self):
+  journey=self.observer();outer=ET.Element('node',{'class':'android.webkit.WebView','bounds':'[78,753][1202,2617]'});inner=ET.SubElement(outer,'node',{'class':'android.webkit.WebView','bounds':'[78,800][1202,2617]'});journey.nodes=lambda:[outer,inner]
+  with self.assertRaises(AssertionError):journey.guest_viewport([outer,inner])
  def test_unsettled_distinct_viewports_do_not_select_an_arbitrary_frame(self):
   journey=self.observer();views=[ET.Element('node',{'class':'android.webkit.WebView','bounds':bounds}) for bounds in ['[100,100][900,500]','[100,600][900,1100]']];journey.nodes=lambda:views
   with self.assertRaises(AssertionError):journey.guest_viewport(views)
