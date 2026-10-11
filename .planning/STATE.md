@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Four physical Android signed notification version cases pass; decline preserves pin/card/badge and acceptance revokes old transients, retains same-source grant and restores exact accepted pin after cold restart. Both attempts and observer correction retained. Ordinary app, original identity/empty state, zero grants, 646 inputs and owned-helper cleanup verify. iPhone connected/unlocked; automation initialization unresolved. Full CAP-10/Phase2 stay open; 7/61 complete, no source push.
+stopped_at: Physical Android native publication owner passes all27 controlled transport faults plus four-slot capacity/recovery using real framework JSON/clock/Handler/Looper. Exact independent EVENT traces, 70 source/389 class hashes, unchanged ordinary APK/inventory and owned-file/mapping/TLS-key cleanup verify. Three failed preflights preserved; 102 shared Outbox tests pass. ShellUID/test route only; app/guest/protected signer and iPhone automation/full Phase2 remain open. 7/61 complete; no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
 state_head: 374f253eb1c55e1f8724d4da67786931ba25d30e

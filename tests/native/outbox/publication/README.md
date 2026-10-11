@@ -102,3 +102,31 @@ The current TLS suite passes 38 cases and each owner suite passes 27 plus capaci
 recovery, including seven malformed wire replies. Original older counts above
 refer to their earlier checkpoints. This is selected syntax coverage, not an
 exhaustive grammar or full native/physical acceptance claim.
+
+
+## Physical Android owner/WSS faults and capacity
+
+Run `python3 -B tests/native/outbox/publication/device_owning_tls_run.py --serial <connected-api36-device> --output <fresh-external-directory>` after sourcing the checkout toolchain. The runner compiles the actual Release module offline, compiles the existing owner/route/capacity proof against Android's API JAR with all warnings as errors, and packages a temporary DEX JAR. It does not install or update the ordinary app.
+
+`DeviceOwnerTLSProof` requires physical API36, shell UID2000, and boot-loader JSON,
+SystemClock, Handler and Looper classes. The public main-Looper bootstrap uses
+reflection because the SDK marks the standalone-VM initialization API deprecated;
+no hidden API or framework stub is used, and no UI queue is driven. The production
+clock, owner, approval registry, plan and downstream WSS code execute unchanged.
+Only the exact single publish-route wrapper is adapted; its full patch is retained.
+The controlled loopback address/DNS policy and disposable certificate anchor are
+explicit test inputs. These do not prove ordinary public relay policy or app UID.
+
+All27 single cases and the capacity/recovery case pass on the physical phone. The
+independent receiver observes zero EVENTs for both pre-send cancellations, one for
+every other single case, and five for four admitted concurrent sends plus a fresh
+recovery. The fifth consumed pair cannot emit or replay. Actual clock deadlines
+stop silent/keepalive-only peers, and malformed/flood/oversized replies stay bounded.
+Every case restores semaphore capacity and removes its deadline task.
+
+The runner verifies public fixture signatures, source/class hashes, original
+receiver/log data, unchanged keeper APK/inventory and pre-existing ADB mappings.
+Owned remote files and mappings are removed by exact hash/mapping guards, and the
+host TLS private key is deleted. Three failed preflights are preserved separately.
+No ordinary guest/Expo/protected signing, UI/suspend, public DNS, complete fanout,
+full native fault or MVP acceptance claim follows from this standalone composition.

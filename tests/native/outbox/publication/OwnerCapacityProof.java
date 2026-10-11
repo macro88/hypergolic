@@ -15,7 +15,7 @@ import org.json.JSONObject;
 /** Real four-slot owner bound, consumed pairs and recovery; controlled host route and pre-signed fixture. */
 public final class OwnerCapacityProof {
   private OwnerCapacityProof() {}
-  private static JSONObject receipt(String raw, String expected) {
+  private static JSONObject receipt(String raw, String expected) throws org.json.JSONException {
     JSONObject result = new JSONObject(raw);
     if (!result.getString("status").equals(expected)) throw new AssertionError(raw);
     return result;

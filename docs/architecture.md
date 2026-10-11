@@ -570,3 +570,11 @@ Only the test Hermes fixture changes; native products remain the same. Both atte
 are retained, with the first failure caused by expecting an already clicked card.
 Cleanup restores the ordinary app, original identity/empty workspace and zero notify
 grants. CAP-10, iOS parity and Phase 2 remain open. See the [version checkpoint](notifications-configuration.md#physical-android-notification-version-replacement--11-october-2026).
+
+
+The physical Android standalone publication owner now passes27 controlled WSS fault
+cases plus native capacity/recovery using real boot-framework JSON/clock/Handler/
+Looper. Exact receiver traces distinguish zero pre-send emission from unknown
+post-send outcomes. Only a test loopback route/public anchor is substituted; no app
+or protected signer is exercised. Keeper bytes, inventories and owned-resource
+cleanup verify. OB-05/06 remain partial. See the [physical transport checkpoint](outbox-routing.md#physical-android-publication-owner-transport-faults--11-october-2026).

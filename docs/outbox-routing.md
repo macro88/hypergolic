@@ -267,3 +267,52 @@ conformance, protected signing, ordinary app/guest composition, physical lifecyc
 or complete published/fault/security acceptance. OB-05 stays partial and the full
 matrix remains seven of 61 complete, with 54 open. Both phones still need recent
 unlock for interactive journeys. No public write, source push or Phase 3 advance.
+
+
+## Physical Android publication owner transport faults — 11 October 2026
+
+The current compiled native owner, approval registry, immutable plan, ACK classifier
+and downstream WSS writer now run on the physical API36 phone under shell UID2000.
+All27 single-publication cases and one four-slot capacity/recovery case pass. Android
+supplies JSONObject/JSONArray/JSONTokener, SystemClock, Handler and Looper; no host
+clock/UI stubs or packaged framework JSON definitions are included in the DEX.
+The standalone VM initializes the public main Looper for the real approval Handler;
+no UI queue is driven. The test-only publish entry still redirects to a controlled
+loopback route with a disposable TLS anchor and explicit hostname verification.
+The production source and ordinary app are unchanged.
+
+The independent TLS receiver verifies exact public signed EVENT bytes for accept,
+accept-then-close, reject, missing/foreign/malformed/AUTH ACKs, trailing/NUL/concatenated
+payloads, UTF-8 reason overflow, seven additional invalid JSON wire forms, post-send
+revocation/cancellation, silent and slow-notice deadlines,65-message flood and an
+oversized declared frame. Both approval and job cancellation immediately before
+send emit zero EVENTs after a verified TLS/WebSocket upgrade. All other single
+cases emit exactly one. Silent timeout returns unknown after3037ms; keepalive-only
+notices stop at10007ms without extending the total deadline. Revocation after send
+stays unknown rather than claiming cancellation before emission.
+
+The capacity case holds four reviewed sends open. A fifth reviewed pair is denied
+before transport, replay of that consumed pair is denied, the four ACKs complete,
+and a fresh sixth pair succeeds. The receiver observes exactly five EVENTs, and
+every single/concurrent case restores four semaphore permits and an empty native
+deadline queue. This does not establish complete primary/ancillary/required-inbox
+fanout or ordinary protected signing.
+
+All70 selected source/API inputs and389 compiled module classes match before/after;
+original logs and receiver traces pass hash/readback checks. The pre-signed primary
+and relay-list fixture signatures are independently verified. The three earlier
+preflight failures (wrong fixture field, host-only JSONObject API, checked Android
+JSONException declaration) stay failed records; none staged device files or performed
+app actions. Portable test assertions replace the host-only API without weakening
+warnings: compilation uses `-Xlint:all -Werror`. All102 shared Outbox tests pass.
+
+All owned remote JAR/certificate/fixture/release files and28 loopback mappings are
+removed; prior mappings, package inventory and retained ordinary APK path/hash remain
+exact. The disposable host TLS private key is deleted, and no owned proof process
+remains. No app installation, UI input, identity operation or external publication
+occurs. Private evidence identifier: android-outbox-owner-physical01.
+
+OB-05 and OB-06 gain this explicit physical transport subset, with OB-06 partial.
+Installed app-UID/Expo/guest/protected-signer composition, public DNS/policy, full
+fanout, OS suspend/lifecycle and complete cross-platform faults remain open. No full
+matrix row, numeric quality gate or Phase2 completion follows;7/61 remain complete.

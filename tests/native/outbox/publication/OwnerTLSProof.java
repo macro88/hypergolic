@@ -2,6 +2,7 @@ package org.nostrocket.hypergolic.host;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import kotlin.jvm.functions.Function0;
@@ -28,7 +29,9 @@ public final class OwnerTLSProof {
     try {
       String raw = OutboxPublicationOwner.INSTANCE.publish(token, "primary", fixture.getJSONObject("primary").toString(), "wss://relay.damus.io/", job);
       JSONObject receipt = new JSONObject(raw);
-      if (!receipt.keySet().equals(Set.of("relay", "eventId", "status", "reason"))) throw new AssertionError("Receipt fields");
+      Set<String> fields = new HashSet<>();
+      receipt.keys().forEachRemaining(fields::add);
+      if (!fields.equals(Set.of("relay", "eventId", "status", "reason"))) throw new AssertionError("Receipt fields");
       if (!receipt.getString("eventId").equals(fixture.getJSONObject("primary").getString("id"))) throw new AssertionError("Event identity");
       if (!receipt.getString("relay").equals("wss://relay.damus.io/")) throw new AssertionError("Reviewed relay");
       String expected = mode.equals("accepted") || mode.equals("accepted-close") ? "accepted" : mode.equals("rejected") ? "rejected" : mode.equals("revoke-before-send") || mode.equals("job-cancel-before-send") ? "cancelled-before-send" : "unknown";
@@ -36,7 +39,7 @@ public final class OwnerTLSProof {
       if (expected.equals("accepted") && !receipt.getString("reason").equals("stored")) throw new AssertionError("Accepted reason");
       if (expected.equals("rejected") && !receipt.getString("reason").equals("blocked")) throw new AssertionError("Rejected reason");
       OwnerTLSRoute.verifyOwnerIdle();
-      System.out.println(new JSONObject().put("ownerIdle", true).put("elapsedMs", java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started)).put("mode", mode).put("status", "passed").put("receipt", receipt).put("routeCalls", OwnerTLSRoute.calls()).put("scope", "Host compiled owner with clock and route adapters; no physical Android, UI, protected signer or guest proof"));
+      System.out.println(new JSONObject().put("ownerIdle", true).put("elapsedMs", java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started)).put("mode", mode).put("status", "passed").put("receipt", receipt).put("routeCalls", OwnerTLSRoute.calls()).put("scope", "Compiled owner with test-only route; runtime and clock composition recorded separately; no UI, protected signer or guest proof"));
     } finally {
       registry.revoke(generation); OwnerTLSRoute.close();
     }
