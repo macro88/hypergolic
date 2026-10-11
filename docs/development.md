@@ -995,3 +995,30 @@ bundle/version/container inventory unchanged. Installed iOS executable bytes and
 full app-data byte identity were not retrieved. Neither retry proves a new app
 workflow or closes a complete acceptance row. Preserve these original failures;
 retry only with owner attention to the two observed device prompts.
+
+
+## Attended install and iPhone automation readiness — 11 October 2026
+
+The next physical iPhone startup probe runs and passes its actual native
+Settings/public-identity/Done body. The effective xctestrun selects the intended
+existing startup method explicitly. No runner-code/app rebuild or global Xcode
+change is needed. Earlier startup failures remain retained; their complete
+historical cause is not established by this success. The subsequent prepared
+ordinary [notification recheck](notifications-configuration.md#ordinary-iphone-notification-recheck--11-october-2026)
+passes eight scoped checks and restores its owned grant/view and original focus.
+Exact runner cleanup and retained app inventory are independently verified.
+
+The attended Android fresh-profile APK installation succeeds with exact installed
+bytes, then naturally opens UX Lab1. Its observer incorrectly expected an empty
+workspace and times out before relay checks. The corrected observer waits for
+Settings and preserves the initial bundled view/public identity during cold
+verification. The APK/app remains unchanged. The subsequent reinstall prompt
+expires before app input, so the corrected first-run relay cases are unexecuted;
+one more attended Install press is needed. Do not change production to manufacture
+an empty fresh profile or claim first-run seeding from installation alone.
+
+Both failed attempts remain original evidence. Exact temporary package/helper/XML/
+staged-APK absence and retained Android APK/path/inventory/identity/empty workspace
+verify. Original iPhone focus/identity and selected installed metadata remain;
+installed executable/data-byte identity is not claimed. The next iPhone tests can
+proceed without treating the previous XCTest passcode question as still pending.

@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Approved complete quality recheck verifies Doctor100/aislop98 under exactly the existing Forge/braces exceptions, ten audits/eight clean and74 patch/verifier regressions. Network approvals resolved. Android Install via USB countdown expires before fresh input; iPhone empty XCTest Enable UI Automation passcode prompt persists before app input. Exact temporary cleanup verified; original61 statuses preserved,7 complete. Owner device attention required, no source push.
+stopped_at: iPhone startup08 now runs/passes native Settings/public identity/Done; ordinary notification09 passes8 scoped SDK/native/cleanup checks. Exact original callbacks/focus and temporary cleanup independently verified. Android fresh APK installs and opens UX Lab1; wrong empty-workspace observer fails before relay checks, corrected observer reinstall then expires. App unchanged; further attended Android Install required. Full61 scopes/statuses preserved,7 complete; no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
 state_head: 374f253eb1c55e1f8724d4da67786931ba25d30e
@@ -2975,3 +2975,21 @@ original requirements/statuses remain,7 fully passed; full ordinary published/
 capability/security/lifecycle, compatibility and attribution gates stay open.
 Usage2%, ceiling about98%. Next requires prompt completion on both phones, then
 fresh relay seeding/read-only iPhone identity before dependent physical tests.
+
+
+Attended continuation — 11 October2026: native iPhone startup08 passes and the
+existing compiled ordinary SDK notification journey09 completes8 scoped checks
+in113.378s. Three receipt IDs independently match exact cumulative1/2/3 action/
+click/user-dismiss arrays;3 original PNGs inspected. Original UX Lab7 runtime ID/
+selected development identity return, owned grant/view removed, runner absent
+and selected retained bundle/version/container inventory matches. No full CAP10,
+external published, signing, byte-identical installed iOS or complete Phase2 claim.
+
+Android run04 installs the exact fresh APK and opens UX Lab1, exposing the
+observer's incorrect empty-workspace assumption before any relay check. Run05
+corrects ready/cold view handling without changing the app; its install countdown
+expires before input. Both original failures and exact cleanup/retained APK/
+inventory/identity/empty workspace are preserved. Further attended Install is
+needed; iPhone startup permission is no longer an active gate. All61 original
+requirements/statuses remain,7 fully complete; usage2%, ceiling about98%. No
+source push, product/lockfile/suppression change or new quality/build claim.

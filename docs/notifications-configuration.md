@@ -912,3 +912,25 @@ parity remain open. Full acceptance stays seven of 61 rows. The iPhone is curren
 connected and unlocked, with the retained ordinary app and no temporary test runner;
 no further XCTest attempt occurs without resolving its automation-initialization
 timeout. No full audit/numeric quality pass, external publication or source push.
+
+
+## Ordinary iPhone notification recheck — 11 October 2026
+
+UI automation is ready again: the read-only startup probe actually enters native
+Settings, reads the known development identity and returns to the original view.
+The prepared notification journey then passes eight checks in 113.378 seconds:
+ordinary bundled original-SDK readiness, exact denial/approval results, action,
+click, user dismissal, remembered permission, and owned grant/view cleanup.
+Independent original accessibility trees correlate three different SDK receipt
+IDs with exact cumulative action/click/dismiss arrays (1/2/3), including `reply`
+and `reason=user`. Three original native screenshots show identity/source review,
+exact attributed card/action and restored original UX view. The selected identity
+and original runtime ID remain; the runner is absent and retained installed app
+metadata/inventory matches. Installed iOS executable bytes were not retrieved.
+
+This is a recheck of the current retained ordinary app after its automation gate,
+using the reserved unsigned bundled fixture publisher. It exercises no signing,
+secret export or external event publication workflow. Named channels, complete
+publisher/app/identity/version isolation, hostile/flood/expiry/lifetime races,
+external published parity and full modal/accessibility usability remain open.
+Neither this subset nor successful runner startup closes CAP-10 or Phase2.
