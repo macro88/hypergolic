@@ -819,3 +819,48 @@ partial: identity/version isolation, hostile/priority/flood variants, in-flight 
 native zero-effect faults, external published parity, modal/accessibility/minimum
 platform work and the complete iOS suite are still required. The iPhone automation
 initialization blocker is unchanged; no further iPhone test is retried in this batch.
+
+
+## Physical Android notification identity isolation — 11 October 2026
+
+Seven distinct cases across the preceding cancellation proof and one corrected
+six-case confirmed-switch run verify two existing development identities through
+the real protected owner, original SDK and normal verified signed loader with local
+test transport. The first identity approves and receives an attributed card/badge.
+Cancelling a switch preserves its grant, card, badge and exact click callback.
+A confirmed switch remounts the guest, clears old transient presentation/callbacks
+and denies use of the first identity’s grant. The second identity’s own approval
+permits delivery; both return switches restore only their own remembered grant
+without old card/callback replay. Revoking the second identity’s same publisher,
+app and channel grant leaves the first identity’s grant usable.
+
+The first observer attempt passed two cases then incorrectly waited for immediate
+SDK readiness after selecting the second identity. Its original screenshot shows
+the expected signed-napplet first-open review, not a demonstrated runtime fault.
+The corrected observer verifies and approves that exact native publisher/app/notify
+review before separately testing notification permission. The failed attempt and
+its completed cleanup remain distinct evidence. A second observer attempt assumed
+a parent/child review tree where the compressed native snapshot is flat; five
+captured-snapshot regressions verify the correction and reject wrong publishers,
+wrong owners, adjacent approval and duplicate review. The corrected run keeps the
+existing cancellation proof and tests the remaining confirmed-switch chain. The
+third attempt admits the new identity’s napplet and connects its SDK, then
+incorrectly tries to open the intentionally hidden empty notification launcher.
+Six real-capture regressions check the source-defined empty state and reject old
+alerts, badges, toast or callback replay; the subsequent run observes that state
+and completes the remaining chain. All three failed attempts stay failed records.
+
+Only new notification grants under both identities are revoked; the owned view is
+closed, the original selected identity and empty workspace are restored, and the
+current ordinary APK is restored in place and byte-verified after actual cold entry.
+Source fingerprints, fixture APK bytes and package inventory match before/after;
+the owned helper is hash-verified and removed. The new second-identity signed-napplet
+access approval is separate from notification permission and remains stored. No
+whole permission-store rollback, key-store byte preservation, import/export/delete,
+new native build or external publication is claimed.
+
+This closes the selected Android identity batch. CAP-10 and Phase 2 stay partial:
+artifact-version replacement and in-flight identity races, full hostile/flood/fault
+variants, external published parity, modal/accessibility/minimum-platform work and
+full physical iOS parity remain required. The prior iPhone automation-initialization
+timeout remains unresolved and no additional XCTest attempt is made here.

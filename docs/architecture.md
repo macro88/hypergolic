@@ -551,3 +551,13 @@ keeps its own original license, patent grant and authors. The app-owned Gradle
 inventory captures current native AAR entries for the guard. This protects the
 reviewed distribution inputs without changing decoder behavior; complete native
 transitive/security acceptance remains open. See the [owner review](native-dependency-notices.md#selected-android-fresco-and-linked-webp-originals--11-october-2026).
+
+
+Notification permission isolation now has seven physical Android identity cases
+through the existing local signed fixture and real owner: cancelled-switch
+preservation, confirmed remount/transient clearing, separate approval, both
+remembered-grant returns and selective identity revocation. Signed first-open
+access is reviewed separately under the new identity. Cleanup restores the ordinary
+app, original identity/empty workspace and zero notification grants; the approved
+napplet-access record remains scoped to the second identity. Full CAP-10 and iOS
+parity remain open. See the [identity checkpoint](notifications-configuration.md#physical-android-notification-identity-isolation--11-october-2026).
