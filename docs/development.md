@@ -964,3 +964,34 @@ presence; the subsequent cold input rejection is distinct. No APK installation,
 identity mutation, OS security setting change or accessibility acceptance occurs.
 Legacy UI Automator may suppress accessibility services, so these results do not
 prove TalkBack behavior. Full Phase2 and existing device/quality gates remain open.
+
+
+## Approved quality checks and device prompts — 11 October 2026
+
+The complete source-bound check on `d5693e2` returns actual React Doctor 100/100,
+zero findings across 442 files, and aislop 98/100 with only the two existing
+[dependency exceptions](dependency-patches.md). All ten audits complete/eight
+clean, and 74 installed-patch/verifier regressions pass. The normal quality gate
+remains red; no suppression or new waiver is introduced. The owner has approved
+the exact score/audit metadata transfers, so those approvals are resolved.
+
+Two Android fresh-profile installation retries fail before fresh app input.
+Original native screenshots now show Hypergolic's **Install via USB** prompt,
+an unchecked **Remember my choice**, **Install**, and **Deny(10)** decreasing to
+**Deny(1)** before the terminal install refusal. This observes unattended prompt
+expiry; the terminal wording does not establish deliberate owner rejection.
+A remembered preference's scope/persistence was not tested or changed.
+
+The bounded read-only iPhone startup retry again fails UI automation initialization
+before its app test body. The direct post-cleanup screenshot still shows the empty
+**Enter iPhone Passcode for XCTest — Enable UI Automation** prompt. Ordinary
+unlock is separate. Enter that passcode directly on the phone before retrying;
+the observer does not request or capture it. Command-scoped full Xcode leaves
+global configuration untouched; the secondary diagnostic lookup error persists.
+
+Both actors and independent cleanup verify the exact owned package/helper/staged
+files absent, retained Android APK/path/inventory unchanged, and retained iPhone
+bundle/version/container inventory unchanged. Installed iOS executable bytes and
+full app-data byte identity were not retrieved. Neither retry proves a new app
+workflow or closes a complete acceptance row. Preserve these original failures;
+retry only with owner attention to the two observed device prompts.

@@ -140,7 +140,7 @@ patched release; Forge PR1152 remains open. No version, patch, lockfile, scanner
 suppression or normal gate changes. The upstream supplemental PR1157 is a separate
 unmerged proposal, not part of this local patch or a verified installed result.
 
-All74 installed-consumer/verifier regressions pass. Forge RSA bytes match the
+All 74 installed-consumer/verifier regressions pass. Forge RSA bytes match the
 approved hash in both actual Expo consumers, and all five patched braces library
 files match across Metro and the scanner. The locked patch hashes remain exactly
 approved. This proves the selected local checks, not an upstream security review.
@@ -164,3 +164,23 @@ Phase2 stays open. Upload MIMEalias/recovery-redirect choices, iPhone automation
 readiness, Android availability, published release/parity and remaining native
 acceptance still require their own evidence. Expo57.0.20 remains pinned; numeric
 Doctor permission is unresolved. Weekly44%, ceiling about98%; source push owner-only.
+
+
+## Approved complete quality recheck — 11 October 2026
+
+The owner authorized empty diagnostics and public repository/framework/tool
+metadata to the React Doctor score endpoint, and dependency graph audits to
+the npm registry. A fresh full source-bound run on `d5693e2` returns Doctor
+**100/100** across 442 files, with zero findings/skipped checks. Full aislop is
+**98/100** across 436 supported files; 97 unsupported files remain, predominantly
+Swift. All five applicable engines complete. Only the two existing Forge/braces
+exceptions appear. Ten tracked-lockfile audits complete: eight clean; root has
+exactly those two high advisories, quality tooling has exactly braces.
+
+The normal verifier remains red. Independent review binds every command, raw
+report, current source inventory, tool entry and complete coverage; the approved
+patch hashes and actual Forge/braces consumers remain exact. All 74 installed
+consumer/verifier regressions pass. No product source/lockfile/patch/suppression changes
+or new exception were introduced. This resolves numeric-scoring/audit disclosure
+permission and verifies only the existing exception scope. Full native acceptance,
+release-age compatibility and complete original-license attribution remain open.

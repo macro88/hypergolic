@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Checked native Android input separates cold Settings click rejection from passing warm open/Done pair; three observer-readiness failures retained, keeper/source/identity/empty workspace and exact cleanup verified. Portable helper and driver added. Historical tap cause and full UX05 remain open. Android install attention, iPhone XCTest passcode and specific score/audit approvals pending; original61 scopes/statuses preserved,7 complete, no source push.
+stopped_at: Approved complete quality recheck verifies Doctor100/aislop98 under exactly the existing Forge/braces exceptions, ten audits/eight clean and74 patch/verifier regressions. Network approvals resolved. Android Install via USB countdown expires before fresh input; iPhone empty XCTest Enable UI Automation passcode prompt persists before app input. Exact temporary cleanup verified; original61 statuses preserved,7 complete. Owner device attention required, no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
 state_head: 374f253eb1c55e1f8724d4da67786931ba25d30e
@@ -2955,3 +2955,23 @@ The immutable JPEG release originals and official GIFLIB archive originals
 are tied to current selected AAR native bytes. Compiled JPEG/GIFLIB version
 is not independently established. Android is connected/locked; physical
 iPhone is unavailable. No device input/install or data changes occur.
+
+
+Approved continuation checkpoint — 11 October2026: full source-bound Doctor442
+returns numeric100; all applicable aislop engines complete at98 over436 supported/
+97 unsupported files, only the two previously approved patch advisories. Ten
+audits/eight clean; exact installed patch/consumer and source/tool/report hashes
+reviewed;74 consumer/verifier cases pass. Normal gate remains red. Owner-approved
+score/audit metadata requests now executed; those disclosure approvals are resolved.
+
+Android retries02/03 fail before any fresh first-run check. Original screenshots
+establish Install via USB with automatic Deny10→1 countdown; no deliberate human
+rejection is inferred. iPhone startup07 again times out before app input; direct
+post-cleanup screenshot still shows empty separate XCTest automation passcode
+prompt. Both exact temporary packages/helpers/staged file absent, keeper Android
+APK/path/inventory and iPhone selected metadata inventory preserve. No product,
+identity, global OS setting, acceptance status or source remote change. All61
+original requirements/statuses remain,7 fully passed; full ordinary published/
+capability/security/lifecycle, compatibility and attribution gates stay open.
+Usage2%, ceiling about98%. Next requires prompt completion on both phones, then
+fresh relay seeding/read-only iPhone identity before dependent physical tests.
