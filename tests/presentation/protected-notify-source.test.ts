@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {verifyEvent} from 'nostr-tools/pure';
 import {createHash} from 'node:crypto';
-import {createProtectedNotificationSource,NOTIFICATION_SAMPLES} from '../native/presentation/protected-notify-source.ts';
+import {createProtectedNotificationSource,NOTIFICATION_SAMPLES,offerNotificationUpdate} from '../native/presentation/protected-notify-source.ts';
 const caller=NOTIFICATION_SAMPLES.find(row=>row.role==='caller')!,collision=NOTIFICATION_SAMPLES.find(row=>row.role==='notify-collision')!;
 const coordinate=(row:{event:{pubkey:string};appId:string})=>({kind:35129 as const,pubkey:row.event.pubkey,identifier:row.appId});
 const signal=new AbortController().signal;
@@ -20,4 +20,12 @@ test('foreign coordinates and hashes preserve original transport arguments',asyn
 });
 test('notification local bytes respect cancellation, bounds and fresh carriers',async()=>{
  const fallback={async query(){return [];},async readHtml(){return new Uint8Array();}},source=createProtectedNotificationSource(fallback),bytes=await source.readHtml(caller.htmlHash,[],2*1024*1024,signal);assert.equal(createHash('sha256').update(bytes).digest('hex'),caller.htmlHash);bytes[0]=0;assert.equal(createHash('sha256').update(await source.readHtml(caller.htmlHash,[],2*1024*1024,signal)).digest('hex'),caller.htmlHash);await assert.rejects(source.readHtml(caller.htmlHash,[],1,signal));const abort=new AbortController();abort.abort();await assert.rejects(source.query(coordinate(caller),[],null,abort.signal));await assert.rejects(source.readHtml(caller.htmlHash,[],2*1024*1024,abort.signal));
+});
+
+test('offered notification version changes latest lookup while preserving exact old and new pins',async()=>{
+ const updated=NOTIFICATION_SAMPLES.find(row=>row.role==='notify-update')!;
+ assert.equal(updated.appId,caller.appId);assert.equal(updated.event.pubkey,caller.event.pubkey);assert.equal(updated.address,caller.address);assert.notEqual(updated.htmlHash,caller.htmlHash);assert.notEqual(updated.event.id,caller.event.id);assert(updated.event.created_at>caller.event.created_at);assert.deepEqual(updated.event.tags.filter(tag=>tag[0]==='requires'),caller.event.tags.filter(tag=>tag[0]==='requires'));
+ const fallback={async query(){throw Error('Unexpected fallback');},async readHtml(){throw Error('Unexpected fallback');}},source=createProtectedNotificationSource(fallback);
+ offerNotificationUpdate();assert.deepEqual(await source.query(coordinate(caller),[],null,signal),[updated.event]);assert.deepEqual(await source.query(coordinate(caller),[],caller.event.id,signal),[caller.event]);assert.deepEqual(await source.query(coordinate(caller),[],updated.event.id,signal),[updated.event]);assert.deepEqual(await source.query(coordinate(collision),[],null,signal),[collision.event]);assert.deepEqual(await source.query(coordinate(caller),[],collision.event.id,signal),[]);
+ assert.equal(createHash('sha256').update(await source.readHtml(updated.htmlHash,[],2*1024*1024,signal)).digest('hex'),updated.htmlHash);
 });

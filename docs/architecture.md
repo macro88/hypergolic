@@ -561,3 +561,12 @@ access is reviewed separately under the new identity. Cleanup restores the ordin
 app, original identity/empty workspace and zero notification grants; the approved
 napplet-access record remains scoped to the second identity. Full CAP-10 and iOS
 parity remain open. See the [identity checkpoint](notifications-configuration.md#physical-android-notification-identity-isolation--11-october-2026).
+
+
+Four physical Android notification version cases now verify declined-pin/card/badge
+preservation, accepted replacement with old transient/callback revocation, same-source
+remembered permission and actual cold restoration of the accepted exact event pin.
+Only the test Hermes fixture changes; native products remain the same. Both attempts
+are retained, with the first failure caused by expecting an already clicked card.
+Cleanup restores the ordinary app, original identity/empty workspace and zero notify
+grants. CAP-10, iOS parity and Phase 2 remain open. See the [version checkpoint](notifications-configuration.md#physical-android-notification-version-replacement--11-october-2026).

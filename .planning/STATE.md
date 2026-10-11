@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Seven distinct physical Android notification identity cases pass across the corrected six-case confirmed-switch chain and preceding cancellation proof, with exact per-identity signed admission. Original identity/empty workspace, zero notification grants, unchanged products/inventory and owned-helper cleanup verify. New second-identity napplet access stays scoped; no new native build. iPhone startup timeout and full CAP-10/Phase2 remain open; 7/61 full rows, no source push.
+stopped_at: Four physical Android signed notification version cases pass; decline preserves pin/card/badge and acceptance revokes old transients, retains same-source grant and restores exact accepted pin after cold restart. Both attempts and observer correction retained. Ordinary app, original identity/empty state, zero grants, 646 inputs and owned-helper cleanup verify. iPhone connected/unlocked; automation initialization unresolved. Full CAP-10/Phase2 stay open; 7/61 complete, no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
 state_head: 374f253eb1c55e1f8724d4da67786931ba25d30e

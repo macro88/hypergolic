@@ -864,3 +864,51 @@ artifact-version replacement and in-flight identity races, full hostile/flood/fa
 variants, external published parity, modal/accessibility/minimum-platform work and
 full physical iOS parity remain required. The prior iPhone automation-initialization
 timeout remains unresolved and no additional XCTest attempt is made here.
+
+
+## Physical Android notification version replacement — 11 October 2026
+
+A single four-case physical run uses the real protected owner, original SDK and
+normal verified signed loader with local test transport. The original signed pin
+receives an approved attributed card, badge and exact click callback. A separate
+unclicked card remains live for the decline check. The native update review verifies
+the exact publisher, app, old/new event IDs and requested notify domain. Declining
+preserves the old pin, guest instance, remembered permission, live card, badge and
+callback history. Accepting a distinct verified HTML hash replaces the guest instance,
+removes the old instance/cards/badges/callbacks, and retains the same identity,
+publisher, app and channel permission. A fresh SDK send and click belong only to
+the new instance. Actual process death restores the accepted exact event pin and
+remembered permission without old callback replay; a new attributed send succeeds.
+
+The first attempt is retained as failed: its observer clicked the original card,
+then incorrectly expected that consumed card to survive a declined update. The
+broker intentionally removes cards on interaction. The correction supplies a
+separate unclicked live card. Native Settings navigation now uses measured clipped
+target position and bounded slow drags instead of the prior blind search. Ten host
+observer regressions check exact flat native review fields, rejection of wrong,
+clipped, adjacent and duplicate fields, one measured drag in each direction, and
+preservation of repeated or partially existing capture labels. The corrected run
+retains all 37 unique original XML/PNG pairs with SHA-256 readback. Three original
+screenshots were visually inspected. Existing 14 navigation/publisher regressions,
+70 presentation tests, TypeScript and three protected-builder restoration tests pass.
+
+The refreshed test APK changes only the test Hermes bundle relative to the retained
+ordinary APK; 21 native libraries, four DEX files, certificate, stable application
+ID/name, permissions and all 92 original notices match. Existing signed fixture
+rows retain their original valid signatures when signed inputs are unchanged.
+Both physical attempts finish cleanup. The passing run verifies all 646 owning
+source inputs unchanged, exact fixture APK bytes and package inventory unchanged,
+only the new notification grant revoked and owned updated view closed. The ordinary
+APK is restored in place and byte-verified after cold launch with the original full
+development identity, zero notification permissions and empty workspace. The owned
+observation helper is hash-verified and removed. Existing signed-napplet access
+approval is distinct from notification permission; no whole-store rollback is claimed.
+
+Private evidence identifier: notification-version-physical01. These four cases close
+the selected Android local signed-version batch. CAP-10 and Phase 2 remain partial:
+in-flight identity/replacement races, full hostile/flood/native zero-effect faults,
+external published parity, modal/accessibility/minimum-platform work and full iOS
+parity remain open. Full acceptance stays seven of 61 rows. The iPhone is currently
+connected and unlocked, with the retained ordinary app and no temporary test runner;
+no further XCTest attempt occurs without resolving its automation-initialization
+timeout. No full audit/numeric quality pass, external publication or source push.
