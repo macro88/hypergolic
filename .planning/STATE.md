@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Prepared unique-package ordinary-entry Android Release for missing first-run relay seeding; offline cached35s build preserves103 assets/21 native libraries and restores1473 source inputs. Android refuses install with INSTALL_FAILED_USER_RESTRICTED before fresh app input. Exact owned package/helper/staged-APK cleanup and retained app/identity/empty workspace/inventory verify. First-run/iPhone/quality gates remain open; owner-attended install and XCTest passcode plus specific score/audit approvals pending. Original passing relay workflow remains; 7/61 complete, no source push.
+stopped_at: Checked native Android input separates cold Settings click rejection from passing warm open/Done pair; three observer-readiness failures retained, keeper/source/identity/empty workspace and exact cleanup verified. Portable helper and driver added. Historical tap cause and full UX05 remain open. Android install attention, iPhone XCTest passcode and specific score/audit approvals pending; original61 scopes/statuses preserved,7 complete, no source push.
 last_updated: "2026-10-11"
 last_activity: 2026-10-11
 state_head: 374f253eb1c55e1f8724d4da67786931ba25d30e

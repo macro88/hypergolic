@@ -918,3 +918,49 @@ entries and the original linked WebP 1.3.2 COPYING/PATENTS/AUTHORS texts. The
 app-owned inventory reads the current AAR entries on each invocation. Run the
 combined Node notice suites after changing this profile, then inspect actual
 signed packaging. See [native owner provenance](native-dependency-notices.md#selected-android-fresco-and-linked-webp-originals--11-october-2026).
+
+
+### Checked physical Android input — 11 October 2026
+
+The shell-UID [checked UI helper](../tests/native/presentation/CheckedUiInput.java)
+observes a fresh native hierarchy, waits up to ten seconds for the target control,
+sends one `UiDevice.click` at its measured centre, records the Boolean result, and
+requires the expected native postcondition within eight seconds. It uses the
+installed legacy UI Automator APIs, not an app-state or React callback seam. Its
+[ordinary Settings driver](../tests/native/presentation/checked-input-physical-android.py)
+is a portable adaptation of the exact executed warm driver. It requires the known
+public development identity, empty workspace, exact keeper APK and packaging
+source hashes; it refuses to replace an existing helper. It removes its own helper
+and XML and verifies retained APK/path, inventory and source hashes at completion.
+Build the Java source with the installed Android36 `android.jar`, `uiautomator.jar`
+and optional `android.test.base.jar`, then dex with installed `d8` at min API26 and
+package `classes.dex` as the supplied helper JAR. Supply the existing APK whose
+sibling `source-inputs.json` records the packaging inputs:
+
+```sh
+python3 tests/native/presentation/checked-input-physical-android.py \
+  --serial "$ANDROID_SERIAL" --npub "$DEVELOPMENT_NPUB" \
+  --apk "$RETAINED_APK" --ui-jar "$CHECKED_INPUT_JAR" \
+  --output "$PRIVATE_EVIDENCE_DIR"
+```
+
+Physical Android evidence distinguishes two outcomes. In the cold probe, the
+actual enabled Settings control was present but `UiDevice.click` returned `false`
+after134ms; the test stops without repeating the click. In the separate warm probe,
+Settings opens with the exact expected public identity and Done returns to the
+empty workspace; both clicks report `true` and their postconditions pass. All1469
+bound source inputs, original APK/path and package inventories are unchanged, and
+both exact observer files are absent after cleanup. Original screenshots are
+inspected. This is a delivery diagnostic and one warm input pair, not five passing
+cold checks, a production repair or full UX05 acceptance. A Boolean failure does
+not prove that no partial motion event reached the app, and the original historical
+miss is not attributed to this newer failure.
+
+Three preceding observer failures remain in the private evidence: unsupported
+Android XML parser option; the cold identity-loading screen appearing before the
+requested control; and a transient missing initial accessibility root. They send
+no checked test click. The final helper waits for fresh roots and real target
+presence; the subsequent cold input rejection is distinct. No APK installation,
+identity mutation, OS security setting change or accessibility acceptance occurs.
+Legacy UI Automator may suppress accessibility services, so these results do not
+prove TalkBack behavior. Full Phase2 and existing device/quality gates remain open.
