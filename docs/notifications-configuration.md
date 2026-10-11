@@ -786,3 +786,36 @@ destination; the device was independently confirmed unlocked with Developer Mode
 Neither attempt proves notification behavior or changes the existing physical acceptance.
 The exact temporary runner was uninstalled; the original installed-app inventory remains.
 No new app build, native repair, source push or quality-gate waiver is implied.
+
+
+## Completed physical signed-publisher notification batch — 11 October 2026
+
+A single six-case physical Android run now passes exact caller approval/delivery,
+same-app/HTML different-publisher grant denial, the second publisher's own approval
+and delivery, exact publisher revocation preserving the other grant/card, unfocused
+callback isolation, and cold-restored permission without old callback replay.
+The real protected identity owner, original SDK, signed loader and existing signed
+fixture product are used. The two new positive/cold card screenshots were inspected;
+the distinct publisher and exact body/action are visible. SDK callback data are
+independently asserted from original native accessibility snapshots.
+
+The retained Dismiss navigation log shows the observer's full-page fast swipes
+alternating around the near-edge control. It now measures a smaller slow drag
+from the target's observed clipped bounds. The physical run exposes Dismiss after
+one measured drag and completes the remaining checks; 11 navigation/attribution and
+3 publisher-selection regressions pass. Native app code and packaged products are
+unchanged. This is an observer repair, not a product accessibility completion claim.
+The earlier failed runs and guest-AX/cold-recovery evidence remain retained.
+
+The passing run revokes only its new grants and closes both owned views. Source
+fingerprints, fixture APK bytes and package inventory match before/after. The current
+ordinary APK is then restored in place and its installed bytes are verified, followed
+by actual cold entry, full selected public identity and empty-workspace observation.
+The exact owned observation helper is hash-verified and removed. No key import,
+identity reset, signing/data deletion, new app build or source push occurs.
+
+This closes the selected Android signed-publisher six-case batch. Full CAP-10 remains
+partial: identity/version isolation, hostile/priority/flood variants, in-flight and
+native zero-effect faults, external published parity, modal/accessibility/minimum
+platform work and the complete iOS suite are still required. The iPhone automation
+initialization blocker is unchanged; no further iPhone test is retried in this batch.

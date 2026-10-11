@@ -50,7 +50,12 @@ class Journey(base.Journey):
    fingerprint=sha(self.xml);stalled=stalled+1 if fingerprint==previous else 0;previous=fingerprint
    self.report['currentSDKNavigation']={'control':label,'attempt':attempt,'direction':direction,'unchangedSnapshots':stalled};self.persist()
    if stalled>=4 or time.monotonic()>=deadline:self.capture('bounded-guest-navigation-stall');raise AssertionError('Bounded actual guest navigation did not expose '+label)
-   x=a+(c-a)//4;high=b+(d-b)//5;low=b+(d-b)*4//5;args=['swipe',str(x),str(low if direction=='up' else high),str(x),str(high if direction=='up' else low),'220'];self.report['inputs'].append({'control':'observed physical guest viewport short drag','bounds':[a,b,c,d],'input':args});self.adb('shell','input',*args);time.sleep(.2)
+   # Bring a clipped/near-edge control into the safe region without a full-page fling.
+   centre=(y1+y2)//2 if target is not None else (d if direction=='up' else b)
+   needed=centre-(d-120) if direction=='up' else b+120-centre
+   distance=max(96,min((d-b)//4,needed));middle=(b+d)//2;x=a+(c-a)//4
+   start=middle+distance//2 if direction=='up' else middle-distance//2;end=start-distance if direction=='up' else start+distance
+   args=['swipe',str(x),str(start),str(x),str(end),'600'];self.report['inputs'].append({'control':'observed physical guest viewport measured slow drag','bounds':[a,b,c,d],'targetBounds':target.get('bounds') if target is not None else None,'input':args});self.adb('shell','input',*args);time.sleep(.2)
   self.capture('bounded-guest-navigation-exhausted');raise AssertionError('Actual SDK control not exposed within bounded drags: '+label)
  def nodes(self):
   if self.args.ui_jar:

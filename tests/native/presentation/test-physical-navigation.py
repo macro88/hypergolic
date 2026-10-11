@@ -33,6 +33,15 @@ class Navigation(unittest.TestCase):
  def test_visible_leaf_requires_no_scroll(self):
   for module in MODULES:
    with self.subTest(observer=module.__name__):self.observe(module,'[200,400][600,500]',None)
+class NearEdgeNavigation(unittest.TestCase):
+ def test_near_bottom_control_avoids_full_page_fling(self):
+  module=MODULES[1];journey=object.__new__(module.Journey);journey.report={'inputs':[]};journey.persist=lambda:None;journey.capture=lambda name:None;inputs=[]
+  view=ET.Element('node',{'class':'android.webkit.WebView','bounds':'[78,753][1202,2417]'})
+  def nodes():
+   target=ET.Element('node',{'resource-id':'sdk-control','bounds':'[156,2368][819,2417]' if not inputs else '[156,2200][819,2362]'})
+   journey.xml=ET.tostring(target);return [view,target]
+  journey.nodes=nodes;journey.adb=lambda *args:inputs.append(args);journey.guest_find('sdk-control');self.assertEqual(len(inputs),1)
+  _,_,kind,_,start,_,end,duration=inputs[0];self.assertEqual(kind,'swipe');self.assertGreater(int(start),int(end));self.assertLessEqual(int(start)-int(end),250);self.assertGreaterEqual(int(duration),500)
 class CardAttribution(unittest.TestCase):
  def card(self,foreign=False):
   module=MODULES[1];journey=object.__new__(module.Journey);publisher=module.base.npub(module.PUBLISHER)
