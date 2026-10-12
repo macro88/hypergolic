@@ -63,8 +63,10 @@ pending retention, explicit resume and late-sign cancellation. The repaired norm
 Control Center interruption checks and nine warm two-session queue checks. Return
 shows explicit Resume for the same request; both queues remain origin-bound and
 all six cross-session requests are individually denied. Actual overview badge
-geometry avoids duplicate accessibility nodes. Full Back/swipe, delayed emission,
-native signer counters and other physical acceptance cases remain open.
+geometry avoids duplicate accessibility nodes. The later physical queue-input
+completion below closes applicable dismissal/swipe behavior and Android Back.
+Delayed emission, native signer counters and other physical acceptance cases remain
+open.
 
 ## Protocol and dependency evidence
 
@@ -349,3 +351,29 @@ not inferred. Native JSON/hash and SDK result are preserved in accessibility
 records, while the inspected screenshots do not show their entire lower contents.
 The original identity and empty workspace are restored with the same keeper APK.
 This scoped proof does not close SIGN/native-effect, Outbox fanout or iPhone rows.
+
+
+## Physical queue input completion — 12 October 2026
+
+The ordinary iPhone single-request review survives an actual downward swipe with
+the same displayed identity, origin, payload and frame. This Modal has no native
+drag-dismiss presentation. Dismiss denies the current request and globally pauses
+the remaining requests through another requester and nonrequesting focus. Only
+explicit Resume advances; Reject deliberately drains individual requests. Six
+current original SDK requests across two origins finish Failed, without an Approve
+input. Earlier nine-check warm cross-session evidence remains separately valid.
+
+Evidence combines a six-check valid prefix from an incomplete observer with a
+separately passing five-check targeted follow-up; neither original failed observer
+is relabelled passed. All original views, full public identity, focus and live state
+return, and the temporary runner is removed. Current owning sources and exact
+archived fixtures bind prior iPhone and Android proofs. Android hardware Back was
+physically observed in its earlier fourteen-check run; iPhone has no such control.
+SIGN-02 passes both platforms. This does not close other signing/fault/publication
+rows or screen-reader escape acceptance.
+
+Original PNGs show a paused Resume button covering guest Send controls. The
+observer avoids this overlap using recorded coordinates; the product visibility
+gap remains open under UX-10. No production UI change or broader usability pass is
+claimed. See the [acceptance checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md)
+and [matrix](../.planning/phases/02.11-published-mvp-acceptance/02.11-acceptance-matrix.json).

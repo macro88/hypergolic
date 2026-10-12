@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Optional AUTH repair installed on both retained phones; targeted iPhone Feed checks pass. Android input, clean-close selection and full physical/security acceptance remain open.
+stopped_at: Physical signing-queue dismissal scope passes both phones; SIGN-02 complete, 9 of61 rows complete. Resume control overlap, Android input, clean-close selection and full physical/security acceptance remain open.
 last_updated: "2026-10-12"
 last_activity: 2026-10-12
-state_head: 3b862f32f777f4168b687892ca32285f86926b9d
+state_head: 921029a133d48f34f03c51349a2f258b3fd67a09
 progress:
   total_phases: 14
   completed_phases: 10
@@ -3297,3 +3297,43 @@ remains unresolved. Original failed evidence is preserved. The original 61-row m
 remains 8 complete/53 open. Full security/fault/published parity, clean-close contract
 selection, attribution gaps and the normal quality gate remain required. No new
 quality score, source push or Phase 3 advancement. See docs/relay-subscriptions.md.
+
+
+## Physical signing-queue dismissal completion — 12 October 2026
+
+SIGN-02 now passes both physical platforms. Current ordinary iPhone evidence
+composes six valid prefix checks from an incomplete two-origin run and five checks
+from a separately passing targeted follow-up, with the earlier nine-check repaired
+warm cross-session proof retained separately. Both original failed actors remain
+failed. Actual downward swipe retains the single native review; Dismiss denies one
+and globally pauses; another requester stays paused; nonrequesting focus has no
+foreign review; only explicit Resume shows the next individual request. Six current
+SDK requests across two distinct origins are individually denied, with exact
+origin/public identity/content and original three-Failed/zero-waiting SDK snapshots.
+No Approve input or new native signer/network-counter claim.
+
+Ten owning iPhone inputs match the earlier sealed cross-session evidence and its
+exact fixture remains as archived v1. Ten Android queue/presentation/native approval/
+lease inputs and exact archived v2 fixture bind the earlier fourteen-check physical
+Back/Dismiss/swipe proof to current scope. Whole applications changed; no new
+Android physical input run or whole-product byte equivalence is claimed. iPhone has
+no Android hardware Back; screen-reader escape remains UX-10 work.
+
+All attempts restore original six-view order, full development public identity,
+focus and current counter0/empty draft. Exact runner absent, retained app metadata,
+source and prepared product seals preserved. Seven original PNGs reviewed with
+offscreen SDK-row/full-JSON limits. The paused Resume overlay visibly covers guest
+Send controls; UX-10 records this product gap, without inferring the unrecorded
+first actor tap or claiming a UI repair. Second actor failure is an observer demand
+for a hittable guest behind an automatically shown native modal.
+
+Private evidence iphone-signing-dismissal01 preserves 1,306 originals in ten
+byte-readback archives, original raw results/videos and independent reviews. Only
+the exact completed observer cache is removed after all 2,100 file hashes recheck,
+freeing90,937,975 logical bytes; main app products/fallbacks remain. PIN retry lock
+state confirms unlocked/no passcode required and live inventory confirms keeper/
+runner cleanup. All61 original contracts and59 unrelated rows preserve;9 complete/
+52 open. Documentation-only source checkpoint, no new quality rerun, source push
+or Phase3 advance. Full signing/security/fault/published/accessibility/age/licence/
+quality gates, Android input and clean-close selection remain open. Usage8%, owner
+ceiling approximately98% consumed.
