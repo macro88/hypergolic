@@ -3065,3 +3065,23 @@ with Android physical parity. Android is disconnected; iPhone is ready. All61
 original contracts/60 other rows remain,8 fully complete/53 open. Documentation
 only, no app/dependency change, new build/quality claim or source push. Usage4%,
 authorized ceiling about98% consumed.
+
+
+## Clean-close owning-contract review — 12 October 2026
+
+Pinned NAP-SHELL5ac0490 original blob independently verifies. Current owning
+master e5308ac (9 October) shell original also verifies; neither supplies an
+unsaved-state/close-check operation.20 regular source blobs match their immutable
+Git tree; five current owning NAP documents have no bounded dirty/unsaved/close
+keyword match.35 open PR titles supply discovery only, not exhaustive proposal
+review. Current handshake/discovery changes are not selected.
+
+Actual source always warns on close. UX07 now records this precise product gap
+on both hosts alongside existing physical subsets. An explicit versioned private
+close-check profile is proposed, awaiting owner selection; no wire/API/timeout
+is implemented or approved, and no requirement is relaxed.61 original requirement/
+evidence contracts and all60 unrelated rows remain exact,8 fully complete/53 open.
+Documentation only; no app/dependency mutation, new tests/build/quality claim,
+source push or Phase3 advance. Device auth retry still awaits the existing iPhone
+Face ID Allow dialog and exact temporary-install cleanup; Android is absent.
+Usage4%, ceiling about98% consumed.
