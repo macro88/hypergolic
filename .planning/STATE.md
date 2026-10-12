@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone real Face ID retry reaches authentication but positive deletion fails; unchanged two ciphertext metadata records and selected identity verify denied/incomplete-auth preservation. Exact temporary cleanup and retained identity/UX Lab7 restore pass. ID-06 partial;61 original contracts and8 full rows remain.
+stopped_at: Physical iPhone system Cancel/live trace/cold two-identity checks and Android public review/cancellation subset pass. Successful authenticated deletion remains open; original 61 contracts and8 complete rows preserved.
 last_updated: "2026-10-12"
 last_activity: 2026-10-12
-state_head: 374f253eb1c55e1f8724d4da67786931ba25d30e
+state_head: e7b9f1e5d15cf39181254adebc7af994d6abf580
 progress:
   total_phases: 14
   completed_phases: 10
@@ -3149,3 +3149,19 @@ compiles. ID-06 gains denied/incomplete-authentication preservation evidence,
 remaining partial; positive deletion, explicit cancellation, live session and
 Android parity remain.61 original contracts/statuses and8 complete rows preserved.
 No app-code change, source push or Phase3 advance.
+
+## Physical cancellation checkpoint — 12 October 2026
+
+Four iPhone native tests pass: preparation, real system authentication Cancel,
+cold two-identity persistence and final retained-app restoration. The same live
+process preserves UX Lab1 counter2 and the seeded draft. Both175-byte encrypted
+file metadata records match through cold launch; secret content is not read.
+Six Android public-review groups pass through nine checked native inputs,
+including backup pre-authentication cancellation, exact inactive deletion review,
+Keep identity and actual background dismissal. Retained identity/workspace context,
+APK/inventories and648 product inputs remain; temporary device helpers/apps are
+removed. Original observer failures and final successes are preserved privately.
+ID-05/ID-06 Android advance to partial; ID-06 iPhone gains cancellation/live/cold
+evidence. Successful authenticated deletion and remaining full evidence stay open.
+All61 contracts and59 unrelated rows remain exact;8 complete/53 open. No app-code
+change, full quality rerun, source push or Phase3 advancement.

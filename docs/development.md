@@ -1145,3 +1145,40 @@ compiles. ID-06 gains denied/incomplete-authentication preservation evidence,
 remaining partial; positive deletion, explicit cancellation, live session and
 Android parity remain.61 original contracts/statuses and8 complete rows preserved.
 No app-code change, source push or Phase3 advance.
+
+
+## Physical cancellation follow-up — 12 October 2026
+
+The isolated ordinary iPhone app passes three sequential preparation, real system
+Cancel and cold-identity tests, plus a separate final retained-app restoration test.
+Original system pixels/AX show Face Not Recognised and Cancel; actual SpringBoard
+input cancels authentication. The same live process retains both identities,
+selection, UX Lab1 counter2 and its exact seeded draft. A stopped-process/new-PID
+launch retains both identities. Three metadata queries show the same two175-byte
+encrypted records. Final native input restores the retained public identity and
+UX Lab7; exact disposable app/runner cleanup and metadata inventories pass.
+Successful authenticated deletion, ciphertext removal and cold sole survivor remain
+unverified. Unsaved draft persistence through process death is not asserted.
+
+The existing retained Android Release passes six public-review groups through nine
+checked native UI Automator inputs. Settings explains backup; the exact selected
+public-identity review requires authentication before reveal. Pre-authentication
+Cancel, exact inactive deletion review, Keep identity and actual background
+review dismissal preserve selection and the original empty workspace. No reveal,
+export, authentication or deletion confirmation is requested. Original Settings
+context is restored without an exact scroll-position claim. APK bytes, package
+inventory and648 product inputs match; exact owned helper/dump paths are absent.
+Encrypted preferences are unavailable through run-as in nondebuggable Release;
+there is no ciphertext or KeyStore erasure proof and no TalkBack acceptance claim.
+
+Original failed observers remain alongside the successful runs. The corrected
+observers use measured native input and a separately caught final iPhone restoration
+before cleanup; no application repair is inferred.915 archive members read back
+exactly. Three completed runner-derived trees and their hash-matching disposable
+app copies are removed, freeing397,902,771 logical bytes;132 original ready-product
+files remain exact. ID-05/ID-06 Android are partial and ID-06 iPhone gains scoped
+cancellation evidence. All61 requirement/evidence contracts and59 other rows remain
+unchanged;8 rows are fully complete. Documentation checks cover this checkpoint;
+application/native builds and full quality gates are not rerun. Source push remains
+owner-controlled. The [full acceptance matrix](../.planning/phases/02.11-published-mvp-acceptance/02.11-acceptance-matrix.json)
+continues to govern Phase2 completion.
