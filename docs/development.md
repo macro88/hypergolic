@@ -1126,3 +1126,22 @@ authentication, key erasure, cold behavior or full MVP acceptance.
 Failed-install originals and native follow-up proof are byte-readback preserved.
 Only the two completed runner-derived trees and hash-matching unused app copy
 are removed; the retained ordinary ready app remains. No acceptance status changes.
+
+
+## Physical iPhone authentication retry — 12 October 2026
+
+Real ordinary Release in an isolated disposable app reaches system Face ID after
+exact permission approval through SpringBoard input. Live original pixels show
+Face Not Recognised. Authentication does not complete before the authority
+lifetime ends; the positive deletion test fails and the app reports deletion not
+approved. Original AX verifies unchanged two-identity inventory/selected public
+identity. Both175-byte encrypted-file metadata records match before/after; no
+secret-content read. One preparation test passes, one authentication test fails,
+no skips; cold-survivor test is not dispatched. Both restore retained identity
+and UX Lab7. Exact temporary app/runner cleanup and metadata inventory match;
+all648 existing product inputs unchanged.265 archive members read back exactly;
+unused exact build/app copies are removed after hash checks. Only the observer
+compiles. ID-06 gains denied/incomplete-authentication preservation evidence,
+remaining partial; positive deletion, explicit cancellation, live session and
+Android parity remain.61 original contracts/statuses and8 complete rows preserved.
+No app-code change, source push or Phase3 advance.

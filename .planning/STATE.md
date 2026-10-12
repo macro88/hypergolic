@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Isolated ordinary iPhone identity deletion prerequisites pass7 native groups plus retained-app restoration; sole/selected restrictions, exact review/cancel/background and cold inventory independently verify. ID-06 iOS partial; actual authentication/erasure/live session and Android remain. All61 contracts preserved,8 full rows complete/53 open. Exact temporary cleanup and original identity/focus verify; no product edit or source push.
+stopped_at: Physical iPhone real Face ID retry reaches authentication but positive deletion fails; unchanged two ciphertext metadata records and selected identity verify denied/incomplete-auth preservation. Exact temporary cleanup and retained identity/UX Lab7 restore pass. ID-06 partial;61 original contracts and8 full rows remain.
 last_updated: "2026-10-12"
 last_activity: 2026-10-12
 state_head: 374f253eb1c55e1f8724d4da67786931ba25d30e
@@ -3130,3 +3130,22 @@ retained-focus cleanup handoff, not ID06 or full Phase2.61 original rows remain,
 8 complete/53 open. Android has reconnected as an authorized device; its unlock
 state is not yet rechecked. Clean-close contract selection and physical/native/
 published/license/quality/age gates remain. No source push or Phase3 advance.
+
+
+## Physical iPhone authentication retry — 12 October 2026
+
+Real ordinary Release in an isolated disposable app reaches system Face ID after
+exact permission approval through SpringBoard input. Live original pixels show
+Face Not Recognised. Authentication does not complete before the authority
+lifetime ends; the positive deletion test fails and the app reports deletion not
+approved. Original AX verifies unchanged two-identity inventory/selected public
+identity. Both175-byte encrypted-file metadata records match before/after; no
+secret-content read. One preparation test passes, one authentication test fails,
+no skips; cold-survivor test is not dispatched. Both restore retained identity
+and UX Lab7. Exact temporary app/runner cleanup and metadata inventory match;
+all648 existing product inputs unchanged.265 archive members read back exactly;
+unused exact build/app copies are removed after hash checks. Only the observer
+compiles. ID-06 gains denied/incomplete-authentication preservation evidence,
+remaining partial; positive deletion, explicit cancellation, live session and
+Android parity remain.61 original contracts/statuses and8 complete rows preserved.
+No app-code change, source push or Phase3 advance.
