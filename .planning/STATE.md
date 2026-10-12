@@ -3085,3 +3085,25 @@ Documentation only; no app/dependency mutation, new tests/build/quality claim,
 source push or Phase3 advance. Device auth retry still awaits the existing iPhone
 Face ID Allow dialog and exact temporary-install cleanup; Android is absent.
 Usage4%, ceiling about98% consumed.
+
+
+## Physical observer receipt recovery — 12 October 2026
+
+Actual second iPhone retry cleanup timeout escapes its original finally block,
+suppressing receipt persistence. Two original host reproductions confirm the
+failure. Prepared next-run observer catches each owned cleanup/check independently,
+records command timeout/launch failures and preserves primary journey/error state
+in an atomic final receipt. Inventory/source uncertainty is null, never successful.
+Runner ownership begins only at actual XCTest dispatch; failed install cannot
+claim an unattempted runner.15 host regressions pass using the actual command/
+finalization code, including real timed-out child termination. Portable explicit
+repo/batch/device arguments leave that tested AST unchanged.
+
+Original/fixed drivers, red/green logs and independent review are byte-readback
+preserved privately.648 existing product inputs and all132 local ordinary ready
+app files remain exact. Inline GSD debug marks only this host observer defect
+resolved; no typed/independent-agent audit or physical run. Three documentation/
+planning files change; no app/native/dependency code, new full quality/build claim,
+source push or requirement/status promotion.61 original contracts/8 complete rows
+remain. Pending iPhone Allow/action, interrupted-installer reconciliation, Android
+connection and clean-close product selection remain. Usage4%, ceiling about98%.

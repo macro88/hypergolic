@@ -1086,3 +1086,26 @@ Together with previous empty-list and selected-role restore proof, RELAY-01 now
 passes on both phones. The matrix preserves all61 original contracts, with8 rows
 complete/53 open. AUTH/availability, automatic routing, accessibility and other
 Phase2 acceptance remain separate. No new app build/full quality result is claimed.
+
+
+## Physical observer cleanup reporting — 12 October 2026
+
+A timed-out temporary iPhone observer could exit its cleanup block before writing
+its receipt. The prepared next-run driver now records command timeout/launch
+failures, attempts each claimed cleanup separately and atomically writes the final
+result after caught cleanup/check failures. An unattempted runner is not a cleanup
+target. Unavailable inventory or product fingerprints remain unknown; zero cleanup
+exit alone does not establish absence or an unchanged retained app.
+
+Two host cases reproduce the original missing receipt. Fifteen regressions execute
+the actual repaired command/finalization code, including real child timeout and
+termination. They cover ownership, primary-error retention, interrupts, malformed/
+unavailable inventories and source/metadata drift. Explicit repository/batch/device
+parameters leave that tested code unchanged. This is private observer repair;
+application/native code and dependencies are unchanged. Existing 648 product inputs
+and the 132-file local ready iPhone app still match their recorded hashes.
+
+Use the corrected observer in the next uniquely prepared batch after reconciling
+the interrupted device transaction. These host checks do not prove Face ID,
+installer settlement, installed iOS bytes, native key erasure or physical cleanup.
+The full acceptance matrix remains 8 of 61 complete; no new physical row closes.
