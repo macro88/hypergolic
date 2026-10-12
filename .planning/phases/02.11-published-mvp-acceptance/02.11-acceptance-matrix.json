@@ -1403,9 +1403,14 @@
           "status": "partial",
           "evidence": [
             "iphone-outbox01/hg-outbox-physical-iphone-publication02/trace-report.json",
-            "iphone-outbox01/hg-outbox-physical-iphone-publication02/publication-proof.json"
+            "iphone-outbox01/hg-outbox-physical-iphone-publication02/publication-proof.json",
+            "iphone-relay-upgrade01/hg-upgrade-iphone-seal-20261012/receipt.json",
+            "iphone-relay-upgrade01/hg-upgrade-iphone-observer-20261012/physical/receipt.json",
+            "iphone-relay-upgrade01/hg-upgrade-iphone-observer-20261012-04/physical/receipt.json",
+            "iphone-relay-upgrade01/host/hg-upgrade-iphone-independent-20261012.json"
           ],
-          "remaining": "Complete all named row requirements. This subset proves retained physical development identity, exact native review and bundled original-SDK protected explicit-only publication with independent live/stored verification; final published Outbox and full routing/lifecycle/fault acceptance remain open."
+          "remaining": "Complete all routing/cache refresh, stale/corrupt/cross-identity/cold, stream/lifecycle/fault and verified-published requirements. Default SDK routing and native review/Reject are now observed on both ordinary physical platforms; this does not close the complete row or explain every historical timeout.",
+          "verifiedScope": "Retains the prior ordinary explicit-only publication subset with independent live/stored verification. The normal signed same-ID iPhone update installs successfully; its prepared package differs only in the native executable. Original SDK default read resolves the exact author write-relay set from nip65, and default write resolves the exact read-relay set from cache. These passed checks come from the first observer; its later failure remains failed. A separate fresh public draft with default options reaches trusted own-publication review after explicit Resume. Reject prevents approval and restores the full selected public identity and original UX Lab 7. Final native restore/fresh tests pass seven scoped checks; exact runner is absent and other-app metadata/source/product inputs preserve. No signing/publication approval in this repair subset; installed iOS executable bytes were not read back."
         }
       }
     },

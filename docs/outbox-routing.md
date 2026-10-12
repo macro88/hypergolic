@@ -351,8 +351,19 @@ view teardown restore identity, empty workspace and Settings context. Exact help
 paths are absent and package inventory/source inputs match. Original setup, input
 rejection, obsolete-package-pointer and SDK-observer failures stay preserved.
 
-Physical iPhone installation/composition and full routing/lifecycle/published/fault
-acceptance remain open. CAP-12 stays partial; all61 original contracts and8 complete
-rows remain. Private original evidence is relay-upgrade-metadata01. React Doctor is
+The same-ID signed ordinary iPhone update installs with unchanged JavaScript,
+trusted host, certificate and identity scope; only the prepared native executable
+changes. Genuine SDK default read resolves the exact author write-relay set from
+nip65; default write resolves the exact read-relay set from cache. These passed
+checks precede the first observer's later keyboard failure. Separate final native
+tests exercise a fresh draft/default options, explicit Resume, exact trusted review
+and Reject. Full selected identity and UX Lab 7 return; owned views and runner are
+absent. Three original failed observers stay failed; subsequent fixes affect only
+input/viewport/approval observation, with no application rebuild or reinstall.
+Installed iOS executable bytes were not retrieved.
+
+Full routing/lifecycle/published/fault acceptance remains open. CAP-12 stays partial;
+all 61 original contracts and 8 complete rows remain. Private original evidence is
+relay-upgrade-metadata01 and iphone-relay-upgrade01. React Doctor is
 100/100; aislop98 retains only the two existing owner-approved node-forge/braces
 advisory exceptions. The normal gate still fails visibly, with no new waiver.

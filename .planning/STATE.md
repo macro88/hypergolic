@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Native repeated-upgrade-metadata repair and same-ID ordinary Android SDK routing/default review pass; iPhone composition and full61-row acceptance remain open.
+stopped_at: Same-ID ordinary Android and iPhone default SDK routing and native review/Reject pass; clean-close decision and full 61-row acceptance remain open.
 last_updated: "2026-10-12"
 last_activity: 2026-10-12
-state_head: 264f14613a5e433c606de573b0c77d455688c0dd
+state_head: b00828e327dd8d7fd718cf081b2716b33f8d279e
 progress:
   total_phases: 14
   completed_phases: 10
@@ -3181,3 +3181,29 @@ Physical iPhone composition remains pending. CAP12 stays partial;61 original
 contracts,8 complete/53 open. Quality remains Doctor100/aislop98 with only the two
 existing documented owner exceptions. Clean-close selection, full physical,
 published, security, license and package-age gates remain. No source push.
+
+
+## Ordinary iPhone relay repair composition — 12 October 2026
+
+The signed same-ID ordinary iPhone update installs after the owner unlocks it.
+All 52 owning Swift inputs match the source snapshot; only the native executable
+changes across 132 prepared package files. JavaScript, trusted host, certificate,
+identity scope and packaged notices preserve. Original SDK default read/write
+plans pass in the first physical observer. Its later keyboard failure and two
+follow-up observer failures remain failures. Observer-only corrections use the
+already installed app, without another application build or installation.
+
+Final native restore/fresh tests pass seven scoped checks: fresh public draft and
+default options, explicit approval Resume, exact trusted own-publication review,
+Reject without approval, and original full identity/UX Lab 7 restoration. Independent
+AX/receipt review and live inventory verify; exact runner and owned views are absent.
+Installed iOS executable bytes were not retrieved. Four original PNGs inspected;
+role-plan values are established by original AX because they extend below the
+screenshot viewport. Private originals: iphone-relay-upgrade01, 924 original files
+reconstructed byte-identically from six archives.
+
+CAP-12 remains partial; all 61 contracts/statuses and 60 unrelated rows preserve,
+with 8 complete/53 open. Documentation-only continuation; no new quality rerun,
+source push or Phase 3 advance. The native-change Doctor100/aislop98 result and two
+existing owner exceptions remain dated to the repair. Clean-close selection and
+full physical/published/security/license/package-age acceptance remain open.

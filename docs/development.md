@@ -1196,7 +1196,22 @@ After sourcing `.tools/use-local-tools.sh`, the ordinary ARM64 Release builds wi
 The authorized stable test package/signing overlays are restored after building.
 Compare to actual installed APK bytes, not an older saved artifact. Only one DEX
 changes; identity/workspace survive the same-ID update. Original SDK routing and
-trusted default review/Reject pass; exact owned helpers are removed. Physical iPhone
-composition remains pending. Private originals: relay-upgrade-metadata01.
+trusted default review/Reject pass; exact owned helpers are removed.
+
+The ordinary signed iPhoneOS Release rebuild uses the existing incremental cache
+and per-command Xcode selection; global tool selection stays unchanged. A separate
+seal verifies the completed build after the builder's incorrect target-path lookup
+fails: all 52 owning Swift inputs, current handshake compile input/object, strict
+signature and full 132-file prepared package. Only the native executable changes;
+JavaScript, trusted host and all 68 packaged notices preserve. Original failed build
+receipt remains failed; no redundant application rebuild is needed.
+
+Successful same-ID installation and first-observer SDK default role checks compose
+with the later passing native review/Resume/Reject and exact identity/focus restore.
+Observer-only keyboard/viewport/queued-approval corrections reuse that installed
+app. Independent original AX/receipts and live runner absence verify; installed iOS
+executable bytes were not read back. Original failed observers remain preserved.
+Inline GSD execution records these scoped checks without a separate-agent audit.
+Private originals: relay-upgrade-metadata01 and iphone-relay-upgrade01.
 Doctor100 and aislop98 retain exactly the existing two owner-approved advisory
 exceptions; the normal quality gate still exits nonzero and is not suppressed.
