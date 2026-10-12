@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone invalid/duplicate/add/remove/cold persistence and isolated first-run seed/cold/empty-no-reseed checks pass. Exact temporary cleanup, retained identity/focus/metadata and source inputs verify. RELAY-01 now passes on both phones; all61 contracts preserved,8 complete/53 open. Phase2 remains executing; no product change or source push.
+stopped_at: Isolated ordinary iPhone identity deletion prerequisites pass7 native groups plus retained-app restoration; sole/selected restrictions, exact review/cancel/background and cold inventory independently verify. ID-06 iOS partial; actual authentication/erasure/live session and Android remain. All61 contracts preserved,8 full rows complete/53 open. Exact temporary cleanup and original identity/focus verify; no product edit or source push.
 last_updated: "2026-10-12"
 last_activity: 2026-10-12
 state_head: 374f253eb1c55e1f8724d4da67786931ba25d30e
@@ -3037,3 +3037,31 @@ remain unchanged;8 full rows complete/53 open. Relay AUTH/availability, automati
 routing, accessibility and broader physical/published/security/compatibility gates
 remain separate open work. Documentation only, no new full build/quality claim,
 product/dependency change or source push. Usage3%, owner ceiling about98%.
+
+
+Physical iPhone identity deletion prerequisites — 12 October2026: seven native
+groups pass in a uniquely isolated ordinary signed app: sole/selected identities
+cannot be deletion targets; cancelled exact public-vector import inserts nothing;
+confirmed import and returning selection preserve both saved identities; exact
+inactive review/Keep identity preserve the inventory; actual background retires
+unconfirmed review; stopped-process cold entry preserves both identities/selection.
+Seven original native inventories, two distinct PIDs, exact public review/cleared
+field and canonical fresh-identity derivation independently verify. Four original
+PNGs inspected; cold inventory below viewport is verified from original AX.
+
+A separate eighth marker restores retained full public identity/original UX focus.
+Initial observer wrongly assumes review cancellation returns Settings home; original
+failure snapshot shows cleared import form. Corrected explicit Import Cancel follows
+existing UX without product change. Both uniquely scoped signed copies preserve53
+executable section payloads and exclude retained Keychain access. Both disposable
+packages and exact runner are removed; final independent retained metadata inventory
+and648 product inputs verify. No authentication/deletion action is tapped. A late
+file metadata query fails; no ciphertext removal, installed iOS executable byte,
+whole database rollback or complete Keychain erase is claimed.
+
+ID06 iPhone advances not-run to partial. Actual system-auth cancellation/failure/
+success, target ciphertext erasure and surviving live-session behavior remain,
+with Android physical parity. Android is disconnected; iPhone is ready. All61
+original contracts/60 other rows remain,8 fully complete/53 open. Documentation
+only, no app/dependency change, new build/quality claim or source push. Usage4%,
+authorized ceiling about98% consumed.

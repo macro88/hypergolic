@@ -526,3 +526,29 @@ and Phase2 stay open. Canonical private android-identity-storage01 retains the
 original builds, stopped partial run, final run and independent review. No source
 push, policy change, owner-app replacement or Phase3 advance. Usage4%, ceiling
 about98%; current source-bound quality verification follows this checkpoint.
+
+
+## Physical iPhone deletion prerequisites — 12 October 2026
+
+The ordinary protected app passes seven prerequisite groups in an isolated signed
+copy: no delete action for a sole/selected identity; cancelled public-vector import
+preserves inventory; confirmed import and returning selection retain both identities;
+exact inactive target review/Keep identity; background dismissal of unconfirmed
+review; and unchanged two-identity inventory/selection after process death. Seven
+original native inventories and two distinct PIDs independently verify. The public
+scalar1 vector is disposable test data, not a retained secret. The corrected observer
+returns through the cleared import form after cancelling review; no app UX changes.
+
+Four original PNGs were inspected. Cold saved-identity rows are below the viewport
+and are verified through the original native accessibility snapshot. A separate
+cleanup group restores the retained full public identity and original runtime focus.
+Both temporary app copies and runner are absent; retained metadata inventory and648
+source/product inputs match. Distinct signed Keychain groups exclude retained access;
+all53 copied executable section payloads match the original ordinary app.
+
+The Authenticate and delete action is not invoked. Actual system authentication
+cancel/failure/success, target ciphertext erasure and surviving live-session behavior
+remain required, with physical Android parity. A late file metadata query fails and
+supplies no ciphertext proof. No installed iOS executable-byte, database byte rollback
+or complete Keychain-erasure claim follows. ID06 stays partial; the full matrix remains
+8 of61 complete. Private originals and independent review: `iphone-identity-delete01`.

@@ -479,8 +479,16 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "iphone-identity-delete01/README.md",
+            "iphone-identity-delete01/failed-run01/physical/receipt.json",
+            "iphone-identity-delete01/failed-run01/physical/failed-observer-review.json",
+            "iphone-identity-delete01/passed-run02/physical/receipt.json",
+            "iphone-identity-delete01/passed-run02/physical/independent-review.json"
+          ],
+          "verifiedScope": "Seven physical ordinary-entry protected-identity prerequisite groups pass in a uniquely isolated signed app copy: sole selected identity has no delete action; cancelled exact public-vector import inserts nothing and returns through its cleared form; confirmed public scalar1 development import selects it while retaining the original identity; returning to original selection prevents it being a deletion target; exact inactive target/authentication-required review and Keep identity preserve both identities; actual app background dismisses the unconfirmed review while retaining selection/inventory; a stopped-process/new-PID cold launch retains both identities and selected deletion restriction. Seven original native inventory/selected-identity snapshots, exact review/cleared-field accessibility and two distinct PIDs independently verify. Four original PNGs inspected; cold identity rows are below the screenshot and are verified through original AX. A separate eighth cleanup marker restores the retained full public identity and original UX focus. Initial observer expects Settings home after cancelled import review; the original failure snapshot proves the cleared import form, then corrected observer follows explicit Import Cancel. No app-code change. Both exact disposable packages/runner are absent, final retained metadata inventory matches and648 actual source/product inputs remain. Signed copies retain all53 original executable section payloads with distinct explicit Keychain groups excluding retained access.",
+          "remaining": "Actual system-authentication cancellation/failure/success, target ciphertext removal and surviving live session behavior remain required on physical iPhone, plus full Android parity. No authenticate-and-delete action was tapped. A late encrypted-file metadata query fails and supplies no ciphertext proof. No installed iOS executable-byte, full database rollback or complete Keychain erasure claim. ID-06 and Phase2 remain incomplete."
         }
       }
     },
