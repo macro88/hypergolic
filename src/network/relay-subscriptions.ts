@@ -41,7 +41,7 @@ function receiveFrame(process:SessionProcess,callbacks:SessionCallbacks,subscrip
     if(subscription.planned&&connection.state!=='eose')subscription.backfill++;
     if(!callbacks.emit(subscription,Object.freeze({type:'relay.event',subId:subscription.request.subId,result:Object.freeze({event,...(subscription.planned?{sidecar:Object.freeze({relayHints:Object.freeze([connection.relay])})}:{})})})))subscription.ids.delete(event.id);
   }else if(message.type==='eose'){connection.state='eose';connection.attempts=0;callbacks.eose(subscription);}
-  else if(message.type!=='notice')throw new RelaySubscriptionError();
+  else if(message.type!=='notice'&&message.type!=='auth')throw new RelaySubscriptionError();
 }
 function createSession(owner:RelaySubscriptionOwner,registration:NativeRegistration,process:SessionProcess) {
   const {port,newId,now,retryMs,sessions}=process;

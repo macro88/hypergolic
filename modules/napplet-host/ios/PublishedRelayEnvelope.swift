@@ -22,6 +22,11 @@ enum PublishedRelayEnvelope {
     case "NOTICE":
       guard envelope.count == 2, let notice = envelope[1] as? String, notice.utf8.count <= 256 else { return .invalid }
       return .other
+    case "AUTH":
+      // Optional NIP-42 announcement. Existing frame/count budgets still apply;
+      // no challenge is stored and no signer or client AUTH is invoked.
+      guard envelope.count == 2, envelope[1] is String else { return .invalid }
+      return .other
     case "CLOSED":
       // A well-formed CLOSED is a terminal relay error for this query; all other
       // shapes and subscription ids are invalid as well, so every CLOSED fails closed.

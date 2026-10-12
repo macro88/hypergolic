@@ -8,6 +8,7 @@ export class PublishedRelayWireError extends Error {
 export type PublishedRelayMessage =
   | Readonly<{ type: 'event'; event: unknown }>
   | Readonly<{ type: 'eose' }>
+  | Readonly<{ type: 'auth' }>
   | Readonly<{ type: 'closed'; reason: string }>
   | Readonly<{ type: 'notice'; message: string }>;
 
@@ -31,6 +32,11 @@ export function parsePublishedRelayMessage(text: unknown, subscriptionId: string
   if (message[0] === 'CLOSED' && message.length === 3 && message[1] === subscriptionId &&
       typeof message[2] === 'string' && message[2].length <= 256 && new TextEncoder().encode(message[2]).byteLength <= 256) {
     return Object.freeze({ type: 'closed', reason: message[2] });
+  }
+  // A relay may announce optional NIP-42 support without requiring authentication.
+  // Do not retain or expose its challenge, and never construct a client AUTH reply.
+  if (message[0] === 'AUTH' && message.length === 2 && typeof message[1] === 'string') {
+    return Object.freeze({ type: 'auth' });
   }
   if (message[0] === 'NOTICE' && message.length === 2 && typeof message[1] === 'string' && message[1].length <= 256 &&
       new TextEncoder().encode(message[1]).byteLength <= 256) {

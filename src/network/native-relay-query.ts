@@ -24,7 +24,7 @@ function parseFrames(input: unknown, subscription: string, filters: readonly Que
     else if (message.type === 'event') {
       if (events.length >= QUERY_LIMITS.events) throw new RelayQueryError();
       events.push(verifyQueryEvent(message.event, filters));
-    } else if (message.type !== 'notice') throw new RelayQueryError();
+    } else if (message.type !== 'notice' && message.type !== 'auth') throw new RelayQueryError();
   }
   if (!eose) throw new RelayQueryError();
   return events;

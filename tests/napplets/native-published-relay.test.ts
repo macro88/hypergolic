@@ -188,3 +188,10 @@ test('one shared deadline cancels all native operations and rejects late complet
   for (let index = 0; index < waits.length; index++) waits[index]!.resolve([eose(fixture.calls[index]!.subscriptionId)]);
   await new Promise(resolve => setTimeout(resolve, 0));
 });
+
+
+test('optional AUTH announcement does not prevent published manifest lookup', async () => {
+  const h = harness((_url, _request, sub) => [JSON.stringify(['AUTH', 'challenge']), eventFrame(sub, event('e'.repeat(64))), eose(sub)]);
+  const result = await createNativePublishedRelayLookup(h.port).query(coordinate, [relayA], null, new AbortController().signal);
+  assert.equal(result.length, 1);
+});

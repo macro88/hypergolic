@@ -615,3 +615,13 @@ Its implementation, wire names and response budget remain unapproved. Do not
 infer clean state from arbitrary guest form/storage activity, invent standard NAP
 support, or relax UX-07. Both physical platforms remain partial; all 61 original
 contracts remain, with 8 complete rows. No runtime change or new device pass follows.
+
+
+### Optional relay AUTH announcements
+
+Under the already selected NIP-42 revision a2494f4, a string AUTH announcement can
+precede a public response without requiring authentication. Native and shared read
+parsers accept its exact bounded shape, discard the challenge and continue normal
+verification/EOSE handling. No client AUTH, signer or guest challenge authority is
+provided; required-authentication responses remain denied. See
+[the implementation and verification boundary](relay-subscriptions.md#optional-relay-authentication-announcements--12-october-2026).

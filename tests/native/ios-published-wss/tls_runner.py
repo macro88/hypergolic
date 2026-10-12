@@ -108,6 +108,8 @@ def serve(mode: str, key: Path, cert: Path, listener: socket.socket,
                 time.sleep(0.8)
             elif mode == "oversize":
                 peer.sendall(b"\x81\x7f" + (66_561).to_bytes(8, "big"))
+            elif mode == "auth-announcement":
+                peer.sendall(frame('["AUTH","first"]') + frame('["AUTH","rotated"]') + frame('["EOSE","proof"]'))
             else:
                 peer.sendall(frame("EVENT") + frame("EOSE"))
     except (ConnectionError, OSError, ssl.SSLError) as error:
@@ -141,7 +143,7 @@ def main() -> None:
             *compiler, "-module-cache-path", str(output / "swift-modules"), "-o", str(binary),
             *(str(NATIVE / source) for source in SOURCES), str(PROOF),
         ], cwd=ROOT, env=compiler_environment, check=True)
-        for mode in ("valid", "failover", "untrusted", "wrong-host", "redirect",
+        for mode in ("valid", "auth-announcement", "failover", "untrusted", "wrong-host", "redirect",
                      "bad-accept", "oversize", "cancel"):
             key, cert, anchor = (
                 (wrong_key, wrong_cert, wrong_der) if mode == "wrong-host"

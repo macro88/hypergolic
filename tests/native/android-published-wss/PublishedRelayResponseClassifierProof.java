@@ -26,6 +26,13 @@ public final class PublishedRelayResponseClassifierProof {
     rejectsResponse(classifier, "[\"EOSE\",\"sub-1\",null]");
     rejectsResponse(classifier, "[\"NOTICE\",\"x\",null]");
     rejectsResponse(classifier, "[\"NOTICE\",\"" + repeat('x', 257) + "\"]");
+    equal(PublishedRelayWssQuery.TextKind.OTHER, classifier.classify("[\"AUTH\",\"\"]"));
+    equal(PublishedRelayWssQuery.TextKind.OTHER, classifier.classify("[\"AUTH\",\"rotated\"]"));
+    rejectsResponse(classifier, "[\"AUTH\"]");
+    rejectsResponse(classifier, "[\"AUTH\",null]");
+    rejectsResponse(classifier, "[\"AUTH\",{}]");
+    rejectsResponse(classifier, "[\"AUTH\",\"challenge\",\"extra\"]");
+    rejectsResponse(classifier, "[\"AUTH\",\"" + repeat('x', PublishedRelayWebSocketFrames.MAX_BYTES) + "\"]");
     rejectsResponse(classifier, "[\"CLOSED\",\"sub-1\",\"policy\"]");
     rejectsResponse(classifier, "[\"CLOSED\",\"wrong\",\"policy\"]");
     rejectsResponse(classifier, "[\"UNKNOWN\",\"sub-1\"]");

@@ -120,3 +120,19 @@ test('disconnect retries are bounded and explicit close prevents pending retry o
   const stopped=harness();stopped.session.subscribe(request(),stopped.send);stopped.calls[0]!.failed();stopped.session.close(close());
   await new Promise(resolve=>setTimeout(resolve,5));assert.equal(stopped.calls.length,1);assert.deepEqual(stopped.messages,[]);
 });
+
+
+test('optional AUTH announcements do not close or authenticate a public stream and retain frame quotas', () => {
+  const h = harness(); h.session.subscribe(request(), h.send);
+  h.calls[0]!.frame(JSON.stringify(['AUTH', 'first']));
+  h.calls[0]!.frame(JSON.stringify(['AUTH', 'rotated']));
+  assert.equal(h.messages.length, 0); assert.equal(h.calls[0]!.stopped, 0);
+  h.event(); h.eose();
+  assert.deepEqual(h.messages.map(m => m.type), ['relay.event', 'relay.eose']);
+  assert.equal(h.calls.length, 1); assert.equal(JSON.parse(h.calls[0]!.wire)[0], 'REQ');
+  h.session.close(close());
+  const flood = harness(); flood.session.subscribe(request(), flood.send);
+  for (let i = 0; i <= SUBSCRIPTION_LIMITS.framesPerSecond; i++) flood.calls[0]!.frame(JSON.stringify(['AUTH', 'challenge']));
+  assert.deepEqual(flood.messages, [{type:'relay.closed',subId:'caller',reason:'invalid or excessive relay stream'}]);
+  assert.equal(flood.calls[0]!.stopped, 1);
+});

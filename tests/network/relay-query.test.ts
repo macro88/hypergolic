@@ -146,3 +146,23 @@ test('external cancellation or native owner revocation cannot return deadline pa
     await assert.rejects(h.create(20).queryDetailed(parseQueryFilters([{}]),controller.signal,()=>{if(!active)throw Error('revoked');}));
   }
 });
+
+
+test('optional AUTH and rotated challenges preserve verified public reads without another outbound request', async () => {
+  const h = harness(undefined, async (_, sub) => [
+    JSON.stringify(['AUTH', 'challenge-one']), JSON.stringify(['AUTH', 'challenge-two']),
+    JSON.stringify(['EVENT', sub, signed()]), JSON.stringify(['EOSE', sub]),
+  ]);
+  assert.equal((await h.create().query(parseQueryFilters([{}]), signal(), () => {}))[0]!.event.id, signed().id);
+  assert.equal(h.calls.length, 1);
+  assert.equal(JSON.parse(h.calls[0]!.wire)[0], 'REQ');
+  for (const frames of [
+    (sub: string) => [JSON.stringify(['AUTH', 'challenge'])],
+    (sub: string) => [JSON.stringify(['AUTH', 'challenge']), JSON.stringify(['CLOSED', sub, 'auth-required: denied'])],
+    (sub: string) => [...Array.from({length: QUERY_LIMITS.frames}, () => JSON.stringify(['AUTH', 'challenge'])), JSON.stringify(['EOSE', sub])],
+  ]) {
+    const denied = harness(undefined, async (_, sub) => frames(sub));
+    await assert.rejects(denied.create().query(parseQueryFilters([{}]), signal(), () => {}));
+    assert.equal(denied.calls.length, 1);
+  }
+});

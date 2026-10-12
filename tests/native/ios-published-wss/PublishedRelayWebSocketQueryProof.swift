@@ -105,6 +105,16 @@ struct PublishedRelayWebSocketQueryProof {
               "256-byte NOTICE accepted")
     try check(PublishedRelayEnvelope.classify(try jsonText(["NOTICE", String(repeating: "n", count: 257)]), subscriptionId: sid) == .invalid,
               "oversized NOTICE rejected")
+    for challenge in ["", "rotated", String(repeating: "é", count: 256)] {
+      try check(PublishedRelayEnvelope.classify(try jsonText(["AUTH", challenge]), subscriptionId: sid) == .other,
+                "optional AUTH string announcement")
+    }
+    for malformedAuth: [Any] in [["AUTH"], ["AUTH", NSNull()], ["AUTH", ["challenge": "forged"]], ["AUTH", "challenge", "extra"]] {
+      try check(PublishedRelayEnvelope.classify(try jsonText(malformedAuth), subscriptionId: sid) == .invalid,
+                "malformed AUTH rejected")
+    }
+    try check(PublishedRelayEnvelope.classify(try jsonText(["AUTH", String(repeating: "é", count: PublishedRelayWebSocketFrames.maxBytes)]), subscriptionId: sid) == .invalid,
+              "AUTH cannot exceed frame byte budget")
     try check(PublishedRelayEnvelope.classify(try jsonText(["CLOSED", sid, "closed"]), subscriptionId: sid) == .invalid,
               "CLOSED fails closed")
     try check(PublishedRelayEnvelope.classify(try jsonText(["EOSE", "prefix-\(sid)"]), subscriptionId: sid) == .invalid,

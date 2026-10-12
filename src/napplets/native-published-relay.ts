@@ -57,7 +57,7 @@ function candidateEvents(frames: unknown, subscriptionId: string): unknown[] {
       events.push(message.event);
     }
     else if (message.type === 'eose') eose = true;
-    else if (message.type === 'notice') continue;
+    else if (message.type === 'notice' || message.type === 'auth') continue;
     else return fail();
   }
   if (!eose) return fail();

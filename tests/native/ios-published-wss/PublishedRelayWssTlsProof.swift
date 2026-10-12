@@ -37,6 +37,7 @@ private final class ResultBox: @unchecked Sendable {
       "wss://relay.example.org:\(port)/fixture", subscription: "[\"REQ\",\"proof\",{\"kinds\":[35129]}]",
       addresses: addresses, anchorDER: mode == "untrusted" ? nil : anchor,
       classifyText: { value in
+        if mode == "auth-announcement" { return PublishedRelayEnvelope.classify(value, subscriptionId: "proof") }
         switch value {
         case "EVENT": return .event
         case "EOSE": return .eose
@@ -56,6 +57,10 @@ private final class ResultBox: @unchecked Sendable {
     switch (mode, outcome) {
     case ("valid", .success(let envelopes)), ("failover", .success(let envelopes)):
       guard envelopes == ["EVENT", "EOSE"] else { throw NSError(domain: "wrong relay envelopes", code: 1) }
+    case ("auth-announcement", .success(let envelopes)):
+      guard envelopes == ["[\"AUTH\",\"first\"]", "[\"AUTH\",\"rotated\"]", "[\"EOSE\",\"proof\"]"] else {
+        throw NSError(domain: "wrong AUTH relay envelopes", code: 1)
+      }
     case ("untrusted", .failure), ("wrong-host", .failure), ("redirect", .failure),
          ("bad-accept", .failure), ("oversize", .failure):
       break

@@ -47,6 +47,12 @@ public final class PublishedRelayWssTlsProof {
         });
     try {
       acceptsVerifiedRelayAndRetriesVettedAddress(serverContext, trusted, dns);
+      try (LocalRelay relay = new LocalRelay(serverContext, Mode.AUTH_ANNOUNCEMENT)) {
+        equal(Arrays.asList("[\"AUTH\",\"first\"]", "[\"AUTH\",\"rotated\"]", "[\"EOSE\",\"sub-1\"]"),
+            query(relay, "relay.example.org", null, ignored -> new InetAddress[] {LOOPBACK}, dns, trusted));
+        equal(REQUEST, relay.clientRequest);
+        equal(1, relay.accepted);
+      }
       rejectsUntrustedCertificate(serverContext, dns);
       rejectsWrongHostname(serverContext, trusted, dns);
       rejectsMixedDnsBeforeConnect(serverContext, trusted, dns);
@@ -168,12 +174,13 @@ public final class PublishedRelayWssTlsProof {
     };
     return PublishedRelayWssQuery.queryWithTransport("wss://" + host + ":" + relay.port() + "/nostr",
         REQUEST, proofPolicy, cancellation,
-        text -> "event".equals(text) ? PublishedRelayWssQuery.TextKind.EVENT :
+        text -> relay.mode == Mode.AUTH_ANNOUNCEMENT ? new PublishedRelayResponseClassifier("sub-1").classify(text) :
+            "event".equals(text) ? PublishedRelayWssQuery.TextKind.EVENT :
             "eose".equals(text) ? PublishedRelayWssQuery.TextKind.EOSE : PublishedRelayWssQuery.TextKind.OTHER,
         resolver, dns, factory, PublishedHttpsTlsProof.PROOF_HOSTNAME_VERIFIER);
   }
 
-  private enum Mode { VALID, REDIRECT, BAD_ACCEPT, OVERSIZED_FRAME, HOLD_RESPONSE }
+  private enum Mode { VALID, AUTH_ANNOUNCEMENT, REDIRECT, BAD_ACCEPT, OVERSIZED_FRAME, HOLD_RESPONSE }
 
   private static final class LocalRelay implements AutoCloseable {
     private final SSLServerSocket listener;
@@ -226,6 +233,10 @@ public final class PublishedRelayWssTlsProof {
         }
         if (mode == Mode.OVERSIZED_FRAME) {
           output.write(new byte[] {(byte) 0x81, 0x7f, 0, 0, 0, 0, 0, 1, 4, 1});
+        } else if (mode == Mode.AUTH_ANNOUNCEMENT) {
+          output.write(frame("[\"AUTH\",\"first\"]"));
+          output.write(frame("[\"AUTH\",\"rotated\"]"));
+          output.write(frame("[\"EOSE\",\"sub-1\"]"));
         } else {
           output.write(frame("event"));
           output.write(frame("eose"));

@@ -62,6 +62,13 @@ public final class PublishedRelayResponseClassifier implements PublishedRelayWss
         parser.end();
         if (notice.length() > MAX_NOTICE_BYTES || notice.getBytes(StandardCharsets.UTF_8).length > MAX_NOTICE_BYTES) throw invalid();
         return PublishedRelayWssQuery.TextKind.OTHER;
+      case "AUTH":
+        // Optional NIP-42 announcement; existing frame/count budgets remain.
+        // Consume only an exact string challenge; never store or answer it.
+        parser.string();
+        parser.expect(']');
+        parser.end();
+        return PublishedRelayWssQuery.TextKind.OTHER;
       case "CLOSED":
         requireSubscription(parser.string());
         parser.expect(',');

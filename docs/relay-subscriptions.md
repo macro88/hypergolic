@@ -111,3 +111,39 @@ owner/identity/update revocation remain separate required evidence. Display
 continuity and a stable closed list cannot prove zero native effects. CAP-03 final
 physical acceptance remains partial; published Outbox and full fixture parity are
 open. No new full quality rerun or source push accompanies this checkpoint.
+
+
+## Optional relay authentication announcements — 12 October 2026
+
+The pinned [NIP-42 revision a2494f4](https://github.com/nostr-protocol/nips/blob/a2494f4f81d46684e5814a9bf35e2b1df978f955/42.md)
+allows a relay to announce an AUTH challenge while serving a public request.
+Previously both native read classifiers and the shared parser rejected that valid
+announcement, preventing discovery, public queries and streams on such relays.
+
+Android and iOS now accept only the exact two-field string announcement under the
+existing frame, byte, count and rate bounds. Shared discovery, query and stream
+adapters discard the challenge and continue waiting for verified events and EOSE.
+No challenge is retained as authentication state or exposed to a napplet, no signing authority is granted,
+and no client AUTH reply is constructed. A challenge alone is not successful
+history; malformed/flooded announcements and CLOSED still fail closed. Required
+authentication remains denied under the selected separate-approval policy.
+
+Four affected shared suites pass46 cases, with three new regressions reproducing
+the original parser/query/stream failures before the repair. The broader loader,
+query broker and Outbox integration batch passes235 cases. Android native policy,
+classifier, owner and TLS proofs pass140/30/23/41 checks; the TLS case uses the exact
+outbound subscription identifier. Swift owning proofs, arm64 iOS compilation and
+nine controlled TLS modes pass, including initial and rotated AUTH announcements.
+Controlled transport uses disposable loopback addresses/trust anchors through
+existing host-only seams; it does not prove ordinary physical-device acceptance.
+
+TypeScript, Android/iOS exports and Android prebuild pass. A signed ordinary ARM64
+Android Release builds under the retained application ID/certificate, with exact
+permissions and92 original native notices. Only its JavaScript bundle and one DEX
+file change relative to the prior candidate; native libraries, trusted host and
+notice assets remain byte-identical. Generated packaging edits restore afterward.
+It is not installed, and the iPhone installed app still contains the prior code.
+React Doctor reports100/100. Aislop reports98/100 with only the existing node-forge
+and braces advisory exceptions; root/quality audits remain nonzero, and the
+normal full quality gate fails visibly. Physical UI/authentication/error journeys
+and RELAY-02 remain open; this compatibility repair does not pass a full acceptance row.

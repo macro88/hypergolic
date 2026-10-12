@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Ordinary iPhone published live/switch/background/close/cold display subsets verified; Android automation and clean-close selection pending; full acceptance open.
+stopped_at: Optional relay AUTH announcement compatibility repaired and Android candidate built; physical repair acceptance, Android input and clean-close selection remain open.
 last_updated: "2026-10-12"
 last_activity: 2026-10-12
 state_head: 6bc8bbecc28fb573cb6a0b9c5f4d083b4daf8015
@@ -3269,3 +3269,13 @@ observer cache removed after hash recheck: 86,271,524 logical bytes. Current obs
 cache, original evidence, ready apps and shared application cache remain.
 No application/dependency change, full quality rerun, source push or Phase 3 advance.
 Clean-close selection and Android automation permission remain pending.
+
+
+Optional AUTH compatibility checkpoint (2026-10-12): fixed an actual native/shared
+read-parser rejection under the existing pinned NIP-42 contract. Exact bounded
+announcements no longer disrupt discovery/public query/streams; no client AUTH or
+signing authority is added. Shared235 integration cases and native Android/Swift
+policy and controlled TLS regressions pass. Same-ID/certificate ordinary Android
+candidate builds without installation. Full physical RELAY-02, all61 original
+requirements,8 completed/53 open, Android input and clean-close decision remain.
+See docs/relay-subscriptions.md. No source push or Phase3 advancement.
