@@ -3,9 +3,9 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Android fresh-profile relay run08 passes all3 seed/cold/empty groups; combined ordinary settings proof completes Android RELAY-01. iPhone retained relay run02 passes6 scoped groups; fresh-profile, invalid/duplicate and add/edit parity remain. Exact owned cleanup and original identities/focus independently verify. Full61 requirements preserved,7 complete; no product change or source push.
-last_updated: "2026-10-11"
-last_activity: 2026-10-11
+stopped_at: Physical iPhone invalid/duplicate/add/remove/cold persistence and isolated first-run seed/cold/empty-no-reseed checks pass. Exact temporary cleanup, retained identity/focus/metadata and source inputs verify. RELAY-01 now passes on both phones; all61 contracts preserved,8 complete/53 open. Phase2 remains executing; no product change or source push.
+last_updated: "2026-10-12"
+last_activity: 2026-10-12
 state_head: 374f253eb1c55e1f8724d4da67786931ba25d30e
 progress:
   total_phases: 14
@@ -3010,3 +3010,30 @@ fresh-profile seed, invalid/duplicate and add/edit remain open. All61 original
 requirements/evidence contracts preserved,7 fully complete. Six original PNGs
 inspected across both successful runs;648 product inputs unchanged. Documentation
 only, no new quality/build claim or source push. Usage3%, ceiling about98%.
+
+
+Physical iPhone relay closeout — 12 October2026: retained ordinary input run02
+passes6 groups covering all10 invalid URLs/two duplicates, separate-role remove/
+add/ordered append, modified and explicitly restored lists across two real cold
+launches, and exact original defaults/public identity/UX focus cleanup. All27
+original selected-role Remove inventories, native value readback/error traces and
+three distinct PIDs independently verify. Prior startup timeout and typing-guard
+failure remain preserved failed evidence; only the observer changes.
+
+A uniquely identified temporary signed ordinary-entry app copy excludes retained
+Keychain access. All53 original executable section payloads and all other product
+files match except bundle metadata/signature. Physical first-run test passes3 core
+seed/cold-reuse/explicit-empty-no-reseed groups, plus owned/keeper cleanup. Nine
+original native role arrays, three distinct PIDs and canonically decoded distinct
+fresh public identity independently verify. Exact temporary app/runner absence,
+final retained metadata inventory, known public identity/original focus and648
+source/product input hashes verify. Six original PNGs inspected across both runs.
+Installed iOS executable bytes, whole database rollback and complete Keychain
+wipe are not claimed.
+
+Combined preceding empty/role-restoration proof and these runs complete iPhone
+RELAY-01; Android already passes. All61 original requirements/evidence contracts
+remain unchanged;8 full rows complete/53 open. Relay AUTH/availability, automatic
+routing, accessibility and broader physical/published/security/compatibility gates
+remain separate open work. Documentation only, no new full build/quality claim,
+product/dependency change or source push. Usage3%, owner ceiling about98%.

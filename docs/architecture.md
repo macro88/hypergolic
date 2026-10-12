@@ -578,3 +578,12 @@ Looper. Exact receiver traces distinguish zero pre-send emission from unknown
 post-send outcomes. Only a test loopback route/public anchor is substituted; no app
 or protected signer is exercised. Keeper bytes, inventories and owned-resource
 cleanup verify. OB-05/06 remain partial. See the [physical transport checkpoint](outbox-routing.md#physical-android-publication-owner-transport-faults--11-october-2026).
+
+
+Physical relay Settings acceptance now passes on both Android and iPhone: exact
+role seeds on a fresh protected profile, invalid/duplicate rejection, role-local
+add/remove, modified/empty/default persistence across process death, and explicit
+restoration. The iPhone fresh test isolates its temporary app and Keychain access
+without changing original executable section payloads. Exact device cleanup and
+retained identity/focus/metadata verify. Automatic NIP-65 routing, relay AUTH/faults
+and full accessibility remain separate requirements. See the [relay closeout](development.md#physical-iphone-relay-settings-closeout--12-october-2026).

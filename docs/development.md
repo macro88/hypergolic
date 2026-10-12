@@ -1052,3 +1052,37 @@ and dependencies are unchanged, so no new app build or full quality result is
 claimed. Physical iPhone fresh-profile seed, invalid/duplicate URLs and add/edit
 remain open, alongside separate routing/AUTH/usability requirements. The shared
 acceptance matrix retains all61 original scopes, with7 rows fully complete.
+
+
+## Physical iPhone relay settings closeout — 12 October 2026
+
+The retained ordinary app passes all ten invalid URLs and both duplicates with
+exact errors and unchanged role lists. Successful remove/add preserves ordered
+append and separate roles. Modified lists and explicitly restored defaults survive
+two stopped-process cold launches; original public identity, defaults and focus
+return. Independent review checks27 original native Remove inventories and three
+distinct PIDs. Native field values are read back before submission; human-readable
+AX diagnostics can truncate their text. Original startup and typing-guard failures
+remain separate evidence, with no app-code change.
+
+First-run proof uses a uniquely identified temporary copy of the signed ordinary
+Release, with an explicit fresh Keychain group excluding retained-app access.
+All53 executable section payloads and all other files match the original except
+bundle metadata/signature. The physical fresh app creates a different protected
+public identity and seeds exact role defaults before settings writes. Same identity/
+defaults survive process death, while an explicitly empty network role stays empty
+after another restart and lookup remains unchanged. Nine native row inventories,
+three distinct PIDs and canonical public-identity decoding independently verify.
+
+Both temporary packages are removed, including the XCTest runner. A final independent
+live retained metadata inventory matches; original identity/UX focus and648 actual
+source/product input hashes remain. Six original PNGs were inspected across the two
+passed runs. This does not prove byte-identical installed iOS executables, complete
+Keychain erasure or full database rollback. Private originals are retained under
+`iphone-relay-closeout01`; compiled intermediates are hash-inventoried before exact
+owned-directory cleanup.
+
+Together with previous empty-list and selected-role restore proof, RELAY-01 now
+passes on both phones. The matrix preserves all61 original contracts, with8 rows
+complete/53 open. AUTH/availability, automatic routing, accessibility and other
+Phase2 acceptance remain separate. No new app build/full quality result is claimed.
