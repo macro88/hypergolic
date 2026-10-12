@@ -3,7 +3,7 @@
   "status": "open",
   "sourceRequirements": ".planning/REQUIREMENTS.md",
   "inheritedOutbox": "02.11-OUTBOX-HANDOFF.md",
-  "policy": "Final physical evidence is required per platform. Historical scoped proofs do not auto-pass rows. Partial means actual supporting physical evidence exists but the complete required evidence remains open.",
+  "policy": "Owner decision12 October2026: during builds use simulator/emulator evidence wherever faithful; run physical checks only for required behavior unavailable there, documenting the limitation. Full E2E on standalone Android/iOS is deferred until feature complete. Preserve all61 rows and actual results; physical statuses describe final acceptance coverage, not feature progress or a gate for unrelated builds. Deferred tests remain open and do not become passes.",
   "rows": [
     {
       "id": "UX-01",

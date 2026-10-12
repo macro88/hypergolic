@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Resume overlap repaired and iPhone updated; XCTest automation initialization prevents current layout/input proof. SIGN-02 reopened,8 of61 complete. Android input, clean-close selection and full physical/security acceptance remain open.
+stopped_at: Owner selected simulator-first build testing; physical checks only for behavior unavailable there. Full E2E deferred until feature complete. Resume device-input proof deferred; next implementation decision is clean-close.
 last_updated: "2026-10-12"
 last_activity: 2026-10-12
-state_head: 07d32d2950a6a77b9339cf15e36a801b8c7d947d
+state_head: 87eaec587e313847652f5ca3af83f0ea556cfc1a
 progress:
   total_phases: 14
   completed_phases: 10
@@ -22,7 +22,7 @@ progress:
 See: .planning/PROJECT.md (scope updated 2026-09-29)
 
 **Core value:** Shell control of identity and privileged operations.
-**Current focus:** Phase 2.11 — Complete published MVP acceptance
+**Current focus:** Feature implementation with simulator/emulator validation; targeted physical-only components. Phase 2.11 full E2E is deferred until feature complete.
 
 ## MVP scope checkpoint — 29 September 2026
 
@@ -39,8 +39,8 @@ expansion cards are not executable PLAN files.
 ## Current Position
 
 Phase: 2.11 (Complete published MVP acceptance)
-Plan: 03 ordinary physical capability and lifecycle acceptance, with Plan02 verified published fixtures and Plan04 native faults still open; Plan01 ordinary signed physical builds/first tracers complete. Development publisher and destinations are selected; trusted protected fixture release tool is built and installed; Feed Lab public release and Android/iPhone published relay-query subsets pass; physical iPhone review/cancel/background/cold-identity subset passes. Full Outbox and remaining native acceptance remain needed.
-Status: Phase2.9 implementation closed by owner decision; CAP-12 final acceptance/CAP-14 open. Physical Android/iPhone journeys and complete faults/admission remain required. Local commit checkpoint; no source push. Progress counts implementation plans, not passed MVP acceptance; Plan04 was transferred, not executed.
+Plan: Continue unfinished feature implementation and simulator/emulator checks. Run physical checks only when a required component cannot be tested there. Full Plan02/03/04 integration and final E2E acceptance are deferred to the feature-complete build checkpoint; Plan01 ordinary signed builds/first tracers retain their existing evidence. Clean-close contract selection remains an implementation decision.
+Status: Phase2.9 implementation closed; CAP-12 final acceptance/CAP-14 open. Historical final physical coverage is 8 of 61 complete / 53 open and does not measure feature implementation. Deferred E2E no longer blocks unrelated builds. No source push; neither deferred tests nor Phase2 acceptance are marked complete.
 
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
 
@@ -75,6 +75,7 @@ See `docs/phase-zero.md` for actual checks and artifacts.
 | 260916-dwb | Logo-led README with verified scope, setup and trust limits | 2026-09-16 | See task summary | [260916-dwb-rewrite-the-hypergolic-readme-with-the-s](./quick/260916-dwb-rewrite-the-hypergolic-readme-with-the-s/) |
 | 260917-dg2 | Signed tester APK command and sharing instructions | 2026-09-17 | See task summary | [260917-dg2-add-a-signed-tester-apk-build-command-an](./quick/260917-dg2-add-a-signed-tester-apk-build-command-an/) |
 | 261006-i62 | NAP Support catalogue and tolerant admission; physical verification pending | 2026-10-06 | See task summary | [261006-i62-nap-support-catalogue-and-tolerant-publi](./quick/261006-i62-nap-support-catalogue-and-tolerant-publi/) |
+| 261012-td2 | Simulator-first development testing; final E2E deferred until feature complete | 2026-10-12 | See task summary | [261012-td2-record-simulator-first-development-testi](./quick/261012-td2-record-simulator-first-development-testi/) |
 
 Targeted follow-up: iOS native erase/transport failures remain READBACK_FAILED even when subsequent reads return absence. Four new regressions pass; security is 295/295, bootstrap 13/13, storage 80/80, TypeScript and iOS export pass. Aislop remains 100/100 and local React Doctor has no findings.
 
@@ -1694,7 +1695,7 @@ Physical continuation — 9 October 2026: iPhone UI control is restored after ow
 Physical signing continuation — 9 October2026: normal iPhone note/profile individual reject/approve and independent exact readbacks pass within the documented composite scope. Three retained predecessor checks plus four passing continuation checks; no replay of the original approved note. One relay acknowledges but does not independently return the events. Expanded-event accessibility/hash checks pass, but original black PNG/offscreen video leave visual JSON proof open. SIGN01/05/06 remain partial, all61 statuses unchanged (six complete/55 open). See Plan03 checkpoint for retained observer failures and evidence. Next protected backup review/cancel, then owner-only fresh authentication with recording stopped. Source push owner-only; latest usage85%, ceiling about98%.
 
 
-Physical backup continuation — 9 October2026: all five public backup review/cancellation checks pass with reviewed original pixels on the unchanged normal QA app. Exact development identity and original UX focus persist. Public review is ready for owner authentication after recording stops; no key/passcode or authenticated reveal is obtained. ID05 now records partial public-review scope only, all61 requirements remain (six complete/55 open). Fresh auth success/cancel/unavailable, exact export/reimport and Android parity remain open. Source push owner-only; usage85%, ceiling about98%.
+Physical backup continuation — 9 October2026: all five public backup review/cancellation checks pass with reviewed original pixels on the unchanged normal QA app. Exact development identity and original UX focus persist. Public review is ready for owner authentication after recording stops; no key/passcode or authenticated reveal is obtained. ID05 now records partial public-review scope only, all 61 requirements remain (six complete/55 open). Fresh auth success/cancel/unavailable, exact export/reimport and Android parity remain open. Source push owner-only; usage85%, ceiling about98%.
 
 
 Backup failure continuation — 9 October2026: owner Face ID succeeds but backup fails with identity unchanged/no secret. A reproduced post-authentication inactive-state rejection path is patched with a live/cancellable five-second native wait before secret read. All66 owning-source tests and shared353+13 pass; signed iPhone Release compiles. Specific physical root cause/successful reveal still need owner retry; ID05/Phase2 stay partial (six of61 complete/55 open). Original products/main app preserved; same QA bundle/Hypergolic label. Standard check retains six existing Expo mismatches; exact existing advisory exceptions remain visible. No source push; usage87%, ceiling about98%.
@@ -3389,3 +3390,28 @@ freeing89,417,276 logical bytes. Main application cache/current/prior products r
 Usage9%, authorized ceiling about98% consumed. Need working iPhone UI automation/
 unlocked foreground and Android native input; clean-close selection and broader
 physical/security/fault/published/accessibility/licence/age/quality gates stay open.
+
+
+## Development testing agreement — 12 October 2026
+
+The owner selected simulator/emulator testing during development for every behavior
+that those environments can exercise faithfully. Physical checks during builds are
+limited to components whose required behavior cannot be tested there, such as real
+device authentication, protected storage/hardware keys, OS capture protection, and
+picker or external-app integrations with a demonstrated simulator limitation.
+For each physical check, state the missing simulator capability before dispatch.
+A failed test runner alone does not establish a product defect or justify repeatedly
+rebuilding the app. Stop repeated tooling repair and continue independent build work.
+
+Use automated shared/native suites and simulator/emulator input for protocol,
+validation, deterministic faults, layout and ordinary lifecycle behavior where
+supported. Reuse unaffected evidence and retest the changed boundaries. Do not
+bypass production identity or signing restrictions to create simulator proof; any
+physical-only protected path remains a separate targeted device check.
+
+Full cross-capability E2E testing on ordinary standalone Android and iOS is deferred
+until the builds are feature complete. Keep all 61 requirement IDs, existing results
+and open gaps in the acceptance matrix. Its current physical completion count is
+historical acceptance coverage, not feature-build progress or a gate for unrelated
+implementation. Deferred tests remain unrun; final sign-off and release still require
+the agreed E2E run. Existing product, protocol and quality decisions remain in force.

@@ -9,6 +9,30 @@ The earlier Android-only finish line and iOS deferral are superseded by the user
 correction of 15 September 2026. Public app-store publication remains separate.
 Final React Doctor and aislop scores must both be 100/100 without hiding findings.
 
+## Development testing agreement — 12 October 2026
+
+The owner selected simulator/emulator testing during development for every behavior
+that those environments can exercise faithfully. Physical checks during builds are
+limited to components whose required behavior cannot be tested there, such as real
+device authentication, protected storage/hardware keys, OS capture protection, and
+picker or external-app integrations with a demonstrated simulator limitation.
+For each physical check, state the missing simulator capability before dispatch.
+A failed test runner alone does not establish a product defect or justify repeatedly
+rebuilding the app. Stop repeated tooling repair and continue independent build work.
+
+Use automated shared/native suites and simulator/emulator input for protocol,
+validation, deterministic faults, layout and ordinary lifecycle behavior where
+supported. Reuse unaffected evidence and retest the changed boundaries. Do not
+bypass production identity or signing restrictions to create simulator proof; any
+physical-only protected path remains a separate targeted device check.
+
+Full cross-capability E2E testing on ordinary standalone Android and iOS is deferred
+until the builds are feature complete. Keep all 61 requirement IDs, existing results
+and open gaps in the acceptance matrix. Its current physical completion count is
+historical acceptance coverage, not feature-build progress or a gate for unrelated
+implementation. Deferred tests remain unrun; final sign-off and release still require
+the agreed E2E run. Existing product, protocol and quality decisions remain in force.
+
 ## MVP capability scope — 29 September 2026
 
 The MVP scope corrected on 30 September extends through Outbox: relay query/subscriptions, resources,

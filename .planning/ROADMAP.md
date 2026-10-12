@@ -187,30 +187,27 @@ CAP-06 is selected-profile complete; broad CAP-14 gates remain open.
 **Requirements:** CAP-14
 **Fixture:** All MVP fixtures (excluding Value Lab) plus selected real napplets
 **Work and exit criteria:** Run the full published journey on standalone Android/iOS, close foundation/device gaps, verify update/restart/identity isolation, and satisfy both quality scores at 100/100. Record source/build/fixture/spec hashes and independent results.
-**Plans:** Four sequential plans: [01 readiness/builds](phases/02.11-published-mvp-acceptance/02.11-01-PLAN.md), [02 verified published fixtures](phases/02.11-published-mvp-acceptance/02.11-02-PLAN.md), [03 full physical journeys](phases/02.11-published-mvp-acceptance/02.11-03-PLAN.md), [04 faults/final sign-off](phases/02.11-published-mvp-acceptance/02.11-04-PLAN.md).
+**Plans:** Four plans; full integration/E2E execution is scheduled after feature-complete builds: [01 readiness/builds](phases/02.11-published-mvp-acceptance/02.11-01-PLAN.md), [02 verified published fixtures](phases/02.11-published-mvp-acceptance/02.11-02-PLAN.md), [03 full physical journeys](phases/02.11-published-mvp-acceptance/02.11-03-PLAN.md), [04 faults/final sign-off](phases/02.11-published-mvp-acceptance/02.11-04-PLAN.md).
 
-**Current checkpoint — 9 October 2026:** Implementation through 2.9 is in place;
-complete MVP acceptance remains open. The [current acceptance matrix](phases/02.11-published-mvp-acceptance/02.11-acceptance-matrix.json)
-preserves all 61 requirements: UX-01/03/04/06/08/09 pass on both physical phones,
-leaving 55 full requirements open. Both platforms now pass the complete named
-restart/published version-pin/lazy-reload/deliberate-empty journey. iPhone avatar
-UX-02 passes; Android parity is open.
-Ordinary signed builds and initial identity continuity have scoped physical proof,
-not final packaging or protected-identity acceptance. The designated development
-publisher exists and selected real published fixtures have been retrieved/tested;
-complete fixture parity and embedded/published operation coverage remain open.
+**Current checkpoint — 12 October 2026:** Implementation through 2.9 is in place;
+full acceptance remains open. The owner selected simulator/emulator testing during
+builds, with physical checks only for components that cannot be tested there.
+Full E2E runs at the feature-complete build checkpoint. See the
+[testing agreement](phases/02.11-published-mvp-acceptance/02.11-CONTEXT.md#development-testing-agreement--12-october-2026).
+The current matrix retains all 61 requirements and actual results: 8 final physical
+rows complete/53 open. Those counts describe acceptance coverage, not feature
+implementation, and deferred physical repetitions do not block unrelated builds.
 
-Next complete the physical published-app, identity/signing and Outbox journeys,
-then the remaining lifecycle/security faults and current build/quality sign-off.
-Published Outbox admission stays withheld pending its required acceptance. The
-[Outbox register](phases/02.11-published-mvp-acceptance/02.11-OUTBOX-HANDOFF.md)
-retains every transferred native/device/fault requirement. Recent physical WK and
-real-Keychain probes supplement partial rows; they do not close whole app journeys.
-On 9 October the owner enabled Mac developer authorization and completed the
-iPhone XCTest passcode prompt. Readiness and the full published restart journey
-now pass. Android is currently disconnected. Final quality remains open under the
-exact existing approved locked
-dependency exceptions; the ordinary verifier remains red.
+Next resolve the clean-close product contract and continue unfinished feature work
+with focused simulator/emulator and automated checks. Test real authentication,
+protected storage, capture controls and other demonstrably physical-only behavior
+on devices when their owning component changes. Final published fixture parity,
+cross-capability journeys, remaining E2E and quality sign-off stay on the final
+acceptance checklist. Published Outbox admission still requires its owning safety
+checks; this scheduling change does not grant new authority or mark it accepted.
+The [Outbox register](phases/02.11-published-mvp-acceptance/02.11-OUTBOX-HANDOFF.md)
+retains transferred coverage. Existing exact quality exceptions and red gates remain
+visible. Later phase order and product scope are unchanged.
 
 ### Phase 3: External signing
 
@@ -252,8 +249,9 @@ defaults/error shapes; do not invent protocol fields to signal unsupported featu
 Each phase must resolve its spec/profile, limits and relevant product policy,
 deliver one real SDK/native journey, expand selected operations, and pass success,
 denial, lifecycle and fault tests on Android and iOS. Existing phase-2 evidence can
-support implementation dependencies; outstanding physical-device acceptance stays
-open until verified and blocks final MVP acceptance. Phase sizes are relative,
+support implementation dependencies; outstanding final E2E/device acceptance stays
+open until verified and blocks release sign-off, while unrelated feature builds
+continue under the 12 October development testing agreement. Phase sizes are relative,
 not calendar estimates. Later provider choices can change them.
 
 
@@ -270,7 +268,7 @@ checkpoint and header-profile-avatar debug record. No source push.
 valid/missing/broken image, switch/cancel, foreground and real cold-process checks
 pass. Twelve original screenshots and independent key/pixel comparisons confirm
 the rendered result. iPhone UX-02 passes; Android remains unrun behind its separate
-installer restriction. Other statuses and all61 requirements are preserved: three
+installer restriction. Other statuses and all 61 requirements are preserved: three
 cross-platform rows complete,58 open. Full Phase2.11/Phase2 and final quality remain
 active. See Plan03 checkpoint. Local commit only; no source push.
 
@@ -299,7 +297,7 @@ Eight checks pass before inherited-pause observer stop; that run stays incomplet
 Separate five-check actual SDK queue Dismiss/pause/explicit resume/individual Reject
 passes. VoiceOver OS enable/restoration is verified but controls are not accepted:
 first-use interruption then failed single-tap discrimination on physical iOS26.5.
-UX-10/SIGN-02 remain partial, every other status unchanged; all61 requirements,
+UX-10/SIGN-02 remain partial, every other status unchanged; all 61 requirements,
 three cross-platform complete/58 open persist. Phase2/2.11 and final quality remain
 active. See Plan03 checkpoint. Targeted local commit only; no source push.
 
