@@ -377,3 +377,28 @@ observer avoids this overlap using recorded coordinates; the product visibility
 gap remains open under UX-10. No production UI change or broader usability pass is
 claimed. See the [acceptance checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-03-CHECKPOINT.md)
 and [matrix](../.planning/phases/02.11-published-mvp-acceptance/02.11-acceptance-matrix.json).
+
+
+## Resume occupies reserved footer space — 12 October 2026
+
+The trusted Resume button now sits in normal Shell.footer flow after the flexible
+guest stage, within Shell's existing safe-area view. Its intrinsic height and
+padding reserve space, so it does not overlay guest controls. It appears only for
+a paused focused queue outside signing/upload/blocked presentation. The existing
+52-point minimum target, label, palette and explicit resume action remain.
+This follows the [React Native0.86 normal-flow layout contract](https://reactnative.dev/docs/0.86/flexbox).
+Queue policy and native signing/lease authority are unchanged.
+
+Typechecking,31 shell tests,353 security+13 bootstrap, both exports and signed
+ordinary Android/iPhone builds pass. The iPhone receives a same-ID/certificate
+update. Both physical observer attempts fail while enabling XCTest automation
+mode before any app checks. The runner is removed and inventories/product/source
+seals reconcile; actual footer geometry/input and retained live workspace are
+unobserved after this update. Android's candidate is packaged, without installation.
+Current React Doctor is100/100; aislop remains98/100 with the two existing approved
+dependency exceptions, and the normal gate stays red.
+
+The preceding physical queue-input completion is historical. SIGN-02 is reopened
+on the current candidate until the relocated Resume control is verified physically
+on both platforms; UX-10 and other signing/security/physical gates remain open.
+No new physical pass follows from the layout code or successful builds alone.

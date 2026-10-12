@@ -11,7 +11,6 @@ import { updateApprovalAppState } from './approval-lifecycle.ts';
 import { ApprovalProvider } from './ApprovalContext';
 import { Shell, type ShellProps } from './Shell';
 import { colors } from './theme';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Props = Omit<ShellProps, 'pendingApprovals' | 'onBeforeClose'> & { service: ApprovalService; uploads?: UploadService; epoch: number };
 
@@ -37,26 +36,30 @@ export function ApprovalWorkspace({ service, uploads, epoch, workspace, footer, 
   const title = workspace?.sessions.find(session => session.id === shown?.origin.sessionId)?.title ?? 'Napplet';
   return <ApprovalProvider value={service}><UploadProvider value={uploads ?? null}>
     <Shell {...shell} workspace={workspace} pendingApprovals={new Set([...snapshot.pendingSessionIds, ...uploadSnapshot.pendingSessionIds])}
-      footer={<>{!shown && !uploadSnapshot.current && !shell.blocked && footer}<UploadWorkspace service={uploads} snapshot={uploadSnapshot} workspace={workspace} blocked={Boolean(shown || shell.blocked)} /></>}
+      footer={<>{!shown && !uploadSnapshot.current && !shell.blocked && <>{footer}<ApprovalResume snapshot={snapshot} service={service} /></>}<UploadWorkspace service={uploads} snapshot={uploadSnapshot} workspace={workspace} blocked={Boolean(shown || shell.blocked)} /></>}
       onBeforeClose={session => {service.close(session.id); uploads?.close(session.id);}} />
-    <ApprovalResults snapshot={snapshot} service={service} presentation={presentation} shown={shown!==null}/>
+    <ApprovalResults snapshot={snapshot} presentation={presentation} shown={shown!==null}/>
     <ApprovalSheet item={shown} nappletTitle={title} busy={presentation.busy} error={null}
       onApprove={id => {if(snapshot.current?.id===id)presentation.approve(snapshot.current);}}
       onReject={id => {if(!presentation.busy)service.reject(id);}} onDismiss={id => {if(!presentation.busy)service.dismiss(id);}} />
   </UploadProvider></ApprovalProvider>;
 }
 
-function ApprovalResults({snapshot,service,presentation,shown}:{snapshot:ApprovalSnapshot;service:ApprovalService;presentation:ReturnType<typeof useApprovalPresentation>;shown:boolean}){
- const insets=useSafeAreaInsets();
+/** Normal footer flow keeps trusted Resume outside every guest input surface. */
+function ApprovalResume({snapshot,service}:{snapshot:ApprovalSnapshot;service:ApprovalService}) {
+  if (!snapshot.reviewPaused || snapshot.pending === 0 || snapshot.focusedSessionId === null) return null;
+  return <View style={styles.resumeArea}><Pressable testID="approval-resume" accessibilityRole="button" onPress={() => service.resume()} style={styles.resume}><Text style={styles.resumeText}>Resume approvals</Text></Pressable></View>;
+}
+
+function ApprovalResults({snapshot,presentation,shown}:{snapshot:ApprovalSnapshot;presentation:ReturnType<typeof useApprovalPresentation>;shown:boolean}){
  return <>
-    {snapshot.reviewPaused && snapshot.pending > 0 && snapshot.focusedSessionId !== null && <View pointerEvents="box-none" style={[styles.resumeArea, { paddingBottom: Math.max(24, insets.bottom + 12) }]}><Pressable testID="approval-resume" accessibilityRole="button" onPress={() => service.resume()} style={styles.resume}><Text style={styles.resumeText}>Resume approvals</Text></Pressable></View>}
     {presentation.outcome && !presentation.receipt && !shown && snapshot.focusedSessionId !== null && <Pressable testID="approval-outcome" accessibilityRole="button" accessibilityLabel={`${presentation.outcome} Dismiss status`} onPress={presentation.dismissOutcome} style={styles.outcome}><Text accessibilityLiveRegion="polite" style={styles.outcomeText}>{presentation.outcome}</Text></Pressable>}
     {presentation.receipt&&!shown&&<PublicationReceiptSheet receipt={presentation.receipt} onDismiss={presentation.dismissReceipt}/>}
  </>;
 }
 
 const styles = StyleSheet.create({
-  resumeArea: { ...StyleSheet.absoluteFill, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 32 },
+  resumeArea: { alignItems: 'center', paddingHorizontal: 12, paddingTop: 8, paddingBottom: 12 },
   resume: { minHeight: 52, borderRadius: 26, justifyContent: 'center', paddingHorizontal: 24, backgroundColor: colors.accent },
   resumeText: { color: colors.background, fontSize: 16, fontWeight: '700' },
   outcome: { position: 'absolute', left: 24, right: 24, bottom: 96, alignItems: 'center' },
