@@ -1109,3 +1109,20 @@ Use the corrected observer in the next uniquely prepared batch after reconciling
 the interrupted device transaction. These host checks do not prove Face ID,
 installer settlement, installed iOS bytes, native key erasure or physical cleanup.
 The full acceptance matrix remains 8 of 61 complete; no new physical row closes.
+
+
+### Native follow-up reconciliation
+
+After the system permission dialog disappears, the exact previously uncertain
+app uninstall returns a successful native receipt. A fresh one-case XCTest uses
+the repaired reporting path and verifies the retained known full public identity
+and UX Lab7 before/after Settings in the same process. Original AX, three inspected
+PNGs and the passed/no-skips summary agree. The runner and old temporary app are
+absent; the complete selected metadata inventory matches its test baseline, and
+only the stable Hypergolic app remains in the project namespace.648 product inputs
+stay unchanged. This settles the selected cleanup/focus handoff without proving
+authentication, key erasure, cold behavior or full MVP acceptance.
+
+Failed-install originals and native follow-up proof are byte-readback preserved.
+Only the two completed runner-derived trees and hash-matching unused app copy
+are removed; the retained ordinary ready app remains. No acceptance status changes.

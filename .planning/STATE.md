@@ -3107,3 +3107,26 @@ planning files change; no app/native/dependency code, new full quality/build cla
 source push or requirement/status promotion.61 original contracts/8 complete rows
 remain. Pending iPhone Allow/action, interrupted-installer reconciliation, Android
 connection and clean-close product selection remain. Usage4%, ceiling about98%.
+
+
+## Physical retained-app cleanup reconciled — 12 October 2026
+
+Current screenshot shows the prior Face ID permission dialog/Installing placeholder
+gone. Exact formerly uncertain temporary-app uninstall now has a successful native
+receipt. One fresh native XCTest passes known full public identity and original
+UX Lab7 focus before/after trusted Settings input in the same retained PID4578.
+Three original PNGs inspected; original AX and test summary independently verify
+one pass/no failures/skips. Repaired command/finalization code runs this observer.
+Exact runner and old temporary app are absent; selected before/after metadata
+inventories match. The only remaining project app is the stable Hypergolic app.
+648 existing product inputs stay exact. No authentication/deletion action or
+cold launch, installed iOS bytes, full database rollback or Keychain wipe claim.
+
+Failed install originals and successful reconciliation archive read back139
+members byte-identically. Two exact completed runner-derived trees and one matching
+unused app copy are removed after hash checks, freeing220251777 logical bytes;
+retained local ready app is preserved. This closes the prior temporary-package/
+retained-focus cleanup handoff, not ID06 or full Phase2.61 original rows remain,
+8 complete/53 open. Android has reconnected as an authorized device; its unlock
+state is not yet rechecked. Clean-close contract selection and physical/native/
+published/license/quality/age gates remain. No source push or Phase3 advance.
