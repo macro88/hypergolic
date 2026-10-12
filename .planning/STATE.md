@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Same-ID ordinary Android and iPhone default SDK routing and native review/Reject pass; clean-close decision and full 61-row acceptance remain open.
+stopped_at: Ordinary iPhone published identifier, storage/cold/pin and unavailable-API subsets pass; Android native input rejected; clean-close selection and full acceptance remain open.
 last_updated: "2026-10-12"
 last_activity: 2026-10-12
-state_head: b00828e327dd8d7fd718cf081b2716b33f8d279e
+state_head: 8752e5959e90c883c02a9ca6cb2cbbe546deaafa
 progress:
   total_phases: 14
   completed_phases: 10
@@ -3207,3 +3207,36 @@ with 8 complete/53 open. Documentation-only continuation; no new quality rerun,
 source push or Phase 3 advance. The native-change Doctor100/aislop98 result and two
 existing owner exceptions remain dated to the repair. Clean-close selection and
 full physical/published/security/license/package-age acceptance remain open.
+
+
+## Ordinary published iPhone loading subsets — 12 October 2026
+
+Four invalid identifier checks pass. Existing reviewed published State and Feed
+releases load with remembered grants from one controlled publisher. Original SDK
+saved data, exact event pins, native UUIDs, eight-view order and lazy loading
+survive two actual cold terminations (three distinct PIDs). Only owned views close;
+all six original views, full selected identity and UX Lab 7 focus are restored.
+
+Two original observer failures remain recorded. A later nine-assertion native run
+passes, but independent review excludes its client-validation result as evidence
+of unavailable Outbox. A targeted valid-filter-array follow-up verifies the SDK
+reports a non-injected domain without approval. This proves API unavailability,
+not native operation-request rejection. Four identifier checks, eight accepted
+restart groups and two targeted outcome/restoration groups make 14 supporting
+checks; these are not 14 completed requirements.
+
+Android rejects the first checked native click, including one bounded retry after
+PIN entry. Zero loading checks run there; helper paths are removed, installed APK,
+package inventory and source inputs preserve. Final independent iPhone inventory
+contains one retained Hypergolic and no temporary runner. Prepared package hashes
+preserve; installed iOS executable bytes were not retrieved.
+
+Private originals: published-loading01; 1,512 files reconstruct byte-identically
+from seven archives. Six original PNGs inspected: explicit errors, saved result,
+unloaded previews and restored focus visible; the unavailable error's final line
+is clipped, with full text established by original AX. LOAD-01–03 iPhone become
+partial; STATE-01/CAP-01/FIX-02 gain scoped evidence. All 61 contracts and Android
+statuses preserve; 8 complete/53 open. Fresh consent/two publishers, malformed
+artifacts, actual version updates and final published fixture parity remain open.
+No app-code/dependency change, full quality rerun, source push or Phase 3 advance.
+Clean-close contract selection remains unanswered.

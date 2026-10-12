@@ -528,9 +528,15 @@
         "ios-physical": {
           "status": "partial",
           "evidence": [
-            "iphone-storage01/hg-storage-physical-iphone04/receipt.json"
+            "iphone-storage01/hg-storage-physical-iphone04/receipt.json",
+            "published-loading01/hg-published-iphone-observer-20261012/physical/receipt.json",
+            "published-loading01/hg-published-iphone-observer-20261012-03/physical/receipt.json",
+            "published-loading01/hg-published-iphone-observer-20261012-04/physical/receipt.json",
+            "published-loading01/host/hg-published-independent-20261012.json",
+            "published-loading01/host/hg-published-final-inventories-20261012.json"
           ],
-          "remaining": "Bundled original SDK missing/empty/get/set/keys/remove, shared/instance isolation, process persistence and app/publisher/user namespace subset pass. Full cross-product, published update/reopen, quota/type errors and untrusted namespace faults remain required."
+          "remaining": "Full user/publisher/d-tag cross-product, verified version/update comparisons, quota/type errors and untrusted namespace faults remain.",
+          "verifiedScope": "Published State Lab original SDK save/read persists across cold launches and lazy reopen under the same selected identity, publisher and verified release. Original six views and identity are restored; unique nonsensitive run-owned saved keys remain intentionally persisted."
         }
       }
     },
@@ -754,8 +760,16 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "published-loading01/hg-published-iphone-observer-20261012/physical/receipt.json",
+            "published-loading01/hg-published-iphone-observer-20261012-03/physical/receipt.json",
+            "published-loading01/hg-published-iphone-observer-20261012-04/physical/receipt.json",
+            "published-loading01/host/hg-published-independent-20261012.json",
+            "published-loading01/host/hg-published-final-inventories-20261012.json"
+          ],
+          "verifiedScope": "Ordinary retained iPhone rejects exact malformed, checksum-invalid, valid wrong-kind and missing identifiers with explicit errors and no new view or approval. Existing reviewed published State/Feed releases load through remembered grants and original SDK. Four identifier checks pass within an otherwise failed observer; its later failure remains recorded.",
+          "remaining": "Wrong-publisher, tampered/oversized artifact rejection and complete no-code-marker/fallback requirements remain. This subset does not close the loader security contract."
         }
       }
     },
@@ -769,8 +783,16 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "published-loading01/hg-published-iphone-observer-20261012/physical/receipt.json",
+            "published-loading01/hg-published-iphone-observer-20261012-03/physical/receipt.json",
+            "published-loading01/hg-published-iphone-observer-20261012-04/physical/receipt.json",
+            "published-loading01/host/hg-published-independent-20261012.json",
+            "published-loading01/host/hg-published-final-inventories-20261012.json"
+          ],
+          "verifiedScope": "Existing reviewed State/Feed releases from one controlled publisher launch using remembered grants. Valid author-filter array reaches original SDK and reports that Outbox was not injected; no approval is shown. This proves API unavailability, not native request or transport rejection.",
+          "remaining": "Fresh first-open publisher/access confirmation, cancel, two controlled publishers and complete unknown/denied/unsupported handling remain. No fresh warning/consent is claimed for this batch."
         }
       }
     },
@@ -784,8 +806,16 @@
           "evidence": []
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "published-loading01/hg-published-iphone-observer-20261012/physical/receipt.json",
+            "published-loading01/hg-published-iphone-observer-20261012-03/physical/receipt.json",
+            "published-loading01/hg-published-iphone-observer-20261012-04/physical/receipt.json",
+            "published-loading01/host/hg-published-independent-20261012.json",
+            "published-loading01/host/hg-published-final-inventories-20261012.json"
+          ],
+          "verifiedScope": "Exact State/Feed event pins persist across two actual cold terminations with three distinct app PIDs. Native UUIDs, full eight-view order, saved SDK data and lazy Open to load previews preserve; closing only the two owned published views restores the original six-view order, full selected identity and focus.",
+          "remaining": "Old/new valid and invalid update, explicit cancellation/acceptance, storage continuity across version change and pending old-request revocation remain. Cold pin continuity alone does not prove update acceptance."
         }
       }
     },
@@ -970,9 +1000,15 @@
           "status": "partial",
           "evidence": [
             "iphone-connected01/hg-fixture-published-iphone02/trace-report.json",
-            "iphone-connected01/hg-fixture-published-iphone03/trace-report.json"
+            "iphone-connected01/hg-fixture-published-iphone03/trace-report.json",
+            "published-loading01/hg-published-iphone-observer-20261012/physical/receipt.json",
+            "published-loading01/hg-published-iphone-observer-20261012-03/physical/receipt.json",
+            "published-loading01/hg-published-iphone-observer-20261012-04/physical/receipt.json",
+            "published-loading01/host/hg-published-independent-20261012.json",
+            "published-loading01/host/hg-published-final-inventories-20261012.json"
           ],
-          "remaining": "Complete all named row requirements. First-open exact publisher/event consent, unavailable-Outbox warning, decline/fresh accept and exact original-SDK relay query were observed; initial suite fails its friendly-title assumption. Corrected saved-session query/cold identity run passes. Published Outbox, all fixture parity and complete operation/lifecycle coverage remain open."
+          "remaining": "Published Outbox, final fixture byte/hash parity and complete operation/lifecycle coverage remain.",
+          "verifiedScope": "Representative published State/Feed SDK loading, saved-state cold continuity and unavailable-domain behavior are observed in the ordinary retained iPhone. These are existing reviewed releases, not a new publication or final all-seven-group parity proof."
         }
       }
     },
@@ -1088,9 +1124,15 @@
           "status": "partial",
           "evidence": [
             "iphone-connected01/hg-fixture-published-iphone02/trace-report.json",
-            "iphone-connected01/hg-fixture-published-iphone03/trace-report.json"
+            "iphone-connected01/hg-fixture-published-iphone03/trace-report.json",
+            "published-loading01/hg-published-iphone-observer-20261012/physical/receipt.json",
+            "published-loading01/hg-published-iphone-observer-20261012-03/physical/receipt.json",
+            "published-loading01/hg-published-iphone-observer-20261012-04/physical/receipt.json",
+            "published-loading01/host/hg-published-independent-20261012.json",
+            "published-loading01/host/hg-published-final-inventories-20261012.json"
           ],
-          "remaining": "Complete all named row requirements. First-open exact publisher/event consent, unavailable-Outbox warning, decline/fresh accept and exact original-SDK relay query were observed; initial suite fails its friendly-title assumption. Corrected saved-session query/cold identity run passes. Published Outbox, all fixture parity and complete operation/lifecycle coverage remain open."
+          "remaining": "Complete exact manifest/support review, fresh unavailable warning, grant intersection and all requested operation/profile authority requirements remain. This subset proves unavailable API access, not native wire rejection.",
+          "verifiedScope": "Published Feed Lab with remembered grant remains usable while Outbox is not injected. Exact valid filter array produces the original SDK unavailable-domain error without approval. Complete text is verified by original AX; screenshot shows the error with its final line clipped."
         }
       }
     },

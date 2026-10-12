@@ -210,3 +210,24 @@ mixed private/public DNS answers, hostname or certificate mismatch, redirects,
 bad upgrade responses, oversized frames, cancellation, background revocation,
 and restart with the exact pinned event. The successful path must reach the
 normal workspace and show a verified guest on both platforms.
+
+
+## Ordinary physical published-loading checkpoint — 12 October 2026
+
+The retained iPhone rejects malformed, checksum-invalid, valid wrong-kind and
+missing identifiers with explicit errors before opening a view. Existing reviewed
+State/Feed releases load with remembered grants. Saved SDK data, exact event pins,
+native UUIDs, view order and lazy loading survive two actual cold terminations;
+the original identity, six views and focus return after owned views close.
+
+A targeted valid author-filter array reports the original SDK Outbox domain is
+not injected, without native approval. This establishes API unavailability;
+complete native request-rejection coverage remains separate. Independent review
+excludes an earlier client-validation outcome from this claim. Original observer
+failures remain recorded alongside the passing subsets.
+
+Android rejects the first automated native click, including a bounded PIN retry;
+no loading checks run there. Helpers are removed and app bytes/inventory preserve.
+Fresh consent/cancel, two publishers, tampered/oversized artifacts, actual version
+updates, full fixture parity and native fault/security acceptance remain open.
+These documentation-only results do not complete Phase 2 or rerun quality gates.
