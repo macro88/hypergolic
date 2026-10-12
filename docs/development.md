@@ -1182,3 +1182,21 @@ unchanged;8 rows are fully complete. Documentation checks cover this checkpoint;
 application/native builds and full quality gates are not rerun. Source push remains
 owner-controlled. The [full acceptance matrix](../.planning/phases/02.11-published-mvp-acceptance/02.11-acceptance-matrix.json)
 continues to govern Phase2 completion.
+
+
+## Native WSS repair validation — 12 October 2026
+
+The [Outbox repair checkpoint](outbox-routing.md#repeated-upgrade-metadata--12-october-2026)
+records diagnosis, native/physical scope and remaining acceptance. Validation uses
+`tests/native/websocket-handshake/run.py`, Android/iOS published-WSS runners,
+`pnpm run test:query`, `pnpm run test:outbox`, `pnpm run typecheck`,
+`pnpm run prebuild:android` and production Expo exports for both platforms.
+After sourcing `.tools/use-local-tools.sh`, the ordinary ARM64 Release builds with
+`./android/gradlew -p android assembleRelease --stacktrace --offline --no-daemon --max-workers=2 -PreactNativeArchitectures=arm64-v8a`.
+The authorized stable test package/signing overlays are restored after building.
+Compare to actual installed APK bytes, not an older saved artifact. Only one DEX
+changes; identity/workspace survive the same-ID update. Original SDK routing and
+trusted default review/Reject pass; exact owned helpers are removed. Physical iPhone
+composition remains pending. Private originals: relay-upgrade-metadata01.
+Doctor100 and aislop98 retain exactly the existing two owner-approved advisory
+exceptions; the normal quality gate still exits nonzero and is not suppressed.

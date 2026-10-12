@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Physical iPhone system Cancel/live trace/cold two-identity checks and Android public review/cancellation subset pass. Successful authenticated deletion remains open; original 61 contracts and8 complete rows preserved.
+stopped_at: Native repeated-upgrade-metadata repair and same-ID ordinary Android SDK routing/default review pass; iPhone composition and full61-row acceptance remain open.
 last_updated: "2026-10-12"
 last_activity: 2026-10-12
-state_head: e7b9f1e5d15cf39181254adebc7af994d6abf580
+state_head: 264f14613a5e433c606de573b0c77d455688c0dd
 progress:
   total_phases: 14
   completed_phases: 10
@@ -3165,3 +3165,19 @@ ID-05/ID-06 Android advance to partial; ID-06 iPhone gains cancellation/live/col
 evidence. Successful authenticated deletion and remaining full evidence stay open.
 All61 contracts and59 unrelated rows remain exact;8 complete/53 open. No app-code
 change, full quality rerun, source push or Phase3 advancement.
+
+
+## Default Lookup repair checkpoint — 12 October 2026
+
+Repeated unconsumed upgrade metadata explains one Damus discovery failure. Both
+native validators are repaired without relaxing critical fields or routing/signing
+policy. Shared vectors31/31 per platform and owning WSS regressions pass; all3
+physical source-bound default queries reach EOSE twice. Same-ID signed ordinary
+Android update preserves selected identity and empty workspace. Genuine SDK resolves
+exact default read/write plans and reaches trusted own-publication review; Reject
+restores original context. Temporary helpers are absent, inventory/source inputs
+match. Original failed attempts and successful proof are preserved privately.
+Physical iPhone composition remains pending. CAP12 stays partial;61 original
+contracts,8 complete/53 open. Quality remains Doctor100/aislop98 with only the two
+existing documented owner exceptions. Clean-close selection, full physical,
+published, security, license and package-age gates remain. No source push.

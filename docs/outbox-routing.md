@@ -316,3 +316,43 @@ OB-05 and OB-06 gain this explicit physical transport subset, with OB-06 partial
 Installed app-UID/Expo/guest/protected-signer composition, public DNS/policy, full
 fanout, OS suspend/lifecycle and complete cross-platform faults remain open. No full
 matrix row, numeric quality gate or Phase2 completion follows;7/61 remain complete.
+
+
+## Repeated upgrade metadata — 12 October 2026
+
+The actual Android native transport twice rejects the Damus upgrade while the other
+two default Lookup relays reach EOSE. A one-print diagnostic before unchanged
+validation captures a valid 101 response with repeated Server-Timing fields. Both
+native validators incorrectly reject every repeated header name. This identifies
+one cause of incomplete default discovery, not every prior timeout.
+
+The Java/Swift repair permits repeated unconsumed metadata after syntax/size checks;
+critical upgrade fields remain singletons and all existing TLS/DNS, framing,
+nonce, forbidden-header and authority checks remain. This follows
+[RFC9110 field lines](https://httpwg.org/specs/rfc9110.html#field.lines),
+[Server-Timing](https://www.w3.org/TR/server-timing/) and
+[RFC6455 section11.3.3](https://www.rfc-editor.org/rfc/rfc6455#section-11.3.3).
+Discovery/signing policy is unchanged.
+
+Both original validators fail the new regression, then each passes31 shared vectors.
+Android owning WSS/classifier/request-owner/TLS suites pass140/23/23/37 assertions;
+Swift WSS proof and arm64 iOS Simulator compile pass. Query20/20, Outbox102/102,
+TypeScript, required Android prebuild, both production Expo exports and signed
+ordinary Android Release build pass. All3 source-bound physical default queries
+reach matching EOSE in both repeats at shell UID; these are empty-list responses,
+not signed-event or ordinary SDK evidence.
+
+The same-ID/certificate ordinary Android update preserves public identity and empty
+workspace; only one DEX changes relative to the actual installed APK. In the app,
+unchanged Lookup defaults produce exact original-SDK read/write role plans and
+reach trusted default own-publication review. The first read reports fresh nip65;
+no completeness field is invented from the public SDK projection. Reject and owned
+view teardown restore identity, empty workspace and Settings context. Exact helper
+paths are absent and package inventory/source inputs match. Original setup, input
+rejection, obsolete-package-pointer and SDK-observer failures stay preserved.
+
+Physical iPhone installation/composition and full routing/lifecycle/published/fault
+acceptance remain open. CAP-12 stays partial; all61 original contracts and8 complete
+rows remain. Private original evidence is relay-upgrade-metadata01. React Doctor is
+100/100; aislop98 retains only the two existing owner-approved node-forge/braces
+advisory exceptions. The normal gate still fails visibly, with no new waiver.

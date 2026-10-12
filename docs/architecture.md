@@ -394,6 +394,13 @@ The [notifications and configuration profile](notifications-configuration.md) ad
 
 The [selected Outbox context](../.planning/phases/02.9-outbox-routing/02.9-CONTEXT.md) records A1–F1: the pinned draft, bounded public-WSS discovery, per-identity cache intervals, explicit read/own-publication fallback and reviewed existing signed relay-list redistribution. Signed kind10002 lists use NIP-01 replacement winners and separate read/write roles under existing public-WSS restrictions. Bundled Feed Lab getEvent/query/resolveRelays and subscriptions now use native source/identity ownership, Lookup discovery, identity-specific SQLite cache and app-only data transport. Both Android and iOS pass the [Plan02 native read/stream journeys](../.planning/phases/02.9-outbox-routing/02.9-02-SUMMARY.md), including cold cache, exact signed results, observed relay hints, truthful partial reads, switching, fresh routing before foreground reconnection, close and identity revocation. Private native completion signals never become guest outbox.eose. Original SDK publication now uses immutable native review, protected primary signing and separate primary/existing-list receipts. Actual Android production emulator publication subsets pass; iOS native core and presentation do not prove supported protected signing. The owner closed implementation on 5 October and moved all remaining acceptance into [Phase 2.11](../.planning/phases/02.11-published-mvp-acceptance/02.11-OUTBOX-HANDOFF.md). CAP-12 final acceptance remains open. The [selected routing profile](outbox-routing.md) documents D-07–D-09, native bounds and the existing-list extension to the pinned draft.
 
+Native WSS upgrade parsing validates every header line and its aggregate bounds.
+Unconsumed metadata may repeat; Upgrade, Connection and Sec-WebSocket-Accept
+remain singletons. Extensions, subprotocols, redirects and body headers remain
+forbidden. This avoids rejecting legitimate repeated Server-Timing metadata
+without changing discovery completeness or publication policy. See the
+[repair checkpoint](outbox-routing.md#repeated-upgrade-metadata--12-october-2026).
+
 ## Trusted fixture publication
 
 The claimed identity owner also composes the bounded Settings fixture publisher

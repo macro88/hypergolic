@@ -14,7 +14,6 @@ enum PublishedRelayWebSocketHandshake {
         }
         let lines = raw[..<marker.lowerBound].components(separatedBy: "\r\n")
         guard lines.count >= 2, validStatus(lines[0]) else { throw invalid() }
-        var seen = Set<String>()
         var upgrade: String?
         var connection: String?
         var accept: String?
@@ -23,15 +22,21 @@ enum PublishedRelayWebSocketHandshake {
             let name = String(line[..<colon])
             guard name.utf8.allSatisfy(isTokenByte) else { throw invalid() }
             let key = name.lowercased()
-            guard seen.insert(key).inserted else { throw invalid() }
             let value = trimOWS(String(line[line.index(after: colon)...]))
             guard !value.utf8.contains(where: isForbiddenControl) else { throw invalid() }
             switch key {
-            case "upgrade": upgrade = value
-            case "connection": connection = value
-            case "sec-websocket-accept": accept = value
+            case "upgrade":
+                guard upgrade == nil else { throw invalid() }
+                upgrade = value
+            case "connection":
+                guard connection == nil else { throw invalid() }
+                connection = value
+            case "sec-websocket-accept":
+                guard accept == nil else { throw invalid() }
+                accept = value
             case "sec-websocket-extensions", "sec-websocket-protocol", "location",
                  "content-length", "transfer-encoding": throw invalid()
+            // Unconsumed metadata may repeat (for example Server-Timing or Set-Cookie).
             default: break
             }
         }

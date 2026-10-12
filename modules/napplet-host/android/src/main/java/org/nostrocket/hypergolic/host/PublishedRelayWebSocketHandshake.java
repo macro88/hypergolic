@@ -4,9 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
 
 /** Strict RFC 6455 server-upgrade response validator. Input must contain headers only. */
 public final class PublishedRelayWebSocketHandshake {
@@ -23,7 +21,6 @@ public final class PublishedRelayWebSocketHandshake {
     if (end < 0 || end + 4 != raw.length()) fail(); // Reject bodies and prefetched frame bytes.
     String[] lines = raw.substring(0, end).split("\r\n", -1);
     if (lines.length < 2 || !lines[0].matches("HTTP/1\\.1 101(?: [\\x20-\\x7e]*)?")) fail();
-    Set<String> seen = new HashSet<>();
     String upgrade = null, connection = null, accept = null;
     for (int i = 1; i < lines.length; i++) {
       String line = lines[i];
@@ -32,15 +29,15 @@ public final class PublishedRelayWebSocketHandshake {
       String name = line.substring(0, colon);
       if (!name.matches("[!#$%&'*+.^_`|~0-9A-Za-z-]+")) fail();
       String key = name.toLowerCase(Locale.ROOT);
-      if (!seen.add(key)) fail();
       String value = trimOws(line.substring(colon + 1));
       if (hasForbiddenControls(value)) fail();
       switch (key) {
-        case "upgrade": upgrade = value; break;
-        case "connection": connection = value; break;
-        case "sec-websocket-accept": accept = value; break;
+        case "upgrade": if (upgrade != null) fail(); upgrade = value; break;
+        case "connection": if (connection != null) fail(); connection = value; break;
+        case "sec-websocket-accept": if (accept != null) fail(); accept = value; break;
         case "sec-websocket-extensions": case "sec-websocket-protocol": case "location":
         case "content-length": case "transfer-encoding": fail(); break;
+        // Unconsumed metadata may repeat (for example Server-Timing or Set-Cookie).
         default: break;
       }
     }
