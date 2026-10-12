@@ -1181,8 +1181,16 @@
           "remaining": "Complete all named bounds/destination/denial/timeout/owner-revocation or subscription buffering/caller IDs/identity-change/no-stale-delivery requirements with owning native counters where needed; full verified-published Android/iOS parity and complete readable event pixels remain open. Real foreground return and public live delivery alone do not prove socket close/reconnect or zero effects."
         },
         "ios-physical": {
-          "status": "not-run",
-          "evidence": []
+          "status": "partial",
+          "evidence": [
+            "published-stream01/hg-stream-iphone-observer-20261012-02/physical/receipt.json",
+            "published-stream01/hg-stream-iphone-observer-20261012-03/physical/receipt.json",
+            "published-stream01/hg-stream-iphone-observer-20261012-03/physical/independent-review.json",
+            "published-stream01/host/hg-stream-final-iphone-inventory-20261012.json",
+            "published-stream01/visual-review.json"
+          ],
+          "verifiedScope": "Ordinary retained iPhone original SDK in an existing reviewed published Feed release: signed history/EOSE, sustained display delivery beyond the ordinary request lease and loaded-view switching with retained draft. Atomic snapshots count 8 then 46 then 222; independent signed-event observations match five SDK snapshots. Three supporting checks precede the second observer Home-command failure; the original full run remains failed. Targeted five-check follow-up uses public iOS Settings activation to verify real background state, return delivery/draft, explicit SDK Close with stable displayed event IDs for four seconds, actual cold termination with no old stream display and full original six-view/identity/focus restoration. Exact runner absent; other-app metadata, source inputs and prepared package hashes preserve. No app rebuild/reinstall or publication approval.",
+          "remaining": "Complete caller-ID/buffer/destination/denial/timeout, native socket close/reconnect and frame/counter observations, no-emission while backgrounded, owner/identity/update revocation, duplicate/flood/backpressure and full verified-published fixture parity. SDK display continuity and four-second stable closed display do not prove transport zero effects. Android automation remains unavailable after native input rejection; installed iOS executable bytes were not retrieved."
         }
       }
     },

@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Ordinary iPhone published identifier, storage/cold/pin and unavailable-API subsets pass; Android native input rejected; clean-close selection and full acceptance remain open.
+stopped_at: Ordinary iPhone published live/switch/background/close/cold display subsets verified; Android automation and clean-close selection pending; full acceptance open.
 last_updated: "2026-10-12"
 last_activity: 2026-10-12
-state_head: 8752e5959e90c883c02a9ca6cb2cbbe546deaafa
+state_head: 6bc8bbecc28fb573cb6a0b9c5f4d083b4daf8015
 progress:
   total_phases: 14
   completed_phases: 10
@@ -3240,3 +3240,32 @@ statuses preserve; 8 complete/53 open. Fresh consent/two publishers, malformed
 artifacts, actual version updates and final published fixture parity remain open.
 No app-code/dependency change, full quality rerun, source push or Phase 3 advance.
 Clean-close contract selection remains unanswered.
+
+
+## Ordinary published iPhone stream lifecycle — 12 October 2026
+
+Existing reviewed Feed release and remembered grant reach original SDK signed
+history/EOSE. Atomic snapshots count 8 → 46 → 222 through sustained delivery
+beyond the request lease and loaded-view switching; draft preserved. The first
+observer fails non-atomic live-list uniqueness. The second passes three supporting
+groups but fails to confirm background after Home, and wastes navigation time in
+its old direction-first card search. Both overall failures remain recorded.
+
+The targeted follow-up uses public activation of iOS Settings, changing no setting,
+and observes Hypergolic background plus Settings foreground. Delivery/draft return,
+explicit Close, four-second stable closed display, actual cold termination without
+old stream display and full original six-view/identity/UX Lab 7 restoration pass
+five native checks. The card search now follows public target geometry with a
+24-step bound. Five original atomic SDK event snapshots match independently signed
+relay events; 433 signatures verify. Exact runner and read-only observers are gone.
+Source/prepared app hashes preserve; installed iOS executable bytes not retrieved.
+
+CAP-03 iPhone becomes partial. All 61 original contracts, Android statuses and 60
+unrelated rows preserve; 8 complete/53 open. Display observations do not prove
+native socket/frame counts, no-emission while backgrounded, caller/buffer bounds,
+identity/update revoke or full published parity. Private originals: published-stream01,
+1,306 files reconstruct byte-identically from seven archives. One exact unused prior
+observer cache removed after hash recheck: 86,271,524 logical bytes. Current observer
+cache, original evidence, ready apps and shared application cache remain.
+No application/dependency change, full quality rerun, source push or Phase 3 advance.
+Clean-close selection and Android automation permission remain pending.

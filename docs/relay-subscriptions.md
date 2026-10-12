@@ -87,3 +87,27 @@ signatures/subscription IDs, private-channel forgery, background deadlines and
 explicit encrypted-kind denial. These tests do not replace native evidence.
 Physical iPhone protected identity/signing, complete published MVP capability
 parity and older WebView acceptance remain CAP-14/phase-2.11 gates.
+
+
+## Ordinary physical published stream checkpoint — 12 October 2026
+
+An existing reviewed Feed release with remembered grant reaches original SDK signed
+history/EOSE on the retained iPhone. Atomic accessibility snapshots show sustained
+live delivery beyond the ordinary request lease, and a loaded-view switch preserves
+the draft and growing event count. A targeted follow-up activates iOS Settings
+without changing settings and verifies real background/return. Explicit SDK Close
+leaves displayed event IDs unchanged for four seconds; an actual cold process does
+not display an old live handle. The original six views, identity and focus return.
+Five atomic event snapshots match independently verified signed relay observations.
+
+Two original observer failures remain failed: non-atomic list readings during
+live insertion, then unconfirmed background after Home. The passing portions of
+the latter compose with a separately passing five-check follow-up; this is scoped
+supporting evidence, not a passing full Phase 2 method. Corrections affect only the
+observer. No application rebuild or reinstall is performed.
+
+Native socket/frame counters, no-emission while backgrounded, complete bounds and
+owner/identity/update revocation remain separate required evidence. Display
+continuity and a stable closed list cannot prove zero native effects. CAP-03 final
+physical acceptance remains partial; published Outbox and full fixture parity are
+open. No new full quality rerun or source push accompanies this checkpoint.
