@@ -142,7 +142,30 @@ Android Release builds under the retained application ID/certificate, with exact
 permissions and92 original native notices. Only its JavaScript bundle and one DEX
 file change relative to the prior candidate; native libraries, trusted host and
 notice assets remain byte-identical. Generated packaging edits restore afterward.
-It is not installed, and the iPhone installed app still contains the prior code.
+Both physical phones now have the repair installed under the retained application
+ID and certificate. Android's installed APK matches the sealed candidate. The
+ordinary arm64 iPhone Release also builds with 68 exact original notices; its eight
+re-signed frameworks retain identical code bytes before their signature regions.
+iPhone installation is confirmed by the device receipt and runtime observations;
+installed executable bytes were not retrieved.
+
+The existing compiled iPhone observer passes four invalid-identifier checks before
+the update and five targeted published Feed checks afterward. Original SDK history
+loads, delivery resumes after actual system-Settings backgrounding, explicit close
+leaves stable displayed event IDs, and actual process termination/cold launch keeps
+the stream closed. Two atomic SDK snapshots match independently signed relay events.
+The original six views, full selected public identity and focus restore. The exact
+temporary runner is removed and app inventory reconciles. This uses an existing
+reviewed release and remembered grant; it does not prove fresh consent, physical
+AUTH challenge receipt, zero native socket effects or full fixture parity.
+
+Android installation succeeds, but the original post-update observer fails because
+it expects transient Settings to remain open across process startup. Independent
+reconciliation verifies installed bytes, unchanged package inventory, original
+public identity and empty workspace without repeating installation. Settings is
+closed; automated native input remains unresolved. The original failure is retained.
+No full acceptance row advances from this batch. No new full quality rerun accompanies
+these physical checks.
 React Doctor reports100/100. Aislop reports98/100 with only the existing node-forge
 and braces advisory exceptions; root/quality audits remain nonzero, and the
 normal full quality gate fails visibly. Physical UI/authentication/error journeys

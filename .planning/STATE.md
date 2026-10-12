@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Optional relay AUTH announcement compatibility repaired and Android candidate built; physical repair acceptance, Android input and clean-close selection remain open.
+stopped_at: Optional AUTH repair installed on both retained phones; targeted iPhone Feed checks pass. Android input, clean-close selection and full physical/security acceptance remain open.
 last_updated: "2026-10-12"
 last_activity: 2026-10-12
-state_head: 6bc8bbecc28fb573cb6a0b9c5f4d083b4daf8015
+state_head: 3b862f32f777f4168b687892ca32285f86926b9d
 progress:
   total_phases: 14
   completed_phases: 10
@@ -3279,3 +3279,21 @@ policy and controlled TLS regressions pass. Same-ID/certificate ordinary Android
 candidate builds without installation. Full physical RELAY-02, all61 original
 requirements,8 completed/53 open, Android input and clean-close decision remain.
 See docs/relay-subscriptions.md. No source push or Phase3 advancement.
+
+
+## Retained-device optional AUTH repair update — 12 October 2026
+
+The committed parser compatibility repair is installed on both ordinary retained
+phones with stable application IDs/certificates. Android installed bytes match the
+sealed APK; iPhone receipt/runtime checks establish installation without executable
+readback. Nine supporting iPhone checks pass across the before-update identifier
+batch and after-update Feed/background/explicit-close/cold batch. Full selected
+identity, original six views and focus restore; exact temporary runner is absent.
+
+Android's original after-update Settings expectation fails after successful install.
+Independent reconciliation confirms identity, empty workspace, unchanged package
+inventory and exact installed APK. Settings context is not restored and native input
+remains unresolved. Original failed evidence is preserved. The original 61-row matrix
+remains 8 complete/53 open. Full security/fault/published parity, clean-close contract
+selection, attribution gaps and the normal quality gate remain required. No new
+quality score, source push or Phase 3 advancement. See docs/relay-subscriptions.md.
