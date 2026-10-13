@@ -11,7 +11,7 @@ const identity = {
   publisher: '1'.repeat(64), appId: 'published-test', eventId: '2'.repeat(64), version, htmlHash,
 };
 
-type Mode = 'normal' | 'bad-hash' | 'malformed-base64' | 'replayed-sequence' | 'unknown-domain' | 'relay-domain' | 'attributed-head' | 'upload-domain' | 'all-domains';
+type Mode = 'normal' | 'bad-hash' | 'malformed-base64' | 'replayed-sequence' | 'unknown-domain' | 'relay-domain' | 'attributed-head' | 'upload-domain' | 'all-domains' | 'outbox-domain' | 'outbox-only';
 
 async function openPublished(page: Page, mode: Mode = 'normal', extraQuery = '') {
   const artifact = mode === 'attributed-head' ? Buffer.from(html.toString().replace('<head>','<HEAD data-fixture="attribute">')) : html;
@@ -36,7 +36,7 @@ async function openPublished(page: Page, mode: Mode = 'normal', extraQuery = '')
         type: 'artifact.chunk', sessionId: generation,
         sequence: mode === 'replayed-sequence' ? sequence + 1 : sequence,
         base64, byteLength: payload.length, totalBytes: htmlLength,
-        ...claims, domains: mode === 'unknown-domain' ? ['future-domain'] : mode === 'relay-domain' ? ['relay', 'theme'] : mode === 'upload-domain' ? ['upload'] : mode === 'all-domains' ? ['config', 'identity', 'inc', 'intent', 'link', 'notify', 'relay', 'resource', 'storage', 'theme', 'upload'] : ['theme'],
+        ...claims, domains: mode === 'unknown-domain' ? ['future-domain'] : mode === 'outbox-domain' ? ['outbox', 'relay', 'theme'] : mode === 'outbox-only' ? ['outbox', 'theme'] : mode === 'relay-domain' ? ['relay', 'theme'] : mode === 'upload-domain' ? ['upload'] : mode === 'all-domains' ? ['config', 'identity', 'inc', 'intent', 'link', 'notify', 'outbox', 'relay', 'resource', 'storage', 'theme', 'upload'] : ['theme'],
         done: (sequence + 1) * 48 * 1024 >= htmlLength,
       };
       for (const listener of listenerSet) listener({ data: JSON.stringify(envelope) });
@@ -49,6 +49,13 @@ async function openPublished(page: Page, mode: Mode = 'normal', extraQuery = '')
         state.requests.push(request);
         if (request.type === 'artifact.read') { emit(request.sequence); return; }
         if (request.type === 'ready' || request.type === 'error') state.diagnostics.push(request);
+        if (request.type === 'capability') {
+          const wire = JSON.parse(request.message);
+          let response;
+          if (wire.type === 'outbox.query') response = {type: 'outbox.query.result', id: wire.id, events: []};
+          else if (wire.type === 'outbox.publish') response = {type: 'outbox.publish.result', id: wire.id, ok: false, error: 'user rejected'};
+          if (response) for (const listener of listenerSet) listener({data: JSON.stringify({type: 'capability.result', sessionId: generation, sequence: request.sequence, response: JSON.stringify(response)})});
+        }
       },
     } });
     Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Storage disabled', 'SecurityError'); } });
@@ -155,3 +162,29 @@ for (const mode of ['upload-domain', 'all-domains'] as const) {
     for (const domain of ['intent','notify','config']) expect(await guest.evaluate(domain => (window as any).napplet.shell.supports(domain), domain)).toBe(mode === 'all-domains');
   });
 }
+
+
+test('verified-byte published runtime exposes Outbox only from native grants and carries real SDK read/publication rejection', async ({page}) => {
+  await openPublished(page, 'outbox-domain');
+  const guest = page.frames().find(frame => frame.parentFrame() === page.mainFrame())!;
+  await expect.poll(() => guest.evaluate(() => (window as any).napplet.shell.supports('outbox'))).toBe(true);
+  expect(await guest.evaluate(() => (window as any).napplet.outbox.query({kinds: [1], limit: 0}))).toMatchObject({type: 'outbox.query.result', events: []});
+  expect(await guest.evaluate(() => (window as any).napplet.outbox.publish({kind: 1, created_at: 1_800_000_000, tags: [], content: 'published admission fixture'}, {toOutbox: false, relays: ['wss://relay.example.org']}))).toMatchObject({type: 'outbox.publish.result', ok: false, error: 'user rejected'});
+  const calls = await page.evaluate(() => (window as any).__publishedTest.requests.filter((x: any) => x.type === 'capability').map((x: any) => JSON.parse(x.message)));
+  expect(calls.map((x: any) => x.type)).toEqual(['outbox.query', 'outbox.publish']);
+  expect(calls[1].options).toMatchObject({toOutbox: false, relays: ['wss://relay.example.org']});
+});
+test('URL parameters cannot grant published Outbox or bypass the exact native artifact path', async ({page}) => {
+  await openPublished(page, 'normal', '&domains=outbox,relay,theme');
+  await expect.poll(() => page.evaluate(() => (window as any).__publishedTest.diagnostics)).toEqual([{type: 'error', code: 'artifact-integrity', sessionId: generation}]);
+  await expect(page.locator('#napplet')).toHaveCount(0);
+  expect(await page.evaluate(() => (window as any).__publishedTest.requests)).toHaveLength(1);
+});
+test('an Outbox-only native grant neither exposes usable Outbox nor acquires relay authority', async ({page}) => {
+  await openPublished(page, 'outbox-only'); await expect(page.locator('#napplet')).toHaveCount(1);
+  const guest = page.frames().find(frame => frame.parentFrame() === page.mainFrame())!;
+  await expect.poll(() => guest.evaluate(() => (window as any).napplet.shell.supports('outbox'))).toBe(false);
+  expect(await guest.evaluate(() => (window as any).napplet.shell.supports('relay'))).toBe(false);
+  await guest.evaluate(() => {parent.postMessage({type: 'outbox.query', id: 'missing-relay', filters: [{kinds: [1], limit: 0}]}, '*');});
+  expect(await page.evaluate(() => (window as any).__publishedTest.requests.filter((x: any) => x.type === 'capability'))).toHaveLength(0);
+});

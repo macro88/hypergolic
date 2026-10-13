@@ -4,15 +4,15 @@ import { capabilityCompatibility, supportForDomain } from '../../src/runtime/sup
 import { NAP_CATALOGUE } from '../../src/runtime/nap-catalogue.ts';
 
 test('published admission filters capabilities independently of catalogue status', () => {
-  assert.deepEqual(capabilityCompatibility(['media', 'theme', 'fs', 'outbox']).domains, ['theme']);
-  assert.deepEqual(capabilityCompatibility(['media', 'theme', 'fs', 'outbox']).unsupportedDomains, ['fs', 'media', 'outbox']);
+  assert.deepEqual(capabilityCompatibility(['media', 'theme', 'fs', 'outbox']).domains, ['outbox', 'theme']);
+  assert.deepEqual(capabilityCompatibility(['media', 'theme', 'fs', 'outbox']).unsupportedDomains, ['fs', 'media']);
   assert.equal(supportForDomain('fs').status, 'unavailable');
   assert.equal(supportForDomain('media').status, 'unavailable');
   assert.equal(supportForDomain('resource').status, 'available');
   assert.equal(supportForDomain('shell').status, 'available');
   assert.equal(supportForDomain('storage').status, 'available');
-  assert.equal(supportForDomain('outbox').status, 'unavailable');
-  assert.match(supportForDomain('outbox').detail, /Published access is unavailable/);
+  assert.equal(supportForDomain('outbox').status, 'available');
+  assert.match(supportForDomain('outbox').detail, /also require the relay grant/);
   assert.match(supportForDomain('relay').detail, /Encrypted publication is unavailable/);
   assert.equal(new Set(NAP_CATALOGUE.map(row => row.domain)).size, NAP_CATALOGUE.length);
   assert(NAP_CATALOGUE.every(row => /^[a-f0-9]{40}$/.test(row.revision)));

@@ -27,6 +27,10 @@ public final class PublishedCapabilityBindingProof {
     check(PublishedCapabilityBinding.validDomains(Collections.emptyList()));
     check(PublishedCapabilityBinding.validDomains(Arrays.asList("identity", "storage", "theme", "relay")));
     check(PublishedCapabilityBinding.validDomains(Collections.singletonList("theme")));
+    check(PublishedCapabilityBinding.validDomains(Arrays.asList("outbox", "relay")));
+    check(PublishedCapabilityBinding.validDomains(Collections.singletonList("outbox")));
+    check(!PublishedCapabilityBinding.validDomains(Arrays.asList("outbox", "outbox", "relay")));
+    check(!PublishedCapabilityBinding.validDomains(Arrays.asList("outbox", "relay", "sign")));
     check(PublishedCapabilityBinding.validDomains(Arrays.asList("resource", "upload")));
     check(PublishedCapabilityBinding.validDomains(Arrays.asList("identity", "storage", "theme", "relay", "resource", "upload")));
     check(!PublishedCapabilityBinding.validDomains(Arrays.asList("upload", "upload")));

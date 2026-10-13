@@ -64,6 +64,15 @@ final class Probe: NSObject, WKScriptMessageHandler {
     else { host.startSession(id ?? session) }
   }
 
+  func startPublished(_ raw: String) throws {
+    let app = try XCTUnwrap(UIApplication.shared.delegate as? AppDelegate)
+    let container = try XCTUnwrap(app.window?.rootViewController?.view)
+    host.frame = container.bounds
+    container.addSubview(host)
+    host.startPublishedArtifact(raw)
+    host.setActive(true)
+  }
+
   func ready(configuration: String? = nil) async throws {
     try start(configuration: configuration)
     try await until("genuine native ready plus real main/guest frames") {

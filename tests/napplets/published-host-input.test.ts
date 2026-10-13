@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { finalizeEvent, getPublicKey } from 'nostr-tools/pure';
 import { loadEmbeddedTestArtifact } from '../../src/napplets/embedded-test-fixture.ts';
 import { requestFirstOpenConsent } from '../../src/napplets/first-open-consent.ts';
@@ -95,4 +96,45 @@ test('verified resource/upload grants and the complete selected domain set survi
     assert.equal(wire.publisher, event.pubkey);
     control.revoke();
   }
+});
+
+
+test('a verified Outbox manifest carries its exact approved publisher/version/relay grant to the native host', async t => {
+  const {database} = await setup(t); const secret = new Uint8Array(32); secret[31] = 35;
+  const pub = getPublicKey(secret), bytes = new TextEncoder().encode('<!doctype html><html><head><title>Outbox</title></head><body>outbox admission</body></html>');
+  const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), x => x.toString(16).padStart(2, '0')).join('');
+  const aggregate = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${hash} /index.html\n`))), x => x.toString(16).padStart(2, '0')).join('');
+  const event = JSON.parse(JSON.stringify(finalizeEvent({kind: 35129, created_at: 1_800_000_000, content: '', tags: [
+    ['d', 'outbox-admission'], ['path', '/index.html', hash], ['x', aggregate, 'aggregate'],
+    ['requires', 'outbox'], ['requires', 'relay'], ['requires', 'theme'], ['requires', 'fs'],
+  ]}, secret)));
+  const coordinate = {kind: 35129, pubkey: pub, identifier: 'outbox-admission', relays: []};
+  const artifact = await verifyArtifact(await verifyManifest(coordinate, event), bytes);
+  const descriptor = descriptorForPublishedArtifact(artifact, SESSION);
+  const live = {value: true}, owner = registration({user: USER, publisher: pub, appId: descriptor.appId,
+    assertActive: () => {if (!live.value) throw Error('revoked');}});
+  const admission = await requestFirstOpenConsent(artifact, owner, database.bindApp(owner).port, new AbortController().signal, owner.assertActive,
+    async request => {assert.deepEqual(request.unsupportedDomains, ['fs']); return true;});
+  const authority = {user: USER, epoch: 9, assertActive: owner.assertActive};
+  const prepared = JSON.parse(publishedHostInput(artifact, admission, descriptor, authority, 'a'.repeat(64)));
+  const config = JSON.parse(prepared.configuration);
+  assert.deepEqual(config.domains, ['outbox', 'relay', 'theme']); assert.equal(config.publisher, pub);
+  assert.equal(config.version, aggregate); assert.equal(config.fixture, 'published'); assert.equal(config.epoch, 9);
+  assert.throws(() => publishedHostInput(artifact, {...admission}, descriptor, authority, 'a'.repeat(64)));
+  assert.throws(() => publishedHostInput(artifact, admission, {...descriptor, version: 'f'.repeat(64)}, authority, 'a'.repeat(64)));
+  live.value = false; assert.throws(() => publishedHostInput(artifact, admission, descriptor, authority, 'a'.repeat(64)));
+});
+
+
+test('the WK published Outbox fixture verifies through the owning manifest and exact-artifact verifier', async () => {
+  const event = JSON.parse(await readFile(new URL('../native/ios-boundary/Fixtures/published-outbox-manifest.json', import.meta.url), 'utf8'));
+  const bytes = new Uint8Array(await readFile(new URL('../../runtime/fixtures/ux-lab.html', import.meta.url)));
+  const coordinate = {kind: 35129, pubkey: event.pubkey, identifier: 'outbox-native-test', relays: []};
+  const manifest = await verifyManifest(coordinate, event);
+  const artifact = await verifyArtifact(manifest, bytes);
+  assert.deepEqual(artifact.manifest.requiredDomains, ['outbox', 'relay', 'theme']);
+  assert.equal(artifact.manifest.eventId, event.id);
+  await assert.rejects(verifyManifest(coordinate, {...event, sig: '0'.repeat(128)}));
+  const changed = bytes.slice(); changed[0] ^= 1;
+  await assert.rejects(verifyArtifact(manifest, changed));
 });

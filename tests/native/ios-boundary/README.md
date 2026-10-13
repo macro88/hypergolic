@@ -107,3 +107,18 @@ assertion remain preserved. The independent receiver stops after the bounded run
 This proves the named LAN attempts with privileged native injection; it does not
 prove DNS/UDP/public HTTPS, private-key absence or all navigation/download/file/
 content/owning Expo/published escapes. SEC-02 remains partial; Android parity is open.
+
+
+## Published Outbox admission component
+
+`-only-testing:BoundaryTests/PublishedOutboxTests` runs three tests through the
+production published byte loader and original SDK on the actual WKWebView core.
+`Fixtures/published-outbox-manifest.json` signs the unchanged UX Lab HTML with a
+public disposable test identity and is never published. The owning JS verifier
+checks its signature/artifact before native resource staging; staging itself is a
+trusted test caller. App-only completions supply canonical query/rejection replies,
+a signed stream event and the broker's correlated close action. This scope proves
+native claims/one-use consumption/delivery/revocation, not protected signing,
+ordinary Expo consent UI, WSS or physical/OS lifecycle. Existing core/wrapper/
+authority source fingerprints remain mandatory; the expected transport and runtime
+fingerprints explicitly reflect this reviewed admission change.

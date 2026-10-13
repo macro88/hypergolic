@@ -168,3 +168,29 @@ test('unsupported names remain warning-only and a changed requested set or host 
   });
   assert.equal(prompts, 3);
 });
+
+
+test('published Outbox requires fresh review of an older narrower support grant and denial cannot expand it', async t => {
+  const {database} = await setup(t); const {owner, storage} = control(database);
+  const candidate = await artifact(['outbox', 'relay', 'theme']);
+  const previousReview = JSON.stringify({profile: 'hypergolic-native-2026-10-06-v1',
+    requested: ['outbox', 'relay', 'theme'], domains: ['relay', 'theme']});
+  await storage.replaceAccessGrant(['relay', 'theme'], null, {}, previousReview);
+  let prompts = 0;
+  await assert.rejects(requestFirstOpenConsent(candidate, owner, storage, new AbortController().signal, owner.assertActive,
+    async request => {prompts++; assert.deepEqual(request.domains, ['outbox', 'relay', 'theme']); assert.deepEqual(request.unsupportedDomains, []); return false;}));
+  assert.equal(prompts, 1); assert.deepEqual((await storage.readAccessGrant())?.domains, ['relay', 'theme']);
+  const admission = await requestFirstOpenConsent(candidate, owner, storage, new AbortController().signal, owner.assertActive,
+    async () => {prompts++; return true;});
+  assert.deepEqual(admission.domains, ['outbox', 'relay', 'theme']); assert.equal(prompts, 2);
+  const reopened = await requestFirstOpenConsent(candidate, owner, storage, new AbortController().signal, owner.assertActive,
+    async () => {assert.fail('exact current approved grant should reopen');});
+  assertVerifiedNappletAdmission(reopened, candidate);
+});
+test('an Outbox-only manifest does not acquire an undeclared relay grant', async t => {
+  const {database} = await setup(t); const {owner, storage} = control(database);
+  const candidate = await artifact(['outbox']);
+  const admission = await requestFirstOpenConsent(candidate, owner, storage, new AbortController().signal, owner.assertActive,
+    async request => {assert.deepEqual(request.domains, ['outbox']); return true;});
+  assert.deepEqual(admission.domains, ['outbox']); assert.deepEqual((await storage.readAccessGrant())?.domains, ['outbox']);
+});

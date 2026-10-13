@@ -21,6 +21,16 @@ def prepare():
   assert digest(inputs[name])==record['sha256'];assert len(inputs[name])==record['bytes']
  bundle=HERE/'Resources/HypergolicNappletHostAssets.bundle';bundle.mkdir(parents=True,exist_ok=True)
  for name,data in inputs.items(): (bundle/name).write_bytes(data)
+ # Local signed fixture: signature/HTML verification is performed by the owning JS verifier before this native component proof.
+ fixture=(REPO/'runtime/fixtures/ux-lab.html').read_bytes()
+ signed=(HERE/'Fixtures/published-outbox-manifest.json').read_bytes()
+ event=json.loads(signed);tags=event['tags']
+ assert digest(signed)==expected['publishedOutboxManifestSha256']
+ assert digest(fixture)==next(t[2] for t in tags if t[0]=='path' and t[1]=='/index.html')
+ assert digest((digest(fixture)+' /index.html\n').encode())==next(t[1] for t in tags if t[0]=='x' and t[2]=='aggregate')
+ (bundle/'published-outbox.html').write_bytes(fixture)
+ (bundle/'published-outbox-manifest.json').write_bytes(signed)
+ (bundle/'published-stream-event.json').write_bytes((REPO/'tests/native/feed-query/events.json').read_bytes())
  (bundle/'Info.plist').write_bytes(plistlib.dumps({'CFBundleIdentifier':'org.nostrocket.hypergolic.boundaryassets','CFBundleName':'HypergolicNappletHostAssets','CFBundlePackageType':'BNDL','CFBundleVersion':'1'}))
  print('Prepared verified native resource bundle from owning source; no device action.')
 if __name__=='__main__':prepare()

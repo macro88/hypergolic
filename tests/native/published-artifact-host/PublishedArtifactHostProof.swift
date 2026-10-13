@@ -59,6 +59,16 @@ import Foundation
       try check((try? CapabilityConfiguration(parsed.configuration!, generation: generation)) == nil,
         "reject invalid published domain set")
     }
+    publishedConfig["domains"] = ["outbox", "relay"]
+    let outboxConfig = try CapabilityConfiguration(try json(publishedConfig), generation: generation)
+    try check(outboxConfig.domains == ["outbox", "relay"], "published Outbox retains exact granted domains")
+    try check(outboxConfig.matchesPublishedClaims(sessionId: session, publisher: configuredInput.claims.publisher,
+      appId: configuredInput.claims.identifier, version: configuredInput.claims.aggregateHash), "Outbox binds exact published claims")
+    publishedConfig["domains"] = ["outbox"]
+    let isolatedOutbox = try CapabilityConfiguration(try json(publishedConfig), generation: generation)
+    try check(!isolatedOutbox.domains.contains("relay"), "Outbox never silently adds relay authority")
+    publishedConfig["domains"] = ["outbox", "outbox", "relay"]
+    try check((try? CapabilityConfiguration(try json(publishedConfig), generation: generation)) == nil, "duplicate Outbox grant rejected")
     publishedConfig["domains"] = ["identity", "relay"]
     configuredFields["configuration"] = try json(publishedConfig)
     let configured = PublishedArtifactHostInput(try json(configuredFields))!

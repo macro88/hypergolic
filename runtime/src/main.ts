@@ -87,6 +87,7 @@ function makeHooks(native: ReturnType<typeof createNativeClient>, captureRecipie
     colors: { background: '#140f0b', text: '#f3efeb', primary: '#e8805d' },
   } });
   const supported = new Set(artifact.domains);
+  if (!supported.has('relay')) supported.delete('outbox');
   const routing = createRoutingAdapter(native, captureRecipient);
   const notify = createNotifyAdapter(native, captureRecipient);
   const config = createConfigAdapter(native, captureRecipient);

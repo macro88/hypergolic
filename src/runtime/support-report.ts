@@ -2,7 +2,7 @@ import { SUPPORTED_CAPABILITY_DOMAINS } from './capability-protocol.ts';
 
 export type SupportAvailability = 'available' | 'unavailable' | 'unknown';
 // Bump when public availability, operations or limits change: this identifies reviewed support.
-export const SUPPORT_PROFILE = 'hypergolic-native-2026-10-06-v1';
+export const SUPPORT_PROFILE = 'hypergolic-native-2026-10-13-v1';
 const notes: Readonly<Record<string, string>> = Object.freeze({
   shell: 'Handshake and scoped discovery are implemented. Availability is not a full conformance assessment.',
   theme: 'Shell colours are delivered; the selected theme profile is bounded.',
@@ -16,7 +16,7 @@ const notes: Readonly<Record<string, string>> = Object.freeze({
   inc: 'Selected session-bound messages and channels; no background delivery.',
   notify: 'Foreground shell notifications. OS push is unavailable.',
   config: 'Selected bounded schemas and retained settings; unrestricted schema support is unavailable.',
-  outbox: 'Native bundled tracer exists. Published access is unavailable pending acceptance.',
+  outbox: 'Selected bounded Outbox reads, subscriptions and approved publication for verified napplets. Operations also require the relay grant; final device E2E remains open.',
 });
 
 export function supportForDomain(domain: string): Readonly<{status: SupportAvailability; detail: string}> {

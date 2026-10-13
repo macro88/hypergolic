@@ -215,8 +215,10 @@ requested domain and warns about unavailable features; only the supported
 intersection becomes native authority. Request-set or support-profile changes
 require fresh review, and Settings retains capability details. The host admits
 `identity`, `storage`, `theme`, `relay`, `resource`, `upload`, `link`, `intent`,
-`inc`, `notify` and `config` for verified napplets. Published Outbox access is
-withheld pending acceptance. Upload admission has scoped normal-shell native
+`inc`, `notify`, `config` and `outbox` for verified napplets. The selected
+[published Outbox admission](outbox-routing.md#verified-published-admission--13-october-2026)
+requires fresh support-profile consent and the existing Relay grant for operations;
+final published/device E2E remains open. Upload admission has scoped normal-shell native
 evidence; its selected acceptance uses the documented patched-tooling exception.
 Requests for `cvm`, `webrtc`, `fs` or `media` no longer block launch, but their
 services remain unavailable. The address decoder follows

@@ -26,7 +26,7 @@ Read/stream connections stay live across loaded foreground switches. Background 
 
 [Plans 01–02](../.planning/phases/02.9-outbox-routing/02.9-02-SUMMARY.md) record actual Android/iOS native read/stream journeys. [Plan 03](../.planning/phases/02.9-outbox-routing/02.9-03-SUMMARY.md) records actual native core/TLS/presentation evidence and production Android emulator protected signing, cold recovery, separate ancillary receipts, required-inbox failure, overflow and background subsets. Independent clients verified exact signed primary events; source and installed product hashes are sealed. Retained failed or inconclusive attempts remain explicitly separate.
 
-Those earlier proofs do not establish complete physical published/fault acceptance. The current [Phase2.11 checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-02-CHECKPOINT.md#physical-iphone-protected-publication--7-october-2026) adds ordinary bundled protected explicit-only publication on both physical hosts, with exact native review and independently verified live/stored signed events. Final published Outbox admission and the remaining fanout/lifecycle/fault rows stay open. The production iOS identity store excludes Simulator; never substitute a fixture signer. Phase 2.11 owns every open row, including ordinary exports/prebuilds/packages and physical input/accessibility. Complete source quality keeps only the two existing explicitly approved locked-patch exceptions visible; gates and findings are not suppressed.
+Those earlier proofs do not establish complete physical published/fault acceptance. The current [Phase2.11 checkpoint](../.planning/phases/02.11-published-mvp-acceptance/02.11-02-CHECKPOINT.md#physical-iphone-protected-publication--7-october-2026) adds ordinary bundled protected explicit-only publication on both physical hosts, with exact native review and independently verified live/stored signed events. Published Outbox admission is implemented in the [13 October checkpoint](#verified-published-admission--13-october-2026); final published journeys and the remaining fanout/lifecycle/fault rows stay open. The production iOS identity store excludes Simulator; never substitute a fixture signer. Phase 2.11 owns every open row, including ordinary exports/prebuilds/packages and physical input/accessibility. Complete source quality keeps only the two existing explicitly approved locked-patch exceptions visible; gates and findings are not suppressed.
 
 Checks already used for implementation include `pnpm run test:outbox`, `pnpm run typecheck`, original SDK Chromium/WebKit suites and the native runners documented in [tests/native/outbox](../tests/native/outbox/README.md) and [publication proofs](../tests/native/outbox/publication/README.md). Packaging alone cannot establish device acceptance.
 
@@ -367,3 +367,49 @@ all 61 original contracts and 8 complete rows remain. Private original evidence 
 relay-upgrade-metadata01 and iphone-relay-upgrade01. React Doctor is
 100/100; aislop98 retains only the two existing owner-approved node-forge/braces
 advisory exceptions. The normal gate still fails visibly, with no new waiver.
+
+
+## Verified published admission — 13 October 2026
+
+Outbox now belongs to the reviewed published-domain set in shared policy, both
+native configuration parsers and the verified-byte runtime loader. The support
+profile advances to `hypergolic-native-2026-10-13-v1`; remembered narrower grants
+receive fresh review. Denial preserves the old grant. An Outbox-only request does
+not acquire Relay authority: it can load, but the SDK withholds usable Outbox
+until both domains are granted. Operation-specific native approval remains
+mandatory for every publication.
+
+The selected NAP-OUTBOX PR32 head4589a8f9a16d8aa29b3740e2b3b0cdca11e0976e and
+NIP01/65 revision0046368a747c5c25ae2bec28bae0e537744c8f10 remain unchanged. The
+existing signed relay-list redistribution remains a documented profile extension.
+Routing, destinations, signing, author/target bounds, exact publisher/app/version,
+identity epoch, source/generation binding and lifecycle revocation are unchanged.
+Injected published URL authority parameters still fail closed.
+
+Focused verification covers signed manifest/artifact verification, remembered
+consent refusal/re-review, forged or stale host input, native exact configuration,
+and original-SDK discovery/read/publication-rejection. Shared Outbox102,
+capabilities57 and napplet103 tests pass. Native owning plan/approval/receipt
+prerequisites pass106 Android/97 Swift assertions with unchanged authority inputs;
+JVM binding20/configuration45 and macOS Swift parser/artifact289 checks pass.
+The JVM uses the documented host JSON dependency, not Android WebView.
+
+Three current production WKWebView component tests pass on iOS26.5 Simulator:
+published SDK query with one-use native reply, approval rejection and pending
+close revocation, and stream delivery with correlated SDK close. A local signed
+manifest is independently verified through the owning JS verifier before trusted
+native fixture staging; it is never published. App-only test completions supply
+the separately tested app broker and controlled native replies/pushes. These tests
+do not prove the Expo consent UI, protected signing, real WSS or OS lifecycle.
+Original failed harness expectations are retained separately from the passing run.
+Final physical published parity and every outstanding OB obligation remain open;
+all61 physical acceptance rows are preserved without status/evidence changes.
+
+
+The full Chromium/WebKit runtime suite passes292 tests; shared security356 plus
+bootstrap13, shell44, strict TypeScript, both Expo exports and ordinary Android
+ARM64 Debug assembly pass. The iOS component app builds for testing; this is not
+an ordinary signed iPhone build/install claim. Complete source-bound React Doctor
+and aislop reports retain only the standing locked-patch exceptions. The normal
+`pnpm run check` still stops at Expo Doctor20/21 for six existing patch-version
+mismatches; no package-version policy is changed by this admission slice.

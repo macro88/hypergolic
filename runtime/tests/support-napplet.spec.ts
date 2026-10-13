@@ -14,7 +14,7 @@ test('bundled Support napplet reads live report, filters, expands and has no fil
   await expect(frame.locator('li[data-domain="fs"] .support')).toHaveText('✕Unavailable');
   await expect(frame.locator('li[data-domain="media"] .support')).toHaveText('✕Unavailable');
   await expect(frame.locator('li[data-domain="resource"] .support')).toHaveText('✓Available');
-  await expect(frame.locator('li[data-domain="outbox"] .support')).toHaveText('✕Unavailable');
+  await expect(frame.locator('li[data-domain="outbox"] .support')).toHaveText('✓Available');
   await expect(frame.locator('.legend')).toContainText('not full conformance');
   await frame.locator('li[data-domain="relay"] summary').click();
   await expect(frame.locator('li[data-domain="relay"] .detail')).toContainText('Encrypted publication is unavailable');

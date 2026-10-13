@@ -6,11 +6,11 @@
       "bytes": 628
     },
     "host.js": {
-      "sha256": "60dbd201efec81152dd9e8ab3b126df4e1ad79ebd6e7c018d55b0f0581ab3b74",
-      "bytes": 420041
+      "sha256": "8ca61de6ed41f1f7d4047bbedb016e25b79ceebb74525efe030203655b8af93a",
+      "bytes": 420145
     }
   },
-  "manifestSha256": "3b24cb3df3b774df084edb21805256bffe6c0181046d33080eb031c895f68931",
+  "manifestSha256": "704f8cedc7a1a560bf266c35fab3e9e34124b5bc2283c14d990f6a0abefc58f0",
   "fixture": {
     "dTag": "ux-lab",
     "sha256": "01ab63dbcdadab0b44fd6f3b9a6bcfbd98d8c1de1510f96c821d3efe1876909c",
@@ -19,7 +19,7 @@
   },
   "wrapperSha256": "15192f94da8c52ca23e3b41a1e68ef66ea8285ef35302b7ca3217f6b47cc7c66",
   "leaseSha256": "d9776b85a2c1719f2d5164cedd81d97ef1a683d53a45ba33f1dc9f4925a86ba6",
-  "transportSha256": "bf2810956b7a562148d7b8ce7761138b570bfa48b35614137f53f83da47e2f20",
+  "transportSha256": "5a2305d89f36b70fd7c7d5f92e0e55bf6ab42165184da69574b83ad16f60710f",
   "fixtures": {
     "close-lab": {
       "title": "Close Lab",
@@ -190,5 +190,6 @@
     }
   },
   "approvalAuthoritySha256": "fb7d946e3d7c1b27326084df090fbb4a64e120b34bbe73a2af46301cf3a6c7b0",
-  "approvalTransportSha256": "8f9f52bdbffb71d67bb74ba0d2b468be02574a427a7a10f8aa4008fd89e9e8a5"
+  "approvalTransportSha256": "8f9f52bdbffb71d67bb74ba0d2b468be02574a427a7a10f8aa4008fd89e9e8a5",
+  "publishedOutboxManifestSha256": "9e6a823d241af51ab483725d008fc3ec6eec6d5f1d35a32fadabe56ac2fbfb63"
 }

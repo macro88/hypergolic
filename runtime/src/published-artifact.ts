@@ -22,7 +22,7 @@ function decodeBase64(value: unknown): Uint8Array {
   if (binary.length < 1 || binary.length > CHUNK_BYTES || btoa(binary) !== value) throw new Error('Invalid artifact chunk');
   return Uint8Array.from(binary, character => character.charCodeAt(0));
 }
-const ARTIFACT_DOMAINS = new Set(['identity', 'storage', 'theme', 'relay', 'resource', 'upload', 'link', 'intent', 'inc', 'notify', 'config']);
+const ARTIFACT_DOMAINS = new Set(['identity', 'storage', 'theme', 'relay', 'resource', 'upload', 'link', 'intent', 'inc', 'notify', 'config', 'outbox']);
 function metadata(value: Record<string, unknown>): PublishedMetadata {
   const { publisher, appId, eventId, version, htmlHash, domains } = value;
   if (typeof publisher !== 'string' || !HEX64.test(publisher) ||

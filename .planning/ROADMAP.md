@@ -189,7 +189,7 @@ CAP-06 is selected-profile complete; broad CAP-14 gates remain open.
 **Work and exit criteria:** Run the full published journey on standalone Android/iOS, close foundation/device gaps, verify update/restart/identity isolation, and satisfy both quality scores at 100/100. Record source/build/fixture/spec hashes and independent results.
 **Plans:** Four plans; full integration/E2E execution is scheduled after feature-complete builds: [01 readiness/builds](phases/02.11-published-mvp-acceptance/02.11-01-PLAN.md), [02 verified published fixtures](phases/02.11-published-mvp-acceptance/02.11-02-PLAN.md), [03 full physical journeys](phases/02.11-published-mvp-acceptance/02.11-03-PLAN.md), [04 faults/final sign-off](phases/02.11-published-mvp-acceptance/02.11-04-PLAN.md).
 
-**Current checkpoint — 12 October 2026:** Implementation through 2.9 is in place;
+**Current checkpoint — 13 October 2026:** Implementation through 2.9 is in place;
 full acceptance remains open. The owner selected simulator/emulator testing during
 builds, with physical checks only for components that cannot be tested there.
 Full E2E runs at the feature-complete build checkpoint. See the
@@ -204,8 +204,9 @@ Continue unfinished feature work with simulator/emulator and automated checks. T
 protected storage, capture controls and other demonstrably physical-only behavior
 on devices when their owning component changes. Final published fixture parity,
 cross-capability journeys, remaining E2E and quality sign-off stay on the final
-acceptance checklist. Published Outbox admission still requires its owning safety
-checks; this scheduling change does not grant new authority or mark it accepted.
+acceptance checklist. Verified published Outbox admission is now implemented with
+fresh consent and the existing Relay dependency; focused admission verification
+is separate from final physical E2E. See [the checkpoint](../docs/outbox-routing.md#verified-published-admission--13-october-2026).
 The [Outbox register](phases/02.11-published-mvp-acceptance/02.11-OUTBOX-HANDOFF.md)
 retains transferred coverage. Existing exact quality exceptions and red gates remain
 visible. Later phase order and product scope are unchanged.

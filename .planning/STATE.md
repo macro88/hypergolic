@@ -3,10 +3,10 @@ gsd_state_version: "1.0"
 current_phase: "2.11"
 current_phase_name: Complete published MVP acceptance
 status: executing
-stopped_at: Owner selected simulator-first build testing; physical checks only for behavior unavailable there. Full E2E deferred until feature complete. Resume device-input proof deferred; selected optional close-check implemented with focused development verification.
+stopped_at: Owner selected simulator-first build testing; physical checks only for behavior unavailable there. Full E2E deferred until feature complete. Resume device-input proof deferred; close-check and verified published Outbox admission implemented with focused development verification.
 last_updated: "2026-10-13"
 last_activity: 2026-10-13
-state_head: 770e4bf081300c65ea33c5f38903c25f42c09c8a
+state_head: 3eab11e07f625fba5ebe249db73ccaa4df8d24cd
 progress:
   total_phases: 14
   completed_phases: 10
@@ -39,7 +39,7 @@ expansion cards are not executable PLAN files.
 ## Current Position
 
 Phase: 2.11 (Complete published MVP acceptance)
-Plan: Continue unfinished feature implementation and simulator/emulator checks. Run physical checks only when a required component cannot be tested there. Full Plan02/03/04 integration and final E2E acceptance are deferred to the feature-complete build checkpoint; Plan01 ordinary signed builds/first tracers retain their existing evidence. The selected optional close-check is implemented; final UX-07 E2E remains deferred.
+Plan: Continue unfinished feature implementation and simulator/emulator checks. Run physical checks only when a required component cannot be tested there. Full Plan02/03/04 integration and final E2E acceptance are deferred to the feature-complete build checkpoint; Plan01 ordinary signed builds/first tracers retain their existing evidence. The selected optional close-check and verified published Outbox admission are implemented; final UX-07 and published Outbox E2E remain deferred.
 Status: Phase2.9 implementation closed; CAP-12 final acceptance/CAP-14 open. Historical final physical coverage is 8 of 61 complete / 53 open and does not measure feature implementation. Deferred E2E no longer blocks unrelated builds. No source push; neither deferred tests nor Phase2 acceptance are marked complete.
 
 Previous integration: 2026-09-15 — Connected the reviewed State Lab catalogue, genuine Kehto/SDK, native transports and process-owned SQLite/identity authority. Both isolated native platforms pass all six storage/identity/restart/isolation checks in a single run each; each also passes three close/reopen checks. New openings use persisted native UUIDs, with regression coverage for display-number reuse. All 27 broker/owner, 71 storage/transition, 25 shell and 76 browser-runtime tests pass. The refreshed WK boundary suite passes all 17 methods; sealed inputs/products remain identical. Full aislop is 100/100 and local React Doctor has zero findings; numeric scoring awaits explicit approval. The observed handle/text overlap is fixed with a reserved 12-point guest margin; both rebuilt isolated apps pass the three-check close/reopen journey and their screenshots show unobscured text. Authenticated actions, signing, published loading and physical security remain open. See docs/native-capabilities.md. Progress metadata counts plans, not product completion.
@@ -77,6 +77,7 @@ See `docs/phase-zero.md` for actual checks and artifacts.
 | 261006-i62 | NAP Support catalogue and tolerant admission; physical verification pending | 2026-10-06 | See task summary | [261006-i62-nap-support-catalogue-and-tolerant-publi](./quick/261006-i62-nap-support-catalogue-and-tolerant-publi/) |
 | 261012-td2 | Simulator-first development testing; final E2E deferred until feature complete | 2026-10-12 | See task summary | [261012-td2-record-simulator-first-development-testi](./quick/261012-td2-record-simulator-first-development-testi/) |
 | 261012-u4l | Selected optional close-check implementation and simulator-first verification | 2026-10-12 | See task summary | [261012-u4l-implement-the-selected-optional-hypergol](./quick/261012-u4l-implement-the-selected-optional-hypergol/) |
+| 261013-pr7 | Verified published Outbox admission with fresh consent and Relay dependency | 2026-10-13 | See task summary | [261013-pr7](./quick/261013-pr7-complete-verified-published-outbox-admis/) |
 
 Targeted follow-up: iOS native erase/transport failures remain READBACK_FAILED even when subsequent reads return absence. Four new regressions pass; security is 295/295, bootstrap 13/13, storage 80/80, TypeScript and iOS export pass. Aislop remains 100/100 and local React Doctor has no findings.
 
@@ -3435,3 +3436,13 @@ exact dependency exceptions; no new suppression or waiver is selected. Native si
 published parity and full cross-capability E2E remain at feature-complete builds.
 No new physical pass or Phase2 completion follows. Quick261012-u4l runs inline under
 the no-subagent rule; source commit is local and unpushed.
+
+
+## Published Outbox admission — 13 October 2026
+
+The [selected admission slice](../docs/outbox-routing.md#verified-published-admission--13-october-2026)
+is implemented with fresh support-profile consent, exact native published binding
+and the existing Outbox-plus-Relay operation dependency. Signed consent/host,
+original-SDK and production WK component regressions cover the new admission path.
+Final physical published signing/network/update/restart parity remains deferred to
+feature-complete E2E; no acceptance row is closed and no manifest is published.
