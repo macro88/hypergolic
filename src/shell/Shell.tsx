@@ -1,3 +1,4 @@
+import {useCloseChecks} from './useCloseChecks';
 import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import { AccessibilityInfo, BackHandler, Keyboard, Modal, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { cancelAnimation, Easing, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated';
@@ -36,6 +37,7 @@ export interface ShellProps {
   onWorkspaceChange?: (workspace: Workspace) => void;
   identity?: ShellIdentity;
   pendingApprovals?: ReadonlySet<string>;
+  canCloseWithoutWarning?: (sessionId: string) => boolean;
   footer?: ReactNode;
   onBeforeClose?: (session: NappletDescriptor) => void;
   onHostEvent?: (event: HostEvent) => void;
@@ -53,7 +55,7 @@ function useReducedMotion(): boolean {
   return reduced;
 }
 
-export function Shell({ blocked = false, initialWorkspace, workspace: controlledWorkspace, onWorkspaceChange, identity, pendingApprovals, onBeforeClose, onHostEvent, footer, settingsComponent: SettingsContent }: ShellProps) {
+export function Shell({ blocked = false, initialWorkspace, workspace: controlledWorkspace, onWorkspaceChange, identity, pendingApprovals, canCloseWithoutWarning, onBeforeClose, onHostEvent, footer, settingsComponent: SettingsContent }: ShellProps) {
   const runtime = useContext(RuntimeContext);
   const [localWorkspace, setLocalWorkspace] = useState(() => initialWorkspace ?? initialTestWorkspace());
   const workspace = controlledWorkspace ?? localWorkspace;
@@ -71,6 +73,10 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
   const busyRef = useRef(false);
   const lastCloseId = useRef<string | null>(null);
   const overview = useRef<OverviewHandle>(null);
+  const {closeChecks, closeCheck, receiveHostEvent, requestClose: checkClose} = useCloseChecks({
+    workspace: current, blocked, identity: identity?.npub, lifetime: runtime,
+    pendingApprovals, canCloseWithoutWarning, onClean: closeSession, onWarning: setClosingId, onHostEvent,
+  });
   const focusedIndex = Math.max(0, workspace.sessions.findIndex(session => session.id === workspace.focusedId));
   const focused = workspace.sessions.find(session => session.id === workspace.focusedId);
   const nextFixtureNumber = useRef(Math.max(3, ...workspace.sessions.map(session => Number(session.title.match(/ ([1-9][0-9]*)$/)?.[1] ?? 0))) + 1);
@@ -114,7 +120,7 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
   }, [focusedIndex, position, progress, workspace.overview]);
 
   const focusSession = useCallback((id: string) => {
-    if (blocked || busyRef.current) return;
+    if (blocked || busyRef.current || closeChecks.isPending()) return;
     const state = current.current;
     const index = state.sessions.findIndex(session => session.id === id);
     if (index < 0) return;
@@ -122,36 +128,45 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
     position.set(index);
     change(focusNapplet(state, id));
     runAnimation(progress, 0, () => AccessibilityInfo.announceForAccessibility(state.sessions[index].title));
-  }, [blocked, change, position, progress, runAnimation]);
+  }, [blocked, change, closeChecks, position, progress, runAnimation]);
   const openOverview = useCallback(() => {
-    if (blocked || busyRef.current) return;
+    if (blocked || busyRef.current || closeChecks.isPending()) return;
     Keyboard.dismiss();
     overview.current?.revealCard(current.current.focusedId);
     change(showOverview(current.current));
     runAnimation(progress, 1, () => overview.current?.focusCard(current.current.focusedId));
-  }, [blocked, change, progress, runAnimation]);
+  }, [blocked, change, closeChecks, progress, runAnimation]);
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       if (keyboardVisible.current) { Keyboard.dismiss(); return true; }
-      if (blocked || busyRef.current) return true;
+      if (blocked || busyRef.current || closeChecks.isPending()) return true;
       if (!workspace.overview) { openOverview(); return true; }
       if (workspace.focusedId) { focusSession(workspace.focusedId); return true; }
       return false;
     });
     return () => subscription.remove();
-  }, [blocked, focusSession, openOverview, workspace.focusedId, workspace.overview]);
+  }, [blocked, closeChecks, focusSession, openOverview, workspace.focusedId, workspace.overview]);
   const onHandleEnd = (side: HandleSide, result: 'overview' | 'switch' | 'cancel') => handleWorkspaceGestureEnd({
     side, result, blocked, busyRef, focusedIndex, current, position, openOverview, runAnimation, change,
     setHandleDragging,
   });
-  const requestClose = (id: string) => requestWorkspaceNappletClose(id, { blocked, busyRef, current, lastCloseId, setClosingId });
+  function closeSession(id: string) {
+    closeChecks.forget(id);
+    confirmWorkspaceNappletClose({closingId: id, current, onBeforeClose, runtime, change, setClosingId, lastCloseId, overview});
+  }
+  const requestClose = (id: string) => {
+    if (blocked || busyRef.current || closeChecks.isPending()) return;
+    Keyboard.dismiss();
+    lastCloseId.current = id;
+    void checkClose(id);
+  };
   const keepOpen = () => {
     setClosingId(null);
     // Modal's Android onDismiss is not guaranteed; focus follows the next commit too.
     requestAnimationFrame(() => overview.current?.focusCard(lastCloseId.current));
   };
-  const confirmClose = () => confirmWorkspaceNappletClose({ closingId, current, onBeforeClose, runtime, change, setClosingId, lastCloseId, overview });
-  const openSettings = () => { if (!blocked && !busyRef.current) { Keyboard.dismiss(); setSettings(true); } };
+  const confirmClose = () => { if (closingId) closeSession(closingId); };
+  const openSettings = () => { if (!blocked && !busyRef.current && !closeChecks.isPending()) { Keyboard.dismiss(); setSettings(true); } };
   const openFixture = (variant: BundledVariant) => {
     while (current.current.sessions.some(session => session.id === `${variant}-${nextFixtureNumber.current}`)) nextFixtureNumber.current++;
     if (variant !== 'ux-lab' && !runtime) return;
@@ -197,8 +212,8 @@ export function Shell({ blocked = false, initialWorkspace, workspace: controlled
       <StatusBar barStyle="light-content" />
       <View accessibilityElementsHidden={settings || closingId !== null} importantForAccessibility={settings || closingId ? 'no-hide-descendants' : 'auto'} style={styles.screen}>
         <Header title={focused?.title ?? 'Hypergolic'} identity={identity} onSettings={openSettings} />
-        <WorkspaceStage workspace={workspace} progress={progress} position={position} scrollY={scrollY} swipeY={swipeY} swipeId={swipeId} busy={busy} blocked={blocked || settings || closingId !== null} interactive={!handleDragging}
-          pending={pendingApprovals ?? noPending} ref={overview} onHostEvent={onHostEvent} onFocus={focusSession} onClose={requestClose} onOpen={openSettings}
+        <WorkspaceStage closeCheck={closeCheck} workspace={workspace} progress={progress} position={position} scrollY={scrollY} swipeY={swipeY} swipeId={swipeId} busy={busy} blocked={blocked || settings || closingId !== null || closeCheck !== null} interactive={!handleDragging}
+          pending={pendingApprovals ?? noPending} ref={overview} onHostEvent={receiveHostEvent} onFocus={focusSession} onClose={requestClose} onOpen={openSettings}
           onDragEnd={(id, close) => { runAnimation(swipeY, 0, () => { swipeId.set(null); if (close) requestClose(id); }, 140); }}
           onHandleStart={() => { setHandleDragging(true); Keyboard.dismiss(); cancelAnimation(position); }}
           onHandleEnd={onHandleEnd} />
@@ -267,19 +282,6 @@ function confirmWorkspaceNappletClose({ closingId, current, onBeforeClose, runti
   setClosingId(null);
   lastCloseId.current = null;
   requestAnimationFrame(() => overview.current?.focusCard(null));
-}
-
-function requestWorkspaceNappletClose(id: string, { blocked, busyRef, current, lastCloseId, setClosingId }: {
-  blocked: boolean;
-  busyRef: { current: boolean };
-  current: { current: Workspace };
-  lastCloseId: { current: string | null };
-  setClosingId: (id: string | null) => void;
-}) {
-  if (blocked || busyRef.current || !current.current.sessions.some(session => session.id === id)) return;
-  Keyboard.dismiss();
-  lastCloseId.current = id;
-  setClosingId(id);
 }
 
 function ShellSettings({ settings, blocked, identity, SettingsContent, publishedSessions, openSettings, openBundledTest, openFixture, openPublished, checkPublishedUpdate }: ShellSettingsProps) {

@@ -252,6 +252,7 @@ class NappletHostModule : Module() {
       Prop("configuration") { view: NappletHostView, raw: String -> view.startConfiguredSession(raw) }
       Prop("publishedArtifact") { view: NappletHostView, raw: String -> view.startPublishedArtifact(raw) }
       Prop("sessionId") { view: NappletHostView, id: String -> view.startSession(id) }
+      Prop("closeCheck") { view: NappletHostView, raw: String -> view.setCloseCheck(raw) }
       Prop("active") { view: NappletHostView, active: Boolean -> view.setActive(active) }
       OnViewDestroys { view: NappletHostView -> view.destroySession() }
     }

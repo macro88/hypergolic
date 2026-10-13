@@ -26,9 +26,9 @@ export function FixturePublisherLab({service,format}: {service: FixturePublisher
       <Text style={styles.detail}>Manifest relays, one per line</Text>
       <TextInput testID="fixture-release-relays" accessibilityLabel="Fixture manifest relays" value={relays} onChangeText={setRelays}
         autoCapitalize="none" autoCorrect={false} maxLength={16*1024} multiline style={styles.input}/>
-      {Object.keys(BUNDLED_FIXTURES).filter(id=>id!=='nap-support' && id!=='approval-lab-v1' && id!=='approval-lab-v2' && id!=='feed-lab-v1').concat('routing-lab-peer').map(fixture=><View key={fixture}>
+      {Object.keys(BUNDLED_FIXTURES).flatMap(fixture => ['nap-support','approval-lab-v1','approval-lab-v2','feed-lab-v1'].includes(fixture) ? [] : [<View key={fixture}>
         {action(`Review ${fixture}`,`fixture-release-prepare-${fixture}`,()=>{void service.prepare(fixture,server,relays.split(/\s+/).filter(Boolean));})}
-      </View>)}
+      </View>])}
     </>}
     {busy && <ActivityIndicator color={colors.accent}/>}
     {state.review && <View style={styles.group}>

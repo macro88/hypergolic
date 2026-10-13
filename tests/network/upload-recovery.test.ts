@@ -49,3 +49,19 @@ test('two checks are bounded and duplicate clicks cannot issue another read', as
   held.resolve({uploadId: records[0]!.uploadId, state: 'unknown'}); await Promise.all([first,second]); assert.deepEqual(service.getSnapshot().checking, []);
   assert(records.every((_, index) => service.getSnapshot().records[index]?.state === 'unknown'));
 });
+
+
+test('close safeguards read persisted uncertainty for the same application without dispatch or retry', () => {
+  let records: UploadRecoveryRecord[] = [row()], reads = 0;
+  const service = new UploadRecoveryService({list: () => ({available: true, identity, records}), check: async () => {reads++; return {}; }}, () => identity);
+  assert.equal(service.hasUnresolvedOutcome('b'.repeat(64), 'app'), true);
+  assert.equal(service.hasUnresolvedOutcome('b'.repeat(64), 'other'), false);
+  assert.equal(service.hasUnresolvedOutcome('d'.repeat(64), 'app'), false);
+  records = [{...row(), state: 'confirmed'}]; assert.equal(service.hasUnresolvedOutcome('b'.repeat(64), 'app'), false);
+  service.background(); assert.equal(service.hasUnresolvedOutcome('b'.repeat(64), 'app'), true);
+  service.foreground(); assert.equal(service.hasUnresolvedOutcome('b'.repeat(64), 'app'), false); assert.equal(reads, 0);
+});
+test('missing or malformed persistent upload evidence cannot permit clean close', () => {
+  const service = new UploadRecoveryService({list: () => {throw Error('unavailable');}, check: async () => ({})}, () => identity);
+  assert.equal(service.hasUnresolvedOutcome('b'.repeat(64), 'app'), true);
+});

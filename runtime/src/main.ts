@@ -1,3 +1,4 @@
+import { installCloseCheck, CLOSE_CHECK_SERVICE } from './close-check';
 import { ensureObjectHasOwn } from './legacy-webview';
 import { injectSupportReport } from './support-report';
 import {parseOutboxSubscribe,parseOutboxClose} from '../../src/outbox/subscription-contract';
@@ -217,6 +218,22 @@ function approvalTimeouts(artifact:RuntimeArtifact):Readonly<Record<string,numbe
     ...artifact.domains.includes('outbox')?{'outbox.publish':660_000}:{}});
 }
 
+function rejectEnvelope(event: MessageEvent, source: Window, domains: readonly string[]): void {
+      if (domains.includes('notify')) {
+        const rejection = captureNotifyRejection(event.data);
+        if (rejection !== null) source.postMessage({...rejection}, '*');
+      }
+      // A denied subscribe acquires no Kehto/native authority. Reply only to the captured
+      // registered frame with an independently validated caller correlation identifier.
+      if (domains.includes('relay') && (event.data?.type === 'relay.subscribe' || domains.includes('outbox') && event.data?.type === 'outbox.subscribe')) {
+        try {
+          const outbox=event.data.type==='outbox.subscribe';
+          const denied = outbox?parseOutboxClose({type:'outbox.close',id:event.data.id,subId:event.data.subId}):parseRelayClose({type:'relay.close',id:event.data.id,subId:event.data.subId});
+          source.postMessage({type:outbox?'outbox.closed':'relay.closed',subId:denied.subId,reason:'invalid or unsupported relay subscription'}, '*');
+        } catch { /* An invalid correlation identifier has no SDK recipient. */ }
+      }
+}
+
 function mount(artifact: RuntimeArtifact): void {
   let routingContext: ServiceRuntimeContext | null = null;
   const native = createNativeClient(hostWindow.HypergolicHost!, sessionId,
@@ -232,7 +249,8 @@ function mount(artifact: RuntimeArtifact): void {
   }, artifact, context => { routingContext = context; });
   const bridge = createShellBridge(hooks);
   const identity = Object.freeze({ dTag: artifact.appId, aggregateHash: artifact.aggregateHash });
-  const environment = resolveShellEnvironment(hooks, identity);
+  const resolved = resolveShellEnvironment(hooks, identity);
+  const environment = {...resolved, services: [...resolved.services, CLOSE_CHECK_SERVICE]};
   const frame = createGuestFrame(artifact.title);
   const source = frame.contentWindow;
   if (!source) { bridge.destroy(); throw new Error('Frame unavailable'); }
@@ -244,6 +262,9 @@ function mount(artifact: RuntimeArtifact): void {
   let frameLoaded = false;
   let operations = 0;
   let windowStart = performance.now();
+  const closeCheck = installCloseCheck(source, () => !stopped && ready && frame.contentWindow === source &&
+    bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId) !== undefined,
+    (id, state) => hostWindow.HypergolicHost?.postMessage(JSON.stringify({type: 'close-check.result', sessionId, id, state})));
   const deadline = window.setTimeout(() => fail('runtime-timeout'), 10_000);
 
   const receive = (event: MessageEvent): void => {
@@ -251,19 +272,7 @@ function mount(artifact: RuntimeArtifact): void {
     if (performance.now() - windowStart > 1000) { operations = 0; windowStart = performance.now(); }
     if (++operations > 64) return;
     if (!validEnvelope(event.data)) {
-      if (ready && artifact.domains.includes('notify') && bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId)) {
-        const rejection = captureNotifyRejection(event.data);
-        if (rejection !== null) source.postMessage({...rejection}, '*');
-      }
-      // A denied subscribe acquires no Kehto/native authority. Reply only to the captured
-      // registered frame with an independently validated caller correlation identifier.
-      if (ready && artifact.domains.includes('relay') && (event.data?.type === 'relay.subscribe' || artifact.domains.includes('outbox') && event.data?.type === 'outbox.subscribe')) {
-        try {
-          const outbox=event.data.type==='outbox.subscribe';
-          const denied = outbox?parseOutboxClose({type:'outbox.close',id:event.data.id,subId:event.data.subId}):parseRelayClose({type:'relay.close',id:event.data.id,subId:event.data.subId});
-          source.postMessage({type:outbox?'outbox.closed':'relay.closed',subId:denied.subId,reason:'invalid or unsupported relay subscription'}, '*');
-        } catch { /* An invalid correlation identifier has no SDK recipient. */ }
-      }
+      if (ready && bridge.runtime.sessionRegistry.getEntryByWindowId(sessionId)) rejectEnvelope(event, source, artifact.domains);
       return;
     }
     // Kehto performs session gating, frozen capability enforcement and theme dispatch.
@@ -285,6 +294,7 @@ function mount(artifact: RuntimeArtifact): void {
     if (frame.contentWindow !== source) fail('frame-navigation');
   };
   cleanup = (): void => {
+    closeCheck();
     media.close();
     window.clearTimeout(deadline);
     window.removeEventListener('message', receive);

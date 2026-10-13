@@ -37,6 +37,12 @@ export function ApprovalWorkspace({ service, uploads, epoch, workspace, footer, 
   return <ApprovalProvider value={service}><UploadProvider value={uploads ?? null}>
     <Shell {...shell} workspace={workspace} pendingApprovals={new Set([...snapshot.pendingSessionIds, ...uploadSnapshot.pendingSessionIds])}
       footer={<>{!shown && !uploadSnapshot.current && !shell.blocked && <>{footer}<ApprovalResume snapshot={snapshot} service={service} /></>}<UploadWorkspace service={uploads} snapshot={uploadSnapshot} workspace={workspace} blocked={Boolean(shown || shell.blocked)} /></>}
+      canCloseWithoutWarning={id => {
+        if (service.hasCloseRisk(id) || presentation.busy || presentation.receipt || presentation.outcome || uploads?.hasCloseRisk(id)) return false;
+        const session = workspace?.sessions.find(item => item.id === id);
+        if (session && uploads?.recovery?.hasUnresolvedOutcome(session.publisher, session.appId)) return false;
+        return true;
+      }}
       onBeforeClose={session => {service.close(session.id); uploads?.close(session.id);}} />
     <ApprovalResults snapshot={snapshot} presentation={presentation} shown={shown!==null}/>
     <ApprovalSheet item={shown} nappletTitle={title} busy={presentation.busy} error={null}

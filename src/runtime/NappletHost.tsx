@@ -1,3 +1,4 @@
+import type { CloseCheckEvent } from '../shell/close-check';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { requireNativeView } from 'expo';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View, type NativeSyntheticEvent, type ViewProps } from 'react-native';
@@ -7,15 +8,17 @@ import { RuntimeContext } from './RuntimeContext';
 import type { NappletConsentReview } from '../napplets/first-open-consent';
 import { colors } from '../shell/theme';
 
-export type HostEvent = { type: 'ready'; sessionId: string } | { type: 'error'; sessionId: string; code: string };
+export type HostEvent = { type: 'ready'; sessionId: string; generation?: string } | { type: 'error'; sessionId: string; code: string } | CloseCheckEvent;
 interface Props extends ViewProps {
   session: NappletDescriptor;
+  closeCheck?: string;
   active?: boolean;
   onHostEvent: (event: NativeSyntheticEvent<HostEvent>) => void;
 }
 type NativeEvent = HostEvent | NativeCapabilityEvent;
 interface NativeProps extends ViewProps {
   sessionId?: string;
+  closeCheck?: string;
   configuration?: string;
   publishedArtifact?: string;
   active?: boolean;

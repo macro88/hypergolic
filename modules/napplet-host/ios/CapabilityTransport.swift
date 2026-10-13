@@ -53,7 +53,7 @@ struct CapabilityConfiguration {
       let fixture = value["fixture"] as? String, let sessionId = value["sessionId"] as? String else { throw Invalid.configuration }
     let expected: Set<String>
     switch fixture {
-    case "ux-lab": expected = ["theme"]
+    case "ux-lab", "close-lab": expected = ["theme"]
     case "state-lab", "state-lab-peer": expected = ["identity", "storage", "theme"]
     case "approval-lab", "approval-lab-v1", "approval-lab-v2": expected = ["identity", "relay", "theme"]
     case "upload-lab", "upload-queue-lab": expected = ["upload", "theme"]

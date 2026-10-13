@@ -311,7 +311,7 @@ final class BoundaryTests: XCTestCase {
     XCTAssertEqual(value["theme"] as? Bool, true)
     XCTAssertEqual(value["relay"] as? Bool, false)
     let environment = try XCTUnwrap(value["environment"] as? [String: Any])
-    XCTAssertEqual(environment["services"] as? [String], ["theme"])
+    XCTAssertEqual(environment["services"] as? [String], ["theme", "hypergolic.close-check.v1"])
     XCTAssertEqual((environment["capabilities"] as? [String: Any])?["domains"] as? [String], ["theme"])
     XCTAssertFalse(try XCTUnwrap(p.webView).configuration.websiteDataStore.isPersistent)
     let main = try await p.json("return {sandbox:document.querySelector('#napplet').getAttribute('sandbox'),count:document.querySelectorAll('iframe').length};",frame:p.main)
@@ -486,4 +486,56 @@ final class BoundaryTests: XCTestCase {
     XCTAssertEqual(other.events.last?["code"] as? String,"session-reuse-blocked")
     XCTAssertNil(view.superview)
   }
+  private func closeLab() async throws -> Probe {
+    let p = Probe(); probe = p
+    let config: [String: Any] = ["sessionId": p.session, "epoch": 3,
+      "user": String(repeating: "1", count: 64), "publisher": String(repeating: "2", count: 64),
+      "appId": "close-lab", "version": String(repeating: "3", count: 64),
+      "instanceId": "close-probe-instance", "fixture": "close-lab", "domains": ["theme"]]
+    try p.start(configuration: String(decoding: JSONSerialization.data(withJSONObject: config), as: UTF8.self))
+    try await p.until("Close Lab native ready and guest frame") { p.events.contains { $0["type"] as? String == "ready" } && p.guest != nil }
+    return p
+  }
+  private func closeRequest(_ p: Probe, _ id: String) throws {
+    let raw: [String: String] = ["id": id, "generation": try p.generation]
+    p.host.setCloseCheck(String(decoding: try JSONSerialization.data(withJSONObject: raw), as: UTF8.self))
+  }
+  func testOptionalCloseCheckNativeCleanDirtyUnknownAndOneUse() async throws {
+    let p = try await closeLab()
+    for (id, state) in [("clean", "clean"), ("dirty", "dirty"), ("unknown", "unknown")] {
+      _ = try await p.json("document.getElementById('draft').value = '\(state == "dirty" ? "unsaved" : "")'; document.getElementById('mode').value = '\(state == "unknown" ? "unknown" : "auto")'; return {configured:true};", frame: p.guest)
+      try closeRequest(p, id)
+      try await p.until("native close-check " + id) { p.events.contains { $0["type"] as? String == "close-check" && $0["id"] as? String == id } }
+      let value = try XCTUnwrap(p.events.last)
+      XCTAssertEqual(value["state"] as? String, state)
+      XCTAssertEqual(value["generation"] as? String, try p.generation)
+      XCTAssertEqual(value["sessionId"] as? String, p.session)
+    }
+    let before = p.events.count
+    _ = try await p.diagnostic(["type":"close-check.result", "sessionId":try p.generation, "id":"unknown", "state":"clean"], frame:p.main)
+    XCTAssertEqual(p.events.count, before, "A consumed native challenge must not accept a replay")
+    try p.attach(to:self,name:"optional-close-clean-dirty-unknown")
+  }
+  func testOptionalCloseCheckRejectsWrongGenerationExtraFieldsAndExpiredNativeReply() async throws {
+    let p = try await closeLab()
+    _ = try await p.json("document.getElementById('mode').value='silent';return {configured:true};", frame:p.guest)
+    p.host.setCloseCheck("{\"id\":\"foreign\",\"generation\":\"foreign-generation\"}")
+    _ = try await p.diagnostic(["type":"close-check.result", "sessionId":try p.generation, "id":"foreign", "state":"clean"], frame:p.main)
+    XCTAssertEqual(p.events.count,1)
+    try closeRequest(p,"expiry")
+    _ = try await p.diagnostic(["type":"close-check.result", "sessionId":try p.generation, "id":"expiry", "state":"clean", "publisher":"forged"], frame:p.main)
+    XCTAssertEqual(p.events.count,1)
+    try await Task.sleep(for:.milliseconds(550))
+    _ = try await p.diagnostic(["type":"close-check.result", "sessionId":try p.generation, "id":"expiry", "state":"clean"], frame:p.main)
+    XCTAssertEqual(p.events.count,1)
+  }
+  func testOptionalCloseCheckBackgroundRevokesNativeChallenge() async throws {
+    let p = try await closeLab()
+    _ = try await p.json("document.getElementById('mode').value='silent';return {configured:true};", frame:p.guest)
+    try closeRequest(p,"background")
+    NotificationCenter.default.post(name:UIApplication.willResignActiveNotification,object:nil)
+    _ = try await p.diagnostic(["type":"close-check.result", "sessionId":try p.generation, "id":"background", "state":"clean"], frame:p.main)
+    XCTAssertEqual(p.events.count,1)
+  }
+
 }

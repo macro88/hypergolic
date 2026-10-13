@@ -23,6 +23,10 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   private var receiver: DiagnosticReceiver?
   private var deadline: DispatchWorkItem?
   private var live = false
+  private var closeCheckId: String?
+  private var closeCheckDeadline: TimeInterval = 0
+  private var pendingNativeReplies: [String: TimeInterval] = [:]
+  private var closeUnsafeUntil: TimeInterval = 0
   private var ready = false
   private var loaded = false
   private var initialNavigationAllowed = false
@@ -61,6 +65,33 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     super.willMove(toSuperview: newSuperview)
   }
 
+  func setCloseCheck(_ raw: String) {
+    closeCheckId = nil
+    guard live, ready, loaded, !disposed, UIApplication.shared.applicationState == .active,
+      raw.utf8.count <= 256, let data = raw.data(using: .utf8),
+      let value = try? JSONSerialization.jsonObject(with: data) as? [String: String],
+      Set(value.keys) == ["id", "generation"], value["generation"] == generation,
+      let id = value["id"], id.range(of: "^[A-Za-z0-9_-]{1,80}$", options: .regularExpression) != nil,
+      let view = webView, let expectedURL, view.url == expectedURL else { return }
+    closeCheckId = id
+    closeCheckDeadline = ProcessInfo.processInfo.systemUptime + 0.5
+    let script = "if(location.href===" + jsString(expectedURL.absoluteString) + "){window.postMessage({type:'hypergolic.close-check.request',id:" + jsString(id) + "},'*')}"
+    view.evaluateJavaScript(script, completionHandler: nil)
+  }
+
+  private func receiveCloseCheck(_ value: [String: Any]) {
+    guard ready, UIApplication.shared.applicationState == .active,
+      Set(value.keys) == ["type", "sessionId", "id", "state"],
+      let id = value["id"] as? String, id == closeCheckId,
+      ProcessInfo.processInfo.systemUptime < closeCheckDeadline,
+      let state = value["state"] as? String, ["clean", "dirty", "unknown"].contains(state) else { return }
+    closeCheckId = nil
+    let now = ProcessInfo.processInfo.systemUptime
+    pendingNativeReplies = pendingNativeReplies.filter { $0.value > now }
+    let guarded = state == "clean" && (!pendingNativeReplies.isEmpty || closeUnsafeUntil > now) ? "dirty" : state
+    onEvent?(["type": "close-check", "sessionId": sessionId ?? "", "generation": generation, "id": id, "state": guarded])
+  }
+
   func setActive(_ isActive: Bool) {
     guard active != isActive else { return }
     active = isActive
@@ -71,7 +102,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     if !isActive { webView?.endEditing(true) }
   }
 
-  @objc private func mediaBackground() { selectedFilePicker.background(); updateMediaPlayback(foreground: false) }
+  @objc private func mediaBackground() { closeCheckId = nil; selectedFilePicker.background(); updateMediaPlayback(foreground: false) }
   @objc private func mediaForeground() { updateMediaPlayback(foreground: true) }
   private func updateMediaPlayback(foreground: Bool? = nil) {
     guard let view = webView, !disposed else { return }
@@ -399,6 +430,9 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
     }
     guard text.utf8.count <= 2048 else { reply(nil, "Diagnostic rejected"); return }
     switch value["type"] as? String {
+    case "close-check.result":
+      receiveCloseCheck(value)
+      reply(nil, nil)
     case "routing-ack":
       guard Set(value.keys) == ["type", "sessionId", "sequence", "delivery"],
         let sequence = value["sequence"] as? NSNumber, let delivery = value["delivery"] as? NSNumber,
@@ -490,7 +524,13 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
       let message = value["message"] as? String, let snapshot = try? configuration.request(message)
       else { reply(nil, "Capability rejected"); return }
     let counter = sequence.uint64Value
+    let operation = UUID().uuidString
+    let now = ProcessInfo.processInfo.systemUptime
+    pendingNativeReplies = pendingNativeReplies.filter { $0.value > now }
+    if pendingNativeReplies.count < 64 { pendingNativeReplies[operation] = now + 660 }
+    else { closeUnsafeUntil = now + 660 }
     let respond: @MainActor @Sendable (String?) -> Void = { [weak self] response in
+      self?.pendingNativeReplies.removeValue(forKey: operation)
       guard let self, self.live, !self.disposed,
         self.webView?.url?.absoluteString == self.expectedURL?.absoluteString else { reply(nil, "Session unavailable"); return }
       let result: [String: Any] = ["type": "capability.result", "sessionId": self.generation,
@@ -553,6 +593,7 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
 
   private func emit(_ type: String, code: String? = nil) {
     var event: [String: Any] = ["type": type, "sessionId": sessionId ?? ""]
+    if type == "ready" { event["generation"] = generation }
     if let code { event["code"] = code }
     onEvent?(event)
   }
@@ -571,6 +612,8 @@ final class RestrictedNappletHost: UIView, WKNavigationDelegate, WKUIDelegate {
   func destroySession() {
     guard !disposed else { return }
     disposed = true
+    closeCheckId = nil
+    pendingNativeReplies.removeAll()
     selectedFilePicker.cancel()
     NotificationCenter.default.removeObserver(self)
     webView?.setAllMediaPlaybackSuspended(true, completionHandler: nil)

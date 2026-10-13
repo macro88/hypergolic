@@ -63,6 +63,7 @@ export class UploadService {
   private focused: string | null = null;
   private foregrounded = true;
   private listeners = new Set<() => void>();
+  private readonly closeRisks = new Map<string, number>();
   private outcomes: UploadPresentation['outcomes'] = Object.freeze([]);
   private snapshot: UploadPresentation = Object.freeze({current: null, pending: 0, pendingSessionIds: Object.freeze([]),
     active: Object.freeze([]), outcomes: this.outcomes});
@@ -72,6 +73,9 @@ export class UploadService {
   constructor(native: UploadNativePort, owner: TrustedApprovalOwner, effects: UploadEffects) {
     this.native = native; this.owner = owner; this.effects = effects;
     this.recovery = native.recovery && effects.currentIdentity ? new UploadRecoveryService(native.recovery, effects.currentIdentity) : null;
+  }
+  hasCloseRisk(sessionId: string): boolean {
+    return this.closeRisks.has(sessionId) || this.entries.some(entry => entry.origin.sessionId === sessionId);
   }
   getSnapshot = (): UploadPresentation => this.snapshot;
   subscribe(listener: () => void): () => void { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
@@ -167,11 +171,13 @@ export class UploadService {
   background(): void { this.recovery?.background(); this.foregrounded = false; for (const entry of this.entries) this.end(entry, 'user cancelled'); this.publish(); }
   close(sessionId: string): void {
     for (const entry of this.entries) if (entry.origin.sessionId === sessionId) this.end(entry, 'user cancelled');
+    this.closeRisks.delete(sessionId);
     this.outcomes = Object.freeze(this.outcomes.filter(item => item.origin.sessionId !== sessionId)); this.publish();
   }
   revisionChanged(epoch: number): void {
     this.recovery?.invalidate();
     for (const entry of this.entries) if (entry.origin.epoch !== epoch) this.end(entry, 'user cancelled');
+    for (const [id, value] of this.closeRisks) if (value !== epoch) this.closeRisks.delete(id);
     this.outcomes = Object.freeze(this.outcomes.filter(item => item.origin.epoch === epoch)); this.publish();
   }
   reject(id: string): void { if (this.snapshot.current?.id === id) this.cancel(id); }
@@ -187,6 +193,7 @@ export class UploadService {
     const code = error === 'user cancelled' && dispatched ? 'outcome unknown' : error;
     const result: UploadResult = success ?? Object.freeze({ok: false, uploadId: entry.uploadId,
       status: code === 'user cancelled' ? 'cancelled' : 'failed', rail: 'blossom', error: code ?? 'upload failed'});
+    if (result.error === 'outcome unknown') this.closeRisks.set(entry.origin.sessionId, entry.origin.epoch);
     try { this.native.finish(entry.lease, result); }
     catch { try {this.native.cancel(entry.lease);} catch { /* Native loss still requires app cleanup. */ } }
     try {entry.detachProgress?.();} catch { /* Progress observers cannot prevent native cleanup. */ }

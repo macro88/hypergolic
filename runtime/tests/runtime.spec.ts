@@ -126,8 +126,8 @@ test('real Kehto handshake and theme work with top-document DOM storage disabled
       relay: shell.supports('relay'), upload: shell.supports('upload'), unknown: shell.supports('made-up'), calls,
       domains: Object.keys((window as any).napplet) };
   });
-  expect(result).toEqual({ environment: { capabilities: { domains: ['theme'] }, services: ['theme'] },
-    services: ['theme'], theme: true, relay: false, upload: false, unknown: false, calls: 1, domains: ['shell', 'theme'] });
+  expect(result).toEqual({ environment: { capabilities: { domains: ['theme'] }, services: ['theme', 'hypergolic.close-check.v1'] },
+    services: ['theme', 'hypergolic.close-check.v1'], theme: true, relay: false, upload: false, unknown: false, calls: 1, domains: ['shell', 'theme'] });
   expect((await messages(frame)).filter((m: any) => m.type === 'shell.init')).toHaveLength(1);
   await frame.evaluate(() => {
     parent.postMessage({ type: 'shell.ready' }, '*');

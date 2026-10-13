@@ -32,7 +32,7 @@ export interface ApprovalEffects {
 export interface TrustedApprovalOwner { assertActive(origin: ApprovalOrigin,domain?:'outbox'): void }
 export type ApprovalItem = Readonly<{ id: string; origin: ApprovalOrigin; event: EventSnapshot; outbox?:OutboxPublicationPlan }>;
 export type ApprovalSnapshot = Readonly<{ focusedSessionId: string | null; reviewPaused: boolean; current: ApprovalItem | null; pending: number; pendingSessionIds: readonly string[] }>;
-type Entry = ApprovalItem & { requestId: string; lease: NativeApprovalLease; controller: AbortController | null };
+type Entry = ApprovalItem & { requestId: string; lease: NativeApprovalLease; controller: AbortController | null; publicationStarted?: boolean };
 const PER_SESSION = 4, GLOBAL = 16;
 let nextPresentationId = 0;
 
@@ -59,6 +59,7 @@ export class ApprovalService {
   private foregrounded = true;
   private snapshot: ApprovalSnapshot;
   private readonly preparing:OutboxApprovalPreparation;
+  private readonly closeRisks = new Map<string, number>();
   private readonly receipts=new WeakMap<readonly RelayOutcome[],OutboxPublicationReceipt>();
   constructor(native: NativeApprovalLeasePort, owner: TrustedApprovalOwner, effects: ApprovalEffects,planner?:OutboxPublicationPlanner) {
     this.native = native; this.owner = owner; this.effects = effects;
@@ -80,11 +81,13 @@ export class ApprovalService {
   }
   private end(entry: Entry, cancel: boolean, response: string | null = null) {
     if (!this.entries.includes(entry)) return;
+    if (response === null && entry.publicationStarted) this.closeRisks.set(entry.origin.sessionId, entry.origin.epoch);
     this.entries = this.entries.filter(item => item !== entry);
     try { if (cancel) this.native.cancel(entry.lease); } catch { /* Native lease remains authoritative. */ }
     try { entry.controller?.abort(); } catch { /* Effect cleanup cannot skip native terminal cleanup. */ }
     try { this.native.finish(entry.lease, response); } catch { /* Terminal native cleanup. */ }
   }
+  hasCloseRisk(sessionId: string): boolean { return this.closeRisks.has(sessionId) || this.getSnapshot().pendingSessionIds.includes(sessionId); }
   outboxReceipt(results:readonly RelayOutcome[]):OutboxPublicationReceipt|null{return this.receipts.get(results)??null;}
   refresh() {
     this.preparing.refresh();
@@ -142,8 +145,8 @@ export class ApprovalService {
     for (const entry of this.entries) if (entry.controller !== null) this.end(entry, true);
     this.publish();
   }
-  close(sessionId: string) { this.preparing.cancel(origin=>origin.sessionId===sessionId); for (const entry of this.entries) if (entry.origin.sessionId === sessionId) this.end(entry, true); this.publish(); }
-  revisionChanged(epoch: number) { this.preparing.cancel(origin=>origin.epoch!==epoch); for (const entry of this.entries) if (entry.origin.epoch !== epoch) this.end(entry, true); this.publish(); }
+  close(sessionId: string) { this.preparing.cancel(origin=>origin.sessionId===sessionId); for (const entry of this.entries) if (entry.origin.sessionId === sessionId) this.end(entry, true); this.closeRisks.delete(sessionId); this.publish(); }
+  revisionChanged(epoch: number) { this.preparing.cancel(origin=>origin.epoch!==epoch); for (const entry of this.entries) if (entry.origin.epoch !== epoch) this.end(entry, true); for (const [id, value] of this.closeRisks) if (value !== epoch) this.closeRisks.delete(id); this.publish(); }
   private authority(entry: Entry): EffectAuthority {
     const assertActive = () => {
       if (!this.foregrounded || this.reviewPaused || this.focusedSessionId !== entry.origin.sessionId || entry.controller?.signal.aborted || !this.entries.includes(entry)) denied();
@@ -172,6 +175,7 @@ export class ApprovalService {
     if (!item || item.id !== id) denied();
     const entry = this.entries.find(candidate => candidate.id === id)!;
     let response: string | null = null;
+    let publicationStarted = false;
     try {
       this.owner.assertActive(entry.origin,entry.outbox?'outbox':undefined);
       if (!this.native.mayReview(entry.lease) || !this.native.approveOnce(entry.lease)) denied();
@@ -183,18 +187,25 @@ export class ApprovalService {
       const verified = validateSignedEvent(entry.event, signed);
       execution.assertActive();
       if(entry.outbox){
+        publicationStarted = true; entry.publicationStarted = true;
         const receipt=await this.publishOutbox(entry,verified,execution);execution.assertActive();response=JSON.stringify(receipt.response);
+        if (receipt.primary.outcomes.some(row => row.status === 'unknown') || receipt.ancillary?.outcomes.some(row => row.status === 'unknown')) this.closeRisks.set(entry.origin.sessionId, entry.origin.epoch);
         this.receipts.set(receipt.primary.outcomes,receipt);return receipt.primary.outcomes;
       }
+      publicationStarted = true; entry.publicationStarted = true;
       const outcomes = await this.effects.publishEvent(verified, entry.event.destinations, execution);
       execution.assertActive();
       const captured = captureRelayOutcomes(outcomes, entry.event.destinations, verified.id);
+      if (captured.some(row => row.status === 'unknown')) this.closeRisks.set(entry.origin.sessionId, entry.origin.epoch);
       const accepted = captured.some(row => row.status === 'accepted');
       const completedResponse = JSON.stringify({ type: 'relay.publish.result', id: entry.requestId, ok: accepted,
         ...(accepted ? { event: verified, eventId: verified.id } : { error: captured.some(row => row.status === 'unknown') ? 'publication result unknown' : 'no relay accepted the event' }) });
       execution.assertActive();
       response = completedResponse;
       return captured;
+    } catch (error) {
+      if (publicationStarted && this.entries.includes(entry)) this.closeRisks.set(entry.origin.sessionId, entry.origin.epoch);
+      throw error;
     } finally { this.end(entry, response === null, response); this.publish(); }
   }
 }

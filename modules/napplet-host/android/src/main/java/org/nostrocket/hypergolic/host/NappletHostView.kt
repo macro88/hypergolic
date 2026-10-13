@@ -40,6 +40,10 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   @Volatile private var disposed = false
   @Volatile private var active = false
   private var expectedUrl: String? = null
+  private var closeCheckId: String? = null
+  private var closeCheckDeadline = 0L
+  private val pendingNativeReplies = mutableMapOf<String, Long>()
+  private var closeUnsafeUntil = 0L
   private var pickerFaultProof: String? = null
   private val webView = WebView(context)
   private val assetLoader = WebViewAssetLoader.Builder()
@@ -184,6 +188,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
           }
           if (text.toByteArray(Charsets.UTF_8).size > 2048) return@addWebMessageListener
           when (data.optString("type")) {
+            "close-check.result" -> receiveCloseCheck(data)
             "ready" -> if (data.length() == 2 && !ready) { ready = true; RoutingTransport.ready(generation); emit("ready") }
             "error" -> if (data.length() == 3 && data.optString("code").matches(Regex("[a-z-]{1,80}"))) fail(data.getString("code"))
           }
@@ -193,6 +198,31 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
       }
     }
     addView(webView)
+  }
+
+  fun setCloseCheck(raw: String) {
+    closeCheckId = null
+    if (!live || !ready || !loaded || disposed || !mediaForeground || raw.toByteArray(Charsets.UTF_8).size > 256 || webView.url != expectedUrl) return
+    val value = runCatching { JSONObject(raw) }.getOrNull() ?: return
+    if (value.keys().asSequence().toSet() != setOf("id", "generation") || value.optString("generation") != generation) return
+    val id = value.opt("id") as? String ?: return
+    if (!id.matches(Regex("[A-Za-z0-9_-]{1,80}"))) return
+    closeCheckId = id
+    closeCheckDeadline = android.os.SystemClock.elapsedRealtime() + 500
+    webView.evaluateJavascript("if(location.href===${JSONObject.quote(expectedUrl)}){window.postMessage({type:'hypergolic.close-check.request',id:${JSONObject.quote(id)}},'*')}", null)
+  }
+
+  private fun receiveCloseCheck(data: JSONObject) {
+    val now = android.os.SystemClock.elapsedRealtime()
+    if (!ready || !mediaForeground || data.keys().asSequence().toSet() != setOf("type", "sessionId", "id", "state") ||
+        data.opt("id") != closeCheckId || closeCheckId == null || now >= closeCheckDeadline) return
+    val state = data.opt("state") as? String ?: return
+    if (state !in listOf("clean", "dirty", "unknown")) return
+    val id = closeCheckId!!
+    closeCheckId = null
+    pendingNativeReplies.entries.removeAll { it.value <= now }
+    val guarded = if (state == "clean" && (pendingNativeReplies.isNotEmpty() || closeUnsafeUntil > now)) "dirty" else state
+    onHostEvent(mapOf("type" to "close-check", "sessionId" to (sessionId ?: ""), "generation" to generation, "id" to id, "state" to guarded))
   }
 
   fun setActive(active: Boolean) {
@@ -374,7 +404,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     onHostEvent(mapOf("type" to "capability", "lane" to (if (outbox) "outbox-subscription" else "subscription"), "sessionId" to config.sessionId, "generation" to generation, "token" to token))
   }
 
-  private fun receiveCapability(data: JSONObject, push: (String) -> Unit, reply: (String?) -> Unit) {
+  private fun receiveCapability(data: JSONObject, push: (String) -> Unit, replyRaw: (String?) -> Unit) {
     val config = configuration ?: return
     if (!ready || data.keys().asSequence().toSet() != setOf("type", "sessionId", "sequence", "message")) return
     val number = data.get("sequence")
@@ -382,6 +412,12 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     val sequence = (number as Number).toLong()
     if (sequence !in 1..9_007_199_254_740_991L) return
     val message = data.getString("message")
+    val operation = UUID.randomUUID().toString()
+    val now = android.os.SystemClock.elapsedRealtime()
+    pendingNativeReplies.entries.removeAll { it.value <= now }
+    if (pendingNativeReplies.size < 64) pendingNativeReplies[operation] = now + 660000
+    else closeUnsafeUntil = now + 660000
+    val reply: (String?) -> Unit = { response -> pendingNativeReplies.remove(operation); replyRaw(response) }
     val request = runCatching { UploadWire.objectValue(message, CapabilityLeaseRegistry.MAX_BYTES, maximumDepth = 40) }.getOrNull()
     if (request?.optString("type") == "routing.call") {
       val token = RoutingTransport.receive(generation, sequence, message, push, reply) ?: return
@@ -445,6 +481,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
 
   private fun emit(type: String, code: String? = null) {
     val payload = mutableMapOf<String, Any>("type" to type, "sessionId" to (sessionId ?: ""))
+    if (type == "ready") payload["generation"] = generation
     if (code != null) payload["code"] = code
     onHostEvent(payload)
   }
@@ -466,6 +503,8 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
   fun destroySession() {
     if (disposed) return
     disposed = true
+    closeCheckId = null
+    pendingNativeReplies.clear()
     live = false
     publishedReader?.clear()
     publishedReader = null
@@ -490,7 +529,7 @@ class NappletHostView(context: Context, appContext: AppContext) : ExpoView(conte
     fun setMediaForeground(foreground: Boolean) {
       mediaForeground = foreground
       val views = synchronized(publishedViews) { publishedViews.toList() }
-      views.forEach { it.updateMediaPlayback() }
+      views.forEach { if (!foreground) it.closeCheckId = null; it.updateMediaPlayback() }
     }
     private val publishedViews = Collections.newSetFromMap(WeakHashMap<NappletHostView, Boolean>())
     fun revokePublishedOnBackground() {

@@ -620,25 +620,22 @@ retained identity/focus/metadata verify. Automatic NIP-65 routing, relay AUTH/fa
 and full accessibility remain separate requirements. See the [relay closeout](development.md#physical-iphone-relay-settings-closeout--12-october-2026).
 
 
-## Clean-close contract gap — 12 October 2026
+## Optional close check — 12 October 2026
 
-UX-07 still requires immediate clean close and a trusted Keep open/Close anyway
-warning for dirty or unknown work. `requestWorkspaceNappletClose` currently warns
-for every session. Existing physical warning/teardown subsets do not prove the
-missing clean branch.
+The owner selected the private `hypergolic.close-check.v1` profile. Bundled and
+verified-published guests discover the named service and may answer clean, dirty
+or unknown within the shell's 500 ms deadline. The shell/native/runtime bind the
+single-use check to the current source, session, identity and native generation.
+Clean uses existing teardown only when host work is safe; dirty/unknown retains
+the warning and Keep open default. Background, replacement and identity changes
+invalidate pending checks. Pending native work and uncertain publication/upload
+outcomes override guest clean claims, including dismissed and saved upload statuses.
 
-The [selected NAP-SHELL revision](https://github.com/napplet/naps/blob/5ac0490461ca6fec2f0d2e45b4835cf9bc08de24/naps/NAP-SHELL.md)
-and [checked current revision](https://github.com/napplet/naps/blob/e5308ac92cfd49e4fb026812c60886571515e219/naps/NAP-SHELL.md)
-provide no unsaved-state or close-check operation. Original Git blobs verify.
-The current revision also changes discovery semantics; it is not selected by
-this review. Current owning NAP document keyword checks and open PR title discovery
-are bounded searches, not proof about every proposal elsewhere.
-
-An explicit private close-check extension is proposed for owner selection.
-Its implementation, wire names and response budget remain unapproved. Do not
-infer clean state from arbitrary guest form/storage activity, invent standard NAP
-support, or relax UX-07. Both physical platforms remain partial; all 61 original
-contracts remain, with 8 complete rows. No runtime change or new device pass follows.
+See [the contract, guest example, safeguards and verification limits](close-check.md).
+The checked NAP-SHELL revisions contain no close-state operation; this extension
+is not standardized NAP support. Close Lab adds a reviewed fixture without changing
+legacy UX Lab bytes. Full standalone E2E remains deferred until feature complete;
+UX-07 physical acceptance stays partial and all 61 original rows remain.
 
 
 ### Optional relay AUTH announcements

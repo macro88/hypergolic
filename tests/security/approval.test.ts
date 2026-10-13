@@ -196,3 +196,34 @@ test('iOS inactive revokes a delayed approved sign before late completion can pu
   assert.equal(service.getSnapshot().pending, 0);
   assert.deepEqual(native.responses, [null]);
 });
+
+
+test('close risk retains uncertain publication after presentation completes, scoped to session and identity lifetime', async () => {
+  const native = new Native(); native.issue('one');
+  const service = make(native, {publishEvent: async (verified, destinations) => destinations.map(relay => ({relay, eventId: verified.id, status: 'unknown' as const, reason: 'no ACK'}))});
+  const id = current(service, 'one'); assert.equal(service.hasCloseRisk('one'), true);
+  await service.approve(id); assert.equal(service.getSnapshot().pending, 0);
+  assert.equal(service.hasCloseRisk('one'), true); assert.equal(service.hasCloseRisk('other'), false);
+  service.background(); service.foreground(); assert.equal(service.hasCloseRisk('one'), true);
+  service.revisionChanged(2); assert.equal(service.hasCloseRisk('one'), false);
+});
+test('confirmed publication clears pending close risk but transport exceptions stay uncertain until close', async () => {
+  const native = new Native(); native.issue('one'); const service = make(native);
+  await service.approve(current(service, 'one')); assert.equal(service.hasCloseRisk('one'), false);
+  native.issue('two'); const failed = make(native, {publishEvent: async () => {throw Error('bridge unavailable');}});
+  await assert.rejects(failed.approve(current(failed, 'two'))); assert.equal(failed.hasCloseRisk('two'), true);
+  failed.close('two'); assert.equal(failed.hasCloseRisk('two'), false);
+});
+
+
+test('background after publication dispatch retains uncertainty after the pending entry is revoked', async () => {
+  const native = new Native(); native.issue('one'); const held = deferred<readonly any[]>();
+  let dispatched = false;
+  const service = make(native, {publishEvent: async () => {dispatched = true; return held.promise;}});
+  const pending = service.approve(current(service, 'one'));
+  await new Promise<void>(resolve => setImmediate(resolve)); assert.equal(dispatched, true);
+  service.background(); assert.equal(service.getSnapshot().pending, 0);
+  held.resolve([]); await assert.rejects(pending); service.foreground();
+  assert.equal(service.hasCloseRisk('one'), true);
+  service.close('one'); assert.equal(service.hasCloseRisk('one'), false);
+});

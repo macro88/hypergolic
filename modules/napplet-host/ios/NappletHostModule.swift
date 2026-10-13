@@ -182,6 +182,7 @@ public final class NappletHostModule: Module {
       Events("onHostEvent")
       Prop("pickerFaultProof") { (view: NappletHostView, action: String) in view.armPickerFaultProof(action) }
       Prop("uploadFaultProof") { (view: NappletHostView, action: String) in view.armUploadFaultProof(action) }
+      Prop("closeCheck") { (view: NappletHostView, raw: String) in view.setCloseCheck(raw) }
       Prop("active") { (view: NappletHostView, active: Bool) in
         view.setActive(active)
       }

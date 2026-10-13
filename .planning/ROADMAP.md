@@ -198,8 +198,9 @@ The current matrix retains all 61 requirements and actual results: 8 final physi
 rows complete/53 open. Those counts describe acceptance coverage, not feature
 implementation, and deferred physical repetitions do not block unrelated builds.
 
-Next resolve the clean-close product contract and continue unfinished feature work
-with focused simulator/emulator and automated checks. Test real authentication,
+The owner selected the optional Hypergolic close-check profile; its implementation
+and focused verification are documented in [close-check](../docs/close-check.md).
+Continue unfinished feature work with simulator/emulator and automated checks. Test real authentication,
 protected storage, capture controls and other demonstrably physical-only behavior
 on devices when their owning component changes. Final published fixture parity,
 cross-capability journeys, remaining E2E and quality sign-off stay on the final

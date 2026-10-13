@@ -31,7 +31,7 @@ internal class CapabilityConfiguration(raw: String, generation: String, allowPub
     require(granted.size == granted.toSet().size)
     fixture = string("fixture")
     val expected = when (fixture) {
-      "ux-lab" -> setOf("theme")
+      "ux-lab", "close-lab" -> setOf("theme")
       "state-lab", "state-lab-peer" -> setOf("identity", "storage", "theme")
       "approval-lab", "approval-lab-v1", "approval-lab-v2" -> setOf("identity", "relay", "theme")
       "upload-lab", "upload-queue-lab" -> setOf("upload", "theme")

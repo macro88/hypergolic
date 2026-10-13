@@ -100,7 +100,8 @@ test('background, close and identity change after dispatch report uncertainty wi
     if (action === 'background') service.background(); else if (action === 'close') service.close('one'); else service.revisionChanged(2);
     assert.equal(native.results.at(-1)?.error, 'outcome unknown'); transfer.resolve({});
     assert.equal((await pending).ok, false); assert.equal(native.puts, 1); assert.equal(service.getSnapshot().active.length, 0);
-    if (action !== 'background') assert.equal(service.getSnapshot().outcomes.length, 0);
+    if (action !== 'background') { assert.equal(service.getSnapshot().outcomes.length, 0); assert.equal(service.hasCloseRisk('one'), false); }
+    else assert.equal(service.hasCloseRisk('one'), true);
   }
 });
 
@@ -223,4 +224,16 @@ test('validated WAV alias retains canonical SDK MIME and every other receipt che
     if (mode === 'valid') {assert.equal(result.status, 'complete'); assert.equal(result.mimeType, 'audio/wav');}
     else {assert.equal(result.error, 'outcome unknown', mode); assert.equal(result.url, undefined);}
   }
+});
+
+
+test('dismissing an uncertain upload result retains the session close safeguard', async () => {
+  const native = new Native(); await native.issue('one'); const transfer = deferred<unknown>(); native.putOverride = async () => transfer.promise;
+  const service = make(native); const pending = service.approve(await ready(service, native));
+  await new Promise<void>(resolve => setImmediate(resolve)); assert.equal(service.hasCloseRisk('one'), true);
+  service.background(); transfer.resolve({}); await pending; service.foreground();
+  const outcome = service.getSnapshot().outcomes[0]!; assert.equal(outcome.result.error, 'outcome unknown');
+  service.dismissOutcome(outcome.id); assert.equal(service.getSnapshot().outcomes.length, 0);
+  assert.equal(service.hasCloseRisk('one'), true); assert.equal(service.hasCloseRisk('other'), false);
+  service.revisionChanged(2); assert.equal(service.hasCloseRisk('one'), false);
 });

@@ -38,6 +38,10 @@ export class UploadRecoveryService {
   private snapshot: UploadRecoveryPresentation = empty();
   private listeners = new Set<() => void>();
   constructor(port: UploadRecoveryPort, currentIdentity: () => string | null) { this.port = port; this.currentIdentity = currentIdentity; }
+  hasUnresolvedOutcome(publisher: string, appId: string): boolean {
+    this.refresh();
+    return !this.snapshot.available || this.snapshot.records.some(row => row.publisher === publisher && row.appId === appId && row.state === 'unknown');
+  }
   getSnapshot = (): UploadRecoveryPresentation => this.snapshot;
   subscribe = (listener: () => void): (() => void) => { this.listeners.add(listener); return () => {this.listeners.delete(listener);}; };
   private publish(available: boolean, records: readonly UploadRecoveryRecord[]): void {

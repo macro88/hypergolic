@@ -146,8 +146,8 @@ function SettingsHome({session, onBackup, onCloseBackup, onDelete, onImport, onS
         onReview={onBackup} onClose={onCloseBackup} Action={Action} />}
       <PublishedNappletSettings available={Boolean(runtime)} openPublished={openPublished} publishedSessions={publishedSessions} checkPublishedUpdate={checkPublishedUpdate} />
       {runtime && <Action title="Open NAP Support" testID="settings-open-nap-support" onPress={() => openStateLab('nap-support')} subdued />}
-      {routing && <RoutingSettings key={session.epoch} service={routing.settings} />}
-      {notificationSettings && <NotificationSettings key={session.epoch} service={notificationSettings} />}
+      {routing && <RoutingSettings key={`routing-${session.epoch}`} service={routing.settings} />}
+      {notificationSettings && <NotificationSettings key={`notifications-${session.epoch}`} service={notificationSettings} />}
       <SavedIdentities session={session} transition={transition} format={formatNpub} canDelete={Boolean(actions)}
         onDelete={onDelete} />
       <Action title="Import identity" testID="settings-import-identity" onPress={onImport} />
@@ -169,6 +169,7 @@ function SettingsHome({session, onBackup, onCloseBackup, onDelete, onImport, onS
         <Action title="Open Routing Lab Peer" testID="settings-open-routing-lab-peer" onPress={() => openStateLab('routing-lab-peer')} subdued />
         <Action title="Open Feed Lab" testID="settings-open-feed-lab" onPress={() => openStateLab('feed-lab')} subdued />
         <Action title="Open Approval Lab" testID="settings-open-approval-lab" onPress={() => openStateLab('approval-lab')} subdued />
+        <Action title="Open Close Lab" testID="settings-open-close-lab" onPress={() => openStateLab('close-lab')} subdued />
         <Action title="Open State Lab" testID="settings-open-state-lab" onPress={() => openStateLab('state-lab')} subdued />
         <Action title="Open State Lab Peer" testID="settings-open-state-lab-peer" onPress={() => openStateLab('state-lab-peer')} subdued />
         <Action title="Open State Lab · other publisher" testID="settings-open-state-lab-other-publisher" onPress={() => openStateLab('state-lab-other-publisher')} subdued />
